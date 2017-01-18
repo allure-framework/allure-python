@@ -1,0 +1,28 @@
+"""
+No milk today my love has gone away;)
+"""
+
+from hamcrest import all_of
+from hamcrest import has_entry, has_item
+
+
+def has_label(name, value):
+    return has_entry('labels',
+                     has_item(
+                         all_of(
+                             has_entry('name', name),
+                             has_entry('value', value)
+                         )
+                     ))
+
+
+def has_severity(level):
+    return has_label('severity', level)
+
+
+def has_feature(feature):
+    return has_label('feature', feature)
+
+
+def has_story(story):
+    return has_label('story', story)
