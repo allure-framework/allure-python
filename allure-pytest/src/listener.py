@@ -1,265 +1,178 @@
 import pytest
-import allure_commons
-from allure_commons.utils import escape_non_unicode_symbols
-from allure_commons.utils import now
-from allure_commons.utils import uuid4
-from allure_commons.utils import represent
-from allure_commons.utils import platform_label
-from allure_commons.utils import host_tag, thread_tag
-from allure_commons.reporter import AllureReporter
-from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
-from allure_commons.model2 import TestResultContainer
-from allure_commons.model2 import StatusDetails
-from allure_commons.model2 import Parameter
-from allure_commons.model2 import Label, Link
-from allure_commons.model2 import Status
-from allure_commons.types import LabelType, AttachmentType
-from allure_pytest.utils import allure_description, allure_description_html
-from allure_pytest.utils import allure_labels, allure_links, pytest_markers
-from allure_pytest.utils import allure_full_name, allure_package, allure_name
-from allure_pytest.utils import allure_suite_labels
-from allure_pytest.utils import get_status, get_status_details
-from allure_pytest.utils import get_outcome_status, get_outcome_status_details
-from allure_pytest.utils import get_pytest_report_status
-from allure_commons.utils import md5
+
+from logger import AllureLogger
+from utils import now
+from utils import uuid4
+from utils import allure_parameters
+from utils import allure_labels, allure_links
+from utils import allure_full_name, allure_package
+from model2 import TestStepResult, TestGroupResult, TestCaseResult
+from model2 import ExecutableItem
+from model2 import StatusDetails
+from model2 import Parameter
+from model2 import Label, Link
+from constants import Status
 
 
 class AllureListener(object):
 
     def __init__(self, config):
         self.config = config
-        self.allure_logger = AllureReporter()
+        self.allure_logger = AllureLogger(config.option.allure_report_dir)
         self._cache = ItemCache()
-        self._host = host_tag()
-        self._thread = thread_tag()
 
-    @allure_commons.hookimpl
-    def start_step(self, uuid, title, params):
-        parameters = [Parameter(name=name, value=value) for name, value in params.items()]
-        step = TestStepResult(name=title, start=now(), parameters=parameters)
-        self.allure_logger.start_step(None, uuid, step)
+    @pytest.hookimpl
+    def pytest_allure_before_step(self, uuid, title):
+        step = TestStepResult(name=title, start=now())
+        self.allure_logger.start_step(uuid, step)
 
-    @allure_commons.hookimpl
-    def stop_step(self, uuid, exc_type, exc_val, exc_tb):
-        self.allure_logger.stop_step(uuid,
-                                     stop=now(),
-                                     status=get_status(exc_val),
-                                     statusDetails=get_status_details(exc_type, exc_val, exc_tb))
+    @pytest.hookimpl
+    def pytest_allure_after_step(self, uuid, exc_type, exc_val, exc_tb):
+        status = 'failed' if exc_type else 'passed'
+        self.allure_logger.stop_step(uuid, stop=now(), status=status)
 
-    @allure_commons.hookimpl
-    def start_fixture(self, parent_uuid, uuid, name):
-        after_fixture = TestAfterResult(name=name, start=now())
-        self.allure_logger.start_after_fixture(parent_uuid, uuid, after_fixture)
+    @pytest.hookimpl
+    def pytest_allure_before_finalizer(self, parent_uuid, uuid, name):
+        self.allure_logger.start_after_fixture(parent_uuid, uuid, name=name)
 
-    @allure_commons.hookimpl
-    def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
-        self.allure_logger.stop_after_fixture(uuid,
-                                              stop=now(),
-                                              status=get_status(exc_val),
-                                              statusDetails=get_status_details(exc_type, exc_val, exc_tb))
+    @pytest.hookimpl
+    def pytest_allure_after_finalizer(self, uuid, exc_type, exc_val, exc_tb):
+        self.allure_logger.stop_after_fixture(uuid)
 
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
     def pytest_runtest_protocol(self, item, nextitem):
-        uuid = self._cache.push(item.nodeid)
-        test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
-        self.allure_logger.schedule_test(uuid, test_result)
-        yield
-
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_setup(self, item):
-        if not self._cache.get(item.nodeid):
-            uuid = self._cache.push(item.nodeid)
-            test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
-            self.allure_logger.schedule_test(uuid, test_result)
-
-        yield
-
-        uuid = self._cache.get(item.nodeid)
-        test_result = self.allure_logger.get_test(uuid)
+        uuid = self._cache.set(item.nodeid)
+        parent_ids = []
         for fixturedef in _test_fixtures(item):
             group_uuid = self._cache.get(fixturedef)
-            if not group_uuid:
-                group_uuid = self._cache.push(fixturedef)
-                group = TestResultContainer(uuid=group_uuid)
+            if not group_uuid and fixturedef.baseid:
+                group_uuid = self._cache.set(fixturedef)
+                group = TestGroupResult(id=group_uuid)
                 self.allure_logger.start_group(group_uuid, group)
-            self.allure_logger.update_group(group_uuid, children=uuid)
-        params = item.callspec.params if hasattr(item, 'callspec') else {}
+            parent_ids.append(group_uuid)
 
-        test_result.name = allure_name(item, params)
-        full_name = allure_full_name(item)
-        test_result.fullName = full_name
-        test_result.historyId = md5(item.nodeid)
-        test_result.testCaseId = md5(full_name)
-        test_result.description = allure_description(item)
-        test_result.descriptionHtml = allure_description_html(item)
-        test_result.parameters.extend(
-            [Parameter(name=name, value=represent(value)) for name, value in params.items()])
+        test_case = TestCaseResult(name=item.name, id=uuid, parentIds=parent_ids)
+        test_case.labels = [Label(name, value) for name, value in allure_labels(item)]
+        test_case.links = [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
+        test_case.fullName = allure_full_name(item.nodeid)
+        test_case.labels.append(Label('package', allure_package(item.nodeid)))
+        self.allure_logger.schedule_test(uuid, test_case)
+
+        yield
+
+        uuid = self._cache.pop(item.nodeid)
+        self.allure_logger.close_test(uuid)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         uuid = self._cache.get(item.nodeid)
-        test_result = self.allure_logger.get_test(uuid)
-        if test_result:
-            self.allure_logger.drop_test(uuid)
-            self.allure_logger.schedule_test(uuid, test_result)
-            test_result.start = now()
+        self.allure_logger.update_test(uuid, start=now())
         yield
-        if test_result:
-            test_result.stop = now()
-
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_teardown(self, item):
-        yield
-        uuid = self._cache.get(item.nodeid)
-        test_result = self.allure_logger.get_test(uuid)
-        test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
-        test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
-        test_result.labels.extend([Label(name=name, value=value) for name, value in allure_suite_labels(item)])
-        test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
-        test_result.labels.append(Label(name=LabelType.THREAD, value=self._thread))
-        test_result.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
-        test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
-        test_result.labels.append(Label(name='package', value=allure_package(item)))
-        test_result.links.extend([Link(link_type, url, name) for link_type, url, name in allure_links(item)])
+        self.allure_logger.update_test(uuid, stop=now())
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_setup(self, fixturedef, request):
-        fixture_name = getattr(fixturedef.func, '__allure_display_name__', fixturedef.argname)
+        uuid = uuid4()
+        node_id = request.node.nodeid
+        parent_uuid = self._cache.get(node_id) if fixturedef.scope == 'function' else self._cache.get(fixturedef)
+        parameters = allure_parameters(fixturedef, request)
 
-        container_uuid = self._cache.get(fixturedef)
+        # ToDo autouse fixtures
+        if fixturedef.baseid and parent_uuid:
+            parameters = [Parameter(**parameters)] if parameters else []
+            fixture = ExecutableItem(start=now(), name=fixturedef.argname, parameters=parameters)
+            self.allure_logger.start_before_fixture(parent_uuid, uuid, fixture)
 
-        if not container_uuid:
-            container_uuid = self._cache.push(fixturedef)
-            container = TestResultContainer(uuid=container_uuid)
-            self.allure_logger.start_group(container_uuid, container)
+        elif parameters and parent_uuid:
+            parameters = Parameter(**parameters) if parameters else []
+            self.allure_logger.update_test(self._cache.get(node_id), parameters=parameters)
 
-        self.allure_logger.update_group(container_uuid, start=now())
+        yield
 
-        before_fixture_uuid = uuid4()
-        before_fixture = TestBeforeResult(name=fixture_name, start=now())
-        self.allure_logger.start_before_fixture(container_uuid, before_fixture_uuid, before_fixture)
+        # ToDo autouse fixtures
+        if fixturedef.baseid and parent_uuid:
+            self.allure_logger.stop_before_fixture(uuid, stop=now())
 
-        outcome = yield
+        for index, finalizer in enumerate(fixturedef._finalizer or ()):
+            fixturedef._finalizer[index] = FinalizerSpy(parent_uuid, fixturedef.argname, finalizer, self.config)
 
-        self.allure_logger.stop_before_fixture(before_fixture_uuid,
-                                               stop=now(),
-                                               status=get_outcome_status(outcome),
-                                               statusDetails=get_outcome_status_details(outcome))
-
-        finalizers = getattr(fixturedef, '_finalizers', [])
-        for index, finalizer in enumerate(finalizers):
-            name = '{fixture}::{finalizer}'.format(fixture=fixture_name,
-                                                   finalizer=getattr(finalizer, "__name__", index))
-            finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_post_finalizer(self, fixturedef):
         yield
-        if hasattr(fixturedef, 'cached_result') and self._cache.get(fixturedef):
-            container_uuid = self._cache.pop(fixturedef)
-            self.allure_logger.stop_group(container_uuid, stop=now())
+        # ToDo autouse fixtures
+        if hasattr(fixturedef, 'cached_result') and fixturedef.scope != 'function' and fixturedef.baseid and self._cache.get(fixturedef):
+            uuid = self._cache.pop(fixturedef)
+            self.allure_logger.stop_group(uuid)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
-        uuid = self._cache.get(item.nodeid)
-
+        uuid = self._cache.set(item.nodeid)
         report = (yield).get_result()
-
-        test_result = self.allure_logger.get_test(uuid)
-        status = get_pytest_report_status(report)
+        allure_item = self.allure_logger.get_item(uuid)
+        status = allure_item.status or Status.PENDING
         status_details = None
 
-        if call.excinfo:
-            message = escape_non_unicode_symbols(call.excinfo.exconly())
-            if hasattr(report, 'wasxfail'):
-                reason = report.wasxfail
-                message = ('XFAIL {}'.format(reason) if reason else 'XFAIL') + '\n\n' + message
-            trace = escape_non_unicode_symbols(report.longreprtext)
-            status_details = StatusDetails(
-                message=message,
-                trace=trace)
-            if (status != Status.SKIPPED
-                    and not (call.excinfo.errisinstance(AssertionError)
-                             or call.excinfo.errisinstance(pytest.fail.Exception))):
-                status = Status.BROKEN
-
-        if status == Status.PASSED and hasattr(report, 'wasxfail'):
-            reason = report.wasxfail
-            message = 'XPASS {reason}'.format(reason=reason) if reason else 'XPASS'
-            status_details = StatusDetails(message=message)
+        if call.excinfo and hasattr(call.excinfo.value, 'msg'):
+            status_details = StatusDetails(message=call.excinfo.value.msg)
+        elif hasattr(report, 'wasxfail'):
+            status_details = StatusDetails(message=report.wasxfail)
+        elif report.failed:
+            status_details = StatusDetails(message=str(call.excinfo.exconly()), trace=str(report.longrepr))
 
         if report.when == 'setup':
-            test_result.status = status
-            test_result.statusDetails = status_details
+            if report.passed:
+                status = Status.PASSED
+            if report.failed:
+                status = Status.BROKEN
+            if report.skipped:
+                status = Status.CANCELED
 
         if report.when == 'call':
-            if test_result.status == Status.PASSED:
-                test_result.status = status
-                test_result.statusDetails = status_details
+            if report.passed and status == Status.PASSED:
+                pass
+            if report.failed:
+                status = Status.FAILED
+            if report.skipped:
+                status = Status.CANCELED
 
         if report.when == 'teardown':
-            if status in (Status.FAILED, Status.BROKEN) and test_result.status == Status.PASSED:
-                test_result.status = status
-                test_result.statusDetails = status_details
+            if report.failed and status == Status.PASSED:
+                status = Status.BROKEN
 
-            if self.config.option.attach_capture:
-                if report.caplog:
-                    self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
-                if report.capstdout:
-                    self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
-                if report.capstderr:
-                    self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
+        if status_details:
+            self.allure_logger.update_test(uuid, status=status, statusDetails=status_details)
+        else:
+            self.allure_logger.update_test(uuid, status=status)
 
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_logfinish(self, nodeid, location):
-        yield
-        uuid = self._cache.pop(nodeid)
-        if uuid:
-            self.allure_logger.close_test(uuid)
 
-    @allure_commons.hookimpl
-    def attach_data(self, body, name, attachment_type, extension):
-        self.allure_logger.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
+    @pytest.hookimpl
+    def pytest_allure_attach(self, name, source, mime_type, extension):
+        self.allure_logger.attach(uuid4(), name, source, mime_type, extension)
 
-    @allure_commons.hookimpl
-    def attach_file(self, source, name, attachment_type, extension):
-        self.allure_logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
 
-    @allure_commons.hookimpl
-    def add_title(self, test_title):
-        test_result = self.allure_logger.get_test(None)
-        if test_result:
-            test_result.name = test_title
+class FinalizerSpy(object):
+    def __init__(self, parent_uuid, fixturename, finalizer, config):
+        self._parent_uuid = parent_uuid
+        self._config = config
+        self._finalizer = finalizer
+        self._uuid = uuid4()
+        self._name = "{fixture}::{finalizer}".format(fixture=fixturename, finalizer=finalizer.__name__)
 
-    @allure_commons.hookimpl
-    def add_description(self, test_description):
-        test_result = self.allure_logger.get_test(None)
-        if test_result:
-            test_result.description = test_description
+    def __call__(self, *args, **kwards):
+        with self:
+            return self._finalizer(*args, **kwards)
 
-    @allure_commons.hookimpl
-    def add_description_html(self, test_description_html):
-        test_result = self.allure_logger.get_test(None)
-        if test_result:
-            test_result.descriptionHtml = test_description_html
+    def __enter__(self):
+        self._config.hook.pytest_allure_before_finalizer(parent_uuid=self._parent_uuid,
+                                                         uuid=self._uuid,
+                                                         name=self._name)
 
-    @allure_commons.hookimpl
-    def add_link(self, url, link_type, name):
-        test_result = self.allure_logger.get_test(None)
-        if test_result:
-            pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
-            link_url = pattern.format(url)
-            new_link = Link(link_type, link_url, link_url if name is None else name)
-            for link in test_result.links:
-                if link.url == new_link.url:
-                    return
-            test_result.links.append(new_link)
-
-    @allure_commons.hookimpl
-    def add_label(self, label_type, labels):
-        test_result = self.allure_logger.get_test(None)
-        for label in labels if test_result else ():
-            test_result.labels.append(Label(label_type, label))
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._config.hook.pytest_allure_after_finalizer(uuid=self._uuid,
+                                                        exc_type=exc_type,
+                                                        exc_val=exc_val,
+                                                        exc_tb=exc_tb)
 
 
 class ItemCache(object):
@@ -268,23 +181,23 @@ class ItemCache(object):
         self._items = dict()
 
     def get(self, _id):
-        return self._items.get(id(_id))
+        return self._items.get(str(_id))
 
-    def push(self, _id):
-        return self._items.setdefault(id(_id), uuid4())
+    def set(self, _id):
+        return self._items.setdefault(str(_id), uuid4())
 
     def pop(self, _id):
-        return self._items.pop(id(_id), None)
+        return self._items.pop(str(_id))
 
 
 def _test_fixtures(item):
     fixturemanager = item.session._fixturemanager
     fixturedefs = []
 
-    if hasattr(item, "_request") and hasattr(item._request, "fixturenames"):
-        for name in item._request.fixturenames:
-            fixturedefs_pytest = fixturemanager.getfixturedefs(name, item.nodeid)
-            if fixturedefs_pytest:
-                fixturedefs.extend(fixturedefs_pytest)
+    if hasattr(item, "fixturenames"):
+        for name in item.fixturenames:
+            fixturedef = fixturemanager.getfixturedefs(name, item.nodeid)
+            if fixturedef and fixturedef[-1].scope != 'function':
+                fixturedefs.append(fixturedef[-1])
 
     return fixturedefs
