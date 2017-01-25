@@ -1,7 +1,7 @@
 """
 >>> from hamcrest import assert_that, is_not
->>> from report import has_test_case
->>> from fixture import has_before
+>>> from .report import has_test_case
+>>> from .fixture import has_before
 
 >>> class Report(object):
 ...     def __init__(self):

@@ -2,12 +2,11 @@ import argparse
 
 import pytest
 
-
-from allure import AllureTestHelper
-from listener import AllureListener
-from constants import Severity
-from constants import Label
-from utils import allure_labels
+from allure.helper import AllureTestHelper
+from allure.listener import AllureListener
+from allure.constants import Severity
+from allure.constants import Label
+from allure.utils import allure_labels
 from six import text_type
 
 
@@ -81,7 +80,7 @@ def pytest_runtest_setup(item):
 
 
 def pytest_addhooks(pluginmanager):
-    import hooks
+    import allure.hooks as hooks
     # avoid warnings with pytest-2.8
     method = getattr(pluginmanager, "add_hookspecs", None)
     if method is None:

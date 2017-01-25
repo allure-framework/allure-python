@@ -9,6 +9,7 @@
 
 import pytest
 import tempfile
+from six import text_type
 
 TEXT = "TEXT ATTACH"
 
@@ -21,12 +22,12 @@ def attach_in_function_scope_fixture(svg):
 def test_attach_in_function_scope_fixture(attach_in_function_scope_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    ...     assert_that(allure_report,
-    ...                 has_test_case('test_attach_in_function_scope_fixture',
-    ...                               has_before('attach_in_function_scope_fixture',
-    ...                                          has_attachment('image/svg-xml')
-    ...                               )
-    ...                 ))
+    >>> assert_that(allure_report,
+    ...             has_test_case('test_attach_in_function_scope_fixture',
+    ...                           has_before('attach_in_function_scope_fixture',
+    ...                                      has_attachment('image/svg-xml')
+    ...                           )
+    ...             ))
     """
     pass
 
@@ -34,12 +35,12 @@ def test_attach_in_function_scope_fixture(attach_in_function_scope_fixture):
 def test_attach_in_reused_function_scope_fixture(attach_in_function_scope_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    ...     assert_that(allure_report,
-    ...                 has_test_case('test_attach_in_reused_function_scope_fixture',
-    ...                               has_before('attach_in_function_scope_fixture',
-    ...                                          has_attachment('image/svg-xml')
-    ...                               )
-    ...                 ))
+    >>> assert_that(allure_report,
+    ...             has_test_case('test_attach_in_reused_function_scope_fixture',
+    ...                           has_before('attach_in_function_scope_fixture',
+    ...                                      has_attachment('image/svg-xml')
+    ...                           )
+    ...             ))
     """
     pass
 
@@ -54,7 +55,7 @@ def attach_in_function_scope_finalizer(svg, request):
 def test_attach_in_function_scope_finalizer(attach_in_function_scope_finalizer):
     """
     >>> allure_report = getfixture('allure_report')
-    ... assert_that(allure_report,
+    >>> assert_that(allure_report,
     ...             has_test_case('test_attach_in_function_scope_finalizer',
     ...                           has_after('attach_in_function_scope_finalizer::finalizer_function_scope_fixture',
     ...                                     has_attachment('image/svg-xml')
@@ -67,7 +68,7 @@ def test_attach_in_function_scope_finalizer(attach_in_function_scope_finalizer):
 def test_attach_in_reused_function_scope_finalizer(attach_in_function_scope_finalizer):
     """
     >>> allure_report = getfixture('allure_report')
-    ... assert_that(allure_report,
+    >>> assert_that(allure_report,
     ...             has_test_case('test_attach_in_reused_function_scope_finalizer',
     ...                           has_after('attach_in_function_scope_finalizer::finalizer_function_scope_fixture',
     ...                                     has_attachment('image/svg-xml')
@@ -76,10 +77,13 @@ def test_attach_in_reused_function_scope_finalizer(attach_in_function_scope_fina
     """
     pass
 
-
+from six import u
 def create_txt_attach(text):
     f = tempfile.NamedTemporaryFile(delete=False)
-    f.write(text)
+    if isinstance(text, text_type):
+        f.write(text.encode('utf-8'))
+    else:
+        f.write(text)
     f.close()
     return f.name
 
@@ -92,7 +96,7 @@ def attach_in_module_scope_fixture():
 def test_attach_in_module_scope_fixture(attach_in_module_scope_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    ... assert_that(allure_report,
+    >>> assert_that(allure_report,
     ...             has_test_case('test_attach_in_module_scope_fixture',
     ...                           has_group_in(allure_report.test_groups,
     ...                                        has_before('attach_in_module_scope_fixture',
@@ -106,7 +110,7 @@ def test_attach_in_module_scope_fixture(attach_in_module_scope_fixture):
 def test_attach_in_reuse_module_scope_fixture(attach_in_module_scope_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    ... assert_that(allure_report,
+    >>> assert_that(allure_report,
     ...             has_test_case('test_attach_in_reuse_module_scope_fixture',
     ...                           has_group_in(allure_report.test_groups,
     ...                                        has_before('attach_in_module_scope_fixture',
@@ -127,7 +131,7 @@ def attach_in_module_scope_finalizer(request):
 def test_attach_in_module_scope_finalizer(attach_in_module_scope_finalizer):
     """
     >>> allure_report = getfixture('allure_report')
-    ... assert_that(allure_report,
+    >>> assert_that(allure_report,
     ...             has_test_case('test_attach_in_module_scope_finalizer',
     ...                           has_group_in(allure_report.test_groups,
     ...                                        has_after('{fixture}::{finalizer}'.format(
@@ -143,7 +147,7 @@ def test_attach_in_module_scope_finalizer(attach_in_module_scope_finalizer):
 def test_attach_in_reuse_module_scope_finalizer(attach_in_module_scope_finalizer):
     """
     >>> allure_report = getfixture('allure_report')
-    ... assert_that(allure_report,
+    >>> assert_that(allure_report,
     ...             has_test_case('test_attach_in_reuse_module_scope_finalizer',
     ...                           has_group_in(allure_report.test_groups,
     ...                                        has_after('{fixture}::{finalizer}'.format(

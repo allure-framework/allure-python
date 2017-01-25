@@ -1,10 +1,10 @@
 import pytest
 from functools import wraps
 
-from utils import uuid4
-from constants import ALLURE_LABEL_PREFIX, Label
-from constants import ALLURE_LINK_PREFIX, Link
-from constants import Severity, AttachmentType
+from allure.utils import uuid4
+from allure.constants import ALLURE_LABEL_PREFIX, Label
+from allure.constants import ALLURE_LINK_PREFIX, Link
+from allure.constants import Severity, AttachmentType
 
 
 class AllureTestHelper(object):
@@ -83,13 +83,13 @@ class StepContext:
 class LazyInitStepContext(StepContext):
 
     def __init__(self, allure_helper, title):
-        self.allure = allure_helper
+        self.allure_helper = allure_helper
         self.title = title
         self._uuid = uuid4()
 
     @property
     def allure(self):
-        return self.allure
+        return self.allure_helper
 
 
 class Attach(object):
