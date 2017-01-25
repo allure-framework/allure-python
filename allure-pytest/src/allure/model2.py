@@ -1,8 +1,8 @@
 import io
 import os
+import sys
 import json
 from attr import attrs, attrib, asdict, Factory
-
 import uuid
 
 
@@ -14,8 +14,11 @@ ATTACHMENT_PATTERN = '{prefix}-attachment.{ext}'
 def _write(report_dir, item, glob):
     filename = glob.format(prefix=uuid.uuid4())
     data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
-    with io.open(os.path.join(report_dir, filename), 'w', encoding='utf-8') as file:
-        file.write(unicode(json.dumps(data, indent=4, ensure_ascii=False)))
+    with io.open(os.path.join(report_dir, filename), 'w', encoding='utf8') as json_file:
+        if sys.version_info.major < 3:
+            json_file.write(unicode(json.dumps(data, indent=4, ensure_ascii=False)))
+        else:
+            json.dump(data, json_file, indent=4, ensure_ascii=False)
 
 
 @attrs

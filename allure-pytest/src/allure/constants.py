@@ -47,4 +47,3 @@ class AttachmentType(Enum):
     PNG = ("image/png", "png")
     JPG = ("image/jpg", "jpg")
     SVG = ("image/svg-xml", "svg")
-

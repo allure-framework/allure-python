@@ -18,10 +18,10 @@ def function_scope_simple_fixture():
 def test_function_scope_simple_fixture(function_scope_simple_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    ...     assert_that(allure_report,
-    ...                 has_test_case('test_function_scope_simple_fixture',
-    ...                     has_before('function_scope_simple_fixture')
-    ...                 ))
+    >>> assert_that(allure_report,
+    ...             has_test_case('test_function_scope_simple_fixture',
+    ...                 has_before('function_scope_simple_fixture')
+    ...             ))
     """
     pass
 
@@ -29,10 +29,10 @@ def test_function_scope_simple_fixture(function_scope_simple_fixture):
 def test_reuse_function_scope_simple_fixture(function_scope_simple_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    ...     assert_that(allure_report,
-    ...                 has_test_case('test_reuse_function_scope_simple_fixture',
-    ...                     has_before('function_scope_simple_fixture')
-    ...                 ))
+    >>> assert_that(allure_report,
+    ...             has_test_case('test_reuse_function_scope_simple_fixture',
+    ...                 has_before('function_scope_simple_fixture')
+    ...             ))
     """
     pass
 

@@ -34,7 +34,7 @@ def class_scope_simple_fixture():
 def test_class_scope_fixture_in_function(class_scope_simple_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    ... assert_that(allure_report,
+    >>> assert_that(allure_report,
     ...             has_test_case('test_class_scope_fixture_in_function',
     ...                           has_group_in(allure_report.test_groups,
     ...                                        has_before('class_scope_simple_fixture')
@@ -47,7 +47,7 @@ def test_class_scope_fixture_in_function(class_scope_simple_fixture):
 def test_again_class_scope_fixture_in_function(class_scope_simple_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    ... assert_that(allure_report,
+    >>> assert_that(allure_report,
     ...             has_test_case('test_again_class_scope_fixture_in_function',
     ...                           has_group_in(allure_report.test_groups,
     ...                                        has_before('class_scope_simple_fixture')
@@ -69,7 +69,7 @@ class TestClassOne(object):
     def test_class_one_method_with_class_scope_fixture_one(self, class_scope_simple_fixture):
         """
         >>> allure_report = getfixture('allure_report')
-        ... assert_that(allure_report,
+        >>> assert_that(allure_report,
         ...             has_test_case('test_class_one_method_with_class_scope_fixture_one',
         ...                           has_group_in(allure_report.test_groups,
         ...                                        has_before('class_scope_simple_fixture')
@@ -81,7 +81,7 @@ class TestClassOne(object):
     def test_class_one_method_with_class_scope_fixture_two(self, class_scope_simple_fixture):
         """
         >>> allure_report = getfixture('allure_report')
-        ... assert_that(allure_report,
+        >>> assert_that(allure_report,
         ...             has_test_case('test_class_one_method_with_class_scope_fixture_two',
         ...                           has_group_in(allure_report.test_groups,
         ...                                        has_before('class_scope_simple_fixture')
@@ -102,7 +102,7 @@ class TestClassTwo(object):
     def test_class_two_method_with_class_scope_fixture_one(self, class_scope_simple_fixture):
         """
         >>> allure_report = getfixture('allure_report')
-        ... assert_that(allure_report,
+        >>> assert_that(allure_report,
         ...             has_test_case('test_class_two_method_with_class_scope_fixture_one',
         ...                           has_group_in(allure_report.test_groups,
         ...                                        has_before('class_scope_simple_fixture')

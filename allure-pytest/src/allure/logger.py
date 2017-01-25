@@ -2,9 +2,9 @@ import os
 import shutil
 from collections import OrderedDict
 
-from model2 import ExecutableItem
-from model2 import Attachment, ATTACHMENT_PATTERN
-from utils import now
+from allure.model2 import ExecutableItem
+from allure.model2 import Attachment, ATTACHMENT_PATTERN
+from allure.utils import now
 
 
 class AllureLogger(object):

@@ -5,6 +5,7 @@ import shlex
 import json
 from inspect import getmembers, isfunction
 
+
 class AllureReport(object):
     def __init__(self, report):
         self._report = report
@@ -27,7 +28,7 @@ def inject_matchers(doctest_namespace):
     for name, function in getmembers(hamcrest, isfunction):
             doctest_namespace[name] = function
 
-    from matchers import fixture, group, item, label, report
+    from test.matchers import fixture, group, item, label, report
     for module in [fixture, group, item, label, report]:
         for name, function in getmembers(module, isfunction):
             doctest_namespace[name] = function
