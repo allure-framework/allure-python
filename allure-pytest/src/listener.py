@@ -79,11 +79,10 @@ class AllureListener(object):
 
         # ToDo autouse fixtures
         if fixturedef.baseid and parent_uuid:
-            parameters = [Parameter(**parameters)] if parameters else []
-            fixture = ExecutableItem(start=now(), name=fixturedef.argname, parameters=parameters)
+            fixture = ExecutableItem(start=now(), name=fixturedef.argname)
             self.allure_logger.start_before_fixture(parent_uuid, uuid, fixture)
 
-        elif parameters and parent_uuid:
+        if parameters and parent_uuid:
             parameters = Parameter(**parameters) if parameters else []
             self.allure_logger.update_test(self._cache.get(node_id), parameters=parameters)
 
@@ -95,7 +94,6 @@ class AllureListener(object):
 
         for index, finalizer in enumerate(fixturedef._finalizer or ()):
             fixturedef._finalizer[index] = FinalizerSpy(parent_uuid, fixturedef.argname, finalizer, self.config)
-
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_post_finalizer(self, fixturedef):

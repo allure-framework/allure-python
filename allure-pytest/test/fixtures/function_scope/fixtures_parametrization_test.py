@@ -21,9 +21,7 @@ def test_function_scope_parametrized_fixture(parametrized_fixture):
     >>> for param in [True, False]:
     ...     assert_that(allure_report,
     ...                 has_test_case('test_function_scope_parametrized_fixture[{param}]'.format(param=param),
-    ...                         has_before('parametrized_fixture',
-    ...                                    has_parameter('parametrized_fixture', param)
-    ...                         )
+    ...                               has_parameter('parametrized_fixture', param)
     ...                 )
     ...     )
     """
@@ -41,9 +39,7 @@ def test_function_scope_parametrized_fixture_with_ids(parametrized_fixture_with_
     >>> for param, ids in zip([True, False], ['param_true', 'param_false']):
     ...     assert_that(allure_report,
     ...                 has_test_case('test_function_scope_parametrized_fixture_with_ids[{ids}]'.format(ids=ids),
-    ...                         has_before('parametrized_fixture_with_ids',
-    ...                                    has_parameter(ids, param)
-    ...                         )
+    ...                               has_parameter(ids, param)
     ...                 )
     ...     )
     """
@@ -58,13 +54,8 @@ def test_two_function_scope_parametrized_fixture(parametrized_fixture, parametri
     ...         assert_that(allure_report,
     ...                     has_test_case('test_two_function_scope_parametrized_fixture[{param1}-{ids2}]'.format(
     ...                                                                                         param1=param1, ids2=ids2),
-    ...                         all_of(
-    ...                             has_before('parametrized_fixture',
-    ...                                        has_parameter('parametrized_fixture', param1),
-    ...                             ),
-    ...                             has_before('parametrized_fixture_with_ids',
-    ...                                        has_parameter(ids2, param2)
-    ...                             )
+    ...                         all_of(has_parameter('parametrized_fixture', param1),
+    ...                                has_parameter(ids2, param2)
     ...                         )
     ...                     )
     ...         )

@@ -43,7 +43,6 @@ class ExecutableItem(object):
     descriptionHtml = attrib(default=None)
     steps = attrib(default=Factory(list))
     attachments = attrib(default=Factory(list))
-    parameters = attrib(default=Factory(list))
     start = attrib(default=None)
     stop = attrib(default=None)
 
@@ -55,6 +54,7 @@ class TestCaseResult(ExecutableItem):
     parentIds = attrib(default=Factory(list))
     status = attrib(default=None)
     statusDetails = attrib(default=None)
+    parameters = attrib(default=Factory(list))
     befores = attrib(default=Factory(list))
     afters = attrib(default=Factory(list))
     labels = attrib(default=Factory(list))
