@@ -13,7 +13,7 @@ ATTACHMENT_PATTERN = '{prefix}-attachment.{ext}'
 
 def _write(report_dir, item, glob):
     filename = glob.format(prefix=uuid.uuid4())
-    data = asdict(item)
+    data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
     with io.open(os.path.join(report_dir, filename), 'w', encoding='utf-8') as file:
         file.write(unicode(json.dumps(data, indent=4, ensure_ascii=False)))
 
