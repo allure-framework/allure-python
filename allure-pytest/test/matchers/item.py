@@ -110,10 +110,9 @@ def has_attachment(attachment_type, name=None):
                          all_of(
                              has_entry('source', anything()),
                              has_entry('type', attachment_type),
-                             has_entry('name', name if name else anything())
+                             has_entry('name', name) if name else anything()
                          )
                      ))
-
 
 
 def with_id():
