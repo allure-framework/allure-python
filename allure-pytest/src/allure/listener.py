@@ -1,17 +1,17 @@
 import pytest
 
-from logger import AllureLogger
-from utils import now
-from utils import uuid4
-from utils import allure_parameters
-from utils import allure_labels, allure_links
-from utils import allure_full_name, allure_package
-from model2 import TestStepResult, TestGroupResult, TestCaseResult
-from model2 import ExecutableItem
-from model2 import StatusDetails
-from model2 import Parameter
-from model2 import Label, Link
-from constants import Status
+from allure.logger import AllureLogger
+from allure.utils import now
+from allure.utils import uuid4
+from allure.utils import allure_parameters
+from allure.utils import allure_labels, allure_links
+from allure.utils import allure_full_name, allure_package
+from allure.model2 import TestStepResult, TestGroupResult, TestCaseResult
+from allure.model2 import ExecutableItem
+from allure.model2 import StatusDetails
+from allure.model2 import Parameter
+from allure.model2 import Label, Link
+from allure.constants import Status
 
 
 class AllureListener(object):
@@ -101,7 +101,8 @@ class AllureListener(object):
     def pytest_fixture_post_finalizer(self, fixturedef):
         yield
         # ToDo autouse fixtures
-        if hasattr(fixturedef, 'cached_result') and fixturedef.scope != 'function' and fixturedef.baseid and self._cache.get(fixturedef):
+        if hasattr(fixturedef, 'cached_result') and fixturedef.scope != 'function' and fixturedef.baseid \
+                and self._cache.get(fixturedef):
             uuid = self._cache.pop(fixturedef)
             self.allure_logger.stop_group(uuid)
 
@@ -144,7 +145,6 @@ class AllureListener(object):
             self.allure_logger.update_test(uuid, status=status, statusDetails=status_details)
         else:
             self.allure_logger.update_test(uuid, status=status)
-
 
     @pytest.hookimpl
     def pytest_allure_attach(self, name, source, mime_type, extension):

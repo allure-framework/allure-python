@@ -1,8 +1,8 @@
 import io
 import os
+import sys
 import json
 from attr import attrs, attrib, asdict, Factory
-
 import uuid
 
 
@@ -13,9 +13,12 @@ ATTACHMENT_PATTERN = '{prefix}-attachment.{ext}'
 
 def _write(report_dir, item, glob):
     filename = glob.format(prefix=uuid.uuid4())
-    data = asdict(item)
-    with io.open(os.path.join(report_dir, filename), 'w', encoding='utf-8') as file:
-        file.write(unicode(json.dumps(data, indent=4, ensure_ascii=False)))
+    data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+    with io.open(os.path.join(report_dir, filename), 'w', encoding='utf8') as json_file:
+        if sys.version_info.major < 3:
+            json_file.write(unicode(json.dumps(data, indent=4, ensure_ascii=False)))
+        else:
+            json.dump(data, json_file, indent=4, ensure_ascii=False)
 
 
 @attrs
@@ -43,7 +46,6 @@ class ExecutableItem(object):
     descriptionHtml = attrib(default=None)
     steps = attrib(default=Factory(list))
     attachments = attrib(default=Factory(list))
-    parameters = attrib(default=Factory(list))
     start = attrib(default=None)
     stop = attrib(default=None)
 
@@ -55,6 +57,7 @@ class TestCaseResult(ExecutableItem):
     parentIds = attrib(default=Factory(list))
     status = attrib(default=None)
     statusDetails = attrib(default=None)
+    parameters = attrib(default=Factory(list))
     befores = attrib(default=Factory(list))
     afters = attrib(default=Factory(list))
     labels = attrib(default=Factory(list))

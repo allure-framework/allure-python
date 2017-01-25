@@ -3,8 +3,8 @@ import time
 import uuid
 from itertools import product
 
-from constants import ALLURE_LABEL_PREFIX
-from constants import ALLURE_LINK_PREFIX
+from allure.constants import ALLURE_LABEL_PREFIX
+from allure.constants import ALLURE_LINK_PREFIX
 
 
 def uuid4():
@@ -84,4 +84,3 @@ def allure_full_name(nodeid):
     clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
     test = parts[-1]
     return '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
-
