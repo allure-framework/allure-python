@@ -8,6 +8,7 @@
 ...         self.test_cases = [
 ...                 {
 ...                     'name': 'ideal_case',
+...                     'fullName': 'ideal_case',
 ...                     'parentIds': ['gid-1', 'gid-2'],
 ...                     'steps': [
 ...                         {'name': 'step_one'}
@@ -15,10 +16,12 @@
 ...                 },
 ...                 {
 ...                     'name': 'like_ideal_case_by_group',
+...                     'fullName': 'like_ideal_case_by_group',
 ...                     'parentIds': ['gid-1', 'gid-2'],
 ...                 },
 ...                 {
 ...                     'name': 'has_wrong_group_case',
+...                     'fullName': 'has_wrong_group_case',
 ...                     'parentIds': ['gid-1', 'gid-2', 'gid-3'],
 ...                 }
 ...         ]
@@ -54,7 +57,7 @@ EACH TEST CASE GROUP IN GROUPS -
 Traceback (most recent call last):
     ...
 AssertionError: ...
-Expected: an object with a property 'test_cases' ... containing ['name': 'has_wrong_group_case'] ...
+Expected: ...
      but: property 'test_cases' was <[{...}]>
 <BLANKLINE>
 

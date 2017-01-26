@@ -2,9 +2,9 @@ import pytest
 from functools import wraps
 
 from allure.utils import uuid4
-from allure.constants import ALLURE_LABEL_PREFIX, Label
-from allure.constants import ALLURE_LINK_PREFIX, Link
-from allure.constants import Severity, AttachmentType
+from allure.constants import Severity
+from allure.constants import ALLURE_LABEL_PREFIX, ALLURE_LINK_PREFIX
+from allure.constants import LabelType, LinkType, AttachmentType
 
 
 class AllureTestHelper(object):
@@ -13,34 +13,34 @@ class AllureTestHelper(object):
         self.config = config
         self.attach = Attach(config)
 
-    def label(self, name, *value):
-        allure_label = getattr(pytest.mark, '{prefix}.{name}'.format(prefix=ALLURE_LABEL_PREFIX,
-                                                                     name=name))
-        return allure_label(*value)
+    def label(self, label_type, *value):
+        allure_label = getattr(pytest.mark, '{prefix}.{label_type}'.format(prefix=ALLURE_LABEL_PREFIX,
+                                                                           label_type=label_type))
+        return allure_label(*value, label_type=label_type)
 
     def severity(self, severity):
-        return self.label(Label.SEVERITY, severity.value)
+        return self.label(LabelType.SEVERITY, severity.value)
 
     @property
     def severity_level(self):
         return Severity
 
     def feature(self, *features):
-        return self.label(Label.FEATURE, *features)
+        return self.label(LabelType.FEATURE, *features)
 
     def story(self, *stories):
-        return self.label(Label.STORY, *stories)
+        return self.label(LabelType.STORY, *stories)
 
-    def link(self, url, link_type=Link.LINK, name=None):
+    def link(self, url, link_type=LinkType.LINK, name=None):
         allure_link = getattr(pytest.mark, '{prefix}.{link_type}'.format(prefix=ALLURE_LINK_PREFIX,
                                                                          link_type=link_type))
         return allure_link(url, name=name)
 
     def issue(self, url, name=None):
-        return self.link(url, link_type=Link.ISSUE, name=name)
+        return self.link(url, link_type=LinkType.ISSUE, name=name)
 
     def test_case(self, url, name=None):
-        return self.link(url, link_type=Link.TEST_CASE, name=name)
+        return self.link(url, link_type=LinkType.TEST_CASE, name=name)
 
     def step(self, title):
         if callable(title):

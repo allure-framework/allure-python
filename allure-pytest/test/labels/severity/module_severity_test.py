@@ -17,8 +17,9 @@ def test_not_decorated_function():
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_not_decorated_function',
-    ...                 has_severity('trivial')
-    ...             ))
+    ...                           has_severity('trivial')
+    ...             )
+    ... )
     """
     pass
 
@@ -29,8 +30,9 @@ def test_decorated_function():
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_decorated_function',
-    ...                 has_severity('minor')
-    ...             ))
+    ...                           has_severity('minor')
+    ...             )
+    ... )
     """
     pass
 
@@ -42,10 +44,9 @@ class TestNotDecorated(object):
         >>> allure_report = getfixture('allure_report')
         >>> assert_that(allure_report,
         ...             has_test_case('test_method_of_not_decorated_class',
-        ...                 has_severity('trivial')
-        ...             ))
-
-
+        ...                           has_severity('trivial')
+        ...             )
+        ... )
         """
         pass
 
@@ -58,7 +59,8 @@ class TestDecorated(object):
         >>> allure_report = getfixture('allure_report')
         >>> assert_that(allure_report,
         ...             has_test_case('test_method_of_decorated_class',
-        ...                 has_severity('normal')
-        ...             ))
+        ...                           has_severity('normal')
+        ...             )
+        ... )
         """
         pass
