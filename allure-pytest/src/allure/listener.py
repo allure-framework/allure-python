@@ -28,7 +28,13 @@ class AllureListener(object):
 
     @pytest.hookimpl
     def pytest_allure_after_step(self, uuid, exc_type, exc_val, exc_tb):
-        status = 'failed' if exc_type else 'passed'
+        status = Status.PASSED
+        if exc_type is not None:
+            if exc_type == pytest.skip.Exception:
+                status = Status.CANCELED
+            else:
+                status = Status.FAILED
+
         self.allure_logger.stop_step(uuid, stop=now(), status=status)
 
     @pytest.hookimpl
