@@ -57,9 +57,12 @@ def allure_labels(item):
     for keyword in item.keywords.keys():
         if keyword.startswith(ALLURE_LABEL_PREFIX):
             marker = item.get_marker(keyword)
-            name = marker.name.split('.', 1)[-1]
-            for value in marker.args:
-                yield (name, value)
+            label_type = marker.kwargs['label_type']
+            if label_type.is_unique:
+                yield (str(label_type), marker.args[0])
+            else:
+                for value in marker.args:
+                    yield (str(label_type), value)
 
 
 def allure_links(item):

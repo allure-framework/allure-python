@@ -5,7 +5,7 @@ import pytest
 from allure.helper import AllureTestHelper
 from allure.listener import AllureListener
 from allure.constants import Severity
-from allure.constants import Label
+from allure.constants import LabelType
 from allure.utils import allure_labels
 from six import text_type
 
@@ -33,7 +33,7 @@ def pytest_addoption(parser):
                                          dest="allure_severities",
                                          metavar="SEVERITIES_SET",
                                          default={},
-                                         type=label_type(name=Label.SEVERITY, legal_values=set(severities)),
+                                         type=label_type(name=LabelType.SEVERITY, legal_values=set(severities)),
                                          help="""Comma-separated list of severity names.
                                          Tests only with these severities will be run.
                                          Possible values are: %s.""" % ', '.join(severities))
@@ -43,7 +43,7 @@ def pytest_addoption(parser):
                                          dest="allure_features",
                                          metavar="FEATURES_SET",
                                          default={},
-                                         type=label_type(name=Label.FEATURE),
+                                         type=label_type(name=LabelType.FEATURE),
                                          help="""Comma-separated list of feature names.
                                          Run tests that have at least one of the specified feature labels.""")
 
@@ -52,7 +52,7 @@ def pytest_addoption(parser):
                                          dest="allure_stories",
                                          metavar="STORIES_SET",
                                          default={},
-                                         type=label_type(name=Label.STORY),
+                                         type=label_type(name=LabelType.STORY),
                                          help="""Comma-separated list of story names.
                                          Run tests that have at least one of the specified story labels.""")
 
