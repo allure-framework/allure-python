@@ -98,8 +98,8 @@ class AllureListener(object):
         if fixturedef.baseid and parent_uuid:
             self.allure_logger.stop_before_fixture(uuid, stop=now())
 
-        for index, finalizer in enumerate(fixturedef._finalizer or ()):
-            fixturedef._finalizer[index] = FinalizerSpy(parent_uuid, fixturedef.argname, finalizer, self.config)
+            for index, finalizer in enumerate(fixturedef._finalizer or ()):
+                fixturedef._finalizer[index] = FinalizerSpy(parent_uuid, fixturedef.argname, finalizer, self.config)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_post_finalizer(self, fixturedef):

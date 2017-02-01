@@ -5,6 +5,7 @@ from itertools import product
 
 from allure.constants import ALLURE_LABEL_PREFIX
 from allure.constants import ALLURE_LINK_PREFIX
+from allure.constants import ALLURE_UNIQUE_LABELS
 
 
 def uuid4():
@@ -58,11 +59,11 @@ def allure_labels(item):
         if keyword.startswith(ALLURE_LABEL_PREFIX):
             marker = item.get_marker(keyword)
             label_type = marker.kwargs['label_type']
-            if label_type.is_unique:
-                yield (str(label_type), marker.args[0])
+            if label_type.value in ALLURE_UNIQUE_LABELS:
+                yield (label_type.value, marker.args[0])
             else:
                 for value in marker.args:
-                    yield (str(label_type), value)
+                    yield (label_type.value, value)
 
 
 def allure_links(item):

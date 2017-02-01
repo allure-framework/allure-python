@@ -24,7 +24,7 @@ def pytest_addoption(parser):
             if legal_values and not atoms < legal_values:
                 raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
                     name, ', '.join(atoms - legal_values), ', '.join(legal_values)))
-            return set((name, v) for v in atoms)
+            return set((name.value, atom) for atom in atoms)
         return a_label_type
 
     severities = [x.value for x in list(Severity)]

@@ -34,12 +34,37 @@ def inject_matchers(doctest_namespace):
             doctest_namespace[name] = function
 
 
+def _runner(allure_dir, module, *extra_params):
+    FNULL = open(os.devnull, 'w')
+    extra_params = ' '.join(extra_params)
+    cmd = shlex.split('pytest --alluredir=%s %s %s' % (allure_dir, extra_params, module))
+    subprocess.call(cmd, stdout=FNULL, stderr=FNULL)
+
+
+@pytest.fixture(scope='module')
+def allure_report_with_params(request, tmpdir_factory):
+    module = request.module.__file__
+    tmpdir = tmpdir_factory.mktemp('data')
+
+    def run_with_params(*params):
+        key = '{module}{param}'.format(module=module, param=''.join(params))
+        if not request.config.cache.get(key, False):
+            _runner(tmpdir.strpath, module, *params)
+            request.config.cache.set(key, True)
+
+            def clear_cache():
+                request.config.cache.set(key, False)
+            request.addfinalizer(clear_cache)
+
+        return AllureReport(tmpdir)
+    return run_with_params
+
+
 @pytest.fixture(scope='module')
 def allure_report(request, tmpdir_factory):
     module = request.module.__file__
     tmpdir = tmpdir_factory.mktemp('data')
-    FNULL = open(os.devnull, 'w')
-    subprocess.call(shlex.split('pytest --alluredir=%s %s' % (tmpdir.strpath, module)), stdout=FNULL, stderr=FNULL)
+    _runner(tmpdir.strpath, module)
     return AllureReport(tmpdir)
 
 
