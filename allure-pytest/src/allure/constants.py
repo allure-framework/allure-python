@@ -2,6 +2,7 @@ from enum import Enum
 
 ALLURE_LABEL_PREFIX = 'allure_label'
 ALLURE_LINK_PREFIX = 'allure_link'
+ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
 
 
 class Status(object):
@@ -20,25 +21,21 @@ class Severity(Enum):
     TRIVIAL = 'trivial'
 
 
-class LinkType(object):
+class LinkType(Enum):
+    def __str__(self):
+        return self.value
+
     LINK = 'link'
     ISSUE = 'issue'
     TEST_CASE = 'test_case'
 
 
 class LabelType(Enum):
-    def __init__(self, name, unique):
-        self.label_name = name
-        self.is_unique = unique
-
-    def __str__(self):
-        return self.label_name
-
-    FEATURE = ('feature', False)
-    STORY = ('story', False)
-    SEVERITY = ('severity', True)
-    THREAD = ('thread', True)
-    HOST = ('host', True)
+    FEATURE = 'feature'
+    STORY = 'story'
+    SEVERITY = 'severity'
+    THREAD = 'thread'
+    HOST = 'host'
 
 
 class AttachmentType(Enum):
