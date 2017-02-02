@@ -2,6 +2,7 @@ import os
 import time
 import uuid
 from itertools import product
+import inspect
 
 from allure.constants import ALLURE_LABEL_PREFIX
 from allure.constants import ALLURE_LINK_PREFIX
@@ -88,3 +89,11 @@ def allure_full_name(nodeid):
     clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
     test = parts[-1]
     return '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+
+
+def step_parameters(func, *a, **kw):
+    all_names = inspect.getargspec(func).args
+    defaults = inspect.getargspec(func).defaults
+    args_part = [(n, str(v)) for n, v in zip(all_names, a)]
+    kwarg_part = [(n, str(kw[n]) if n in kw else str(defaults[i])) for i, n in enumerate(all_names[len(a):])]
+    return args_part + kwarg_part

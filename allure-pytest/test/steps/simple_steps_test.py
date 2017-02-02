@@ -1,5 +1,5 @@
 """
-    >>> allure_report = getfixture('allure_report')
+>>> allure_report = getfixture('allure_report')
 
 
 >>> assert_that(allure_report,

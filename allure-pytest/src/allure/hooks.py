@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.hookspec
-def pytest_allure_before_step(uuid, title):
+def pytest_allure_before_step(uuid, title, params):
     """ called before allure step """
 
 

@@ -15,7 +15,7 @@ import pytest
 def test_parametrization_one_param_without_ids(param):
     """
     >>> allure_report = getfixture('allure_report')
-    >>> for param in ['True', 'False']:
+    >>> for param in [True, False]:
     ...     assert_that(allure_report,
     ...                 has_test_case('test_parametrization_one_param_without_ids[{param}]'.format(param=param),
     ...                               has_parameter('param', param)
@@ -28,8 +28,8 @@ def test_parametrization_one_param_without_ids(param):
 def test_parametrization_one_param_with_ids(param):
     """
     >>> allure_report = getfixture('allure_report')
-    >>> for param in ['True', 'False']:
-    ...     ids = 'pass' if param == 'True' else 'fail'
+    >>> for param in [True, False]:
+    ...     ids = 'pass' if param else 'fail'
     ...     assert_that(allure_report,
     ...                 has_test_case('test_parametrization_one_param_with_ids[{param}]'.format(param=ids),
     ...                               has_parameter(ids, param)

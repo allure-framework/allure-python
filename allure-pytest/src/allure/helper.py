@@ -1,7 +1,9 @@
 import pytest
+
 from functools import wraps
 
 from allure.utils import uuid4
+from allure.utils import step_parameters
 from allure.constants import Severity
 from allure.constants import ALLURE_LABEL_PREFIX, ALLURE_LINK_PREFIX
 from allure.constants import LabelType, LinkType, AttachmentType
@@ -55,14 +57,16 @@ class AllureTestHelper(object):
 
 class StepContext:
 
-    def __init__(self, allure, title):
+    def __init__(self, allure, title, params):
         self.allure = allure
         self.title = title
         self._uuid = uuid4()
+        self.params = params
 
     def __enter__(self):
         self.allure.config.hook.pytest_allure_before_step(uuid=self._uuid,
-                                                          title=self.title)
+                                                          title=self.title,
+                                                          params=self.params)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.allure.config.hook.pytest_allure_after_step(uuid=self._uuid,
@@ -75,7 +79,8 @@ class StepContext:
         @wraps(func)
         def impl(*a, **kw):
             __tracebackhide__ = True
-            with StepContext(self.allure, self.title.format(*a, **kw)):
+            params = step_parameters(func, *a, **kw)
+            with StepContext(self.allure, self.title, params):
                 return func(*a, **kw)
         return impl
 
@@ -86,6 +91,7 @@ class LazyInitStepContext(StepContext):
         self.allure_helper = allure_helper
         self.title = title
         self._uuid = uuid4()
+        self.params = []
 
     @property
     def allure(self):

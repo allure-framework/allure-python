@@ -22,8 +22,9 @@ class AllureListener(object):
         self._cache = ItemCache()
 
     @pytest.hookimpl
-    def pytest_allure_before_step(self, uuid, title):
-        step = TestStepResult(name=title, start=now())
+    def pytest_allure_before_step(self, uuid, title, params):
+        parameters = [Parameter(name=name, value=value) for name, value in params]
+        step = TestStepResult(name=title, start=now(), parameters=parameters)
         self.allure_logger.start_step(uuid, step)
 
     @pytest.hookimpl
