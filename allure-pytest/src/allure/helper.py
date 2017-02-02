@@ -48,6 +48,12 @@ class AllureTestHelper(object):
         else:
             return LazyInitStepContext(self, title)
 
+    def __getattr__(self, attr):
+        for severity in Severity:
+            if severity.name == attr:
+                return self.severity(severity)
+        raise AttributeError
+
     @pytest.hookimpl()
     def pytest_namespace(self):
         return {"allure": self}
