@@ -73,6 +73,7 @@ class TestCaseResult(ExecutableItem):
 class TestStepResult(ExecutableItem):
     id = attrib(default=None)
     status = attrib(default=None)
+    parameters = attrib(default=Factory(list))
     statusDetails = attrib(default=None)
 
 
