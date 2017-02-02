@@ -58,13 +58,14 @@ class AllureListener(object):
             parent_ids.append(group_uuid)
 
         test_case = TestCaseResult(name=item.name, id=uuid, parentIds=parent_ids)
+        self.allure_logger.schedule_test(uuid, test_case)
+
+        yield
+
         test_case.labels = [Label(name, value) for name, value in allure_labels(item)]
         test_case.links = [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
         test_case.fullName = allure_full_name(item.nodeid)
         test_case.labels.append(Label('package', allure_package(item.nodeid)))
-        self.allure_logger.schedule_test(uuid, test_case)
-
-        yield
 
         uuid = self._cache.pop(item.nodeid)
         self.allure_logger.close_test(uuid)
