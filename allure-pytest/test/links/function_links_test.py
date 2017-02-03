@@ -69,7 +69,7 @@ def test_single_issue():
     pass
 
 
-@pytest.allure.test_case(TEST_CASE)
+@pytest.allure.testcase(TEST_CASE)
 def test_single_test_case():
     """
     >>> allure_report = getfixture('allure_report')
@@ -82,7 +82,7 @@ def test_single_test_case():
 
 
 @pytest.allure.link(LINK, name=LINK_NAME, link_type=LINK_TYPE)
-@pytest.allure.test_case(TEST_CASE, name=TEST_CASE_NAME)
+@pytest.allure.testcase(TEST_CASE, name=TEST_CASE_NAME)
 @pytest.allure.issue(ISSUE, name=ISSUE_NAME)
 def test_with_links_cases_and_issues():
     """

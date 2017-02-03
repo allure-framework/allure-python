@@ -41,7 +41,7 @@ class AllureTestHelper(object):
     def issue(self, url, name=None):
         return self.link(url, link_type=LinkType.ISSUE, name=name)
 
-    def test_case(self, url, name=None):
+    def testcase(self, url, name=None):
         return self.link(url, link_type=LinkType.TEST_CASE, name=name)
 
     def step(self, title):
