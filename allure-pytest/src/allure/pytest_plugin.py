@@ -56,6 +56,25 @@ def pytest_addoption(parser):
                                          help="""Comma-separated list of story names.
                                          Run tests that have at least one of the specified story labels.""")
 
+    def link_pattern(string):
+        pattern = string.split(':', 1)
+        if not pattern[0]:
+            raise argparse.ArgumentTypeError('Link type is mandatory.')
+
+        if len(pattern) != 2:
+            raise argparse.ArgumentTypeError('Link pattern is mandatory')
+        return pattern
+
+    parser.getgroup("general").addoption('--allure-link-pattern',
+                                         action="append",
+                                         dest="allure_link_pattern",
+                                         metavar="LINK_TYPE:LINK_PATTERN",
+                                         default=[],
+                                         type=link_pattern,
+                                         help="""Url pattern for link type. Allows short links in test,
+                                         like 'issue-1'. Text will be formatted to full url with python
+                                         str.format().""")
+
 
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
