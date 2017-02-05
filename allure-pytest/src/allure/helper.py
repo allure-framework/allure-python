@@ -36,6 +36,10 @@ class AllureTestHelper(object):
     def link(self, url, link_type=LinkType.LINK, name=None):
         allure_link = getattr(pytest.mark, '{prefix}.{link_type}'.format(prefix=ALLURE_LINK_PREFIX,
                                                                          link_type=link_type))
+
+        pattern = dict(self.config.option.allure_link_pattern).get(str(link_type), '{}')
+        url = pattern.format(url)
+
         return allure_link(url, name=name)
 
     def issue(self, url, name=None):
