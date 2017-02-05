@@ -71,7 +71,9 @@ def pytest_addoption(parser):
                                          metavar="LINK_TYPE:LINK_PATTERN",
                                          default=[],
                                          type=link_pattern,
-                                         help="""Url pattern for link type.""")
+                                         help="""Url pattern for link type. Allows short links in test,
+                                         like 'issue-1'. Text will be formatted to full url with python
+                                         str.format().""")
 
 
 def pytest_configure(config):
