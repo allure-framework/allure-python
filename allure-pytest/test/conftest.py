@@ -10,16 +10,14 @@ class AllureReport(object):
     def __init__(self, report):
         self._report = report
         self.report_dir = report.strpath
-        self.test_cases = self._read_item('*testcase.json')
-        self.test_groups = self._read_item('*testgroup.json')
+        self.test_cases = [json.load(item) for item in self._report_items('*testcase.json')]
+        self.test_groups = [json.load(item) for item in self._report_items('*testgroup.json')]
+        self.attachments = [item.read() for item in self._report_items('*attachment.*')]
 
-    def _read_item(self, glob):
-        ret = list()
+    def _report_items(self, glob):
         for local_path in self._report.listdir(glob):
-            with open(local_path.strpath) as json_file:
-                item = json.load(json_file)
-                ret.append(item)
-        return ret
+            with open(local_path.strpath) as report_file:
+                yield report_file
 
 
 @pytest.fixture(scope='function', autouse=True)

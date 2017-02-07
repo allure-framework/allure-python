@@ -153,8 +153,12 @@ class AllureListener(object):
             self.allure_logger.update_test(uuid, status=status)
 
     @pytest.hookimpl
-    def pytest_allure_attach(self, name, source, mime_type, extension):
-        self.allure_logger.attach(uuid4(), name, source, mime_type, extension)
+    def pytest_allure_attach_data(self, body, name, attachment_type, extension):
+        self.allure_logger.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
+
+    @pytest.hookimpl
+    def pytest_allure_attach_file(self, source, name, attachment_type, extension):
+        self.allure_logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
 
 
 class FinalizerSpy(object):
