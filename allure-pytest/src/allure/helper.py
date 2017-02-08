@@ -15,6 +15,10 @@ class AllureTestHelper(object):
         self.config = config
         self.attach = Attach(config)
 
+    @property
+    def attachment_type(self):
+        return AttachmentType
+
     def label(self, label_type, *value):
         allure_label = getattr(pytest.mark, '{prefix}.{label_type}'.format(prefix=ALLURE_LABEL_PREFIX,
                                                                            label_type=label_type))
@@ -58,6 +62,11 @@ class AllureTestHelper(object):
         for severity in Severity:
             if severity.name == attr:
                 return self.severity(severity)
+
+        for attach_type in AttachmentType:
+            if attach_type.name == attr:
+                return attach_type
+
         raise AttributeError
 
     @pytest.hookimpl()
@@ -113,16 +122,14 @@ class Attach(object):
     def __init__(self, config):
         self.config = config
 
-        def imp(attachment_type):
-            def attach(source, name=None):
-                self(source, attachment_type.mime_type, attachment_type.extension, name=name)
-            return attach
+    def __call__(self, body, name=None,  attachment_type=None, extension=None):
+        self.config.hook.pytest_allure_attach_data(body=body,
+                                                   name=name,
+                                                   attachment_type=attachment_type,
+                                                   extension=extension)
 
-        for preset in list(AttachmentType):
-            self.__dict__[preset.extension] = imp(preset)
-
-    def __call__(self, source, mime_type, extension, name=None):
-        self.config.hook.pytest_allure_attach(name=name, source=source, mime_type=mime_type, extension=extension)
-
-    def data(self, body, mime_type, extension, name=None):
-        raise NotImplementedError
+    def file(self, source, name=None, attachment_type=None, extension=None):
+        self.config.hook.pytest_allure_attach_file(source=source,
+                                                   name=name,
+                                                   attachment_type=attachment_type,
+                                                   extension=extension)

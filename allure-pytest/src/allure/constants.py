@@ -45,9 +45,21 @@ class AttachmentType(Enum):
         self.extension = extension
 
     TEXT = ("text/plain", "txt")
+    CSV = ("text/csv", "csv")
+    TSV = ("text/tab-separated-values", "tsv")
+
     HTML = ("application/html", "html")
     XML = ("application/xml", "xml")
     JSON = ("application/json", "json")
+    YAML = ("application/yaml", "yaml")
+
     PNG = ("image/png", "png")
     JPG = ("image/jpg", "jpg")
     SVG = ("image/svg-xml", "svg")
+    GIF = ("image/gif", "gif")
+    BMP = ("iamge/bmp", "bmp")
+    TIFF = ("image/tiff", "tiff")
+
+    MP4 = ("video/mp4", "mp4")
+    OGG = ("video/ogg", "ogg")
+    WEBM = ("video/webm", "webm")

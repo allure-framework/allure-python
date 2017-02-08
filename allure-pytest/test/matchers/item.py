@@ -105,12 +105,12 @@ def has_test_case_link(url, name=None):
     return has_link(url, link_type='test_case', name=name)
 
 
-def has_attachment(attachment_type, name=None):
+def has_attachment(attach_type=None, name=None):
     return has_entry('attachments',
                      has_item(
                          all_of(
                              has_entry('source', anything()),
-                             has_entry('type', attachment_type),
+                             has_entry('type', attach_type) if attach_type else anything(),
                              has_entry('name', name) if name else anything()
                          )
                      ))

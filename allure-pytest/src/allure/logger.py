@@ -1,7 +1,9 @@
 import os
 import shutil
 from collections import OrderedDict
+from six import text_type
 
+from allure.constants import AttachmentType
 from allure.model2 import ExecutableItem
 from allure.model2 import Attachment, ATTACHMENT_PATTERN
 from allure.utils import now
@@ -67,10 +69,31 @@ class AllureLogger(object):
         self._update_item(uuid, **kwargs)
         self._items.pop(uuid)
 
-    def attach(self, uuid, name, source, mime_type, extension):
-        attach_file = ATTACHMENT_PATTERN.format(prefix=uuid, ext=extension)
-        destination = os.path.join(self._report_dir, attach_file)
-        shutil.copy2(source, destination)
-        attachment = Attachment(name, attach_file, mime_type)
+    def _attach(self, uuid, name=None, attachment_type=None, extension=None):
+        mime_type = attachment_type
+        extension = extension if extension else 'attach'
+
+        if type(attachment_type) is AttachmentType:
+            extension = attachment_type.extension
+            mime_type = attachment_type.mime_type
+
+        file_name = ATTACHMENT_PATTERN.format(prefix=uuid, ext=extension)
+        destination = os.path.join(self._report_dir, file_name)
+        attachment = Attachment(source=file_name, name=name, type=mime_type)
         last_uuid = next(reversed(self._items))
         self._items[last_uuid].attachments.append(attachment)
+
+        return file_name, destination
+
+    def attach_file(self, uuid, source, name=None, attachment_type=None, extension=None):
+        file_name, destination = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+        shutil.copy2(source, destination)
+
+    def attach_data(self, uuid, body, name=None, attachment_type=None, extension=None):
+        file_name, destination = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+
+        with open(destination, 'wb') as attached_file:
+            if isinstance(body, text_type):
+                attached_file.write(body.encode('utf-8'))
+            else:
+                attached_file.write(body)

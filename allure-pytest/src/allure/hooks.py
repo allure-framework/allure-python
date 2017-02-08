@@ -22,5 +22,10 @@ def pytest_allure_after_finalizer(uuid, exc_type, exc_val, exc_tb):
 
 
 @pytest.hookspec
-def pytest_allure_attach(name, source, mime_type, extension):
-    """ called for attach something to report """
+def pytest_allure_attach_file(source, name, attachment_type, extension):
+    """ called for attach file to report """
+
+
+@pytest.hookspec
+def pytest_allure_attach_data(body, name, attachment_type, extension):
+    """ called for attach data to report """
