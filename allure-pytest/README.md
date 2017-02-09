@@ -18,8 +18,10 @@ Where **type** is a mime string or one of presets like pytest.allure.attachment_
 ```python
 def test_attach_from_test():
     pytest.allure.attach(xml_body)
-    pytest.allure.attach(xml_body, name='my xml attachment', attachment_type=pytest.allure.attachment_type.XML)
-
+    pytest.allure.attach(xml_body,
+                         name='my xml attachment',
+                         attachment_type=pytest.allure.attachment_type.XML)
+    # ...
 ```
 
 Also you can attach files:
