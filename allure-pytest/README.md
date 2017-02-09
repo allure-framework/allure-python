@@ -15,7 +15,7 @@ pytest.allure.attach(*content*, name=*name*,  attachment_type=*type*, extension=
 
 Where **type** is a mime string or one of presets like pytest.allure.attachment_type.XML. Extension is defined for all presets.
 
-```
+```python
 def test_attach_from_test():
     pytest.allure.attach(xml_body)
     pytest.allure.attach(xml_body, name='my xml attachment', attachment_type=pytest.allure.attachment_type.XML)
@@ -25,7 +25,7 @@ def test_attach_from_test():
 Also you can attach files:
 pytest.allure.attach.file(*path to file*, name=*name*,  attachment_type=*type*, extension=*extension*)
 
-```
+```python
 def test_attach_from_test():
     pytest.allure.attach(xml_body)
 ```
