@@ -7,7 +7,7 @@ You still can attach some content, but arguments order was changed:
 
 pytest.allure.attach(*content*, name=*name*,  attachment_type=*type*, extension=*extension*)
 
-Where **type** is mime string or one of presets like pytest.allure.attachment_type.XML. Extension is defined for all presets.
+Where **type** is a mime string or one of presets like pytest.allure.attachment_type.XML. Extension is defined for all presets.
 
 ```
 def test_attach_from_test():
