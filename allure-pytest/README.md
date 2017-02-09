@@ -1,6 +1,6 @@
 # Allure pytest plugin
 
-## Inatallation 
+## Installation 
 Beta version is not available on PyPI, but you can install allure directly from github:
 
 ```bash
@@ -35,7 +35,9 @@ def test_attach_from_test():
 ### Steps
 Step name formatting with function parameters is deprecated. All parameters of step function will be reported and shown in report.
 
-##### Dynamic issues
+
+### Issues
+#### Dynamic issues
 Current version doesn't support dynamic_issue, but you can do it with pytest fixtures:
 ```python
 import pytest
