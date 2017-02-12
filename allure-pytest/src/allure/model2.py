@@ -6,8 +6,8 @@ from attr import attrs, attrib, asdict, Factory
 import uuid
 
 
-TEST_GROUP_PATTERN = "{prefix}-testgroup.json"
-TEST_CASE_PATTERN = "{prefix}-testcase.json"
+TEST_GROUP_PATTERN = "{prefix}-container.json"
+TEST_CASE_PATTERN = "{prefix}-result.json"
 ATTACHMENT_PATTERN = '{prefix}-attachment.{ext}'
 INDENT = 4
 
