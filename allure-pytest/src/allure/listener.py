@@ -32,7 +32,7 @@ class AllureListener(object):
         status = Status.PASSED
         if exc_type is not None:
             if exc_type == pytest.skip.Exception:
-                status = Status.CANCELED
+                status = Status.SKIPPED
             else:
                 status = Status.FAILED
 
@@ -118,7 +118,7 @@ class AllureListener(object):
         uuid = self._cache.set(item.nodeid)
         report = (yield).get_result()
         allure_item = self.allure_logger.get_item(uuid)
-        status = allure_item.status or Status.PENDING
+        status = allure_item.status or None
         status_details = None
 
         if call.excinfo and hasattr(call.excinfo.value, 'msg'):
@@ -134,7 +134,7 @@ class AllureListener(object):
             if report.failed:
                 status = Status.BROKEN
             if report.skipped:
-                status = Status.CANCELED
+                status = Status.SKIPPED
 
         if report.when == 'call':
             if report.passed and status == Status.PASSED:
@@ -142,7 +142,7 @@ class AllureListener(object):
             if report.failed:
                 status = Status.FAILED
             if report.skipped:
-                status = Status.CANCELED
+                status = Status.SKIPPED
 
         if report.when == 'teardown':
             if report.failed and status == Status.PASSED:
