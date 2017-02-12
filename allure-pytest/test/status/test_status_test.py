@@ -26,7 +26,7 @@ def test_xfailed():
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report, has_test_case('test_xfailed',
-    ...                                          with_status('canceled'),
+    ...                                          with_status('failed'),
     ...                                          has_status_details(with_status_message(XFAIL_REASON))))
     """
     assert False
@@ -55,7 +55,7 @@ def test_xfailed_but_passed():
 def test_skip_in_test():
     """
     >>> allure_report = getfixture('allure_report')
-    >>> assert_that(allure_report, test_skip_in_test, with_status('canceled'))
+    >>> assert_that(allure_report, test_skip_in_test, with_status('skipped'))
     """
     pytest.skip()
 
@@ -64,7 +64,7 @@ def test_skip_with_reason_in_test():
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report, has_test_case('test_skip_with_reason_in_test',
-    ...                                          with_status('canceled'),
+    ...                                          with_status('skipped'),
     ...                                          has_status_details(with_status_message(SKIP_REASON))))
     """
     pytest.skip(SKIP_REASON)
@@ -75,7 +75,7 @@ def test_skip_with_decorator_and_reason():
     """
      >>> allure_report = getfixture('allure_report')
      >>> assert_that(allure_report, has_test_case('test_skip_with_decorator_and_reason',
-     ...                                          with_status('canceled'),
+     ...                                          with_status('skipped'),
      ...                                          has_status_details(with_status_message(SKIP_REASON))))
      """
     pass
@@ -86,7 +86,7 @@ def test_skipif_true():
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report, has_test_case('test_skipif_true',
-    ...                                          with_status('canceled'),
+    ...                                          with_status('skipped'),
     ...                                          has_status_details(with_status_message(SKIP_REASON))))
     """
     pass

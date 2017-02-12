@@ -10,8 +10,8 @@ class AllureReport(object):
     def __init__(self, report):
         self._report = report
         self.report_dir = report.strpath
-        self.test_cases = [json.load(item) for item in self._report_items('*testcase.json')]
-        self.test_groups = [json.load(item) for item in self._report_items('*testgroup.json')]
+        self.test_cases = [json.load(item) for item in self._report_items('*result.json')]
+        self.test_groups = [json.load(item) for item in self._report_items('*container.json')]
         self.attachments = [item.read() for item in self._report_items('*attachment.*')]
 
     def _report_items(self, glob):

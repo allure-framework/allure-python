@@ -16,7 +16,7 @@ def test_wihtout_features_and_stories():
     ...                                                         '--allure-stories=right_story')
     >>> assert_that(allure_report,
     ...             has_test_case('test_wihtout_features_and_stories',
-    ...                           with_status('canceled')
+    ...                           with_status('skipped')
     ...             )
     ... )
     """
