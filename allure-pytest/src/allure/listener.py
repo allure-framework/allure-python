@@ -91,8 +91,9 @@ class AllureListener(object):
             self.allure_logger.start_before_fixture(parent_uuid, uuid, fixture)
 
         if parameters and parent_uuid:
+            test_uuid = self._cache.get(request._pyfuncitem.nodeid)
             parameters = Parameter(**parameters) if parameters else []
-            self.allure_logger.update_test(self._cache.get(node_id), parameters=parameters)
+            self.allure_logger.update_test(test_uuid, parameters=parameters)
 
         yield
 
