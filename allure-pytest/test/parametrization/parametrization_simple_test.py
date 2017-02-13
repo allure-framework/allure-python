@@ -6,7 +6,7 @@ COUNT OF CASES AND GROUPS
 ...             all_of(
 ...                 has_property('test_cases', has_length(10)),
 ...                 has_property('test_groups', has_length(0))
-...             ))
+...             ))  # doctest: +SKIP
 """
 import pytest
 

@@ -24,10 +24,10 @@ def test_failed():
 @pytest.mark.xfail(reason=XFAIL_REASON)
 def test_xfailed():
     """
-    >>> allure_report = getfixture('allure_report')
+    >>> allure_report = getfixture('allure_report') # doctest: +SKIP
     >>> assert_that(allure_report, has_test_case('test_xfailed',
     ...                                          with_status('failed'),
-    ...                                          has_status_details(with_status_message(XFAIL_REASON))))
+    ...                                          has_status_details(with_status_message(XFAIL_REASON)))) # doctest: +SKIP
     """
     assert False
 

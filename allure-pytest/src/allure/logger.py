@@ -29,9 +29,13 @@ class AllureLogger(object):
     def start_group(self, uuid, group):
         self._items[uuid] = group
 
-    def stop_group(self, uuid):
+    def stop_group(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
         group = self._items.pop(uuid)
         group.write(self._report_dir)
+
+    def update_group(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
 
     def start_before_fixture(self, parent_uuid, uuid, fixture):
         self._items.get(parent_uuid).befores.append(fixture)
@@ -41,12 +45,12 @@ class AllureLogger(object):
         self._update_item(uuid, **kwargs)
         self._items.pop(uuid)
 
-    def start_after_fixture(self, parent_uuid, uuid, **kwargs):
-        fixture = ExecutableItem(start=now(), **kwargs)
+    def start_after_fixture(self, parent_uuid, uuid, fixture):
         self._items.get(parent_uuid).afters.append(fixture)
         self._items[uuid] = fixture
 
-    def stop_after_fixture(self, uuid):
+    def stop_after_fixture(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
         fixture = self._items.pop(uuid)
         fixture.stop = now()
 
@@ -61,8 +65,13 @@ class AllureLogger(object):
         test_case.write(self._report_dir)
 
     def start_step(self, uuid, step):
-        last_uuid = next(reversed(self._items))
-        self._items[last_uuid].steps.append(step)
+        parent_uuid = None
+        for _uuid in reversed(self._items):
+            if isinstance(self._items[_uuid], ExecutableItem):
+                parent_uuid = _uuid
+                break
+        if parent_uuid:
+            self._items[parent_uuid].steps.append(step)
         self._items[uuid] = step
 
     def stop_step(self, uuid, **kwargs):

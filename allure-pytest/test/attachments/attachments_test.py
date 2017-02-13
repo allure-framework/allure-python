@@ -5,7 +5,7 @@
 ...                 has_property('test_cases', has_length(9)),
 ...                 has_property('test_groups', has_length(0)),
 ...                 has_property('attachments', has_length(11))
-...             ))
+...             ))  # doctest: +SKIP
 """
 
 import pytest

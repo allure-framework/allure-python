@@ -6,8 +6,8 @@ from allure.utils import uuid4
 from allure.utils import allure_parameters
 from allure.utils import allure_labels, allure_links
 from allure.utils import allure_full_name, allure_package
-from allure.model2 import TestStepResult, TestGroupResult, TestCaseResult
-from allure.model2 import ExecutableItem
+from allure.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
+from allure.model2 import TestResultContainer
 from allure.model2 import StatusDetails
 from allure.model2 import Parameter
 from allure.model2 import Label, Link
@@ -40,11 +40,12 @@ class AllureListener(object):
 
     @pytest.hookimpl
     def pytest_allure_before_finalizer(self, parent_uuid, uuid, name):
-        self.allure_logger.start_after_fixture(parent_uuid, uuid, name=name)
+        after_fixture = TestAfterResult(name=name, start=now())
+        self.allure_logger.start_after_fixture(parent_uuid, uuid, after_fixture)
 
     @pytest.hookimpl
     def pytest_allure_after_finalizer(self, uuid, exc_type, exc_val, exc_tb):
-        self.allure_logger.stop_after_fixture(uuid)
+        self.allure_logger.stop_after_fixture(uuid, stop=now())
 
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
     def pytest_runtest_protocol(self, item, nextitem):
@@ -52,13 +53,14 @@ class AllureListener(object):
         parent_ids = []
         for fixturedef in _test_fixtures(item):
             group_uuid = self._cache.get(fixturedef)
-            if not group_uuid and fixturedef.baseid:
+            if not group_uuid:
                 group_uuid = self._cache.set(fixturedef)
-                group = TestGroupResult(id=group_uuid)
+                group = TestResultContainer(id=group_uuid)
                 self.allure_logger.start_group(group_uuid, group)
-            parent_ids.append(group_uuid)
+            self.allure_logger.update_group(group_uuid, children=uuid)
+        #    parent_ids.append(group_uuid)
 
-        test_case = TestCaseResult(name=item.name, id=uuid, parentIds=parent_ids)
+        test_case = TestResult(name=item.name, id=uuid)#, parentIds=parent_ids)
         self.allure_logger.schedule_test(uuid, test_case)
 
         yield
@@ -80,17 +82,31 @@ class AllureListener(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_setup(self, fixturedef, request):
-        uuid = uuid4()
-        node_id = request.node.nodeid
-        parent_uuid = self._cache.get(node_id) if fixturedef.scope == 'function' else self._cache.get(fixturedef)
-        parameters = allure_parameters(fixturedef, request)
+        fixture_name = fixturedef.argname
+
+        container_uuid = self._cache.get(fixturedef)
+
+        if not container_uuid:
+            container_uuid = self._cache.set(fixturedef)
+            container = TestResultContainer(id=container_uuid)
+            self.allure_logger.start_group(container_uuid, container)
+
+        self.allure_logger.update_group(container_uuid, start=now())
+
+        before_fixture_uuid = uuid4
+        before_fixture = TestBeforeResult(name=fixture_name, start=now())
+        self.allure_logger.start_before_fixture(container_uuid, before_fixture_uuid, before_fixture)
+
+        #node_id = request.node.nodeid
+        #parent_uuid = self._cache.get(node_id) if fixturedef.scope == 'function' else self._cache.get(fixturedef)
 
         # ToDo autouse fixtures
-        if fixturedef.baseid and parent_uuid:
-            fixture = ExecutableItem(start=now(), name=fixturedef.argname)
-            self.allure_logger.start_before_fixture(parent_uuid, uuid, fixture)
+        #if fixturedef.baseid and parent_uuid:
+        #    fixture = ExecutableItem(start=now(), name=fixturedef.argname)
+        #    self.allure_logger.start_before_fixture(parent_uuid, uuid, fixture)
 
-        if parameters and parent_uuid:
+        parameters = allure_parameters(fixturedef, request)
+        if parameters:
             test_uuid = self._cache.get(request._pyfuncitem.nodeid)
             parameters = Parameter(**parameters) if parameters else []
             self.allure_logger.update_test(test_uuid, parameters=parameters)
@@ -98,20 +114,26 @@ class AllureListener(object):
         yield
 
         # ToDo autouse fixtures
-        if fixturedef.baseid and parent_uuid:
-            self.allure_logger.stop_before_fixture(uuid, stop=now())
+        #if fixturedef.baseid and parent_uuid:
+        #    self.allure_logger.stop_before_fixture(uuid, stop=now())
 
-            for index, finalizer in enumerate(fixturedef._finalizer or ()):
-                fixturedef._finalizer[index] = FinalizerSpy(parent_uuid, fixturedef.argname, finalizer, self.config)
+        self.allure_logger.stop_before_fixture(before_fixture_uuid, stop=now())
+
+        for index, finalizer in enumerate(fixturedef._finalizer or ()):
+            fixturedef._finalizer[index] = FinalizerSpy(container_uuid, fixturedef.argname, finalizer, self.config)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_post_finalizer(self, fixturedef):
         yield
+        if hasattr(fixturedef, 'cached_result') and self._cache.get(fixturedef):
+            container_uuid = self._cache.pop(fixturedef)
+            self.allure_logger.stop_group(container_uuid, stop=now())
+
         # ToDo autouse fixtures
-        if hasattr(fixturedef, 'cached_result') and fixturedef.scope != 'function' and fixturedef.baseid \
-                and self._cache.get(fixturedef):
-            uuid = self._cache.pop(fixturedef)
-            self.allure_logger.stop_group(uuid)
+        #if hasattr(fixturedef, 'cached_result') and fixturedef.scope != 'function' and fixturedef.baseid \
+        #        and self._cache.get(fixturedef):
+        #    uuid = self._cache.pop(fixturedef)
+        #    self.allure_logger.stop_group(uuid)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
@@ -208,7 +230,7 @@ def _test_fixtures(item):
     if hasattr(item, "fixturenames"):
         for name in item.fixturenames:
             fixturedef = fixturemanager.getfixturedefs(name, item.nodeid)
-            if fixturedef and fixturedef[-1].scope != 'function':
+            if fixturedef:# and fixturedef[-1].scope != 'function':
                 fixturedefs.append(fixturedef[-1])
 
     return fixturedefs

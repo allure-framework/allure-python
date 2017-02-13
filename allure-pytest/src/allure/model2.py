@@ -24,11 +24,10 @@ def _write(report_dir, item, glob):
 
 
 @attrs
-class TestGroupResult(object):
+class TestResultContainer(object):
     id = attrib(default=None)
-    parentIds = attrib(default=Factory(list))
-    type = attrib(default=None)
     name = attrib(default=None)
+    children = attrib(default=Factory(list))
     description = attrib(default=None)
     descriptionHtml = attrib(default=None)
     befores = attrib(default=Factory(list))
@@ -44,24 +43,22 @@ class TestGroupResult(object):
 @attrs
 class ExecutableItem(object):
     name = attrib(default=None)
+    status = attrib(default=None)
+    statusDetails = attrib(default=None)
+    stage = attrib(default=None)
     description = attrib(default=None)
     descriptionHtml = attrib(default=None)
     steps = attrib(default=Factory(list))
     attachments = attrib(default=Factory(list))
+    parameters = attrib(default=Factory(list))
     start = attrib(default=None)
     stop = attrib(default=None)
 
 
 @attrs
-class TestCaseResult(ExecutableItem):
+class TestResult(ExecutableItem):
     id = attrib(default=None)
     fullName = attrib(default=None)
-    parentIds = attrib(default=Factory(list))
-    status = attrib(default=None)
-    statusDetails = attrib(default=None)
-    parameters = attrib(default=Factory(list))
-    befores = attrib(default=Factory(list))
-    afters = attrib(default=Factory(list))
     labels = attrib(default=Factory(list))
     links = attrib(default=Factory(list))
 
@@ -72,9 +69,16 @@ class TestCaseResult(ExecutableItem):
 @attrs
 class TestStepResult(ExecutableItem):
     id = attrib(default=None)
-    status = attrib(default=None)
-    parameters = attrib(default=Factory(list))
-    statusDetails = attrib(default=None)
+
+
+@attrs
+class TestBeforeResult(ExecutableItem):
+    pass
+
+
+@attrs
+class TestAfterResult(ExecutableItem):
+    pass
 
 
 @attrs
@@ -98,6 +102,8 @@ class Link(object):
 
 @attrs
 class StatusDetails(object):
+    known = attrib(default=None)
+    flaky = attrib(default=None)
     message = attrib(default=None)
     trace = attrib(default=None)
 

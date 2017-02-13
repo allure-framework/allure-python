@@ -2,7 +2,7 @@ import sys
 from setuptools import setup
 
 PACKAGE = "pytest-allure-adaptor"
-VERSION = "2.0.1"
+VERSION = "2.0.2"
 
 install_requires = [
     "pytest>=2.7.3",
