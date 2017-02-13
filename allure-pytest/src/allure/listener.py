@@ -50,7 +50,6 @@ class AllureListener(object):
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
     def pytest_runtest_protocol(self, item, nextitem):
         uuid = self._cache.set(item.nodeid)
-        parent_ids = []
         for fixturedef in _test_fixtures(item):
             group_uuid = self._cache.get(fixturedef)
             if not group_uuid:
@@ -58,9 +57,8 @@ class AllureListener(object):
                 group = TestResultContainer(id=group_uuid)
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
-        #    parent_ids.append(group_uuid)
 
-        test_case = TestResult(name=item.name, id=uuid)#, parentIds=parent_ids)
+        test_case = TestResult(name=item.name, id=uuid)
         self.allure_logger.schedule_test(uuid, test_case)
 
         yield
@@ -97,14 +95,6 @@ class AllureListener(object):
         before_fixture = TestBeforeResult(name=fixture_name, start=now())
         self.allure_logger.start_before_fixture(container_uuid, before_fixture_uuid, before_fixture)
 
-        #node_id = request.node.nodeid
-        #parent_uuid = self._cache.get(node_id) if fixturedef.scope == 'function' else self._cache.get(fixturedef)
-
-        # ToDo autouse fixtures
-        #if fixturedef.baseid and parent_uuid:
-        #    fixture = ExecutableItem(start=now(), name=fixturedef.argname)
-        #    self.allure_logger.start_before_fixture(parent_uuid, uuid, fixture)
-
         parameters = allure_parameters(fixturedef, request)
         if parameters:
             test_uuid = self._cache.get(request._pyfuncitem.nodeid)
@@ -112,10 +102,6 @@ class AllureListener(object):
             self.allure_logger.update_test(test_uuid, parameters=parameters)
 
         yield
-
-        # ToDo autouse fixtures
-        #if fixturedef.baseid and parent_uuid:
-        #    self.allure_logger.stop_before_fixture(uuid, stop=now())
 
         self.allure_logger.stop_before_fixture(before_fixture_uuid, stop=now())
 
@@ -128,12 +114,6 @@ class AllureListener(object):
         if hasattr(fixturedef, 'cached_result') and self._cache.get(fixturedef):
             container_uuid = self._cache.pop(fixturedef)
             self.allure_logger.stop_group(container_uuid, stop=now())
-
-        # ToDo autouse fixtures
-        #if hasattr(fixturedef, 'cached_result') and fixturedef.scope != 'function' and fixturedef.baseid \
-        #        and self._cache.get(fixturedef):
-        #    uuid = self._cache.pop(fixturedef)
-        #    self.allure_logger.stop_group(uuid)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
@@ -230,7 +210,7 @@ def _test_fixtures(item):
     if hasattr(item, "fixturenames"):
         for name in item.fixturenames:
             fixturedef = fixturemanager.getfixturedefs(name, item.nodeid)
-            if fixturedef:# and fixturedef[-1].scope != 'function':
+            if fixturedef:
                 fixturedefs.append(fixturedef[-1])
 
     return fixturedefs
