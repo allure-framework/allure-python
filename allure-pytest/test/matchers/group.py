@@ -1,233 +1,146 @@
-"""
->>> from hamcrest import assert_that, is_not
->>> from .report import has_test_case
->>> from .fixture import has_before
-
->>> class Report(object):
-...     def __init__(self):
-...         self.test_cases = [
-...                 {
-...                     'name': 'ideal_case',
-...                     'fullName': 'ideal_case',
-...                     'parentIds': ['gid-1', 'gid-2'],
-...                     'steps': [
-...                         {'name': 'step_one'}
-...                     ]
-...                 },
-...                 {
-...                     'name': 'like_ideal_case_by_group',
-...                     'fullName': 'like_ideal_case_by_group',
-...                     'parentIds': ['gid-1', 'gid-2'],
-...                 },
-...                 {
-...                     'name': 'has_wrong_group_case',
-...                     'fullName': 'has_wrong_group_case',
-...                     'parentIds': ['gid-1', 'gid-2', 'gid-3'],
-...                 }
-...         ]
-...
-...         self.test_groups = [
-...                 {
-...                     'id': 'gid-1',
-...                     'befores': [
-...                         {'name': 'before_#1_gid1'},
-...                         {'name': 'before_#2_gid1'}
-...                     ]
-...                 },
-...                 {
-...                     'id': 'gid-2'
-...                 }
-...         ]
-
->>> report = Report()
-
-EACH TEST CASE GROUP IN GROUPS +
-
->>> assert_that(report,
-...             has_test_case('ideal_case',
-...                 has_each_group_in(report.test_groups)
-...             ))
-
-
-EACH TEST CASE GROUP IN GROUPS -
->>> assert_that(report,
-...             has_test_case('has_wrong_group_case',
-...                 has_each_group_in(report.test_groups)
-...             ))
-Traceback (most recent call last):
-    ...
-AssertionError: ...
-Expected: ...
-     but: property 'test_cases' was <[{...}]>
-<BLANKLINE>
-
-
-HAS GROUP IN +
->>> assert_that(report,
-...             has_test_case('ideal_case',
-...                           has_group_in(report.test_groups,
-...                               has_before('before_#1_gid1')
-...                           )
-...             ))
-
-
-HAS GROUP IN ++
->>> assert_that(report,
-...             has_test_case('ideal_case',
-...                           has_group_in(report.test_groups,
-...                               has_before('before_#1_gid1'),
-...                                has_before('before_#2_gid1')
-...                           )
-...             ))
-
-
-HAS GROUP IN -
->>> assert_that(report,
-...             has_test_case('ideal_case',
-...                           has_group_in(report.test_groups,
-...                               has_before('before_#3_gid1')
-...                           )
-...             ))
-Traceback (most recent call last):
-   ...
-AssertionError: ...
-Expected: ...
-     but: property 'test_cases' was ...
-<BLANKLINE>
-
-
-HAS GROUP IN --
->>> assert_that(report,
-...             has_test_case('ideal_case',
-...                           has_group_in(report.test_groups,
-...                               has_before('before_#1_gid1'),
-...                               has_before('before_#3_gid1')
-...                           )
-...             ))
-Traceback (most recent call last):
-   ...
-AssertionError: ...
-Expected: ...
-     but: property 'test_cases' was ...
-<BLANKLINE>
-
-
-HAS EQUAL GROUPS WITH +
->>> assert_that(report,
-...             has_equal_groups('ideal_case', 'like_ideal_case_by_group')
-...             )
-
-
-HAS EQUAL GROUPS WITH -
->>> assert_that(report,
-...             has_equal_groups('ideal_case', 'has_wrong_group_case')
-...             )
-Traceback (most recent call last):
-   ...
-AssertionError: ...
-Expected: ...
-     but: ...
-<BLANKLINE>
-
-
-HAS EQUAL GROUPS WITH --
->>> assert_that(report,
-...             has_equal_groups('has_wrong_group_case', 'ideal_case')
-...             )
-Traceback (most recent call last):
-   ...
-AssertionError: ...
-Expected: ...
-     but: ...
-<BLANKLINE>
-
-
-HAS EQUAL GROUPS WITH ++
->>> assert_that(report,
-...             is_not(has_equal_groups('has_wrong_group_case', 'ideal_case'))
-...             )
-"""
-
-
-from hamcrest import all_of
-from hamcrest import equal_to, not_none, empty, is_not
-from hamcrest import has_entry, has_item
 from hamcrest.core.base_matcher import BaseMatcher
-from hamcrest import any_of
+from hamcrest import all_of, anything, any_of
+from hamcrest import has_entry, has_item, has_property
+from six import string_types
 
 
-class HasEachGroupInReport(BaseMatcher):
+class HasContainer(BaseMatcher):
 
-    def __init__(self, groups):
-        self.groups = groups
-
-    def _matches(self, item):
-        return all_of(
-            has_entry('parentIds',
-                      all_of(
-                          not_none(),
-                          is_not(empty()),
-                      ))
-        ).matches(item) and all_of(
-            *[has_item(
-                has_entry('id', equal_to(key))) for key in item['parentIds']]).matches(self.groups)
-
-    # TODO better describe
-    def describe_to(self, description):
-        description.append_text('test_case has group')
-
-
-def has_each_group_in(groups):
-    return HasEachGroupInReport(groups)
-
-
-class HasGroupInGroups(BaseMatcher):
-
-    def __init__(self, groups, *matchers):
-        self.groups = groups
+    def __init__(self, report, *matchers):
+        self.report = report
         self.matchers = matchers
 
     def _matches(self, item):
-        return any_of(
-            *[has_item(
-                all_of(
-                    has_entry('id', pid),
-                    *self.matchers
-                )
-            ) for pid in item['parentIds']]
-        ).matches(self.groups)
+        return has_property('test_containers',
+                            has_item(
+                                     all_of(
+                                            has_entry('children', has_item(item['id'])),
+                                            *self.matchers
+                                     )
+                            )
+               ).matches(self.report)
 
     def describe_to(self, description):
-        description.append_text('test_case has group')
+        description.append_text('describe me later').append_list('[', ', ', ']', self.matchers)
+
+    def describe_mismatch(self, item, mismatch_descaription):
+        self.matches(item, mismatch_description)
 
 
-def has_group_in(groups, *matchers):
-    return HasGroupInGroups(groups, *matchers)
+def has_container(report, *matchers):
+    """
+    >>> class Report(object):
+    ...     test_cases = [
+    ...         {
+    ...              'fullName': 'test_case',
+    ...              'id': 'test_case_uuid'
+    ...         },
+    ...         {
+    ...              'fullName': 'test_case_without_container',
+    ...              'id': 'test_case_without_container_uuid'
+    ...         }
+    ...     ]
+    ...     test_containers = [
+    ...         {
+    ...             'children' : ['test_case_uuid'],
+    ...             'befores': [ {'name': 'before_fixture'} ]
+    ...         }
+    ...     ]
+
+    >>> assert_that(Report,
+    ...             has_test_case('test_case',
+    ...                           has_container(Report,
+    ...                                        has_before('before_fixture')
+    ...                           )
+    ...             )
+    ... )
+
+    >>> assert_that(Report,
+    ...             has_test_case('test_case_without_container',
+    ...                           has_container(Report,
+    ...                                        has_before('before_fixture')
+    ...                           )
+    ...             )
+    ... )
+    Traceback (most recent call last):
+       ...
+    AssertionError: ...
+    Expected: ...
+         but: ...
+    <BLANKLINE>
+    """
+    return HasContainer(report, *matchers)
 
 
-class HasSameGroups(BaseMatcher):
+class HasSameContainer(BaseMatcher):
 
-    def __init__(self, left_test_case_name, right_test_case_name):
-        self.left_test_case = left_test_case_name
-        self.right_test_case = right_test_case_name
+    def __init__(self, *args):
+        self.test_case_names = [test_case_name for test_case_name in args if isinstance(test_case_name, string_types)]
+        self.matchers = args[len(self.test_case_names):]
 
-    def _test_case_by_name(self, report, test_case_name):
+    @staticmethod
+    def _test_case_id_by_name(report, test_case_name):
         for test_case in report.test_cases:
-            if test_case['name'] == test_case_name:
-                return test_case['parentIds']
+            if test_case['fullName'].endswith(test_case_name):
+                return test_case['id']
 
     def _matches(self, report):
-        return equal_to(
-            self._test_case_by_name(report,
-                                    self.left_test_case)
-        ).matches(self._test_case_by_name(report,
-                                          self.right_test_case))
+        return has_property('test_containers',
+                            has_item(
+                                     all_of(
+                                            has_entry('children',
+                                                      all_of(
+                                                             *[has_item(self._test_case_id_by_name(report, name))
+                                                               for name in self.test_case_names]
+                                                      )),
+                                            *self.matchers
+                                     )
+                            )
+               ).matches(report)
 
     # TODO better describe
     def describe_to(self, description):
         description.append_text('test_case has group')
 
 
-# TODO make in easy
-def has_equal_groups(left_test_case_name, right_test_case_name):
-    return HasSameGroups(left_test_case_name, right_test_case_name)
+def has_same_container(*args):
+    """
+    >>> class Report(object):
+    ...     test_cases = [
+    ...         {
+    ...              'fullName': 'first_test_case',
+    ...              'id': 'first_test_case_uuid'
+    ...         },
+    ...         {
+    ...              'fullName': 'second_test_case',
+    ...              'id': 'second_test_case_uuid'
+    ...         },
+    ...         {
+    ...              'fullName': 'third_test_case',
+    ...              'id': 'third_test_case_uuid'
+    ...         }
+    ...     ]
+    ...     test_containers = [
+    ...         {
+    ...             'children' : ['first_test_case_uuid', 'second_test_case_uuid'],
+    ...         },
+    ...         {
+    ...             'children' : ['first_test_case_uuid', 'third_test_case_uuid'],
+    ...         }
+    ...     ]
+
+    >>> assert_that(Report,
+    ...             has_same_container('first_test_case', 'second_test_case')
+    ... )
+
+    >>> assert_that(Report,
+    ...             has_same_container('second_test_case', 'third_test_case')
+    ... )
+    Traceback (most recent call last):
+       ...
+    AssertionError: ...
+    Expected: ...
+         but: ...
+    <BLANKLINE>
+    """
+    return HasSameContainer(*args)

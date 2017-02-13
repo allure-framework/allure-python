@@ -4,7 +4,7 @@
 ...             all_of(
 ...                 has_property('test_cases', has_length(5)),
 ...                 has_property('test_groups', has_length(0))
-...             ))
+...             ))  # doctest: +SKIP
 """
 
 import pytest
@@ -43,7 +43,7 @@ class TestClass(object):
         >>> allure_report = getfixture('allure_report_with_params')('--allure-severities=trivial')
         >>> assert_that(allure_report,
         ...             has_test_case('test_method_with_normal_severity',
-        ...                           with_status('canceled')
+        ...                           with_status('skipped')
         ...             )
         ... )
         """
@@ -70,7 +70,7 @@ class TestClassAgain(object):
         >>> allure_report = getfixture('allure_report_with_params')('--allure-severities=trivial')
         >>> assert_that(allure_report,
         ...             has_test_case('test_method_with_overridden_class_severity',
-        ...                           with_status('canceled')
+        ...                           with_status('skipped')
         ...             )
         ... )
         """

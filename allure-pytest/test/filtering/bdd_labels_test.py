@@ -5,7 +5,7 @@
 ...             all_of(
 ...                 has_property('test_cases', has_length(4)),
 ...                 has_property('test_groups', has_length(0))
-...             ))
+...             ))  # doctest: +SKIP
 """
 
 import pytest
@@ -16,7 +16,7 @@ def test_wihtout_features_and_stories():
     ...                                                         '--allure-stories=right_story')
     >>> assert_that(allure_report,
     ...             has_test_case('test_wihtout_features_and_stories',
-    ...                           with_status('canceled')
+    ...                           with_status('skipped')
     ...             )
     ... )
     """

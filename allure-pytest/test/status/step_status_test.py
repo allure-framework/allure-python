@@ -6,9 +6,9 @@ def test_skip_in_step():
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_skip_in_step',
-    ...                           with_status('canceled'),
+    ...                           with_status('skipped'),
     ...                           has_step('Step1',
-    ...                                    with_status('canceled')
+    ...                                    with_status('skipped')
     ...                            )
     ...             )
     ... )
@@ -22,11 +22,11 @@ def test_skip_in_deep_step():
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_skip_in_deep_step',
-    ...                           with_status('canceled'),
+    ...                           with_status('skipped'),
     ...                           has_step('Step1',
-    ...                                    with_status('canceled'),
+    ...                                    with_status('skipped'),
     ...                                    has_step('Step2',
-    ...                                             with_status('canceled')
+    ...                                             with_status('skipped')
     ...                                    )
     ...                            )
     ...             )

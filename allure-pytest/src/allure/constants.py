@@ -9,8 +9,7 @@ class Status(object):
     FAILED = 'failed'
     BROKEN = 'broken'
     PASSED = 'passed'
-    CANCELED = 'canceled'
-    PENDING = 'pending'
+    SKIPPED = 'skipped'
 
 
 class Severity(Enum):

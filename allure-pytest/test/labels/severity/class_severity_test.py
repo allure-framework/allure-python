@@ -5,7 +5,7 @@
 ...                    has_property('test_cases', has_length(4)),
 ...                    has_property('test_groups', has_length(0))
 ...             )
-... )
+... )  # doctest: +SKIP
 """
 
 

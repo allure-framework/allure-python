@@ -6,7 +6,7 @@
 ...             all_of(
 ...                 has_property('test_cases', has_length(8)),
 ...                 has_property('test_groups', has_length(0))
-...             ))
+...             ))  # doctest: +SKIP
 
 
 SEQUENCE OF STEPS
