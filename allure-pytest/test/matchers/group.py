@@ -14,7 +14,7 @@ class HasContainer(BaseMatcher):
         return has_property('test_containers',
                             has_item(
                                      all_of(
-                                            has_entry('children', has_item(item['id'])),
+                                            has_entry('children', has_item(item['uuid'])),
                                             *self.matchers
                                      )
                             )
@@ -33,11 +33,11 @@ def has_container(report, *matchers):
     ...     test_cases = [
     ...         {
     ...              'fullName': 'test_case',
-    ...              'id': 'test_case_uuid'
+    ...              'uuid': 'test_case_uuid'
     ...         },
     ...         {
     ...              'fullName': 'test_case_without_container',
-    ...              'id': 'test_case_without_container_uuid'
+    ...              'uuid': 'test_case_without_container_uuid'
     ...         }
     ...     ]
     ...     test_containers = [
@@ -82,7 +82,7 @@ class HasSameContainer(BaseMatcher):
     def _test_case_id_by_name(report, test_case_name):
         for test_case in report.test_cases:
             if test_case['fullName'].endswith(test_case_name):
-                return test_case['id']
+                return test_case['uuid']
 
     def _matches(self, report):
         return has_property('test_containers',
@@ -109,15 +109,15 @@ def has_same_container(*args):
     ...     test_cases = [
     ...         {
     ...              'fullName': 'first_test_case',
-    ...              'id': 'first_test_case_uuid'
+    ...              'uuid': 'first_test_case_uuid'
     ...         },
     ...         {
     ...              'fullName': 'second_test_case',
-    ...              'id': 'second_test_case_uuid'
+    ...              'uuid': 'second_test_case_uuid'
     ...         },
     ...         {
     ...              'fullName': 'third_test_case',
-    ...              'id': 'third_test_case_uuid'
+    ...              'uuid': 'third_test_case_uuid'
     ...         }
     ...     ]
     ...     test_containers = [

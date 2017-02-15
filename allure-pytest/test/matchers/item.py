@@ -117,7 +117,7 @@ def has_attachment(attach_type=None, name=None):
 
 
 def with_id():
-    return has_entry('id', not_none())
+    return has_entry('uuid', not_none())
 
 
 def with_status(status):

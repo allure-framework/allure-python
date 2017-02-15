@@ -25,7 +25,7 @@ def _write(report_dir, item, glob):
 
 @attrs
 class TestResultContainer(object):
-    id = attrib(default=None)
+    uuid = attrib(default=None)
     name = attrib(default=None)
     children = attrib(default=Factory(list))
     description = attrib(default=None)
@@ -57,7 +57,7 @@ class ExecutableItem(object):
 
 @attrs
 class TestResult(ExecutableItem):
-    id = attrib(default=None)
+    uuid = attrib(default=None)
     fullName = attrib(default=None)
     labels = attrib(default=Factory(list))
     links = attrib(default=Factory(list))

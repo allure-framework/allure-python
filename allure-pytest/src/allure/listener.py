@@ -54,11 +54,11 @@ class AllureListener(object):
             group_uuid = self._cache.get(fixturedef)
             if not group_uuid:
                 group_uuid = self._cache.set(fixturedef)
-                group = TestResultContainer(id=group_uuid)
+                group = TestResultContainer(uuid=group_uuid)
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
 
-        test_case = TestResult(name=item.name, id=uuid)
+        test_case = TestResult(name=item.name, uuid=uuid)
         self.allure_logger.schedule_test(uuid, test_case)
 
         yield
@@ -86,7 +86,7 @@ class AllureListener(object):
 
         if not container_uuid:
             container_uuid = self._cache.set(fixturedef)
-            container = TestResultContainer(id=container_uuid)
+            container = TestResultContainer(uuid=container_uuid)
             self.allure_logger.start_group(container_uuid, container)
 
         self.allure_logger.update_group(container_uuid, start=now())
