@@ -1,0 +1,7 @@
+.idea
+.tox
+.cache
+.python-version
+
+*.pyc
+*.egg-info
