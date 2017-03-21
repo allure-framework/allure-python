@@ -1,12 +1,12 @@
 import os
 import shutil
-from collections import OrderedDict
 from six import text_type
+from collections import OrderedDict
 
-from allure.constants import AttachmentType
-from allure.model2 import ExecutableItem
-from allure.model2 import Attachment, ATTACHMENT_PATTERN
-from allure.utils import now
+from allure_commons.constants import AttachmentType
+from allure_commons.model2 import ExecutableItem
+from allure_commons.model2 import Attachment, ATTACHMENT_PATTERN
+from allure_commons.utils import now
 
 
 class AllureLogger(object):
