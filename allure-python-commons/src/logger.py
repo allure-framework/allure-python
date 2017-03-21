@@ -1,88 +1,108 @@
-import errno
-import io
 import os
-import sys
-import json
-import uuid
 import shutil
 from six import text_type
-from attr import asdict
-from allure_commons import hookimpl
+from collections import OrderedDict
 
-INDENT = 4
+from allure_commons.constants import AttachmentType
+from allure_commons.model2 import ExecutableItem
+from allure_commons.model2 import Attachment, ATTACHMENT_PATTERN
+from allure_commons.utils import now
 
 
-class AllureFileLogger(object):
-
-    def __init__(self, report_dir, clean=False):
+class AllureLogger(object):
+    def __init__(self, report_dir):
+        self._items = OrderedDict()
         self._report_dir = report_dir
 
-        try:
-            os.makedirs(report_dir)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-            elif clean:
-                for f in os.listdir(report_dir):
-                    f = os.path.join(report_dir, f)
-                    if os.path.isfile(f):
-                        os.unlink(f)
-
-    def _report_item(self, item):
-        indent = INDENT if os.environ.get("ALLURE_INDENT_OUTPUT") else None
-        filename = item.file_pattern.format(prefix=uuid.uuid4())
-        data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
-        with io.open(os.path.join(self._report_dir, filename), 'w', encoding='utf8') as json_file:
-            if sys.version_info.major < 3:
-                json_file.write(
-                    unicode(json.dumps(data, indent=indent, ensure_ascii=False, encoding='utf8')))  # noqa: F821
+    def _update_item(self, uuid, **kwargs):
+        item = self._items[uuid]
+        for name, value in kwargs.items():
+            attr = getattr(item, name)
+            if isinstance(attr, list):
+                attr.append(value)
             else:
-                json.dump(data, json_file, indent=indent, ensure_ascii=False)
+                setattr(item, name, value)
 
-    @hookimpl
-    def report_result(self, result):
-        self._report_item(result)
+    def get_item(self, uuid):
+        return self._items.get(uuid)
 
-    @hookimpl
-    def report_container(self, container):
-        self._report_item(container)
+    def start_group(self, uuid, group):
+        self._items[uuid] = group
 
-    @hookimpl
-    def report_attached_file(self, source, file_name):
+    def stop_group(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
+        group = self._items.pop(uuid)
+        group.write(self._report_dir)
+
+    def update_group(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
+
+    def start_before_fixture(self, parent_uuid, uuid, fixture):
+        self._items.get(parent_uuid).befores.append(fixture)
+        self._items[uuid] = fixture
+
+    def stop_before_fixture(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
+        self._items.pop(uuid)
+
+    def start_after_fixture(self, parent_uuid, uuid, fixture):
+        self._items.get(parent_uuid).afters.append(fixture)
+        self._items[uuid] = fixture
+
+    def stop_after_fixture(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
+        fixture = self._items.pop(uuid)
+        fixture.stop = now()
+
+    def schedule_test(self, uuid, test_case):
+        self._items[uuid] = test_case
+
+    def update_test(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
+
+    def close_test(self, uuid):
+        test_case = self._items.pop(uuid)
+        test_case.write(self._report_dir)
+
+    def start_step(self, uuid, step):
+        parent_uuid = None
+        for _uuid in reversed(self._items):
+            if isinstance(self._items[_uuid], ExecutableItem):
+                parent_uuid = _uuid
+                break
+        if parent_uuid:
+            self._items[parent_uuid].steps.append(step)
+        self._items[uuid] = step
+
+    def stop_step(self, uuid, **kwargs):
+        self._update_item(uuid, **kwargs)
+        self._items.pop(uuid)
+
+    def _attach(self, uuid, name=None, attachment_type=None, extension=None):
+        mime_type = attachment_type
+        extension = extension if extension else 'attach'
+
+        if type(attachment_type) is AttachmentType:
+            extension = attachment_type.extension
+            mime_type = attachment_type.mime_type
+
+        file_name = ATTACHMENT_PATTERN.format(prefix=uuid, ext=extension)
         destination = os.path.join(self._report_dir, file_name)
+        attachment = Attachment(source=file_name, name=name, type=mime_type)
+        last_uuid = next(reversed(self._items))
+        self._items[last_uuid].attachments.append(attachment)
+
+        return file_name, destination
+
+    def attach_file(self, uuid, source, name=None, attachment_type=None, extension=None):
+        file_name, destination = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
         shutil.copy2(source, destination)
 
-    @hookimpl
-    def report_attached_data(self, body, file_name):
-        destination = os.path.join(self._report_dir, file_name)
+    def attach_data(self, uuid, body, name=None, attachment_type=None, extension=None):
+        file_name, destination = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+
         with open(destination, 'wb') as attached_file:
             if isinstance(body, text_type):
                 attached_file.write(body.encode('utf-8'))
             else:
                 attached_file.write(body)
-
-
-class AllureMemoryLogger(object):
-
-    def __init__(self):
-        self.test_cases = []
-        self.test_containers = []
-        self.attachments = {}
-
-    @hookimpl
-    def report_result(self, result):
-        data = asdict(result, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
-        self.test_cases.append(data)
-
-    @hookimpl
-    def report_container(self, container):
-        data = asdict(container, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
-        self.test_containers.append(data)
-
-    @hookimpl
-    def report_attached_file(self, source, file_name):
-        pass
-
-    @hookimpl
-    def report_attached_data(self, body, file_name):
-        self.attachments[file_name] = body

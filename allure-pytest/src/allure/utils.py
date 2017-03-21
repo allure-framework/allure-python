@@ -1,18 +1,12 @@
 import os
-import time
-import uuid
+import inspect
 from itertools import product
 
-from allure.constants import ALLURE_LABEL_PREFIX
-from allure.constants import ALLURE_LINK_PREFIX
+from allure_commons.constants import ALLURE_UNIQUE_LABELS
 
 
-def uuid4():
-    return str(uuid.uuid4())
-
-
-def now():
-    return int(round(1000 * time.time()))
+ALLURE_LABEL_PREFIX = 'allure_label'
+ALLURE_LINK_PREFIX = 'allure_link'
 
 
 def allure_parameters(fixturedef, request):
@@ -57,9 +51,12 @@ def allure_labels(item):
     for keyword in item.keywords.keys():
         if keyword.startswith(ALLURE_LABEL_PREFIX):
             marker = item.get_marker(keyword)
-            name = marker.name.split('.', 1)[-1]
-            for value in marker.args:
-                yield (name, value)
+            label_type = marker.kwargs['label_type']
+            if label_type.value in ALLURE_UNIQUE_LABELS:
+                yield (label_type.value, marker.args[0])
+            else:
+                for value in marker.args:
+                    yield (label_type.value, value)
 
 
 def allure_links(item):
@@ -84,3 +81,11 @@ def allure_full_name(nodeid):
     clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
     test = parts[-1]
     return '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+
+
+def step_parameters(func, *a, **kw):
+    all_names = inspect.getargspec(func).args
+    defaults = inspect.getargspec(func).defaults
+    args_part = [(n, str(v)) for n, v in zip(all_names, a)]
+    kwarg_part = [(n, str(kw[n]) if n in kw else str(defaults[i])) for i, n in enumerate(all_names[len(a):])]
+    return args_part + kwarg_part

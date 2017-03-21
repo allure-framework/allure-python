@@ -1,4 +1,3 @@
-import sys
 from setuptools import setup
 
 PACKAGE = "pytest-allure-adaptor"
@@ -6,11 +5,8 @@ VERSION = "2.0.1"
 
 install_requires = [
     "pytest>=2.7.3",
-    "attrs>=16.0.0",
+    "allure-python-commons==2.0.3"
 ]
-
-if sys.version_info < (3, 4):
-    install_requires.append("enum34")
 
 def main():
     setup(

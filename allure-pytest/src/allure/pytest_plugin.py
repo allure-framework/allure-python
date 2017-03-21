@@ -1,13 +1,13 @@
-import argparse
-
 import pytest
+import argparse
+from six import text_type
 
+from allure_commons.constants import Severity
+from allure_commons.constants import LabelType
+
+from allure.utils import allure_labels
 from allure.helper import AllureTestHelper
 from allure.listener import AllureListener
-from allure.constants import Severity
-from allure.constants import Label
-from allure.utils import allure_labels
-from six import text_type
 
 
 def pytest_addoption(parser):
@@ -24,7 +24,7 @@ def pytest_addoption(parser):
             if legal_values and not atoms < legal_values:
                 raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
                     name, ', '.join(atoms - legal_values), ', '.join(legal_values)))
-            return set((name, v) for v in atoms)
+            return set((name.value, atom) for atom in atoms)
         return a_label_type
 
     severities = [x.value for x in list(Severity)]
@@ -33,7 +33,7 @@ def pytest_addoption(parser):
                                          dest="allure_severities",
                                          metavar="SEVERITIES_SET",
                                          default={},
-                                         type=label_type(name=Label.SEVERITY, legal_values=set(severities)),
+                                         type=label_type(name=LabelType.SEVERITY, legal_values=set(severities)),
                                          help="""Comma-separated list of severity names.
                                          Tests only with these severities will be run.
                                          Possible values are: %s.""" % ', '.join(severities))
@@ -43,7 +43,7 @@ def pytest_addoption(parser):
                                          dest="allure_features",
                                          metavar="FEATURES_SET",
                                          default={},
-                                         type=label_type(name=Label.FEATURE),
+                                         type=label_type(name=LabelType.FEATURE),
                                          help="""Comma-separated list of feature names.
                                          Run tests that have at least one of the specified feature labels.""")
 
@@ -52,9 +52,28 @@ def pytest_addoption(parser):
                                          dest="allure_stories",
                                          metavar="STORIES_SET",
                                          default={},
-                                         type=label_type(name=Label.STORY),
+                                         type=label_type(name=LabelType.STORY),
                                          help="""Comma-separated list of story names.
                                          Run tests that have at least one of the specified story labels.""")
+
+    def link_pattern(string):
+        pattern = string.split(':', 1)
+        if not pattern[0]:
+            raise argparse.ArgumentTypeError('Link type is mandatory.')
+
+        if len(pattern) != 2:
+            raise argparse.ArgumentTypeError('Link pattern is mandatory')
+        return pattern
+
+    parser.getgroup("general").addoption('--allure-link-pattern',
+                                         action="append",
+                                         dest="allure_link_pattern",
+                                         metavar="LINK_TYPE:LINK_PATTERN",
+                                         default=[],
+                                         type=link_pattern,
+                                         help="""Url pattern for link type. Allows short links in test,
+                                         like 'issue-1'. Text will be formatted to full url with python
+                                         str.format().""")
 
 
 def pytest_configure(config):

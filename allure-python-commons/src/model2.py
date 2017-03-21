@@ -1,4 +1,9 @@
-from attr import attrs, attrib
+import io
+import os
+import sys
+import json
+import uuid
+from attr import attrs, attrib, asdict
 from attr import Factory
 
 
@@ -8,10 +13,19 @@ ATTACHMENT_PATTERN = '{prefix}-attachment.{ext}'
 INDENT = 4
 
 
+def _write(report_dir, item, glob):
+    indent = INDENT if os.environ.get("ALLURE_INDENT_OUTPUT") else None
+    filename = glob.format(prefix=uuid.uuid4())
+    data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+    with io.open(os.path.join(report_dir, filename), 'w', encoding='utf8') as json_file:
+        if sys.version_info.major < 3:
+            json_file.write(unicode(json.dumps(data, indent=indent, ensure_ascii=False)))
+        else:
+            json.dump(data, json_file, indent=indent, ensure_ascii=False)
+
+
 @attrs
 class TestResultContainer(object):
-    file_pattern = TEST_GROUP_PATTERN
-
     uuid = attrib(default=None)
     name = attrib(default=None)
     children = attrib(default=Factory(list))
@@ -22,6 +36,9 @@ class TestResultContainer(object):
     links = attrib(default=Factory(list))
     start = attrib(default=None)
     stop = attrib(default=None)
+
+    def write(self, report_dir):
+        _write(report_dir, self, TEST_GROUP_PATTERN)
 
 
 @attrs
@@ -41,14 +58,13 @@ class ExecutableItem(object):
 
 @attrs
 class TestResult(ExecutableItem):
-    file_pattern = TEST_CASE_PATTERN
-
     uuid = attrib(default=None)
-    historyId = attrib(default=None)
-    testCaseId = attrib(default=None)
     fullName = attrib(default=None)
     labels = attrib(default=Factory(list))
     links = attrib(default=Factory(list))
+
+    def write(self, report_dir):
+        _write(report_dir, self, TEST_CASE_PATTERN)
 
 
 @attrs
@@ -105,4 +121,3 @@ class Status(object):
     BROKEN = 'broken'
     PASSED = 'passed'
     SKIPPED = 'skipped'
-    UNKNOWN = 'unknown'
