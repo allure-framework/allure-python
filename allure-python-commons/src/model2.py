@@ -2,8 +2,9 @@ import io
 import os
 import sys
 import json
-from attr import attrs, attrib, asdict, Factory
 import uuid
+from attr import attrs, attrib, asdict
+from attr import Factory
 
 
 TEST_GROUP_PATTERN = "{prefix}-container.json"
@@ -113,3 +114,10 @@ class Attachment(object):
     name = attrib(default=None)
     source = attrib(default=None)
     type = attrib(default=None)
+
+
+class Status(object):
+    FAILED = 'failed'
+    BROKEN = 'broken'
+    PASSED = 'passed'
+    SKIPPED = 'skipped'

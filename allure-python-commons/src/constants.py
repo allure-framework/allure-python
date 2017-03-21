@@ -1,15 +1,6 @@
 from enum import Enum
 
-ALLURE_LABEL_PREFIX = 'allure_label'
-ALLURE_LINK_PREFIX = 'allure_link'
 ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
-
-
-class Status(object):
-    FAILED = 'failed'
-    BROKEN = 'broken'
-    PASSED = 'passed'
-    SKIPPED = 'skipped'
 
 
 class Severity(Enum):

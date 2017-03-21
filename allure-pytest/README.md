@@ -1,11 +1,9 @@
 # Allure pytest plugin
 
-## Installation 
-Beta version is not available on PyPI, but you can install allure directly from github:
+## Installation
+In process. We are hope to get beta on PyPi in april
 
-```bash
-$ pip install -e 'git+https://github.com/allure-framework/allure-python2.git#egg=pytest_allure_adaptor&subdirectory=allure-pytest'
-```
+
 ## Changes
 
 ### Attachments

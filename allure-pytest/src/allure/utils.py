@@ -1,20 +1,12 @@
 import os
-import time
-import uuid
-from itertools import product
 import inspect
+from itertools import product
 
-from allure.constants import ALLURE_LABEL_PREFIX
-from allure.constants import ALLURE_LINK_PREFIX
-from allure.constants import ALLURE_UNIQUE_LABELS
-
-
-def uuid4():
-    return str(uuid.uuid4())
+from allure_commons.constants import ALLURE_UNIQUE_LABELS
 
 
-def now():
-    return int(round(1000 * time.time()))
+ALLURE_LABEL_PREFIX = 'allure_label'
+ALLURE_LINK_PREFIX = 'allure_link'
 
 
 def allure_parameters(fixturedef, request):

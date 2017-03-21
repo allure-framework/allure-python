@@ -1,17 +1,18 @@
 import pytest
 
-from allure.logger import AllureLogger
-from allure.utils import now
-from allure.utils import uuid4
+from allure_commons.utils import now
+from allure_commons.utils import uuid4
+from allure_commons.logger import AllureLogger
+from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
+from allure_commons.model2 import TestResultContainer
+from allure_commons.model2 import StatusDetails
+from allure_commons.model2 import Parameter
+from allure_commons.model2 import Label, Link
+from allure_commons.model2 import Status
+
 from allure.utils import allure_parameters
 from allure.utils import allure_labels, allure_links
 from allure.utils import allure_full_name, allure_package
-from allure.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
-from allure.model2 import TestResultContainer
-from allure.model2 import StatusDetails
-from allure.model2 import Parameter
-from allure.model2 import Label, Link
-from allure.constants import Status
 
 
 class AllureListener(object):

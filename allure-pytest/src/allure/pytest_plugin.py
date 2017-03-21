@@ -1,13 +1,13 @@
-import argparse
-
 import pytest
+import argparse
+from six import text_type
 
+from allure_commons.constants import Severity
+from allure_commons.constants import LabelType
+
+from allure.utils import allure_labels
 from allure.helper import AllureTestHelper
 from allure.listener import AllureListener
-from allure.constants import Severity
-from allure.constants import LabelType
-from allure.utils import allure_labels
-from six import text_type
 
 
 def pytest_addoption(parser):
