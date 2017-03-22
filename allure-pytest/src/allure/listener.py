@@ -1,6 +1,7 @@
 import pytest
 
 from allure_commons.utils import now
+from allure_commons.utils import md5
 from allure_commons.utils import uuid4
 from allure_commons.logger import AllureLogger
 from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
@@ -67,6 +68,7 @@ class AllureListener(object):
         test_case.labels = [Label(name, value) for name, value in allure_labels(item)]
         test_case.links = [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
         test_case.fullName = allure_full_name(item.nodeid)
+        test_case.historyId = md5(test_case.fullName)
         test_case.labels.append(Label('package', allure_package(item.nodeid)))
 
         uuid = self._cache.pop(item.nodeid)

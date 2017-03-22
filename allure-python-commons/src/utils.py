@@ -1,5 +1,13 @@
 import time
 import uuid
+import hashlib
+
+
+def md5(case_name):
+    case_name = case_name.encode('utf-8')
+    m = hashlib.md5()
+    m.update(case_name)
+    return m.hexdigest()
 
 
 def uuid4():
