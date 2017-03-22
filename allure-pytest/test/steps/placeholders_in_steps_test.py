@@ -40,7 +40,7 @@ def test_places_less():
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_places_less',
-    ...                           has_step('arg is {0}'.format(True),
+    ...                           has_step('arg is {0}'.format(True, True),
     ...                                    has_parameter('step_arg_param1', True),
     ...                                    has_parameter('step_arg_param2', True)
     ...                           )
