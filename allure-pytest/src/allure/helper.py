@@ -99,7 +99,7 @@ class StepContext:
         def impl(*a, **kw):
             __tracebackhide__ = True
             params = step_parameters(func, *a, **kw)
-            with StepContext(self.allure, self.title, params):
+            with StepContext(self.allure, self.title.format(*a, **kw), params):
                 return func(*a, **kw)
         return impl
 
