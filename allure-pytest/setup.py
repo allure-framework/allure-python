@@ -1,11 +1,11 @@
 from setuptools import setup
 
 PACKAGE = "pytest-allure-adaptor"
-VERSION = "2.0.3"
+VERSION = "2.0.4"
 
 install_requires = [
     "pytest>=2.7.3",
-    "allure-python-commons==2.0.3"
+    "allure-python-commons==2.0.4"
 ]
 
 def main():
