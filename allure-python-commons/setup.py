@@ -2,7 +2,7 @@ import sys
 from setuptools import setup
 
 PACKAGE = "allure-python-commons"
-VERSION = "2.0.3"
+VERSION = "2.0.4"
 
 
 install_requires = [
