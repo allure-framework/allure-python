@@ -8,7 +8,7 @@ classifiers = [
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: Apache Software License',
-    'Topic :: Software Development :: Quality Assurance'
+    'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
 ]
 

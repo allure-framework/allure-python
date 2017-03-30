@@ -8,7 +8,7 @@ classifiers = [
     'Framework :: Pytest',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: Apache Software License',
-    'Topic :: Software Development :: Quality Assurance'
+    'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
 ]
 
