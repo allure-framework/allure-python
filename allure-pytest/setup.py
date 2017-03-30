@@ -27,7 +27,7 @@ def main():
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
         classifiers=classifiers,
-        keywords="allure reporting python",
+        keywords="allure reporting pytest",
         packages=["allure"],
         package_dir={"allure": "src/allure"},
         entry_points={"pytest11": ["allure_pytest = allure.pytest_plugin"]},
