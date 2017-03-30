@@ -30,6 +30,7 @@ def main():
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
         classifiers=classifiers,
+        keywords="allure reporting pytest",
         packages=["allure_commons"],
         package_dir={"allure_commons": "src"},
         install_requires=install_requires
