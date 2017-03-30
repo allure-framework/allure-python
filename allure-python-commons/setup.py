@@ -25,13 +25,11 @@ def main():
         name=PACKAGE,
         version=VERSION,
         description="Common module for integrate allure with python-based frameworks",
-        long_description="Coming soon...",
         url="https://github.com/allure-framework/allure-python2",
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
         classifiers=classifiers,
-        keywords="",
         packages=["allure_commons"],
         package_dir={"allure_commons": "src"},
         install_requires=install_requires
