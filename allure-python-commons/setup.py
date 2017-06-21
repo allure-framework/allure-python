@@ -2,7 +2,7 @@ import sys
 from setuptools import setup
 
 PACKAGE = "allure-python-commons"
-VERSION = "2.0.0b1"
+VERSION = "2.0.0b2"
 
 classifiers = [
     'Development Status :: 4 - Beta',
@@ -31,8 +31,8 @@ def main():
         license="Apache-2.0",
         classifiers=classifiers,
         keywords="allure reporting report-engine",
-        packages=["allure_commons"],
-        package_dir={"allure_commons": "src"},
+        packages=["allure"],
+        package_dir={"allure": "src"},
         install_requires=install_requires
     )
 

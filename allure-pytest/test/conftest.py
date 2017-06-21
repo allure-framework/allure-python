@@ -2,22 +2,8 @@ import pytest
 import os
 import subprocess
 import shlex
-import json
 from inspect import getmembers, isfunction
-
-
-class AllureReport(object):
-    def __init__(self, report):
-        self._report = report
-        self.report_dir = report.strpath
-        self.test_cases = [json.load(item) for item in self._report_items('*result.json')]
-        self.test_containers = [json.load(item) for item in self._report_items('*container.json')]
-        self.attachments = [item.read() for item in self._report_items('*attachment.*')]
-
-    def _report_items(self, glob):
-        for local_path in self._report.listdir(glob):
-            with open(local_path.strpath) as report_file:
-                yield report_file
+from allure_testing.report import AllureReport
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -26,8 +12,8 @@ def inject_matchers(doctest_namespace):
     for name, function in getmembers(hamcrest, isfunction):
             doctest_namespace[name] = function
 
-    from test.matchers import fixture, group, item, label, report
-    for module in [fixture, group, item, label, report]:
+    from allure_testing import container, label, report, result
+    for module in [container, label, report, result]:
         for name, function in getmembers(module, isfunction):
             doctest_namespace[name] = function
 
@@ -54,7 +40,7 @@ def allure_report_with_params(request, tmpdir_factory):
                 request.config.cache.set(key, False)
             request.addfinalizer(clear_cache)
 
-        return AllureReport(tmpdir)
+        return AllureReport(tmpdir.strpath)
     return run_with_params
 
 
@@ -63,7 +49,7 @@ def allure_report(request, tmpdir_factory):
     module = request.module.__file__
     tmpdir = tmpdir_factory.mktemp('data')
     _runner(tmpdir.strpath, module)
-    return AllureReport(tmpdir)
+    return AllureReport(tmpdir.strpath)
 
 
 def pytest_collection_modifyitems(items, config):

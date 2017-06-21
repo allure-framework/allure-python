@@ -24,8 +24,8 @@ def test_parametrization_many_decorators_without_ids(param1, param2):
     ...                                                                                param2=param2,
     ...                                                                                num2=num2),
     ...                                   all_of(
-    ...                                       has_parameter('param1', param1),
-    ...                                       has_parameter('param2', param2)
+    ...                                       has_parameter('param1', str(param1)),
+    ...                                       has_parameter('param2', str(param2))
     ...                                    )
     ...                     ))
     """
@@ -46,8 +46,8 @@ def test_parametrization_with_many_decorators_and_ids_for_first(param1, param2):
     ...                                                                                param2=param2,
     ...                                                                                num2=num2),
     ...                                   all_of(
-    ...                                       has_parameter(ids1, param1),
-    ...                                       has_parameter('param2', param2)
+    ...                                       has_parameter(ids1, str(param1)),
+    ...                                       has_parameter('param2', str(param2))
     ...                                   )
     ...                     ))
     """
@@ -67,8 +67,8 @@ def test_parametrization_with_many_decorators_and_ids_for_second(param1, param2)
     ...                                                                         param1=param1,
     ...                                                                         ids2=ids2),
     ...                                   all_of(
-    ...                                       has_parameter('param1', param1),
-    ...                                       has_parameter(ids2, param2)
+    ...                                       has_parameter('param1', str(param1)),
+    ...                                       has_parameter(ids2, str(param2))
     ...                                   )
     ...                     ))
     """
@@ -88,8 +88,8 @@ def test_parametrization_with_many_decorators_and_ids_for_all(param1, param2):
     ...                                                                         ids1=ids1,
     ...                                                                         ids2=ids2),
     ...                                   all_of(
-    ...                                       has_parameter(ids1, param1),
-    ...                                       has_parameter(ids2, param2)
+    ...                                       has_parameter(ids1, str(param1)),
+    ...                                       has_parameter(ids2, str(param2))
     ...                                   )
     ...                     ))
     """
@@ -113,9 +113,9 @@ def test_parametrization_with_many_decorators_with_partial_ids_and_unsorted_args
     ...                                                                                    ids2=ids2,
     ...                                                                                    ids3=ids3),
     ...                                   all_of(
-    ...                                       has_parameter('param1', param1),
-    ...                                       has_parameter(ids2, param2),
-    ...                                       has_parameter(ids3, param3)
+    ...                                       has_parameter('param1', str(param1)),
+    ...                                       has_parameter(ids2, str(param2)),
+    ...                                       has_parameter(ids3, str(param3))
     ...                                    )
     ...                     ))
     """

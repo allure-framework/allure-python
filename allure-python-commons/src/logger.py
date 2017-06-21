@@ -3,16 +3,18 @@ import shutil
 from six import text_type
 from collections import OrderedDict
 
-from allure_commons.constants import AttachmentType
-from allure_commons.model2 import ExecutableItem
-from allure_commons.model2 import Attachment, ATTACHMENT_PATTERN
-from allure_commons.utils import now
+from allure.types import AttachmentType
+from allure.model2 import ExecutableItem
+from allure.model2 import Attachment, ATTACHMENT_PATTERN
+from allure.utils import now
 
 
 class AllureLogger(object):
     def __init__(self, report_dir):
         self._items = OrderedDict()
         self._report_dir = report_dir
+        if not os.path.exists(report_dir):
+            os.makedirs(report_dir)
 
     def _update_item(self, uuid, **kwargs):
         item = self._items[uuid]
@@ -64,14 +66,13 @@ class AllureLogger(object):
         test_case = self._items.pop(uuid)
         test_case.write(self._report_dir)
 
-    def start_step(self, uuid, step):
-        parent_uuid = None
-        for _uuid in reversed(self._items):
-            if isinstance(self._items[_uuid], ExecutableItem):
-                parent_uuid = _uuid
-                break
-        if parent_uuid:
-            self._items[parent_uuid].steps.append(step)
+    def start_step(self, parent_uuid, uuid, step):
+        if not parent_uuid:
+            for _uuid in reversed(self._items):
+                if isinstance(self._items[_uuid], ExecutableItem):
+                    parent_uuid = _uuid
+                    break
+        self._items[parent_uuid].steps.append(step)
         self._items[uuid] = step
 
     def stop_step(self, uuid, **kwargs):
