@@ -1,18 +1,19 @@
 import pytest
 
-from allure_commons.utils import now
-from allure_commons.utils import uuid4
-from allure_commons.logger import AllureLogger
-from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
-from allure_commons.model2 import TestResultContainer
-from allure_commons.model2 import StatusDetails
-from allure_commons.model2 import Parameter
-from allure_commons.model2 import Label, Link
-from allure_commons.model2 import Status
+from allure.utils import now
+from allure.utils import md5
+from allure.utils import uuid4
+from allure.logger import AllureLogger
+from allure.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
+from allure.model2 import TestResultContainer
+from allure.model2 import StatusDetails
+from allure.model2 import Parameter
+from allure.model2 import Label, Link
+from allure.model2 import Status
 
-from allure.utils import allure_parameters
-from allure.utils import allure_labels, allure_links
-from allure.utils import allure_full_name, allure_package
+from allure_pytest.utils import allure_parameters
+from allure_pytest.utils import allure_labels, allure_links
+from allure_pytest.utils import allure_full_name, allure_package
 
 
 class AllureListener(object):
@@ -26,7 +27,7 @@ class AllureListener(object):
     def pytest_allure_before_step(self, uuid, title, params):
         parameters = [Parameter(name=name, value=value) for name, value in params]
         step = TestStepResult(name=title, start=now(), parameters=parameters)
-        self.allure_logger.start_step(uuid, step)
+        self.allure_logger.start_step(None, uuid, step)
 
     @pytest.hookimpl
     def pytest_allure_after_step(self, uuid, exc_type, exc_val, exc_tb):
@@ -67,6 +68,7 @@ class AllureListener(object):
         test_case.labels = [Label(name, value) for name, value in allure_labels(item)]
         test_case.links = [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
         test_case.fullName = allure_full_name(item.nodeid)
+        test_case.historyId = md5(test_case.fullName)
         test_case.labels.append(Label('package', allure_package(item.nodeid)))
 
         uuid = self._cache.pop(item.nodeid)

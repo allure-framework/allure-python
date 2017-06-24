@@ -1,0 +1,26 @@
+from setuptools import setup
+
+PACKAGE = "allure-python-testing"
+VERSION = "2.0.0b2"
+
+install_requires = [
+    "pyhamcrest>=1.9.0"
+]
+
+
+def main():
+    setup(
+        name=PACKAGE,
+        version=VERSION,
+        description="Common module for self-testing allure integrations with python-based frameworks",
+        url="https://github.com/allure-framework/allure-python2",
+        author="QAMetaSoftware, Stanislav Seliverstov",
+        author_email="sseliverstov@qameta.io",
+        license="Apache-2.0",
+        packages=["allure_testing"],
+        package_dir={"allure_testing": "src"},
+        install_requires=install_requires
+    )
+
+if __name__ == '__main__':
+    main()

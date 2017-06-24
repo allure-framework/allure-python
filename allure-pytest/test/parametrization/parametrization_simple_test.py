@@ -18,7 +18,7 @@ def test_parametrization_one_param_without_ids(param):
     >>> for param in ['True', 'False']:
     ...     assert_that(allure_report,
     ...                 has_test_case('test_parametrization_one_param_without_ids[{param}]'.format(param=param),
-    ...                               has_parameter('param', param)
+    ...                               has_parameter('param', str(param))
     ...                ))
     """
     assert not param
@@ -32,7 +32,7 @@ def test_parametrization_one_param_with_ids(param):
     ...     ids = 'pass' if param == 'True' else 'fail'
     ...     assert_that(allure_report,
     ...                 has_test_case('test_parametrization_one_param_with_ids[{param}]'.format(param=ids),
-    ...                               has_parameter(ids, param)
+    ...                               has_parameter(ids, str(param))
     ...                ))
     """
     assert not param
@@ -46,8 +46,8 @@ def test_parametrization_many_params_as_string_without_ids(param1, param2):
     ...     test_case = 'test_parametrization_many_params_as_string_without_ids'
     ...     assert_that(allure_report,
     ...                 has_test_case('{test_case}[{param1}-{param2}]'.format(test_case=test_case, param1=param1, param2=param2),
-    ...                               all_of(has_parameter('param1', param1),
-    ...                                      has_parameter('param2', param2)
+    ...                               all_of(has_parameter('param1', str(param1)),
+    ...                                      has_parameter('param2', str(param2))
     ...                              )
     ...                 ))
     """
@@ -62,8 +62,8 @@ def test_parametrization_many_params_as_iterable_without_ids(param1, param2):
     ...     test_case = 'test_parametrization_many_params_as_iterable_without_ids'
     ...     assert_that(allure_report,
     ...                 has_test_case('{test_case}[{param1}-{param2}]'.format(test_case=test_case, param1=param1, param2=param2),
-    ...                               all_of(has_parameter('param1', param1),
-    ...                                      has_parameter('param2', param2)
+    ...                               all_of(has_parameter('param1', str(param1)),
+    ...                                      has_parameter('param2', str(param2))
     ...                              )
     ...                 ))
     """
@@ -79,8 +79,8 @@ def test_parametrization_many_params_with_ids(param1, param2):
     ...     assert_that(allure_report,
     ...                 has_test_case('test_parametrization_many_params_with_ids[{ids}]'.format(ids=ids),
     ...                               all_of(
-    ...                                   has_parameter('{ids}::{param}'.format(ids=ids, param='param1'), param1),
-    ...                                   has_parameter('{ids}::{param}'.format(ids=ids, param='param2'), param2)
+    ...                                   has_parameter('{ids}::{param}'.format(ids=ids, param='param1'), str(param1)),
+    ...                                   has_parameter('{ids}::{param}'.format(ids=ids, param='param2'), str(param2))
     ...                               )
     ...                 ))
 

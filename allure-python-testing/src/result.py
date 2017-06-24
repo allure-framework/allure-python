@@ -81,8 +81,8 @@ def has_parameter(name, value):
     return has_entry('parameters',
                      has_item(
                          all_of(
-                             has_entry('name', name),
-                             has_entry('value', str(value))
+                             has_entry('name', equal_to(name)),
+                             has_entry('value', equal_to(value))
                          )
                      ))
 
