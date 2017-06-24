@@ -3,10 +3,11 @@ import uuid
 import hashlib
 
 
-def md5(case_name):
-    case_name = case_name.encode('utf-8')
+def md5(*args):
     m = hashlib.md5()
-    m.update(case_name)
+    for arg in args:
+        part = str(arg).encode('utf-8')
+        m.update(part)
     return m.hexdigest()
 
 

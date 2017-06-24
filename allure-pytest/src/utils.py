@@ -3,7 +3,7 @@ import sys
 import inspect
 from itertools import product
 
-from allure_commons.constants import ALLURE_UNIQUE_LABELS
+from allure.types import ALLURE_UNIQUE_LABELS
 
 ALLURE_LABEL_PREFIX = 'allure_label'
 ALLURE_LINK_PREFIX = 'allure_link'

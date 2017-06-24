@@ -16,9 +16,9 @@ def test_step_with_parameters():
     >>> assert_that(allure_report,
     ...             has_test_case('test_step_with_parameters',
     ...                           has_step('First step',
-    ...                                    has_parameter('step_fail', False),
-    ...                                    has_parameter('default_value', 777),
-    ...                                    has_parameter('named_parameter', 555),
+    ...                                    has_parameter('step_fail', str(False)),
+    ...                                    has_parameter('default_value', str(777)),
+    ...                                    has_parameter('named_parameter', str(555)),
     ...                            )
     ...             )
     ... )

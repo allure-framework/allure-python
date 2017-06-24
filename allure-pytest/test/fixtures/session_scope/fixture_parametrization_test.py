@@ -33,9 +33,9 @@ class TestClassParams(object):
         ...                                       session_param=session_scope_id,
         ...                                       class_param=class_scope_id,
         ...                                       function_param=function_scope_id),
-        ...                                       all_of(has_parameter(session_scope_id, session_scope_value),
-        ...                                              has_parameter(class_scope_id, class_scope_value),
-        ...                                              has_parameter(function_scope_id, function_scope_value)
+        ...                                       all_of(has_parameter(session_scope_id, str(session_scope_value)),
+        ...                                              has_parameter(class_scope_id, str(class_scope_value)),
+        ...                                              has_parameter(function_scope_id, str(function_scope_value))
         ...                                       )
         ...                         )
         ...             ) # doctest: +SKIP

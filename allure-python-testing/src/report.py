@@ -64,17 +64,38 @@ Expected: ...
 
 """
 
-from hamcrest import all_of
-from hamcrest import has_item
+import os
+import json
+import fnmatch
+from hamcrest import all_of, any_of
 from hamcrest import has_property
+from hamcrest import has_item
 from hamcrest import has_entry
 from hamcrest import ends_with
+
+
+class AllureReport(object):
+    def __init__(self, report_dir):
+        self.report_dir = report_dir
+        self.test_cases = [json.load(item) for item in self._report_items('*result.json')]
+        self.test_containers = [json.load(item) for item in self._report_items('*container.json')]
+        self.attachments = [item.read() for item in self._report_items('*attachment.*')]
+
+    def _report_items(self, glob):
+        for _file in os.listdir(self.report_dir):
+            if fnmatch.fnmatch(_file, glob):
+                with open(os.path.join(self.report_dir, _file)) as report_file:
+                    yield report_file
 
 
 def has_test_case(name, *matchers):
     return has_property('test_cases',
                         has_item(
-                                 all_of(has_entry('fullName', ends_with(name)),
+                                 all_of(
+                                        any_of(
+                                               has_entry('fullName', ends_with(name)),
+                                               has_entry('name', ends_with(name))
+                                               ),
                                         *matchers
                                         )
                                  )

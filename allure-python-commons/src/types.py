@@ -4,6 +4,9 @@ ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
 
 
 class Severity(Enum):
+    def __str__(self):
+        return self.value
+
     BLOCKER = 'blocker'
     CRITICAL = 'critical'
     NORMAL = 'normal'
@@ -21,11 +24,15 @@ class LinkType(Enum):
 
 
 class LabelType(Enum):
+    def __str__(self):
+        return self.value
+
     FEATURE = 'feature'
     STORY = 'story'
     SEVERITY = 'severity'
     THREAD = 'thread'
     HOST = 'host'
+    TAG = 'tag'
 
 
 class AttachmentType(Enum):

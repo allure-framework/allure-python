@@ -1,7 +1,7 @@
+from six import string_types
 from hamcrest.core.base_matcher import BaseMatcher
 from hamcrest import all_of, anything, any_of
-from hamcrest import has_entry, has_item, has_property
-from six import string_types
+from hamcrest import has_entry, has_item, has_property, equal_to
 
 
 class HasContainer(BaseMatcher):
@@ -17,14 +17,13 @@ class HasContainer(BaseMatcher):
                                             has_entry('children', has_item(item['uuid'])),
                                             *self.matchers
                                      )
-                            )
-               ).matches(self.report)
+                            )).matches(self.report)
 
     def describe_to(self, description):
         description.append_text('describe me later').append_list('[', ', ', ']', self.matchers)
 
     def describe_mismatch(self, item, mismatch_descaription):
-        self.matches(item, mismatch_description)
+        self.matches(item, mismatch_descaription)
 
 
 def has_container(report, *matchers):
@@ -144,3 +143,21 @@ def has_same_container(*args):
     <BLANKLINE>
     """
     return HasSameContainer(*args)
+
+
+def has_fixture(section, name, *matchers):
+    return has_entry(section,
+                     has_item(
+                         all_of(
+                             has_entry('name', equal_to(name)),
+                             *matchers
+                         )
+                     ))
+
+
+def has_before(name, *matchers):
+    return has_fixture('befores', name, *matchers)
+
+
+def has_after(name, *matchers):
+    return has_fixture('afters', name, *matchers)

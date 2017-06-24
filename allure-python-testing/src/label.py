@@ -26,3 +26,7 @@ def has_feature(feature):
 
 def has_story(story):
     return has_label('story', story)
+
+
+def has_tag(tag):
+    return has_label('tag', tag)

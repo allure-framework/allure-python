@@ -1,12 +1,11 @@
 import pytest
 from functools import wraps
-from allure_commons.utils import uuid4
+from allure.utils import uuid4
+from allure.types import Severity
+from allure.types import LabelType, LinkType, AttachmentType
 
-from allure.utils import step_parameters
-from allure.utils import ALLURE_LABEL_PREFIX, ALLURE_LINK_PREFIX
-
-from allure_commons.constants import Severity
-from allure_commons.constants import LabelType, LinkType, AttachmentType
+from allure_pytest.utils import step_parameters
+from allure_pytest.utils import ALLURE_LABEL_PREFIX, ALLURE_LINK_PREFIX
 
 
 class AllureTestHelper(object):

@@ -14,7 +14,7 @@ def test_metafunc_param(metafunc_param):
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_metafunc_param[True]',
-    ...                           has_parameter('metafunc_param', True)
+    ...                           has_parameter('metafunc_param', str(True))
     ...             )
     ... )
     """
@@ -27,13 +27,13 @@ def test_metafunc_param_with_ids(metafunc_param_with_ids):
 
     >>> assert_that(allure_report,
     ...             has_test_case('test_metafunc_param_with_ids[metafunc_param_id]',
-    ...                           has_parameter('metafunc_param_id', True)
+    ...                           has_parameter('metafunc_param_id', str(True))
     ...             )
     ... ) # doctest: +SKIP
 
     >>> assert_that(allure_report,
     ...             has_test_case('test_metafunc_param_with_ids[metafunc_param_id]',
-    ...                           has_parameter('metafunc_param_with_ids', True)
+    ...                           has_parameter('metafunc_param_with_ids', str(True))
     ...             )
     ... ) # doctest: +SKIP
     """
