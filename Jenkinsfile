@@ -2,7 +2,6 @@ pipeline {
     agent { docker 'randomknowledge/docker-pyenv-tox' }
     environment {
         HOME = pwd()
-        TOX_VERSION = '2.7.0'
     }
     stages {
         stage("Build") {
