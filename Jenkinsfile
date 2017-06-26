@@ -1,5 +1,5 @@
 pipeline {
-    agent { docker 'xsteadfastx/tox-python' }
+    agent { docker 'randomknowledge/docker-pyenv-tox' }
     environment {
         HOME = pwd()
         TOX_VERSION = '2.7.0'
