@@ -33,8 +33,9 @@
 #### Please tell us about your environment:
 
 - Allure version:        2.1.0
-- Test framework:        pytest@3.0
-- Allure adaptor:        allure-pytest@2.0.0b1
+- Test framework:        testng@6.8
+- Allure adaptor:        allure-testng@2.0-BETA8
+- Generate report using: allure-maven@2.18
 
 #### Other information 
 
