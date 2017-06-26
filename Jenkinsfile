@@ -1,5 +1,5 @@
 pipeline {
-    agent { docker 'bgolden/docker-tox' }
+    agent { docker 'n42org/tox' }
     environment { HOME = pwd() }
     stages {
         stage("Build") {
