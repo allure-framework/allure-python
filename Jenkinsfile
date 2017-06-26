@@ -2,7 +2,7 @@ pipeline {
     agent { docker 'bgolden/docker-tox' }
     environment { 
         HOME = pwd() 
-        TOX_VERSION = 2.7.0
+        TOX_VERSION = '2.7.0'
     }
     stages {
         stage("Build") {
