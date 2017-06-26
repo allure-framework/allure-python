@@ -1,5 +1,5 @@
 pipeline {
-    agent { docker 'xsteadfastx/tox-jenkins-slave' }
+    agent { docker 'bgolden/docker-tox' }
     environment { HOME = pwd() }
     stages {
         stage("Build") {
