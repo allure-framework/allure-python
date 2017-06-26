@@ -1,5 +1,5 @@
 pipeline {
-    agent { docker 'bgolden/docker-tox' }
+    agent { docker 'n42org/tox' }
     environment { 
         HOME = pwd() 
         TOX_VERSION = '2.7.0'
