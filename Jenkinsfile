@@ -1,5 +1,5 @@
 pipeline {
-    agent { docker 'higebu/tox' }
+    agent { docker 'mhoush/tox' }
     environment { HOME = pwd() }
     stages {
         stage("Build") {
