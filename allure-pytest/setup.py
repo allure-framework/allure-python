@@ -27,6 +27,7 @@ classifiers = [
 
 install_requires = [
     "pytest>=2.7.3",
+    "six>=1.9.0",
     "allure-python-commons==2.0.0b2"
 ]
 
