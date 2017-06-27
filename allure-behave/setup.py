@@ -1,3 +1,4 @@
+import os
 from setuptools import setup
 
 PACKAGE = "allure-behave"
@@ -17,6 +18,10 @@ install_requires = [
 ]
 
 
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
 def main():
     setup(
         name=PACKAGE,
@@ -28,6 +33,7 @@ def main():
         license="Apache-2.0",
         classifiers=classifiers,
         keywords="allure reporting behave",
+        long_description=read('README.rst'),
         packages=["allure_behave"],
         package_dir={"allure_behave": "src"},
         install_requires=install_requires

@@ -1,3 +1,4 @@
+import os
 from setuptools import setup
 
 PACKAGE = "allure-pytest"
@@ -18,6 +19,10 @@ install_requires = [
 ]
 
 
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
 def main():
     setup(
         name=PACKAGE,
@@ -29,6 +34,7 @@ def main():
         license="Apache-2.0",
         classifiers=classifiers,
         keywords="allure reporting pytest",
+        long_description=read('README.rst'),
         packages=["allure_pytest"],
         package_dir={"allure_pytest": "src"},
         entry_points={"pytest11": ["allure_pytest = allure_pytest.plugin"]},
