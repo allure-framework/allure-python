@@ -1,5 +1,5 @@
-Allure Pytest Plugin
-====================
+Allure Behave Formatter
+=======================
 
  - `Source <https://github.com/allure-framework/allure-python>`_
  - `Documentation <https://docs.qameta.io/allure/2.0/>`_
