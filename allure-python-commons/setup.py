@@ -14,6 +14,7 @@ classifiers = [
 
 install_requires = [
     "attrs>=16.0.0",
+    "six>=1.9.0"
 ]
 
 if sys.version_info < (3, 4):
