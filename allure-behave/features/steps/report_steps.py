@@ -84,11 +84,3 @@ def step_impl(context, item):
     context_matcher = getattr(context, item)
     matcher = partial(context_matcher, has_attachment)
     assert_that(context.allure_report, matcher())
-
-
-
-
-
-
-
-
