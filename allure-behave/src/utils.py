@@ -73,12 +73,11 @@ def step_status(result):
 
 def step_status_details(result):
     if result.exception:
-        message = ','.join(map(str, result.exception.args))
-        message = '{name}: {message}'.format(name=result.exception.__class__.__name__, message=message)
-        trace = '\n'.join(traceback.format_tb(result.exc_traceback)) if result.exc_traceback else None
+        message = u','.join(map(str, result.exception.args))
+        message = u'{name}: {message}'.format(name=result.exception.__class__.__name__, message=message)
+        trace = u'\n'.join(traceback.format_tb(result.exc_traceback)) if result.exc_traceback else None
         return StatusDetails(message=message, trace=trace)
     elif result.status == 'undefined':
-        message = u"\nYou can implement step definitions for undefined steps with "
-        message += u"these snippets:\n\n"
+        message = u'\nYou can implement step definitions for undefined steps with these snippets:\n\n'
         message += make_undefined_step_snippet(result)
         return StatusDetails(message=message)

@@ -1,4 +1,3 @@
-@wip
 Feature: Description
 
   Scenario: Use description
