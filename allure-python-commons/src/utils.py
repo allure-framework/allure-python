@@ -6,7 +6,7 @@ import hashlib
 def md5(*args):
     m = hashlib.md5()
     for arg in args:
-        part = str(arg).encode('utf-8')
+        part = arg.encode('utf-8')
         m.update(part)
     return m.hexdigest()
 

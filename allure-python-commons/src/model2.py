@@ -19,7 +19,7 @@ def _write(report_dir, item, glob):
     data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
     with io.open(os.path.join(report_dir, filename), 'w', encoding='utf8') as json_file:
         if sys.version_info.major < 3:
-            json_file.write(unicode(json.dumps(data, indent=indent, ensure_ascii=False)))
+            json_file.write(unicode(json.dumps(data, indent=indent, ensure_ascii=False, encoding='utf8')))
         else:
             json.dump(data, json_file, indent=indent, ensure_ascii=False)
 

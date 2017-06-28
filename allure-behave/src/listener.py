@@ -80,7 +80,7 @@ class AllureListener(object):
 
     def start_step(self, step):
         self.current_step_uuid = uuid4()
-        name = '{keyword} {title}'.format(keyword=step.keyword, title=step.name)
+        name = u'{keyword} {title}'.format(keyword=step.keyword, title=step.name)
         parent_uuid = self.current_before_uuid or self.current_scenario_uuid
         allure_step = TestStepResult(name=name, start=now())
 
