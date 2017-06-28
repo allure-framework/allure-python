@@ -21,3 +21,14 @@ Feature: Scenario
             | broken    | broken |
             | undefined | broken |
 
+
+  Scenario: Scenario without name
+    Given feature definition
+        """
+        Feature: Scenario
+
+        Scenario:
+          Given passed step
+        """
+     When I run behave with allure formatter
+     Then allure report has a scenario with name "Scenario"
