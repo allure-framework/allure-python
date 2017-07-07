@@ -94,7 +94,7 @@ class AllureListener(object):
 
         self.allure_logger.update_group(container_uuid, start=now())
 
-        before_fixture_uuid = uuid4
+        before_fixture_uuid = uuid4()
         before_fixture = TestBeforeResult(name=fixture_name, start=now())
         self.allure_logger.start_before_fixture(container_uuid, before_fixture_uuid, before_fixture)
 
