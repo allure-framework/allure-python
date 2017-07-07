@@ -1,15 +1,18 @@
 import pytest
+import allure_commons
 
-from allure.utils import now
-from allure.utils import md5
-from allure.utils import uuid4
-from allure.logger import AllureLogger
-from allure.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
-from allure.model2 import TestResultContainer
-from allure.model2 import StatusDetails
-from allure.model2 import Parameter
-from allure.model2 import Label, Link
-from allure.model2 import Status
+from allure_commons.utils import now
+from allure_commons.utils import md5
+from allure_commons.utils import uuid4
+
+from allure_commons.logger import AllureLogger
+
+from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
+from allure_commons.model2 import TestResultContainer
+from allure_commons.model2 import StatusDetails
+from allure_commons.model2 import Parameter
+from allure_commons.model2 import Label, Link
+from allure_commons.model2 import Status
 
 from allure_pytest.utils import allure_parameters
 from allure_pytest.utils import allure_labels, allure_links
@@ -23,14 +26,14 @@ class AllureListener(object):
         self.allure_logger = AllureLogger(config.option.allure_report_dir)
         self._cache = ItemCache()
 
-    @pytest.hookimpl
-    def pytest_allure_before_step(self, uuid, title, params):
+    @allure_commons.hookimpl
+    def start_step(self, uuid, title, params):
         parameters = [Parameter(name=name, value=value) for name, value in params]
         step = TestStepResult(name=title, start=now(), parameters=parameters)
         self.allure_logger.start_step(None, uuid, step)
 
-    @pytest.hookimpl
-    def pytest_allure_after_step(self, uuid, exc_type, exc_val, exc_tb):
+    @allure_commons.hookimpl
+    def stop_step(self, uuid, exc_type, exc_val, exc_tb):
         status = Status.PASSED
         if exc_type is not None:
             if exc_type == pytest.skip.Exception:
@@ -40,13 +43,13 @@ class AllureListener(object):
 
         self.allure_logger.stop_step(uuid, stop=now(), status=status)
 
-    @pytest.hookimpl
-    def pytest_allure_before_finalizer(self, parent_uuid, uuid, name):
+    @allure_commons.hookimpl
+    def start_fixture(self, parent_uuid, uuid, name):
         after_fixture = TestAfterResult(name=name, start=now())
         self.allure_logger.start_after_fixture(parent_uuid, uuid, after_fixture)
 
-    @pytest.hookimpl
-    def pytest_allure_after_finalizer(self, uuid, exc_type, exc_val, exc_tb):
+    @allure_commons.hookimpl
+    def stop_fixture(self, uuid, exc_type, exc_val, exc_tb):
         self.allure_logger.stop_after_fixture(uuid, stop=now())
 
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
@@ -109,7 +112,8 @@ class AllureListener(object):
         self.allure_logger.stop_before_fixture(before_fixture_uuid, stop=now())
 
         for index, finalizer in enumerate(fixturedef._finalizer or ()):
-            fixturedef._finalizer[index] = FinalizerSpy(container_uuid, fixturedef.argname, finalizer, self.config)
+            name = u'{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=finalizer.__name__)
+            fixturedef._finalizer[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_post_finalizer(self, fixturedef):
@@ -158,37 +162,13 @@ class AllureListener(object):
         else:
             self.allure_logger.update_test(uuid, status=status)
 
-    @pytest.hookimpl
-    def pytest_allure_attach_data(self, body, name, attachment_type, extension):
+    @allure_commons.hookimpl
+    def attach_data(self, body, name, attachment_type, extension):
         self.allure_logger.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
 
-    @pytest.hookimpl
-    def pytest_allure_attach_file(self, source, name, attachment_type, extension):
+    @allure_commons.hookimpl
+    def attach_file(self, source, name, attachment_type, extension):
         self.allure_logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
-
-
-class FinalizerSpy(object):
-    def __init__(self, parent_uuid, fixturename, finalizer, config):
-        self._parent_uuid = parent_uuid
-        self._config = config
-        self._finalizer = finalizer
-        self._uuid = uuid4()
-        self._name = "{fixture}::{finalizer}".format(fixture=fixturename, finalizer=finalizer.__name__)
-
-    def __call__(self, *args, **kwards):
-        with self:
-            return self._finalizer(*args, **kwards)
-
-    def __enter__(self):
-        self._config.hook.pytest_allure_before_finalizer(parent_uuid=self._parent_uuid,
-                                                         uuid=self._uuid,
-                                                         name=self._name)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._config.hook.pytest_allure_after_finalizer(uuid=self._uuid,
-                                                        exc_type=exc_type,
-                                                        exc_val=exc_val,
-                                                        exc_tb=exc_tb)
 
 
 class ItemCache(object):
