@@ -10,7 +10,17 @@ def decorate_as_label(label_type, labels):
 
 
 @hookspec
+def add_label(label_type, labels):
+    """ label """
+
+
+@hookspec
 def decorate_as_link(url, link_type, name):
+    """ url """
+
+
+@hookspec
+def add_link(url, link_type, name):
     """ url """
 
 

@@ -1,4 +1,3 @@
-from functools import partial
 from functools import wraps
 
 from allure_commons._core import plugin_manager
@@ -24,16 +23,16 @@ def severity(severity_level):
     return label(LabelType.SEVERITY, severity_level)
 
 
-def tag(*tags):
-    return label(LabelType.TAG, *tags)
-
-
 def feature(*features):
     return label(LabelType.FEATURE, *features)
 
 
 def story(*stories):
     return label(LabelType.STORY, *stories)
+
+
+def tag(*tags):
+    return label(LabelType.TAG, *tags)
 
 
 def link(url, link_type=LinkType.LINK, name=None):
@@ -48,24 +47,39 @@ def testcase(url, name=None):
     return link(url, link_type=LinkType.TEST_CASE, name=name)
 
 
-def add_label(label_type, labels):
-    print("Y"*29)
-
-
-def add_link(url, link_type=LinkType.LINK, name=None):
-    print ("X"*23)
-
-
 class Dynamic(object):
-    label = partial(add_label)
-    severity = partial(add_label, LabelType.SEVERITY)
-    tag = partial(add_label, LabelType.TAG)
-    feature = partial(add_label, LabelType.FEATURE)
-    story = partial(add_label, LabelType.STORY)
 
-    link = partial(add_link)
-    issue = partial(add_link, link_type=LinkType.ISSUE)
-    testcase = partial(add_link, link_type=LinkType.TEST_CASE)
+    @staticmethod
+    def label(label_type, *labels):
+        plugin_manager.hook.add_label(label_type=label_type, labels=labels)
+
+    @staticmethod
+    def severity(severity_level):
+        Dynamic.label(LabelType.SEVERITY, severity_level)
+
+    @staticmethod
+    def feature(*features):
+        Dynamic.label(LabelType.FEATURE, *features)
+
+    @staticmethod
+    def story(*stories):
+        Dynamic.label(LabelType.STORY, *stories)
+
+    @staticmethod
+    def tag(*tags):
+        Dynamic.label(LabelType.TAG, *tags)
+
+    @staticmethod
+    def link(url, link_type=LinkType.LINK, name=None):
+        plugin_manager.hook.add_link(url=url, link_type=link_type, name=name)
+
+    @staticmethod
+    def issue(url, name=None):
+        Dynamic.link(url, link_type=LinkType.TEST_CASE, name=name)
+
+    @staticmethod
+    def testcase(url, name=None):
+        Dynamic.link(url, link_type=LinkType.TEST_CASE, name=name)
 
 
 def step(title):

@@ -17,7 +17,7 @@ class AllureTestHelper(object):
     @allure_commons.hookimpl
     def decorate_as_link(self, url, link_type, name):
         allure_link_marker = u'{prefix}.{link_type}'.format(prefix=ALLURE_LINK_PREFIX, link_type=link_type)
-        pattern = dict(self.config.option.allure_link_pattern).get(str(link_type), u'{}')
+        pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
         url = pattern.format(url)
         allure_link = getattr(pytest.mark, allure_link_marker)
         return allure_link(url, name=name)

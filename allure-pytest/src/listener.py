@@ -68,8 +68,8 @@ class AllureListener(object):
 
         yield
 
-        test_case.labels = [Label(name, value) for name, value in allure_labels(item)]
-        test_case.links = [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
+        test_case.labels += [Label(name, value) for name, value in allure_labels(item)]
+        test_case.links += [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
         test_case.fullName = allure_full_name(item.nodeid)
         test_case.historyId = md5(test_case.fullName)
         test_case.labels.append(Label('package', allure_package(item.nodeid)))
@@ -169,6 +169,15 @@ class AllureListener(object):
     @allure_commons.hookimpl
     def attach_file(self, source, name, attachment_type, extension):
         self.allure_logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def add_link(self, url, link_type, name):
+        self.allure_logger.update_test(None, links=[Link(link_type, url, name)])
+
+    @allure_commons.hookimpl
+    def add_label(self, label_type, labels):
+        for label in labels:
+            self.allure_logger.update_test(None, labels=Label(label_type, label))
 
 
 class ItemCache(object):

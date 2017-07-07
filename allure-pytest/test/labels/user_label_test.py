@@ -10,32 +10,47 @@
 import allure
 
 
-@allure.label('has_label', 'work', 'cool')
+@allure.label('user_label', 'work', 'cool')
 def test_user_label():
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_user_label',
     ...                 all_of(
-    ...                     has_label('has_label', 'work'),
-    ...                     has_label('has_label', 'cool'),
+    ...                     has_label('user_label', 'work'),
+    ...                     has_label('user_label', 'cool'),
     ...                 )
     ...             ))
     """
     pass
 
-'''
+
 def test_user_dynamic_label():
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
-    ...             has_test_case('test_user_label',
+    ...             has_test_case('test_user_dynamic_label',
     ...                 all_of(
-    ...                     has_label('has_label', 'work'),
-    ...                     has_label('has_label', 'cool'),
+    ...                     has_label('user_label', 'work'),
+    ...                     has_label('user_label', 'cool'),
     ...                 )
     ...             ))
     """
-    allure.dynamc.label('has_label', 'work', 'cool')
+    allure.dynamic.label('user_label', 'work', 'cool')
     pass
-'''
+
+
+@allure.label('user_label', 'work')
+def test_update_labels():
+    """
+    >>> allure_report = getfixture('allure_report')
+    >>> assert_that(allure_report,
+    ...             has_test_case('test_user_dynamic_label',
+    ...                 all_of(
+    ...                     has_label('user_label', 'work'),
+    ...                     has_label('user_label', 'cool'),
+    ...                 )
+    ...             ))
+    """
+    allure.dynamic.label('user_label', 'very cool')
+    pass
