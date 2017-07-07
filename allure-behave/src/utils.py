@@ -1,9 +1,9 @@
 from behave.model import ScenarioOutline
 from behave.runner_util import make_undefined_step_snippet
-from allure.types import Severity
-from allure.model2 import Status, Parameter, Label
-from allure.model2 import StatusDetails
-from allure.utils import md5
+from allure_commons.types import Severity
+from allure_commons.model2 import Status, Parameter, Label
+from allure_commons.model2 import StatusDetails
+from allure_commons.utils import md5
 import traceback
 
 STATUS = {

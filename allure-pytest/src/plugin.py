@@ -2,9 +2,9 @@ import pytest
 import argparse
 from six import text_type
 
-from allure.types import Severity
-from allure.types import LabelType
-
+import allure
+import allure_commons
+from allure_commons.types import LabelType
 from allure_pytest.utils import allure_labels
 from allure_pytest.helper import AllureTestHelper
 from allure_pytest.listener import AllureListener
@@ -27,7 +27,7 @@ def pytest_addoption(parser):
             return set((name.value, atom) for atom in atoms)
         return a_label_type
 
-    severities = [x.value for x in list(Severity)]
+    severities = [x.value for x in list(allure.severity_level)]
     parser.getgroup("general").addoption('--allure-severities',
                                          action="store",
                                          dest="allure_severities",
@@ -84,7 +84,8 @@ def pytest_configure(config):
         config.pluginmanager.register(test_listener)
 
         test_helper = AllureTestHelper(config)
-        config.pluginmanager.register(test_helper)
+        allure_commons.register(test_listener)
+        allure_commons.register(test_helper)
 
 
 def pytest_runtest_setup(item):
@@ -98,10 +99,5 @@ def pytest_runtest_setup(item):
         pytest.skip('Not suitable with selected labels: %s.' % ', '.join(text_type(l) for l in sorted(arg_labels)))
 
 
-def pytest_addhooks(pluginmanager):
-    import allure_pytest.hooks as hooks
-    # avoid warnings with pytest-2.8
-    method = getattr(pluginmanager, "add_hookspecs", None)
-    if method is None:
-        method = pluginmanager.addhooks
-    method(hooks)
+def pytest_namespace():
+    return {"allure": allure}

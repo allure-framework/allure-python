@@ -3,7 +3,7 @@ from enum import Enum
 ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
 
 
-class Severity(Enum):
+class Severity(str, Enum):
     def __str__(self):
         return self.value
 

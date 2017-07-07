@@ -1,10 +1,9 @@
 import os
+import sys
 import inspect
 from itertools import product
 
-from allure.types import ALLURE_UNIQUE_LABELS
-
-
+ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
 ALLURE_LABEL_PREFIX = 'allure_label'
 ALLURE_LINK_PREFIX = 'allure_link'
 
@@ -41,7 +40,7 @@ def allure_parameters(fixturedef, request):
                 if len(item['args']) == 1:
                     parameters = {'name': ids, 'value': str(request.param)}
                 else:
-                    param_name = '{ids}::{param}'.format(ids=ids, param=param_name)
+                    param_name = u'{ids}::{param}'.format(ids=ids, param=param_name)
                     parameters = {'name': param_name, 'value': str(request.param)}
 
     return parameters
@@ -78,14 +77,18 @@ def allure_package(nodeid):
 def allure_full_name(nodeid):
     parts = nodeid.split('::')
     package = allure_package(nodeid)
-    clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
+    clazz = u'.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
     test = parts[-1]
-    return '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+    return u'{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
 
 
 def step_parameters(func, *a, **kw):
-    all_names = inspect.getargspec(func).args
-    defaults = inspect.getargspec(func).defaults
+    if sys.version_info.major < 3:
+        all_names = inspect.getargspec(func).args
+        defaults = inspect.getargspec(func).defaults
+    else:
+        all_names = inspect.getfullargspec(func).args
+        defaults = inspect.getfullargspec(func).defaults
     args_part = [(n, str(v)) for n, v in zip(all_names, a)]
     kwarg_part = [(n, str(kw[n]) if n in kw else str(defaults[i])) for i, n in enumerate(all_names[len(a):])]
     return args_part + kwarg_part
