@@ -55,19 +55,3 @@ def allure_report(request, tmpdir_factory):
 def pytest_collection_modifyitems(items, config):
     if config.option.doctestmodules:
         items[:] = [item for item in items if item.__class__.__name__ == 'DoctestItem']
-
-
-def pytest_configure(config):
-    config.pluginmanager.register(Dummy())
-
-
-class Dummy(object):
-
-    def step(*args, **kwargs):
-        def dummy_step(*args, **kwargs):
-            pass
-        return dummy_step
-
-    @pytest.hookimpl()
-    def pytest_namespace(self):
-        return {'allure': self}

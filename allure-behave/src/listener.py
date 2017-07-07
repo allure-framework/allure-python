@@ -1,12 +1,12 @@
-from allure.logger import AllureLogger
-from allure.utils import uuid4
-from allure.utils import now
-from allure.types import LabelType, AttachmentType
-from allure.model2 import TestResult
-from allure.model2 import TestStepResult
-from allure.model2 import TestBeforeResult
-from allure.model2 import TestResultContainer
-from allure.model2 import Status, Parameter, Label
+from allure_commons.logger import AllureLogger
+from allure_commons.utils import uuid4
+from allure_commons.utils import now
+from allure_commons.types import LabelType, AttachmentType
+from allure_commons.model2 import TestResult
+from allure_commons.model2 import TestStepResult
+from allure_commons.model2 import TestBeforeResult
+from allure_commons.model2 import TestResultContainer
+from allure_commons.model2 import Status, Parameter, Label
 from allure_behave.utils import scenario_parameters
 from allure_behave.utils import scenario_severity
 from allure_behave.utils import scenario_tags
