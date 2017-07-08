@@ -17,7 +17,7 @@ class AllureLogger(object):
             os.makedirs(report_dir)
 
     def _update_item(self, uuid, **kwargs):
-        item = self._items[uuid]
+        item = self._items[uuid] if uuid else self._items[next(reversed(self._items))]
         for name, value in kwargs.items():
             attr = getattr(item, name)
             if isinstance(attr, list):

@@ -51,11 +51,11 @@ def allure_labels(item):
         if keyword.startswith(ALLURE_LABEL_PREFIX):
             marker = item.get_marker(keyword)
             label_type = marker.kwargs['label_type']
-            if label_type.value in ALLURE_UNIQUE_LABELS:
-                yield (label_type.value, marker.args[0])
+            if label_type in ALLURE_UNIQUE_LABELS:
+                yield (label_type, marker.args[0])
             else:
                 for value in marker.args:
-                    yield (label_type.value, value)
+                    yield (label_type, value)
 
 
 def allure_links(item):
