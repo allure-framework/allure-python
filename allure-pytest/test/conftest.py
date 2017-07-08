@@ -3,7 +3,7 @@ import os
 import subprocess
 import shlex
 from inspect import getmembers, isfunction
-from allure_testing.report import AllureReport
+from allure_commons_test.report import AllureReport
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -12,7 +12,7 @@ def inject_matchers(doctest_namespace):
     for name, function in getmembers(hamcrest, isfunction):
             doctest_namespace[name] = function
 
-    from allure_testing import container, label, report, result
+    from allure_commons_test import container, label, report, result
     for module in [container, label, report, result]:
         for name, function in getmembers(module, isfunction):
             doctest_namespace[name] = function

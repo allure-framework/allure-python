@@ -33,14 +33,15 @@
 ...     }
 ... }
 
-
+HAS STEP +
 >>> assert_that(testcases['ideal_case'], has_step('step_one'))
 
 
+HAS STEP +-
 >>> assert_that(testcases['ideal_case'],
-...                  has_step('ideal_case'),
-...                  is_not(has_step('step_one'))
-...             ) # doctest: +ELLIPSIS
+...             has_step('ideal_case'),
+...             is_not(has_step('step_one')
+...             ))
 Traceback (most recent call last):
     ...
 AssertionError: ...
@@ -49,9 +50,8 @@ Expected: ...
 <BLANKLINE>
 
 
->>> assert_that(testcases['ideal_case'],
-...                 has_step('wrong_step_name')
-...             ) # doctest: +ELLIPSIS
+HAS STEP -
+>>> assert_that(testcases['ideal_case'], has_step('wrong_steop_name'))
 Traceback (most recent call last):
     ...
 AssertionError: ...
@@ -62,22 +62,9 @@ Expected: ...
 
 """
 
-from hamcrest import all_of, anything, not_
+from hamcrest import all_of, anything
 from hamcrest import equal_to, not_none
 from hamcrest import has_entry, has_item
-from hamcrest import contains_string, starts_with
-
-
-def has_title(title):
-    return has_entry('name', title)
-
-
-def has_description(*matchers):
-    return has_entry('description', all_of(*matchers))
-
-
-def has_description_html(*matchers):
-    return has_entry('descriptionHtml', all_of(*matchers))
 
 
 def has_step(name, *matchers):
@@ -98,14 +85,6 @@ def has_parameter(name, value):
                              has_entry('value', equal_to(value))
                          )
                      ))
-
-
-def doesnt_have_parameter(name):
-    return has_entry('parameters',
-                     not_(
-                         has_item(
-                             has_entry('name', equal_to(name)),
-                     )))
 
 
 def has_link(url, link_type=None, name=None):
@@ -149,12 +128,8 @@ def has_status_details(*matchers):
     return has_entry('statusDetails', all_of(*matchers))
 
 
-def with_message_contains(string):
-    return has_entry('message', contains_string(string))
-
-
-def with_trace_contains(string):
-    return has_entry('trace', contains_string(string))
+def with_status_message(message):
+    return has_entry('message', message)
 
 
 def has_history_id():
