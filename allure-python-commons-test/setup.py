@@ -1,6 +1,6 @@
 from setuptools import setup
 
-PACKAGE = "allure-python-testing"
+PACKAGE = "allure-python-commons-test"
 VERSION = "2.0.0b2"
 
 install_requires = [
@@ -18,8 +18,8 @@ def main():
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
-        packages=["allure_testing"],
-        package_dir={"allure_testing": "src"},
+        packages=["allure_commons_test"],
+        package_dir={"allure_commons_test": "src"},
         install_requires=install_requires
     )
 

@@ -1,6 +1,6 @@
 import os
 from tempfile import mkdtemp
-from allure_testing.report import AllureReport
+from allure_commons_test.report import AllureReport
 from behave.parser import Parser
 from behave.runner import ModelRunner
 from behave.configuration import Configuration
