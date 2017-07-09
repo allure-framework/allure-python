@@ -33,15 +33,14 @@
 ...     }
 ... }
 
-HAS STEP +
+
 >>> assert_that(testcases['ideal_case'], has_step('step_one'))
 
 
-HAS STEP +-
 >>> assert_that(testcases['ideal_case'],
-...             has_step('ideal_case'),
-...             is_not(has_step('step_one')
-...             ))
+...                  has_step('ideal_case'),
+...                  is_not(has_step('step_one'))
+...             ) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 AssertionError: ...
@@ -50,8 +49,9 @@ Expected: ...
 <BLANKLINE>
 
 
-HAS STEP -
->>> assert_that(testcases['ideal_case'], has_step('wrong_steop_name'))
+>>> assert_that(testcases['ideal_case'],
+...                 has_step('wrong_step_name')
+...             ) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 AssertionError: ...

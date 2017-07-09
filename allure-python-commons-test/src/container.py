@@ -28,6 +28,10 @@ class HasContainer(BaseMatcher):
 
 def has_container(report, *matchers):
     """
+    >>> from hamcrest import assert_that
+
+    >>> from allure_commons_test.report import has_test_case
+
     >>> class Report(object):
     ...     test_cases = [
     ...         {
@@ -60,7 +64,7 @@ def has_container(report, *matchers):
     ...                                        has_before('before_fixture')
     ...                           )
     ...             )
-    ... )
+    ... ) # doctest: +ELLIPSIS
     Traceback (most recent call last):
        ...
     AssertionError: ...
@@ -104,6 +108,8 @@ class HasSameContainer(BaseMatcher):
 
 def has_same_container(*args):
     """
+    >>> from hamcrest import assert_that
+
     >>> class Report(object):
     ...     test_cases = [
     ...         {
@@ -134,7 +140,7 @@ def has_same_container(*args):
 
     >>> assert_that(Report,
     ...             has_same_container('second_test_case', 'third_test_case')
-    ... )
+    ... ) # doctest: +ELLIPSIS
     Traceback (most recent call last):
        ...
     AssertionError: ...

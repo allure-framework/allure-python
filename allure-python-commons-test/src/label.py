@@ -1,7 +1,3 @@
-"""
-No milk today my love has gone away;)
-"""
-
 from hamcrest import all_of
 from hamcrest import has_entry, has_item
 

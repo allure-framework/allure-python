@@ -1,4 +1,6 @@
 """
+>>> from hamcrest import assert_that
+
 >>> class Report(object):
 ...     def __init__(self):
 ...         self.test_cases = [
@@ -34,7 +36,7 @@
 
 >>> assert_that(Report(),
 ...     has_test_case('wrong_test_case_name')
-... )
+... ) # doctest: +ELLIPSIS
 Traceback (most recent call last):
    ...
 AssertionError: ...
@@ -54,7 +56,7 @@ Expected: ...
 ...     has_test_case('Class#test[param]',
 ...         has_entry('id', '2')
 ...     )
-... )
+... ) # doctest: +ELLIPSIS
 Traceback (most recent call last):
    ...
 AssertionError: ...
