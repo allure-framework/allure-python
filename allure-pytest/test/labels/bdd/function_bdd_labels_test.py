@@ -7,10 +7,22 @@
 ...             ))  # doctest: +SKIP
 """
 
-import pytest
+import allure
 
 
-@pytest.allure.feature('single feature')
+@allure.epic('single epic')
+def test_single_epic_label():
+    """
+    >>> allure_report = getfixture('allure_report')
+    >>> assert_that(allure_report,
+    ...             has_test_case('test_single_epic_label',
+    ...                 has_epic('single epic')
+    ...             ))
+    """
+    pass
+
+
+@allure.feature('single feature')
 def test_single_feature_label():
     """
     >>> allure_report = getfixture('allure_report')
@@ -22,7 +34,7 @@ def test_single_feature_label():
     pass
 
 
-@pytest.allure.story('single story')
+@allure.story('single story')
 def test_single_story_label():
     """
     >>> allure_report = getfixture('allure_report')
@@ -34,14 +46,17 @@ def test_single_story_label():
     pass
 
 
-@pytest.allure.feature('feature one', 'feature two')
-@pytest.allure.story('story one', 'story two')
+@allure.epic('epic one', 'epic two')
+@allure.feature('feature one', 'feature two')
+@allure.story('story one', 'story two')
 def test_many_bdd_labels_for_one_function():
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_many_bdd_labels_for_one_function',
     ...                 all_of(
+    ...                     has_epic('epic one'),
+    ...                     has_epic('epic two'),
     ...                     has_feature('feature one'),
     ...                     has_feature('feature two'),
     ...                     has_story('story one'),

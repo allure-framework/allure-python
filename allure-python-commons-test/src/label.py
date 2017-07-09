@@ -20,6 +20,10 @@ def has_severity(level):
     return has_label('severity', level)
 
 
+def has_epic(feature):
+    return has_label('epic', feature)
+
+
 def has_feature(feature):
     return has_label('feature', feature)
 

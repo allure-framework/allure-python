@@ -18,6 +18,7 @@ class LinkType(object):
 
 
 class LabelType(str, Enum):
+    EPIC = 'epic'
     FEATURE = 'feature'
     STORY = 'story'
     SEVERITY = 'severity'

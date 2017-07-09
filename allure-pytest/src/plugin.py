@@ -38,6 +38,15 @@ def pytest_addoption(parser):
                                          Tests only with these severities will be run.
                                          Possible values are: %s.""" % ', '.join(severities))
 
+    parser.getgroup("general").addoption('--allure-epics',
+                                         action="store",
+                                         dest="allure_epics",
+                                         metavar="EPICS_SET",
+                                         default={},
+                                         type=label_type(name=LabelType.EPIC),
+                                         help="""Comma-separated list of epic names.
+                                         Run tests that have at least one of the specified feature labels.""")
+
     parser.getgroup("general").addoption('--allure-features',
                                          action="store",
                                          dest="allure_features",
