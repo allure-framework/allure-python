@@ -19,5 +19,5 @@ allure2 format. This package is available on [pypi](https://pypi.python.org/pypi
 Common engine for all modules. It is useful for make integration with your homemade frameworks.
 
 
-## Allure python testing
+## Allure python commons test
 Just pack of hamcrest matchers for validation result in allure2 json format.
