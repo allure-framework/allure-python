@@ -35,6 +35,7 @@ SEQUENCE OF STEPS
 
 
 import pytest
+import allure
 
 from itertools import product
 
@@ -44,18 +45,18 @@ true_false = [variants for variants in product([True, False], [True, False])]
 
 @pytest.mark.parametrize("first_step_fail, second_step_fail", true_false)
 def test_sequence_of_inside_steps(first_step_fail, second_step_fail):
-    with pytest.allure.step('First step'):
+    with allure.step('First step'):
         assert not first_step_fail
-    with pytest.allure.step('Second step'):
+    with allure.step('Second step'):
         assert not second_step_fail
 
 
-@pytest.allure.step("First step")
+@allure.step("First step")
 def first_step(step_fail):
     assert not step_fail
 
 
-@pytest.allure.step("Second step")
+@allure.step("Second step")
 def second_step(step_fail):
     assert not step_fail
 
