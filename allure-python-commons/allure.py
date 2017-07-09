@@ -1,5 +1,7 @@
 from allure_commons._allure import label
-from allure_commons._allure import severity, tag, feature, story
+from allure_commons._allure import severity
+from allure_commons._allure import tag
+from allure_commons._allure import epic, feature, story
 from allure_commons._allure import link
 from allure_commons._allure import issue, testcase
 from allure_commons._allure import Dynamic as dynamic
@@ -13,6 +15,7 @@ __all__ = [
     'label',
     'severity',
     'tag',
+    'epic'
     'feature',
     'story',
 

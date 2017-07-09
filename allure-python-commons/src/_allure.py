@@ -23,6 +23,10 @@ def severity(severity_level):
     return label(LabelType.SEVERITY, severity_level)
 
 
+def epic(*epics):
+    return label(LabelType.EPIC, *epics)
+
+
 def feature(*features):
     return label(LabelType.FEATURE, *features)
 
