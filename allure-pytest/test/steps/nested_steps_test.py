@@ -43,7 +43,7 @@
 
 """
 import pytest
-
+import allure
 from itertools import product
 
 
@@ -54,17 +54,17 @@ fruit_machine = [variants for variants in product([True, False], [True, False], 
 def test_nested_steps_inside_test(first_fail_before_second, first_fail_after_second, second_fail):
     with pytest.allure.step('First step'):
         assert not first_fail_before_second
-        with pytest.allure.step('Second step'):
+        with allure.step('Second step'):
             assert not second_fail
         assert not first_fail_after_second
 
 
-@pytest.allure.step("Second step")
+@allure.step("Second step")
 def second_step(second_fail):
     assert not second_fail
 
 
-@pytest.allure.step("First step")
+@allure.step("First step")
 def another_first_step(first_fail_before_second, first_fail_after_second, second_fail):
     assert not first_fail_before_second
     second_step(second_fail)
@@ -76,10 +76,10 @@ def test_nested_steps_outside_test(first_fail_before_second, first_fail_after_se
     another_first_step(first_fail_before_second, first_fail_after_second, second_fail)
 
 
-@pytest.allure.step("First step")
+@allure.step("First step")
 def yet_another_first_step(first_fail_before_second, first_fail_after_second, second_fail):
     assert not first_fail_before_second
-    with pytest.allure.step('Second step'):
+    with allure.step('Second step'):
         assert not second_fail
     assert not first_fail_after_second
 

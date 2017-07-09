@@ -8,10 +8,10 @@
 ...             ))  # doctest: +SKIP
 """
 
-import pytest
+import allure
 
 
-@pytest.allure.step('arg is {0}')
+@allure.step('arg is {0}')
 def step_with_equal_args(step_arg_param):
     assert step_arg_param
 
@@ -30,7 +30,7 @@ def test_equal_args_and_places():
     step_with_equal_args(True)
 
 
-@pytest.allure.step('arg is {0}')
+@allure.step('arg is {0}')
 def step_places_less(step_arg_param1, step_arg_param2):
     assert step_arg_param1 and step_arg_param2
 
@@ -50,7 +50,7 @@ def test_places_less():
     step_places_less(True, True)
 
 
-@pytest.allure.step('arg are {0} and {1}')
+@allure.step('arg are {0} and {1}')
 def step_args_less(step_arg_param,):
     assert step_arg_param
 

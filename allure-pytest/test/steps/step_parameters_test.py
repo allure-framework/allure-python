@@ -2,10 +2,10 @@
 >>> allure_report = getfixture('allure_report')
 """
 
-import pytest
+import allure
 
 
-@pytest.allure.step("First step")
+@allure.step("First step")
 def step_with_parameters(step_fail, default_value=777, named_parameter=888):
     assert not step_fail
 
