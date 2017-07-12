@@ -5,7 +5,7 @@ from allure_commons.utils import now
 from allure_commons.utils import md5
 from allure_commons.utils import uuid4
 
-from allure_commons.logger import AllureLogger
+from allure_commons.reporter import AllureReporter
 
 from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
@@ -23,7 +23,7 @@ class AllureListener(object):
 
     def __init__(self, config):
         self.config = config
-        self.allure_logger = AllureLogger(config.option.allure_report_dir)
+        self.allure_logger = AllureReporter()
         self._cache = ItemCache()
 
     @allure_commons.hookimpl

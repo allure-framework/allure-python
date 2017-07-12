@@ -4,7 +4,10 @@ from six import text_type
 
 import allure
 import allure_commons
+
 from allure_commons.types import LabelType
+from allure_commons.logger import AllureFileLogger
+
 from allure_pytest.utils import allure_labels
 from allure_pytest.helper import AllureTestHelper
 from allure_pytest.listener import AllureListener
@@ -80,12 +83,15 @@ def pytest_configure(config):
     report_dir = config.option.allure_report_dir
 
     if report_dir:
+        test_helper = AllureTestHelper(config)
+        allure_commons.register(test_helper)
+
         test_listener = AllureListener(config)
         config.pluginmanager.register(test_listener)
-
-        test_helper = AllureTestHelper(config)
         allure_commons.register(test_listener)
-        allure_commons.register(test_helper)
+
+        file_logger = AllureFileLogger(report_dir)
+        allure_commons.register(file_logger)
 
 
 def pytest_runtest_setup(item):

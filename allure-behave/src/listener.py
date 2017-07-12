@@ -1,4 +1,6 @@
-from allure_commons.logger import AllureLogger
+from allure_commons import register
+from allure_commons.logger import AllureFileLogger
+from allure_commons.reporter import AllureReporter
 from allure_commons.utils import uuid4
 from allure_commons.utils import now
 from allure_commons.types import LabelType, AttachmentType
@@ -19,7 +21,10 @@ from allure_behave.utils import background_status
 
 class AllureListener(object):
     def __init__(self, result_dir):
-        self.logger = AllureLogger(result_dir)
+        self.logger = AllureReporter()
+        file_logger = AllureFileLogger(result_dir)
+        register(file_logger)
+
         self.current_group_uuid = None
         self.current_before_uuid = None
         self.current_scenario_uuid = None

@@ -75,16 +75,21 @@ from hamcrest import ends_with
 
 
 class AllureReport(object):
-    def __init__(self, report_dir):
-        self.report_dir = report_dir
-        self.test_cases = [json.load(item) for item in self._report_items('*result.json')]
-        self.test_containers = [json.load(item) for item in self._report_items('*container.json')]
-        self.attachments = [item.read() for item in self._report_items('*attachment.*')]
+    def __init__(self, result):
+        if isinstance(result, dict):
+            self.test_cases = result['test_cases']
+            self.test_containers = result['test_containers']
+            self.attachments = result['attachments']
+        else:
+            self.test_cases = [json.load(item) for item in self._report_items(result, '*result.json')]
+            self.test_containers = [json.load(item) for item in self._report_items(result, '*container.json')]
+            self.attachments = [item.read() for item in self._report_items(result, '*attachment.*')]
 
-    def _report_items(self, glob):
-        for _file in os.listdir(self.report_dir):
+    @staticmethod
+    def _report_items(report_dir, glob):
+        for _file in os.listdir(report_dir):
             if fnmatch.fnmatch(_file, glob):
-                with open(os.path.join(self.report_dir, _file)) as report_file:
+                with open(os.path.join(report_dir, _file)) as report_file:
                     yield report_file
 
 
