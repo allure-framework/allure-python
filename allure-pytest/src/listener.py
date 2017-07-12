@@ -18,8 +18,6 @@ from allure_pytest.utils import allure_parameters
 from allure_pytest.utils import allure_labels, allure_links
 from allure_pytest.utils import allure_full_name, allure_package
 
-import allure_commons
-
 
 class AllureListener(object):
 
