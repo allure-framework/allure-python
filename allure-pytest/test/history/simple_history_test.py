@@ -20,4 +20,4 @@ def test_history_id():
     ...             )
     ... )
     """
-    pytest.exit("Just test")
+    pass  # pytest.exit("Just test")

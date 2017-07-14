@@ -88,9 +88,9 @@ class Dynamic(object):
 
 def step(title):
     if callable(title):
-        return StepContext(title.__name__, [])(title)
+        return StepContext(title.__name__, ({}, {}))(title)
     else:
-        return StepContext(title, [])
+        return StepContext(title, ({}, {}))
 
 
 class StepContext:
@@ -101,7 +101,10 @@ class StepContext:
         self.uuid = uuid4()
 
     def __enter__(self):
-        plugin_manager.hook.start_step(uuid=self.uuid, title=self.title, params=self.params)
+        args, kwargs = self.params
+        args.update(kwargs)
+        params = list(args.items())
+        plugin_manager.hook.start_step(uuid=self.uuid, title=self.title, params=params)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         plugin_manager.hook.stop_step(uuid=self.uuid, title=self.title, exc_type=exc_type, exc_val=exc_val,
@@ -112,7 +115,8 @@ class StepContext:
         def impl(*a, **kw):
             __tracebackhide__ = True
             params = func_parameters(func, *a, **kw)
-            with StepContext(self.title.format(*a, **kw), params):
+            args, kwargs = params
+            with StepContext(self.title.format(*args.values(), **kwargs), params):
                 return func(*a, **kw)
         return impl
 

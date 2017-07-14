@@ -13,9 +13,10 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
+from allure_commons.types import LabelType
 
 from allure_pytest.utils import allure_parameters
-from allure_pytest.utils import allure_labels, allure_links
+from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package
 
 
@@ -70,6 +71,8 @@ class AllureListener(object):
 
         test_case.labels += [Label(name, value) for name, value in allure_labels(item)]
         test_case.links += [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
+        test_case.labels += [Label(LabelType.TAG, value) for value in pytest_markers(item)]
+
         test_case.fullName = allure_full_name(item.nodeid)
         test_case.historyId = md5(test_case.fullName)
         test_case.labels.append(Label('package', allure_package(item.nodeid)))

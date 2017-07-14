@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import os
-import sys
-import inspect
 from itertools import product
+from allure_commons.utils import represent
 
 ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
 ALLURE_LABEL_PREFIX = 'allure_label'
@@ -40,7 +42,7 @@ def allure_parameters(fixturedef, request):
                 if len(item['args']) == 1:
                     parameters = {'name': ids, 'value': str(request.param)}
                 else:
-                    param_name = u'{ids}::{param}'.format(ids=ids, param=param_name)
+                    param_name = '{ids}::{param}'.format(ids=ids, param=param_name)
                     parameters = {'name': param_name, 'value': str(request.param)}
 
     return parameters
@@ -62,10 +64,30 @@ def allure_links(item):
     for keyword in item.keywords.keys():
         if keyword.startswith(ALLURE_LINK_PREFIX):
             marker = item.get_marker(keyword)
-            link_type = marker.name.split('.', 1)[-1]
+            link_type = marker.kwargs['link_type']
             url = marker.args[0]
             name = marker.kwargs['name']
             yield (link_type, url, name)
+
+
+def pytest_markers(item):
+    for keyword in item.keywords.keys():
+        if not any((keyword.startswith(ALLURE_LINK_PREFIX),
+                    keyword.startswith(ALLURE_LABEL_PREFIX),
+                    keyword == 'parametrize')):
+            marker = item.get_marker(keyword)
+            if marker:
+                yield mark_to_str(marker)
+
+
+def mark_to_str(marker):
+    args = [represent(arg) for arg in marker.args]
+    kwargs = ['{name}={value}'.format(name=key, value=represent(marker.kwargs[key])) for key in marker.kwargs]
+    if args or kwargs:
+        parameters = ', '.join(args + kwargs)
+        return '@pytest.mark.{name}({parameters})'.format(name=marker.name, parameters=parameters)
+    else:
+        return '@pytest.mark.{name}'.format(name=marker.name)
 
 
 def allure_package(nodeid):
@@ -77,18 +99,6 @@ def allure_package(nodeid):
 def allure_full_name(nodeid):
     parts = nodeid.split('::')
     package = allure_package(nodeid)
-    clazz = u'.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
+    clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
     test = parts[-1]
-    return u'{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
-
-
-def step_parameters(func, *a, **kw):
-    if sys.version_info.major < 3:
-        all_names = inspect.getargspec(func).args
-        defaults = inspect.getargspec(func).defaults
-    else:
-        all_names = inspect.getfullargspec(func).args
-        defaults = inspect.getfullargspec(func).defaults
-    args_part = [(n, str(v)) for n, v in zip(all_names, a)]
-    kwarg_part = [(n, str(kw[n]) if n in kw else str(defaults[i])) for i, n in enumerate(all_names[len(a):])]
-    return args_part + kwarg_part
+    return '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
