@@ -78,11 +78,6 @@ from hamcrest import ends_with
 
 class AllureReport(object):
     def __init__(self, result):
-        if isinstance(result, dict):
-            self.test_cases = result['test_cases']
-            self.test_containers = result['test_containers']
-            self.attachments = result['attachments']
-        else:
             self.test_cases = [json.load(item) for item in self._report_items(result, '*result.json')]
             self.test_containers = [json.load(item) for item in self._report_items(result, '*container.json')]
             self.attachments = [item.read() for item in self._report_items(result, '*attachment.*')]

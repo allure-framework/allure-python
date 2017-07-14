@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
 import sys
 import time
 import uuid
 import inspect
 import hashlib
+
+from six import text_type
 
 
 def md5(*args):
@@ -21,13 +24,64 @@ def now():
     return int(round(1000 * time.time()))
 
 
-def func_parameters(func, *a, **kw):
-    if sys.version_info.major < 3:
-        all_names = inspect.getargspec(func).args
-        defaults = inspect.getargspec(func).defaults
+def represent(item):
+    """
+    >>> represent(None)
+    'None'
+
+    >>> represent(123)
+    '123'
+
+    >>> represent('hi') == u"'hi'"
+    True
+
+    >>> represent(u'привет') == u"'привет'"
+    True
+
+    >>> from sys import version_info
+    >>> represent(str(bytearray([0xd0, 0xbf]))) == u"'\u043f'" if version_info.major < 3 else True
+    True
+
+    >>> from struct import pack
+    >>> result = "<type 'str'>" if version_info.major < 3 else "<class 'bytes'>"
+    >>> represent(pack('h', 0x89)) == result
+    True
+
+    >>> result = "<type 'int'>" if version_info.major < 3 else "<class 'int'>"
+    >>> represent(int) == result
+    True
+
+    >>> represent(represent)  # doctest: +ELLIPSIS
+    '<function represent at ...>'
+
+    >>> represent([represent])  # doctest: +ELLIPSIS
+    '[<function represent at ...>]'
+
+    >>> class ClassWithName(object):
+    ...     pass
+
+    >>> represent(ClassWithName)
+    "<class 'utils.ClassWithName'>"
+    """
+
+    if sys.version_info.major < 3 and isinstance(item, str):
+        try:
+            item = item.decode(encoding='UTF-8')
+        except UnicodeDecodeError:
+            pass
+
+    if isinstance(item, text_type):
+        return u'\'%s\'' % item
+    elif isinstance(item, (bytes, bytearray)):
+        return repr(type(item))
     else:
-        all_names = inspect.getfullargspec(func).args
-        defaults = inspect.getfullargspec(func).defaults
-    args_part = [(n, str(v)) for n, v in zip(all_names, a)]
-    kwarg_part = [(n, str(kw[n]) if n in kw else str(defaults[i])) for i, n in enumerate(all_names[len(a):])]
-    return args_part + kwarg_part
+        return repr(item)
+
+
+def func_parameters(func, *a, **kw):
+    bowels = inspect.getargspec(func) if sys.version_info.major < 3 else inspect.getfullargspec(func)
+    args_dict = dict(zip(bowels.args, map(represent,  a)))
+    kwargs_dict = dict(zip(kw, list(map(lambda i: represent(kw[i]), kw))))
+    kwarg_defaults = dict(zip(reversed(bowels.args), reversed(list(map(represent, bowels.defaults or ())))))
+    kwarg_defaults.update(kwargs_dict)
+    return args_dict, kwarg_defaults

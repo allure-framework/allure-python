@@ -22,7 +22,7 @@ def test_equal_args_and_places():
     >>> assert_that(allure_report,
     ...             has_test_case('test_equal_args_and_places',
     ...                           has_step('arg is {0}'.format(True),
-    ...                                    has_parameter('step_arg_param', str(True))
+    ...                                    has_parameter('step_arg_param', 'True')
     ...                           )
     ...             )
     ... )
@@ -41,8 +41,8 @@ def test_places_less():
     >>> assert_that(allure_report,
     ...             has_test_case('test_places_less',
     ...                           has_step('arg is {0}'.format(True, True),
-    ...                                    has_parameter('step_arg_param1', str(True)),
-    ...                                    has_parameter('step_arg_param2', str(True))
+    ...                                    has_parameter('step_arg_param1', 'True'),
+    ...                                    has_parameter('step_arg_param2', 'True')
     ...                           )
     ...             )
     ... )
