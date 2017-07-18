@@ -90,11 +90,10 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
+    test_helper = AllureTestHelper(config)
+    allure_commons.register(test_helper)
 
     if report_dir:
-        test_helper = AllureTestHelper(config)
-        allure_commons.register(test_helper)
-
         test_listener = AllureListener(config)
         config.pluginmanager.register(test_listener)
         allure_commons.register(test_listener)
