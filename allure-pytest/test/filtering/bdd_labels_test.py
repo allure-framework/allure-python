@@ -14,13 +14,12 @@ import allure
 
 def test_without_epic_features_and_stories():
     """
+    >>> from hamcrest import not_
     >>> allure_report = getfixture('allure_report_with_params')('--allure-epic=right_epic',
     ...                                                         '--allure-features=right_feature',
     ...                                                         '--allure-stories=right_story')
     >>> assert_that(allure_report,
-    ...             has_test_case('test_without_epic_features_and_stories',
-    ...                           with_status('skipped')
-    ...             )
+    ...             not_(has_test_case('test_without_epic_features_and_stories'))
     ... )
     """
     pass
@@ -41,9 +40,9 @@ def test_right_feature_without_story_and_epic():
     pass
 
 
-@allure.feature('wrong_epic')
+@allure.feature('right_epic')
 @allure.feature('wrong_feature')
-@allure.story('right_story')
+@allure.story('wrong_story')
 def test_right_story_but_wrong_epic_and_feature():
     """
     >>> allure_report = getfixture('allure_report_with_params')('--allure-epic=right_epic',
@@ -77,16 +76,32 @@ def test_right_feature_but_wrong_epic_and_story():
 
 @allure.feature('wrong_epic')
 @allure.feature('wrong_feature')
-@allure.story('wrong_story')
-def test_wrong_epic_feature_and_story():
+@allure.story('right_story')
+def test_right_story_but_wrong_epic_and_feature():
     """
     >>> allure_report = getfixture('allure_report_with_params')('--allure-epic=right_epic',
     ...                                                         '--allure-features=right_feature',
     ...                                                         '--allure-stories=right_story')
     >>> assert_that(allure_report,
-    ...             has_test_case('test_wrong_epic_feature_and_story',
-    ...                           with_status('skipped')
+    ...             has_test_case('test_right_story_but_wrong_epic_and_feature',
+    ...                           with_status('passed')
     ...             )
+    ... )
+    """
+    pass
+
+
+@allure.feature('wrong_epic')
+@allure.feature('wrong_feature')
+@allure.story('wrong_story')
+def test_wrong_epic_feature_and_story():
+    """
+    >>> from hamcrest import not_
+    >>> allure_report = getfixture('allure_report_with_params')('--allure-epic=right_epic',
+    ...                                                         '--allure-features=right_feature',
+    ...                                                         '--allure-stories=right_story')
+    >>> assert_that(allure_report,
+    ...             not_(has_test_case('test_wrong_epic_feature_and_story'))
     ... )
     """
     pass

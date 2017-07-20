@@ -1,6 +1,4 @@
-import pytest
 import argparse
-from six import text_type
 
 import allure
 import allure_commons
@@ -21,13 +19,15 @@ def pytest_addoption(parser):
                                            default=None,
                                            help="Generate Allure report in the specified directory (may not exist)")
 
-    def label_type(name, legal_values=set()):
+    def label_type(type_name, legal_values=set()):
         def a_label_type(string):
             atoms = set(string.split(','))
-            if legal_values and not atoms < legal_values:
-                raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
-                    name, ', '.join(atoms - legal_values), ', '.join(legal_values)))
-            return set((name.value, atom) for atom in atoms)
+            if type_name is LabelType.SEVERITY:
+                if not atoms < legal_values:
+                    raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
+                        type_name, ', '.join(atoms - legal_values), ', '.join(legal_values)))
+                return set((type_name, allure.severity_level(atom)) for atom in atoms)
+            return set((type_name, atom) for atom in atoms)
         return a_label_type
 
     severities = [x.value for x in list(allure.severity_level)]
@@ -36,7 +36,7 @@ def pytest_addoption(parser):
                                          dest="allure_severities",
                                          metavar="SEVERITIES_SET",
                                          default={},
-                                         type=label_type(name=LabelType.SEVERITY, legal_values=set(severities)),
+                                         type=label_type(LabelType.SEVERITY, legal_values=set(severities)),
                                          help="""Comma-separated list of severity names.
                                          Tests only with these severities will be run.
                                          Possible values are: %s.""" % ', '.join(severities))
@@ -46,7 +46,7 @@ def pytest_addoption(parser):
                                          dest="allure_epics",
                                          metavar="EPICS_SET",
                                          default={},
-                                         type=label_type(name=LabelType.EPIC),
+                                         type=label_type(LabelType.EPIC),
                                          help="""Comma-separated list of epic names.
                                          Run tests that have at least one of the specified feature labels.""")
 
@@ -55,7 +55,7 @@ def pytest_addoption(parser):
                                          dest="allure_features",
                                          metavar="FEATURES_SET",
                                          default={},
-                                         type=label_type(name=LabelType.FEATURE),
+                                         type=label_type(LabelType.FEATURE),
                                          help="""Comma-separated list of feature names.
                                          Run tests that have at least one of the specified feature labels.""")
 
@@ -64,7 +64,7 @@ def pytest_addoption(parser):
                                          dest="allure_stories",
                                          metavar="STORIES_SET",
                                          default={},
-                                         type=label_type(name=LabelType.STORY),
+                                         type=label_type(LabelType.STORY),
                                          help="""Comma-separated list of story names.
                                          Run tests that have at least one of the specified story labels.""")
 
@@ -102,15 +102,13 @@ def pytest_configure(config):
         allure_commons.register(file_logger)
 
 
-def pytest_runtest_setup(item):
-    item_labels = set((name, value) for name, value in allure_labels(item))
+def pytest_collection_modifyitems(items, config):
+    arg_labels = set().union(config.option.allure_epics,
+                             config.option.allure_features,
+                             config.option.allure_stories,
+                             config.option.allure_severities)
 
-    arg_labels = set().union(item.config.option.allure_features,
-                             item.config.option.allure_stories,
-                             item.config.option.allure_severities)
-
-    if arg_labels and not item_labels & arg_labels:
-        pytest.skip('Not suitable with selected labels: %s.' % ', '.join(text_type(l) for l in sorted(arg_labels)))
+    items[:] = filter(lambda item: arg_labels & set(allure_labels(item)) if arg_labels else True, items)
 
 
 def pytest_namespace():

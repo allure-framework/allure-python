@@ -40,11 +40,10 @@ class TestClass(object):
     @pytest.allure.severity(pytest.allure.severity_level.NORMAL)
     def test_method_with_normal_severity(self):
         """
+        >>> from hamcrest import not_
         >>> allure_report = getfixture('allure_report_with_params')('--allure-severities=trivial')
         >>> assert_that(allure_report,
-        ...             has_test_case('test_method_with_normal_severity',
-        ...                           with_status('skipped')
-        ...             )
+        ...             not_(has_test_case('test_method_with_normal_severity'))
         ... )
         """
         pass
@@ -67,11 +66,10 @@ class TestClassAgain(object):
     @pytest.allure.severity(pytest.allure.severity_level.NORMAL)
     def test_method_with_overridden_class_severity(self):
         """
+        >>> from hamcrest import not_
         >>> allure_report = getfixture('allure_report_with_params')('--allure-severities=trivial')
         >>> assert_that(allure_report,
-        ...             has_test_case('test_method_with_overridden_class_severity',
-        ...                           with_status('skipped')
-        ...             )
+        ...             not_(has_test_case('test_method_with_overridden_class_severity'))
         ... )
         """
         pass
