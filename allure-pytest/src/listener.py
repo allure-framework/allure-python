@@ -67,6 +67,9 @@ class AllureListener(object):
         test_case = TestResult(name=item.name, uuid=uuid)
         self.allure_logger.schedule_test(uuid, test_case)
 
+        if hasattr(item, 'function'):
+            test_case.description = item.function.__doc__
+
         yield
 
         test_case.labels += [Label(name, value) for name, value in allure_labels(item)]

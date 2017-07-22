@@ -134,3 +134,7 @@ def with_status_message(message):
 
 def has_history_id():
     return has_entry('historyId', anything())
+
+
+def has_description(*matchers):
+    return has_entry('description', all_of(*matchers))
