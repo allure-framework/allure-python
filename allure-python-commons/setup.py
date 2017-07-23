@@ -2,7 +2,7 @@ import sys
 from setuptools import setup
 
 PACKAGE = "allure-python-commons"
-VERSION = "2.1.0b1"
+VERSION = "2.1.1b1"
 
 classifiers = [
     'Development Status :: 4 - Beta',
