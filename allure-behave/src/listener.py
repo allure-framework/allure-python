@@ -1,4 +1,4 @@
-from allure_commons import register
+from allure_commons import plugin_manager
 from allure_commons.logger import AllureFileLogger
 from allure_commons.reporter import AllureReporter
 from allure_commons.utils import uuid4
@@ -23,7 +23,7 @@ class AllureListener(object):
     def __init__(self, result_dir):
         self.logger = AllureReporter()
         file_logger = AllureFileLogger(result_dir)
-        register(file_logger)
+        plugin_manager.register(file_logger)
 
         self.current_group_uuid = None
         self.current_before_uuid = None
