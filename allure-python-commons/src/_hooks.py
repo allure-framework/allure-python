@@ -42,12 +42,20 @@ class AllureUserHooks(object):
 class AllureDeveloperHooks(object):
 
     @hookspec
-    def start_fixture(self, parent_uuid, uuid, name):
+    def start_fixture(self, parent_uuid, uuid, name, parameters):
         """ start fixture"""
 
     @hookspec
-    def stop_fixture(self, uuid, exc_type, exc_val, exc_tb):
+    def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
         """ stop fixture """
+
+    @hookspec
+    def start_test(self, parent_uuid, uuid, name, parameters, context):
+        """ start test"""
+
+    @hookspec
+    def stop_test(self, parent_uuid, uuid, name, context, exc_type, exc_val, exc_tb):
+        """ stop test """
 
     @hookspec
     def report_result(self, result):

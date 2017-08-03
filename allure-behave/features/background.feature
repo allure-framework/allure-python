@@ -21,11 +21,9 @@ Feature: Background
 
      Then allure report has a scenario with name "Scenario with background contains <step type> step"
       And this scenario has "<status>" status
-      And this scenario has background "Scenario background with <step type> step"
-      And this background has "<status>" status
-      And this background contains step "Given <step type> step in background"
+      And this scenario contains step "Given <step type> step in background"
       And this step has "<status>" status
-      And this background contains step "And another passed step in background"
+      And this scenario contains step "And another passed step in background"
       And this step has "<other status>" status
       And this scenario contains step "Given passed step"
       And this step has "<other status>" status
@@ -34,7 +32,6 @@ Feature: Background
 
      Then allure report has a scenario with name "Another scenario with background contains <step type> step"
       And this scenario has "<status>" status
-      And this scenario has background "Scenario background with <step type> step"
       And this scenario contains step "Given passed step"
       And this step has "<other status>" status
 
