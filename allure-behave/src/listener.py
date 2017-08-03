@@ -42,8 +42,9 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def start_fixture(self, parent_uuid, uuid, name, parameters):
+        parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters]
+
         if name in FIXTURES and not self.fixture_context:
-            print ("group")
             group = TestResultContainer(uuid=uuid4())
             self.logger.start_group(group.uuid, group)
             self.fixture_context.append(group)
@@ -51,20 +52,16 @@ class AllureListener(object):
         if name in BEFORE_FIXTURES:
             fixture = TestBeforeResult(name=name, start=now(), parameters=parameters)
             for group in self.fixture_context:
-                print ("start ", name, uuid)
                 self.logger.start_before_fixture(group.uuid, uuid, fixture)
 
         elif name in AFTER_FIXTURES:
             fixture = TestAfterResult(name=name, start=now(), parameters=parameters)
             for group in self.fixture_context:
-                print ("start ", name, uuid)
                 self.logger.start_after_fixture(group.uuid, uuid, fixture)
 
     @allure_commons.hookimpl
     def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
         if name in FIXTURES:
-            print ("stop ", name, uuid)
-
             status = fixture_status(exc_val, exc_tb)
             status_details = fixture_status_details(exc_val, exc_tb)
             self.logger.stop_before_fixture(uuid=uuid, stop=now(), status=status, statusDetails=status_details)
@@ -155,6 +152,14 @@ class AllureListener(object):
             step = self.steps.popleft()
             self.start_step(step)
             self.stop_step(step)
+
+    @allure_commons.hookimpl
+    def attach_data(self, body, name, attachment_type, extension):
+        self.logger.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def attach_file(self, source, name, attachment_type, extension):
+        self.logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
 
 
 class Context(list):
