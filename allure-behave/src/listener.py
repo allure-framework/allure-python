@@ -1,12 +1,14 @@
-from allure_commons import plugin_manager
-from allure_commons.logger import AllureFileLogger
+# -*- coding: utf-8 -*-
+
+from collections import deque
+import allure_commons
 from allure_commons.reporter import AllureReporter
 from allure_commons.utils import uuid4
 from allure_commons.utils import now
 from allure_commons.types import LabelType, AttachmentType
 from allure_commons.model2 import TestResult
 from allure_commons.model2 import TestStepResult
-from allure_commons.model2 import TestBeforeResult
+from allure_commons.model2 import TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
 from allure_commons.model2 import Status, Parameter, Label
 from allure_behave.utils import scenario_parameters
@@ -16,47 +18,76 @@ from allure_behave.utils import scenario_name
 from allure_behave.utils import scenario_history_id
 from allure_behave.utils import step_status, step_status_details
 from allure_behave.utils import scenario_status, scenario_status_details
-from allure_behave.utils import background_status
+from allure_behave.utils import fixture_status, fixture_status_details
+
+
+BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
+AFTER_FIXTURES = ['after_all', 'after_tag', 'after_feature', 'after_scenario']
+FIXTURES = BEFORE_FIXTURES + AFTER_FIXTURES
 
 
 class AllureListener(object):
-    def __init__(self, result_dir):
+    def __init__(self):
         self.logger = AllureReporter()
-        file_logger = AllureFileLogger(result_dir)
-        plugin_manager.register(file_logger)
-
-        self.current_group_uuid = None
-        self.current_before_uuid = None
-        self.current_scenario_uuid = None
         self.current_step_uuid = None
+        self.execution_context = Context()
+        self.fixture_context = Context()
+        self.fixture_context.enter()
+        self.steps = deque()
 
-    def start_group(self):
-        self.current_group_uuid = uuid4()
-        group = TestResultContainer(uuid=self.current_group_uuid, name='Background')
-        self.logger.start_group(self.current_group_uuid, group)
+    def __del__(self):
+        for group in self.fixture_context.exit():
+            group.children.extend(self.execution_context)
+            self.logger.stop_group(group.uuid)
 
-    def stop_group(self):
-        if self.current_group_uuid:
-            self.logger.stop_group(self.current_group_uuid)
-            self.current_group_uuid = None
+    @allure_commons.hookimpl
+    def start_fixture(self, parent_uuid, uuid, name, parameters):
+        if name in FIXTURES and not self.fixture_context:
+            print ("group")
+            group = TestResultContainer(uuid=uuid4())
+            self.logger.start_group(group.uuid, group)
+            self.fixture_context.append(group)
 
-    def update_group(self):
-        if self.current_group_uuid:
-            self.logger.update_group(self.current_group_uuid, children=self.current_scenario_uuid)
+        if name in BEFORE_FIXTURES:
+            fixture = TestBeforeResult(name=name, start=now(), parameters=parameters)
+            for group in self.fixture_context:
+                print ("start ", name, uuid)
+                self.logger.start_before_fixture(group.uuid, uuid, fixture)
 
-    def start_before(self, _, background):
-        self.current_before_uuid = uuid4()
-        before = TestBeforeResult(name=background.name or 'Background')
-        self.logger.start_before_fixture(self.current_group_uuid, self.current_before_uuid, before)
+        elif name in AFTER_FIXTURES:
+            fixture = TestAfterResult(name=name, start=now(), parameters=parameters)
+            for group in self.fixture_context:
+                print ("start ", name, uuid)
+                self.logger.start_after_fixture(group.uuid, uuid, fixture)
 
-    def stop_before(self, scenario, _):
-        status = background_status(scenario)
-        self.logger.stop_before_fixture(uuid=self.current_before_uuid, status=status)
-        self.current_before_uuid = None
+    @allure_commons.hookimpl
+    def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
+        if name in FIXTURES:
+            print ("stop ", name, uuid)
 
-    def start_scenario(self, scenario):
-        self.current_scenario_uuid = uuid4()
-        test_case = TestResult(uuid=self.current_scenario_uuid, start=now())
+            status = fixture_status(exc_val, exc_tb)
+            status_details = fixture_status_details(exc_val, exc_tb)
+            self.logger.stop_before_fixture(uuid=uuid, stop=now(), status=status, statusDetails=status_details)
+
+    def start_feature(self):
+        self.execution_context.enter()
+        self.fixture_context.enter()
+
+    def stop_feature(self):
+        uuids = self.execution_context.exit()
+        for group in self.fixture_context.exit():
+            group.children.extend(uuids)
+            self.logger.stop_group(group.uuid)
+        self.execution_context.extend(uuids)
+
+    @allure_commons.hookimpl
+    def start_test(self, parent_uuid, uuid, name, parameters, context):
+        scenario = context['scenario']
+        self.fixture_context.enter()
+        self.execution_context.enter()
+        self.execution_context.append(uuid)
+
+        test_case = TestResult(uuid=uuid, start=now())
 
         test_case.name = scenario_name(scenario)
         test_case.historyId = scenario_history_id(scenario)
@@ -72,27 +103,43 @@ class AllureListener(object):
         test_case.parameters = scenario_parameters(scenario)
         test_case.labels = labels
 
-        self.logger.schedule_test(self.current_scenario_uuid, test_case)
-        self.update_group()
+        self.logger.schedule_test(uuid, test_case)
 
-    def stop_scenario(self, scenario):
+    @allure_commons.hookimpl
+    def stop_test(self, parent_uuid, uuid, name, context, exc_type, exc_val, exc_tb):
+        scenario = context['scenario']
+        self.flush_steps()
         status = scenario_status(scenario)
         status_details = scenario_status_details(scenario)
-        self.logger.update_test(self.current_scenario_uuid, stop=now(), status=status, statusDetails=status_details)
-        self.logger.close_test(self.current_scenario_uuid)
-        self.current_scenario_uuid = None
+        self.logger.update_test(uuid, stop=now(), status=status, statusDetails=status_details)
+        self.logger.close_test(uuid)
         self.current_step_uuid = None
 
+        for group in self.fixture_context.exit():
+            group.children.append(uuid)
+            self.logger.stop_group(group.uuid)
+
+        self.execution_context.exit()
+        self.execution_context.append(uuid)
+
+    def schedule_step(self, step):
+        self.steps.append(step)
+
+    def match_step(self, match):
+        step = self.steps.popleft()
+        self.start_step(step)
+
     def start_step(self, step):
+
         self.current_step_uuid = uuid4()
         name = u'{keyword} {title}'.format(keyword=step.keyword, title=step.name)
-        parent_uuid = self.current_before_uuid or self.current_scenario_uuid
-        allure_step = TestStepResult(name=name, start=now())
 
-        self.logger.start_step(parent_uuid, self.current_step_uuid, allure_step)
+        allure_step = TestStepResult(name=name, start=now())
+        self.logger.start_step(None, self.current_step_uuid, allure_step)
 
         if step.text:
             self.logger.attach_data(uuid4(), step.text, name='.text', attachment_type=AttachmentType.TEXT)
+
         if step.table:
             table = [','.join(step.table.headings)]
             [table.append(','.join(list(row))) for row in step.table.rows]
@@ -102,3 +149,25 @@ class AllureListener(object):
         status = step_status(result)
         status_details = step_status_details(result)
         self.logger.stop_step(self.current_step_uuid, stop=now(), status=status, statusDetails=status_details)
+
+    def flush_steps(self):
+        while self.steps:
+            step = self.steps.popleft()
+            self.start_step(step)
+            self.stop_step(step)
+
+
+class Context(list):
+    def __init__(self, _list=list()):
+        super(Context, self).__init__(_list)
+        self._stack = [_list]
+
+    def enter(self, _list=list()):
+        self._stack.append(self[:])
+        self[:] = _list
+        return self
+
+    def exit(self):
+        gone, self[:] = self[:], self._stack.pop()
+        return gone
+

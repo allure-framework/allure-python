@@ -57,11 +57,20 @@ def scenario_status_details(scenario):
             return step_status_details(step)
 
 
-def background_status(scenario):
-    for step in scenario.background_steps:
-        if step.status != 'passed':
-            return step_status(step)
-    return Status.PASSED
+def fixture_status(exception, exc_traceback):
+    if exception:
+        return Status.FAILED if isinstance(exception, AssertionError) else Status.BROKEN
+    else:
+        return Status.BROKEN if exc_traceback else Status.PASSED
+
+
+def fixture_status_details(exception, exc_traceback):
+    if exception:
+        message = u','.join(map(str, exception.args))
+        message = u'{name}: {message}'.format(name=exception.__class__.__name__, message=message)
+        trace = u'\n'.join(traceback.format_tb(exc_traceback)) if exc_traceback else None
+        return StatusDetails(message=message, trace=trace)
+    return None
 
 
 def step_status(result):

@@ -139,13 +139,58 @@ class fixture(object):
         self._parent_uuid = parent_uuid
         self._name = name if name else fixture_function.__name__
         self._uuid = uuid4()
+        self.parameters = None
 
     def __call__(self, *args, **kwargs):
+        _args, _kwargs = func_parameters(self._fixture_function, *args, **kwargs)
+        _args.update(kwargs)
+        self.parameters = list(_args.items())
+
         with self:
             return self._fixture_function(*args, **kwargs)
 
     def __enter__(self):
-        plugin_manager.hook.start_fixture(parent_uuid=self._parent_uuid, uuid=self._uuid, name=self._name)
+        plugin_manager.hook.start_fixture(parent_uuid=self._parent_uuid,
+                                          uuid=self._uuid,
+                                          name=self._name,
+                                          parameters=self.parameters)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        plugin_manager.hook.stop_fixture(uuid=self._uuid, exc_type=exc_type, exc_val=exc_val, exc_tb=exc_tb)
+        plugin_manager.hook.stop_fixture(parent_uuid=self._parent_uuid,
+                                         uuid=self._uuid,
+                                         name=self._name,
+                                         exc_type=exc_type,
+                                         exc_val=exc_val,
+                                         exc_tb=exc_tb)
+
+
+class test(object):
+    def __init__(self, _test, context):
+        self._test = _test
+        self._uuid = uuid4()
+        self.context = context
+        self.parameters = None
+
+    def __call__(self, *args, **kwargs):
+        _args, _kwargs = func_parameters(self._test, *args, **kwargs)
+        _args.update(_kwargs)
+        self.parameters = list(_args.items())
+
+        with self:
+            return self._test(*args, **kwargs)
+
+    def __enter__(self):
+        plugin_manager.hook.start_test(parent_uuid=None,
+                                       uuid=self._uuid,
+                                       name=None,
+                                       parameters=self.parameters,
+                                       context=self.context)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        plugin_manager.hook.stop_test(parent_uuid=None,
+                                      uuid=self._uuid,
+                                      name=None,
+                                      context=self.context,
+                                      exc_type=exc_type,
+                                      exc_val=exc_val,
+                                      exc_tb=exc_tb)
