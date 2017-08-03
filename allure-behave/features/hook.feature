@@ -1,6 +1,6 @@
 Feature: Hook
 
-  Scenario Outline: Hook
+  Scenario Outline: Hook 'scenario'
     Given feature definition
         """
         Feature: Hook
@@ -32,7 +32,7 @@ Feature: Hook
             | after  | scenario |
 
 
-  Scenario Outline: Hook
+  Scenario Outline: Hook 'tag'
     Given feature definition
         """
         Feature: Hook
@@ -66,7 +66,7 @@ Feature: Hook
             | after  | tag   |
 
 
-  Scenario Outline: Hook
+  Scenario Outline: Hook 'tag'
     Given feature definition
         """
         @tag_for_hook
@@ -100,7 +100,7 @@ Feature: Hook
             | after  | tag   |
 
 
-  Scenario Outline: Hook
+  Scenario Outline: Hook 'feature'
     Given feature definition
         """
         Feature: Hook
@@ -132,7 +132,7 @@ Feature: Hook
             | after  | feature |
 
 
-  Scenario Outline: Hook
+  Scenario Outline: Hook 'all'
     Given feature definition
         """
         Feature: Hook
@@ -162,3 +162,26 @@ Feature: Hook
             | when   | where |
             | before | all   |
             | after  | all   |
+
+
+  Scenario: Hook attachment
+    Given feature definition
+        """
+        Feature: Hook
+          Scenario: Scenario with "before_feature" hook and attachment
+            Given simple passed step
+        """
+      And hooks implementation
+        """
+        import allure
+        import allure_commons
+
+
+        @allure_commons.fixture
+        def before_feature(context, feature):
+            allure.attach('Hi there!', name='user attachment', attachment_type=allure.attachment_type.TEXT)
+        """
+     When I run behave with allure formatter
+     Then allure report has a scenario with name "Scenario with "before_feature" hook and attachment"
+      And this scenario has before fixture "before_feature"
+      And this before has attachment

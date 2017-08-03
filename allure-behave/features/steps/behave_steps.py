@@ -8,8 +8,6 @@ from behave.formatter._registry import make_formatters
 from behave.formatter.base import StreamOpener
 import threading
 
-A = None
-
 
 @given(u'feature definition')
 @given(u'feature definition {lang}')

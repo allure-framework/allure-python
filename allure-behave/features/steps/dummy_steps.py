@@ -1,3 +1,4 @@
+import allure
 from behave import given
 
 
@@ -6,6 +7,8 @@ from behave import given
 @given(u'passed step {where}')
 @given(u'{what} passed step {where}')
 def step_impl(*args, **kwargs):
+    if 'with attachment' in kwargs.values():
+        allure.attach('Hi there!', name='user attachment', attachment_type=allure.attachment_type.TEXT)
     pass
 
 
