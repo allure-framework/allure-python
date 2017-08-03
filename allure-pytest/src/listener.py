@@ -49,7 +49,7 @@ class AllureListener(object):
         self.allure_logger.start_after_fixture(parent_uuid, uuid, after_fixture)
 
     @allure_commons.hookimpl
-    def stop_fixture(self, uuid, exc_type, exc_val, exc_tb):
+    def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
         self.allure_logger.stop_after_fixture(uuid, stop=now())
 
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
