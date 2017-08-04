@@ -4,6 +4,7 @@ from allure_commons.types import Severity
 from allure_commons.model2 import Status, Parameter, Label
 from allure_commons.model2 import StatusDetails
 from allure_commons.utils import md5
+from allure_commons.utils import represent
 import traceback
 
 STATUS = {
@@ -86,7 +87,7 @@ def step_status(result):
 
 def step_status_details(result):
     if result.exception:
-        message = u','.join(map(str, result.exception.args))
+        message = u','.join(map(represent, result.exception.args))
         message = u'{name}: {message}'.format(name=result.exception.__class__.__name__, message=message)
         trace = u'\n'.join(traceback.format_tb(result.exc_traceback)) if result.exc_traceback else None
         return StatusDetails(message=message, trace=trace)
