@@ -8,7 +8,6 @@
 ...             ))  # doctest: +SKIP
 """
 
-import allure
 import pytest
 
 LINK = 'http://qameta.io'
