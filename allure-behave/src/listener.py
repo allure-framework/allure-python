@@ -19,7 +19,7 @@ from allure_behave.utils import scenario_history_id
 from allure_behave.utils import step_status, step_status_details
 from allure_behave.utils import scenario_status, scenario_status_details
 from allure_behave.utils import fixture_status, fixture_status_details
-
+from allure_behave.utils import step_table
 
 BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
 AFTER_FIXTURES = ['after_all', 'after_tag', 'after_feature', 'after_scenario']
@@ -138,9 +138,7 @@ class AllureListener(object):
             self.logger.attach_data(uuid4(), step.text, name='.text', attachment_type=AttachmentType.TEXT)
 
         if step.table:
-            table = [','.join(step.table.headings)]
-            [table.append(','.join(list(row))) for row in step.table.rows]
-            self.logger.attach_data(uuid4(), '\n'.join(table), name='.table', attachment_type=AttachmentType.CSV)
+            self.logger.attach_data(uuid4(), step_table(step), name='.table', attachment_type=AttachmentType.CSV)
 
     def stop_step(self, result):
         status = step_status(result)

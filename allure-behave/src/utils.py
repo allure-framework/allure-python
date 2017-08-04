@@ -24,7 +24,11 @@ def scenario_name(scenario):
 
 
 def scenario_history_id(scenario):
-    return md5(scenario.filename, scenario.name)
+    parts = [scenario.feature.name, scenario.name]
+    if scenario._row:
+        row = scenario._row
+        parts.extend(['{name}={value}'.format(name=name, value=value) for name, value in zip(row.headings, row.cells)])
+    return md5(*parts)
 
 
 def scenario_parameters(scenario):
@@ -90,3 +94,9 @@ def step_status_details(result):
         message = u'\nYou can implement step definitions for undefined steps with these snippets:\n\n'
         message += make_undefined_step_snippet(result)
         return StatusDetails(message=message)
+
+
+def step_table(step):
+    table = [','.join(step.table.headings)]
+    [table.append(','.join(list(row))) for row in step.table.rows]
+    return '\n'.join(table)
