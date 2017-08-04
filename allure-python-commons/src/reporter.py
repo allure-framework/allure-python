@@ -20,6 +20,11 @@ class AllureReporter(object):
             else:
                 setattr(item, name, value)
 
+    def _last_executable(self):
+        for _uuid in reversed(self._items):
+            if isinstance(self._items[_uuid], ExecutableItem):
+                return _uuid
+
     def get_item(self, uuid):
         return self._items.get(uuid)
 
@@ -62,11 +67,7 @@ class AllureReporter(object):
         plugin_manager.hook.report_result(result=test_case)
 
     def start_step(self, parent_uuid, uuid, step):
-        if not parent_uuid:
-            for _uuid in reversed(self._items):
-                if isinstance(self._items[_uuid], ExecutableItem):
-                    parent_uuid = _uuid
-                    break
+        parent_uuid = parent_uuid if parent_uuid else self._last_executable()
         self._items[parent_uuid].steps.append(step)
         self._items[uuid] = step
 
@@ -84,7 +85,7 @@ class AllureReporter(object):
 
         file_name = ATTACHMENT_PATTERN.format(prefix=uuid, ext=extension)
         attachment = Attachment(source=file_name, name=name, type=mime_type)
-        last_uuid = next(reversed(self._items))
+        last_uuid = self._last_executable()
         self._items[last_uuid].attachments.append(attachment)
 
         return file_name
