@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import allure
 from behave import given
 
@@ -26,3 +28,9 @@ def step_impl(*args, **kwargs):
 @given(u'{what} broken step {where}')
 def step_impl(*args, **kwargs):
     raise ZeroDivisionError()
+
+
+@given(u'всегда будет <это>')
+@given(u'всегда буду я')
+def step_impl(*args, **kwargs):
+    pass
