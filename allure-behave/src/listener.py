@@ -32,7 +32,6 @@ class AllureListener(object):
         self.current_step_uuid = None
         self.execution_context = Context()
         self.fixture_context = Context()
-        self.fixture_context.enter()
         self.steps = deque()
 
     def __del__(self):

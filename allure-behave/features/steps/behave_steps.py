@@ -43,6 +43,7 @@ def run_behave_with_allure(context, **kwargs):
 
         model_runner = ModelRunner(config, [context.feature_definition])
         model_runner.formatters = make_formatters(config, [stream_opener])
+        model_runner.formatters[0].listener.fixture_context.enter()
         model_runner.hooks = getattr(context, 'globals', dict())
         model_runner.run()
 
