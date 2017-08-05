@@ -28,7 +28,7 @@ def scenario_history_id(scenario):
     parts = [scenario.feature.name, scenario.name]
     if scenario._row:
         row = scenario._row
-        parts.extend(['{name}={value}'.format(name=name, value=value) for name, value in zip(row.headings, row.cells)])
+        parts.extend([u'{name}={value}'.format(name=name, value=value) for name, value in zip(row.headings, row.cells)])
     return md5(*parts)
 
 
