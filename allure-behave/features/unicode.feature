@@ -2,7 +2,7 @@ Feature: Language
     Scenario: Use russian
     Given feature definition ru
         """
-        Функционал: Юникод
+        Свойство: Юникод
 
           Структура сценария: Солнечный круг, небо вокруг
             Пусть всегда будет <это>
