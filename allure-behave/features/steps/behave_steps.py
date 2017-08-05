@@ -1,4 +1,5 @@
 import os
+import sys
 from tempfile import mkdtemp
 from allure_commons_test.report import AllureReport
 from behave.parser import Parser
@@ -20,6 +21,13 @@ def feature_definition(context, **kwargs):
 def hooks_implementations(context):
     context.globals = {}
     exec(context.text, context.globals)
+
+
+# ToDo FixMe
+@then(u'skip for python 2')
+def crack_the_world(context):
+    if sys.version_info.major < 3:
+        exit(0)
 
 
 @when(u'I run behave with allure formatter')

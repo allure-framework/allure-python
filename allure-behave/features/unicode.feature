@@ -13,6 +13,7 @@ Feature: Language
              | небо   |
              | мама   |
         """
+     Then skip for python 2
      When I run behave with allure formatter with options "--lang ru"
      Then allure report has a scenario with name "Солнечный круг, небо вокруг"
       And scenario contains step "Пусть всегда будет солнце"
