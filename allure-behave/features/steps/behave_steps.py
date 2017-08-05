@@ -27,7 +27,7 @@ def hooks_implementations(context):
 @when(u'I run behave with allure formatter with options "{args}"')
 def run_behave_with_allure(context, **kwargs):
     def run(context, **kwargs):
-        cmd_args = '--capture-stderr -f allure_behave.formatter:AllureFormatter'
+        cmd_args = '-f allure_behave.formatter:AllureFormatter'
         cmd = '{options} {cmd}'.format(cmd=cmd_args, options=kwargs.get('args', ''))
         config = Configuration(command_args=cmd)
 
