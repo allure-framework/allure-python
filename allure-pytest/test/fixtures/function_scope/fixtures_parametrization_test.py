@@ -39,7 +39,7 @@ def test_function_scope_parametrized_fixture_with_ids(parametrized_fixture_with_
     >>> for param, ids in zip([True, False], ['param_true', 'param_false']):
     ...     assert_that(allure_report,
     ...                 has_test_case('test_function_scope_parametrized_fixture_with_ids[{ids}]'.format(ids=ids),
-    ...                               has_parameter(ids, str(param))
+    ...                               has_parameter('parametrized_fixture_with_ids', str(param))
     ...                 )
     ...     )
     """
@@ -55,7 +55,7 @@ def test_two_function_scope_parametrized_fixture(parametrized_fixture, parametri
     ...                     has_test_case('test_two_function_scope_parametrized_fixture[{param1}-{ids2}]'.format(
     ...                                                                                         param1=param1, ids2=ids2),
     ...                         all_of(has_parameter('parametrized_fixture', str(param1)),
-    ...                                has_parameter(ids2, str(param2))
+    ...                                has_parameter('parametrized_fixture_with_ids', str(param2))
     ...                         )
     ...                     )
     ...         )

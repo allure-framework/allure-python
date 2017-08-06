@@ -11,6 +11,11 @@ COUNT OF CASES AND GROUPS
 import pytest
 
 
+@pytest.mark.parametrize(argnames="value", argvalues=range(1))
+def test_with_parametrization_by_kwargs(value):
+    return True
+
+
 @pytest.mark.parametrize('param', [True, False])
 def test_parametrization_one_param_without_ids(param):
     """
@@ -32,7 +37,7 @@ def test_parametrization_one_param_with_ids(param):
     ...     ids = 'pass' if param else 'fail'
     ...     assert_that(allure_report,
     ...                 has_test_case('test_parametrization_one_param_with_ids[{param}]'.format(param=ids),
-    ...                               has_parameter(ids, str(param))
+    ...                               has_parameter('param', str(param))
     ...                ))
     """
     assert not param
@@ -79,8 +84,8 @@ def test_parametrization_many_params_with_ids(param1, param2):
     ...     assert_that(allure_report,
     ...                 has_test_case('test_parametrization_many_params_with_ids[{ids}]'.format(ids=ids),
     ...                               all_of(
-    ...                                   has_parameter('{ids}::{param}'.format(ids=ids, param='param1'), str(param1)),
-    ...                                   has_parameter('{ids}::{param}'.format(ids=ids, param='param2'), str(param2))
+    ...                                   has_parameter('{param}'.format(ids=ids, param='param1'), str(param1)),
+    ...                                   has_parameter('{param}'.format(ids=ids, param='param2'), str(param2))
     ...                               )
     ...                 ))
 

@@ -4,6 +4,7 @@ import allure_commons
 from allure_commons.utils import now
 from allure_commons.utils import md5
 from allure_commons.utils import uuid4
+from allure_commons.utils import represent
 
 from allure_commons.reporter import AllureReporter
 
@@ -15,7 +16,6 @@ from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
 from allure_commons.types import LabelType
 
-from allure_pytest.utils import allure_parameters
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package
 
@@ -86,6 +86,9 @@ class AllureListener(object):
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         uuid = self._cache.get(item.nodeid)
+        for name, value in item.callspec.params.items() if hasattr(item, 'callspec') else ():
+            self.allure_logger.update_test(uuid, parameters=Parameter(name, represent(value)))
+
         self.allure_logger.update_test(uuid, start=now())
         yield
         self.allure_logger.update_test(uuid, stop=now())
@@ -106,12 +109,6 @@ class AllureListener(object):
         before_fixture_uuid = uuid4()
         before_fixture = TestBeforeResult(name=fixture_name, start=now())
         self.allure_logger.start_before_fixture(container_uuid, before_fixture_uuid, before_fixture)
-
-        parameters = allure_parameters(fixturedef, request)
-        if parameters:
-            test_uuid = self._cache.get(request._pyfuncitem.nodeid)
-            parameters = Parameter(**parameters) if parameters else []
-            self.allure_logger.update_test(test_uuid, parameters=parameters)
 
         yield
 

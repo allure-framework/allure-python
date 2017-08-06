@@ -2,50 +2,11 @@
 from __future__ import unicode_literals
 
 import os
-from itertools import product
 from allure_commons.utils import represent
 
 ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
 ALLURE_LABEL_PREFIX = 'allure_label'
 ALLURE_LINK_PREFIX = 'allure_link'
-
-
-def allure_parameters(fixturedef, request):
-    parameters = {}
-    param_name = request.fixturename
-
-    if hasattr(request, 'param'):
-        parameters = {'name': fixturedef.ids[request.param_index] if fixturedef.ids else param_name,
-                      'value': str(request.param)}
-
-    if 'parametrize' in request.node.keywords.keys():
-        param_map = list()
-        for mark_info in request.node.keywords['parametrize']:
-
-            _ids = mark_info.kwargs['ids'] if 'ids' in mark_info.kwargs.keys() else None
-            _args = mark_info.args[0]
-            if not isinstance(_args, (tuple, list)):
-                _args = [x.strip() for x in _args.split(",") if x.strip()]
-
-            param_map.append({'args': _args,
-                              'has_ids': _ids is not None,
-                              'ids': _ids if _ids else mark_info.args[1],
-                              'values': list()})
-
-        for variant in product(*[item['ids'] for item in param_map]):
-            for i, item in enumerate(param_map):
-                item['values'].append(variant[i])
-
-        for item in param_map:
-            if param_name in item['args'] and item['has_ids']:
-                ids = item['values'][request.param_index]
-                if len(item['args']) == 1:
-                    parameters = {'name': ids, 'value': str(request.param)}
-                else:
-                    param_name = '{ids}::{param}'.format(ids=ids, param=param_name)
-                    parameters = {'name': param_name, 'value': str(request.param)}
-
-    return parameters
 
 
 def allure_labels(item):
