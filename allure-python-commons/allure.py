@@ -9,6 +9,7 @@ from allure_commons._allure import step
 from allure_commons._allure import attach
 from allure_commons.types import Severity as severity_level
 from allure_commons.types import AttachmentType as attachment_type
+from allure_commons._allure import fixture
 
 
 __all__ = [
