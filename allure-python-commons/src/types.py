@@ -25,6 +25,8 @@ class LabelType(str, Enum):
     THREAD = 'thread'
     HOST = 'host'
     TAG = 'tag'
+    FRAMEWORK = 'framework'
+    LANGUAGE = 'language'
 
 
 class AttachmentType(Enum):
