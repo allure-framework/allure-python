@@ -1,7 +1,7 @@
 from setuptools import setup
 
 PACKAGE = "allure-python-commons-test"
-VERSION = "2.2.1b1"
+VERSION = "2.2.2b1"
 
 install_requires = [
     "pyhamcrest>=1.9.0",
