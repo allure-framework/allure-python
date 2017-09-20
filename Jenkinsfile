@@ -6,6 +6,7 @@ pipeline {
     stages {
         stage("Build") {
             steps {
+                sh 'ls -la'
                 sh 'tox --workdir=/tmp -c allure-python-commons-test/tox.ini'
                 sh 'tox --workdir=/tmp -c allure-python-commons/tox.ini'
                 sh 'tox --workdir=/tmp -c allure-pytest/tox.ini'
