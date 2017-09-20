@@ -5,6 +5,7 @@ import allure_commons
 from allure_commons.reporter import AllureReporter
 from allure_commons.utils import uuid4
 from allure_commons.utils import now
+from allure_commons.utils import platform_label
 from allure_commons.types import LabelType, AttachmentType
 from allure_commons.model2 import TestResult
 from allure_commons.model2 import TestStepResult
@@ -20,6 +21,7 @@ from allure_behave.utils import step_status, step_status_details
 from allure_behave.utils import scenario_status, scenario_status_details
 from allure_behave.utils import fixture_status, fixture_status_details
 from allure_behave.utils import step_table
+
 
 BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
 AFTER_FIXTURES = ['after_all', 'after_tag', 'after_feature', 'after_scenario']
@@ -84,20 +86,15 @@ class AllureListener(object):
         self.execution_context.append(uuid)
 
         test_case = TestResult(uuid=uuid, start=now())
-
         test_case.name = scenario_name(scenario)
         test_case.historyId = scenario_history_id(scenario)
         test_case.description = '\n'.join(scenario.description)
-
-        labels = []
-        feature_label = Label(name=LabelType.FEATURE.value, value=scenario.feature.name)
-        severity = (Label(name=LabelType.SEVERITY.value, value=scenario_severity(scenario).value))
-        labels.append(feature_label)
-        labels.append(severity)
-        labels += [Label(name=LabelType.TAG.value, value=tag) for tag in scenario_tags(scenario)]
-
         test_case.parameters = scenario_parameters(scenario)
-        test_case.labels = labels
+        test_case.labels.extend([Label(name=LabelType.TAG, value=tag) for tag in scenario_tags(scenario)])
+        test_case.labels.append(Label(name=LabelType.SEVERITY, value=scenario_severity(scenario).value))
+        test_case.labels.append(Label(name=LabelType.FEATURE, value=scenario.feature.name))
+        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))
+        test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
 
         self.logger.schedule_test(uuid, test_case)
 

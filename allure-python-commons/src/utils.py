@@ -4,6 +4,7 @@ import time
 import uuid
 import inspect
 import hashlib
+import platform
 
 from six import text_type
 
@@ -22,6 +23,13 @@ def uuid4():
 
 def now():
     return int(round(1000 * time.time()))
+
+
+def platform_label():
+    major_version, _, __ = platform.python_version_tuple()
+    implementation = platform.python_implementation()
+    return '{implementation}{major_version}'.format(implementation=implementation.lower(),
+                                                    major_version=major_version)
 
 
 def represent(item):
