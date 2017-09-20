@@ -14,7 +14,7 @@ except (DistributionNotFound, VersionConflict):
     pass
 
 PACKAGE = "allure-pytest"
-VERSION = "2.2.1b1"
+VERSION = "2.2.2b1"
 
 classifiers = [
     'Development Status :: 4 - Beta',
