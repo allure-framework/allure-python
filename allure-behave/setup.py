@@ -14,7 +14,7 @@ classifiers = [
 
 install_requires = [
     "behave==1.2.5",
-    "allure-python-commons==2.2.1b1"
+    "allure-python-commons==2.2.2b1"
 ]
 
 
