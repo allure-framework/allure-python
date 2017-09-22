@@ -71,7 +71,7 @@ class AllureListener(object):
 
         test_case.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_case.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
-        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))
+        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
         test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
 
         test_case.links += [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
