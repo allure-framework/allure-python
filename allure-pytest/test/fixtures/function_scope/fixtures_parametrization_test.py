@@ -12,20 +12,28 @@ import pytest
 
 @pytest.fixture(params=[True, False])
 def parametrized_fixture(request):
-    return request.param
+    assert request.param
 
 
 def test_function_scope_parametrized_fixture(parametrized_fixture):
     """
     >>> allure_report = getfixture('allure_report')
-    >>> for param in [True, False]:
+    >>> for passed in [True, False]:
     ...     assert_that(allure_report,
-    ...                 has_test_case('test_function_scope_parametrized_fixture[{param}]'.format(param=param),
-    ...                               has_parameter('parametrized_fixture', str(param))
+    ...                 has_test_case('test_function_scope_parametrized_fixture[{param}]'.format(param=passed),
+    ...                               has_parameter('parametrized_fixture', str(passed)),
+    ...                               has_container(allure_report,
+    ...                                         has_before('parametrized_fixture',
+    ...                                                    with_status('passed' if passed else 'failed'),
+    ...                                                    has_status_details(
+    ...                                                                       with_status_message('AssertionError')
+    ...                                                    ) if not passed else anything()
+    ...                                         )
+    ...                               )
     ...                 )
     ...     )
     """
-    assert parametrized_fixture
+    pass
 
 
 @pytest.fixture(params=[True, False], ids=['param_true', 'param_false'])

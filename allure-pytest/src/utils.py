@@ -2,7 +2,12 @@
 from __future__ import unicode_literals
 
 import os
+import pytest
 from allure_commons.utils import represent
+from allure_commons.utils import format_exception, format_traceback
+from allure_commons.model2 import Status
+from allure_commons.model2 import StatusDetails
+
 
 ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
 ALLURE_LABEL_PREFIX = 'allure_label'
@@ -63,3 +68,30 @@ def allure_full_name(nodeid):
     clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
     test = parts[-1]
     return '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+
+
+def get_outcome_status(outcome):
+    _, exception, _ = outcome.excinfo or (None, None, None)
+    return get_status(exception)
+
+
+def get_outcome_status_details(outcome):
+    exception_type, exception, exception_traceback = outcome.excinfo or (None, None, None)
+    return get_status_details(exception_type, exception, exception_traceback)
+
+
+def get_status(exception):
+    if exception:
+        if isinstance(exception, AssertionError):
+            return Status.FAILED
+        elif isinstance(exception, pytest.skip.Exception):
+            return Status.SKIPPED
+    return Status.PASSED
+
+
+def get_status_details(exception_type, exception, exception_traceback):
+    if isinstance(exception, pytest.skip.Exception):
+        return StatusDetails(message=exception.msg)
+    elif exception:
+        return StatusDetails(message=format_exception(exception_type, exception),
+                             trace=format_traceback(exception_traceback))

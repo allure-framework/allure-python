@@ -11,17 +11,17 @@ import pytest
 
 
 @pytest.fixture
-def fixture_with_finalizer_a(request):
-    def finalizer_fixture_a():
+def fixture_with_passed_finalizer(request):
+    def passed_finalizer():
         pass
-    request.addfinalizer(finalizer_fixture_a)
+    request.addfinalizer(passed_finalizer)
 
 
 @pytest.fixture
-def fixture_with_finalizer_b(request):
-    def finalizer_fixture_b():
-        pass
-    request.addfinalizer(finalizer_fixture_b)
+def fixture_failed_finalizer(request):
+    def failed_finalizer():
+        assert False
+    request.addfinalizer(failed_finalizer)
 
 
 @pytest.fixture
@@ -35,22 +35,29 @@ def fixture_with_two_finalizers(request):
     request.addfinalizer(second_finalizer)
 
 
-def test_two_fixures_with_finalizer(fixture_with_finalizer_a, fixture_with_finalizer_b):
+def test_two_fixures_with_finalizer(fixture_with_passed_finalizer, fixture_failed_finalizer):
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
     ...             has_test_case('test_two_fixures_with_finalizer',
     ...                           has_container(allure_report,
-    ...                                         has_before('fixture_with_finalizer_a'),
+    ...                                         has_before('fixture_with_passed_finalizer'),
     ...                                         has_after('{fixture}::{finalizer}'.format(
-    ...                                                               fixture='fixture_with_finalizer_a',
-    ...                                                               finalizer='finalizer_fixture_a'))
+    ...                                                               fixture='fixture_with_passed_finalizer',
+    ...                                                               finalizer='passed_finalizer'),
+    ...                                                   with_status('passed')
+    ...                                         )
     ...                           ),
     ...                           has_container(allure_report,
+    ...                                         has_before('fixture_failed_finalizer'),
     ...                                         has_after('{fixture}::{finalizer}'.format(
-    ...                                         has_before('fixture_with_finalizer_b'),
-    ...                                                               fixture='fixture_with_finalizer_b',
-    ...                                                               finalizer='finalizer_fixture_b'))
+    ...                                                               fixture='fixture_failed_finalizer',
+    ...                                                               finalizer='failed_finalizer'),
+    ...                                                   with_status('failed'),
+    ...                                                   has_status_details(
+    ...                                                                       with_status_message('AssertionError')
+    ...                                                   )
+    ...                                         )
     ...                           )
     ...             )
     ... )
