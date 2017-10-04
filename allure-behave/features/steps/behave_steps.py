@@ -1,5 +1,4 @@
 import os
-import sys
 from tempfile import mkdtemp
 from allure_commons_test.report import AllureReport
 from behave.parser import Parser

@@ -6,6 +6,8 @@ from allure_commons_test.result import with_status
 from allure_commons_test.result import has_step
 from allure_commons_test.result import has_attachment
 from allure_commons_test.result import has_parameter
+from allure_commons_test.result import has_status_details
+from allure_commons_test.result import with_status_message
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before, has_after
 from allure_commons_test.label import has_severity
@@ -77,6 +79,14 @@ def step_step(context, item, step):
 def step_status(context, item, status):
     context_matcher = getattr(context, item)
     matcher = partial(context_matcher, with_status, status)
+    assert_that(context.allure_report, matcher())
+
+
+@then(u'{item} has status details with message "{message}"')
+@then(u'this {item} has status details with message "{message}"')
+def step_status(context, item, message):
+    context_matcher = getattr(context, item)
+    matcher = partial(context_matcher, has_status_details, with_status_message, message)
     assert_that(context.allure_report, matcher())
 
 

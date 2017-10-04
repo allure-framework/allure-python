@@ -1,5 +1,35 @@
 Feature: Step
 
+  Scenario: Failed step
+    Given feature definition
+        """
+        Feature: Step status
+
+          Scenario: Scenario with failed step
+              Given simple failed step
+        """
+     When I run behave with allure formatter
+     Then allure report has a scenario with name "Scenario with failed step"
+      And scenario contains step "Given simple failed step"
+      And this step has "failed" status
+      And this step has status details with message "AssertionError: Assert message"
+
+
+  Scenario: Broken step
+    Given feature definition
+        """
+        Feature: Step status
+
+          Scenario: Scenario with broken step
+              Given simple broken step
+        """
+     When I run behave with allure formatter
+     Then allure report has a scenario with name "Scenario with broken step"
+      And scenario contains step "Given simple broken step"
+      And this step has "broken" status
+      And this step has status details with message "ZeroDivisionError"
+
+
   Scenario: Step text parameter
     Given feature definition
         """

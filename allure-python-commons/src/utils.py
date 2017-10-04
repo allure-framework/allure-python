@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
+
 import sys
+import six
 import time
 import uuid
 import inspect
 import hashlib
 import platform
+import traceback
 
-from six import text_type
+if sys.version_info.major > 2:
+    from traceback import format_exception_only
+else:
+    from _compat import format_exception_only
 
 
 def md5(*args):
@@ -40,15 +46,18 @@ def represent(item):
     >>> represent(123)
     '123'
 
-    >>> represent('hi') == u"'hi'"
-    True
-
-    >>> represent(u'привет') == u"'привет'"
+    >>> from sys import version_info
+    >>> expected = u"'hi'" if version_info.major < 3 else "'hi'"
+    >>> represent('hi') == expected
     True
 
     >>> from sys import version_info
-    >>> represent(str(bytearray([0xd0, 0xbf]))) == u"'\u043f'" if version_info.major < 3 else True
+    >>> expected = u"'привет'" if version_info.major < 3 else "'привет'"
+    >>> represent(u'привет') == expected
     True
+
+    >>> represent(bytearray([0xd0, 0xbf]))  # doctest: +ELLIPSIS
+    "<... 'bytearray'>"
 
     >>> from struct import pack
     >>> result = "<type 'str'>" if version_info.major < 3 else "<class 'bytes'>"
@@ -78,7 +87,7 @@ def represent(item):
         except UnicodeDecodeError:
             pass
 
-    if isinstance(item, text_type):
+    if isinstance(item, six.text_type):
         return u'\'%s\'' % item
     elif isinstance(item, (bytes, bytearray)):
         return repr(type(item))
@@ -88,8 +97,63 @@ def represent(item):
 
 def func_parameters(func, *a, **kw):
     bowels = inspect.getargspec(func) if sys.version_info.major < 3 else inspect.getfullargspec(func)
-    args_dict = dict(zip(bowels.args, map(represent,  a)))
+    args_dict = dict(zip(bowels.args, map(represent, a)))
     kwargs_dict = dict(zip(kw, list(map(lambda i: represent(kw[i]), kw))))
     kwarg_defaults = dict(zip(reversed(bowels.args), reversed(list(map(represent, bowels.defaults or ())))))
     kwarg_defaults.update(kwargs_dict)
     return args_dict, kwarg_defaults
+
+
+def format_traceback(exc_traceback):
+    return ''.join(traceback.format_tb(exc_traceback)) if exc_traceback else None
+
+
+def format_exception(etype, value):
+    """
+    >>> import sys
+
+    >>> try:
+    ...     assert False, u'Привет'
+    ... except AssertionError:
+    ...     etype, e, _ = sys.exc_info()
+    ...     format_exception(etype, e) # doctest: +ELLIPSIS
+    'AssertionError: ...\\n'
+
+    >>> try:
+    ...     assert False, 'Привет'
+    ... except AssertionError:
+    ...     etype, e, _ = sys.exc_info()
+    ...     format_exception(etype, e) # doctest: +ELLIPSIS
+    'AssertionError: ...\\n'
+
+    >>> try:
+    ...    compile("bla u'Привет'", "fake.py", "exec")
+    ... except SyntaxError:
+    ...    etype, e, _ = sys.exc_info()
+    ...    format_exception(etype, e) # doctest: +ELLIPSIS
+    '  File "fake.py", line 1...SyntaxError: invalid syntax\\n'
+
+    >>> try:
+    ...    compile("bla 'Привет'", "fake.py", "exec")
+    ... except SyntaxError:
+    ...    etype, e, _ = sys.exc_info()
+    ...    format_exception(etype, e) # doctest: +ELLIPSIS
+    '  File "fake.py", line 1...SyntaxError: invalid syntax\\n'
+
+    >>> from hamcrest import assert_that, equal_to
+
+    >>> try:
+    ...     assert_that('left', equal_to('right'))
+    ... except AssertionError:
+    ...     etype, e, _ = sys.exc_info()
+    ...     format_exception(etype, e) # doctest: +ELLIPSIS
+    "AssertionError: \\nExpected:...but:..."
+
+    >>> try:
+    ...     assert_that(u'left', equal_to(u'right'))
+    ... except AssertionError:
+    ...     etype, e, _ = sys.exc_info()
+    ...     format_exception(etype, e) # doctest: +ELLIPSIS
+    "AssertionError: \\nExpected:...but:..."
+    """
+    return '\n'.join(format_exception_only(etype, value))
