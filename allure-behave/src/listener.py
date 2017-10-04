@@ -19,8 +19,9 @@ from allure_behave.utils import scenario_name
 from allure_behave.utils import scenario_history_id
 from allure_behave.utils import step_status, step_status_details
 from allure_behave.utils import scenario_status, scenario_status_details
-from allure_behave.utils import fixture_status, fixture_status_details
 from allure_behave.utils import step_table
+from allure_behave.utils import get_status, get_status_details
+
 
 
 BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
@@ -63,9 +64,10 @@ class AllureListener(object):
     @allure_commons.hookimpl
     def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
         if name in FIXTURES:
-            status = fixture_status(exc_val, exc_tb)
-            status_details = fixture_status_details(exc_val, exc_tb)
-            self.logger.stop_before_fixture(uuid=uuid, stop=now(), status=status, statusDetails=status_details)
+            self.logger.stop_before_fixture(uuid=uuid,
+                                            stop=now(),
+                                            status=get_status(exc_val),
+                                            statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
     def start_feature(self):
         self.execution_context.enter()
@@ -120,9 +122,9 @@ class AllureListener(object):
 
     def match_step(self, match):
         step = self.steps.popleft()
-        self.start_step(step)
+        self.start_behave_step(step)
 
-    def start_step(self, step):
+    def start_behave_step(self, step):
 
         self.current_step_uuid = uuid4()
         name = u'{keyword} {title}'.format(keyword=step.keyword, title=step.name)
@@ -136,7 +138,7 @@ class AllureListener(object):
         if step.table:
             self.logger.attach_data(uuid4(), step_table(step), name='.table', attachment_type=AttachmentType.CSV)
 
-    def stop_step(self, result):
+    def stop_behave_step(self, result):
         status = step_status(result)
         status_details = step_status_details(result)
         self.logger.stop_step(self.current_step_uuid, stop=now(), status=status, statusDetails=status_details)
@@ -144,8 +146,22 @@ class AllureListener(object):
     def flush_steps(self):
         while self.steps:
             step = self.steps.popleft()
-            self.start_step(step)
-            self.stop_step(step)
+            self.start_behave_step(step)
+            self.stop_behave_step(step)
+
+    @allure_commons.hookimpl
+    def start_step(self, uuid, title, params):
+        parameters = [Parameter(name=name, value=value) for name, value in params]
+        step = TestStepResult(name=title, start=now(), parameters=parameters)
+        self.logger.start_step(None, uuid, step)
+
+    @allure_commons.hookimpl
+    def stop_step(self, uuid, exc_type, exc_val, exc_tb):
+        self.logger.stop_step(uuid,
+                              stop=now(),
+                              status=get_status(exc_val),
+                              statusDetails=get_status_details(exc_type, exc_val, exc_tb))
+
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):

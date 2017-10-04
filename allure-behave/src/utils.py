@@ -64,25 +64,25 @@ def scenario_status_details(scenario):
             return step_status_details(step)
 
 
-def fixture_status(exception, exc_traceback):
+def get_status_details(exc_type, exception, exc_traceback):
     if exception:
-        return Status.FAILED if isinstance(exception, AssertionError) else Status.BROKEN
-    else:
-        return Status.BROKEN if exc_traceback else Status.PASSED
-
-
-def fixture_status_details(exception, exc_traceback):
-    if exception:
-        return StatusDetails(message=format_exception(type(exception), exception),
+        return StatusDetails(message=format_exception(exc_type, exception),
                              trace=format_traceback(exc_traceback))
-    return None
 
 
 def step_status(result):
-    if result.exception and not isinstance(result.exception, AssertionError):
-        return Status.BROKEN
+    if result.exception:
+        return get_status(result.exception)
     else:
         return STATUS.get(result.status, None)
+
+
+def get_status(exception):
+    if exception and isinstance(exception, AssertionError):
+        return Status.FAILED
+    elif exception:
+        return Status.BROKEN
+    return Status.PASSED
 
 
 def step_status_details(result):
