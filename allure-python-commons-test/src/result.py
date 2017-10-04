@@ -65,6 +65,7 @@ Expected: ...
 from hamcrest import all_of, anything
 from hamcrest import equal_to, not_none
 from hamcrest import has_entry, has_item
+from hamcrest import contains_string
 
 
 def has_step(name, *matchers):
@@ -129,7 +130,7 @@ def has_status_details(*matchers):
 
 
 def with_status_message(message):
-    return has_entry('message', message)
+    return has_entry('message', contains_string(message))
 
 
 def has_history_id():

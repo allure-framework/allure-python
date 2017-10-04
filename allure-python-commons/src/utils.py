@@ -1,8 +1,18 @@
+# -*- coding: utf-8 -*-
+
 import sys
+import six
 import time
 import uuid
 import inspect
 import hashlib
+import platform
+import traceback
+
+if sys.version_info.major > 2:
+    from traceback import format_exception_only
+else:
+    from _compat import format_exception_only
 
 
 def md5(*args):
@@ -21,13 +31,129 @@ def now():
     return int(round(1000 * time.time()))
 
 
-def func_parameters(func, *a, **kw):
-    if sys.version_info.major < 3:
-        all_names = inspect.getargspec(func).args
-        defaults = inspect.getargspec(func).defaults
+def platform_label():
+    major_version, _, __ = platform.python_version_tuple()
+    implementation = platform.python_implementation()
+    return '{implementation}{major_version}'.format(implementation=implementation.lower(),
+                                                    major_version=major_version)
+
+
+def represent(item):
+    """
+    >>> represent(None)
+    'None'
+
+    >>> represent(123)
+    '123'
+
+    >>> from sys import version_info
+    >>> expected = u"'hi'" if version_info.major < 3 else "'hi'"
+    >>> represent('hi') == expected
+    True
+
+    >>> from sys import version_info
+    >>> expected = u"'привет'" if version_info.major < 3 else "'привет'"
+    >>> represent(u'привет') == expected
+    True
+
+    >>> represent(bytearray([0xd0, 0xbf]))  # doctest: +ELLIPSIS
+    "<... 'bytearray'>"
+
+    >>> from struct import pack
+    >>> result = "<type 'str'>" if version_info.major < 3 else "<class 'bytes'>"
+    >>> represent(pack('h', 0x89)) == result
+    True
+
+    >>> result = "<type 'int'>" if version_info.major < 3 else "<class 'int'>"
+    >>> represent(int) == result
+    True
+
+    >>> represent(represent)  # doctest: +ELLIPSIS
+    '<function represent at ...>'
+
+    >>> represent([represent])  # doctest: +ELLIPSIS
+    '[<function represent at ...>]'
+
+    >>> class ClassWithName(object):
+    ...     pass
+
+    >>> represent(ClassWithName)
+    "<class 'utils.ClassWithName'>"
+    """
+
+    if sys.version_info.major < 3 and isinstance(item, str):
+        try:
+            item = item.decode(encoding='UTF-8')
+        except UnicodeDecodeError:
+            pass
+
+    if isinstance(item, six.text_type):
+        return u'\'%s\'' % item
+    elif isinstance(item, (bytes, bytearray)):
+        return repr(type(item))
     else:
-        all_names = inspect.getfullargspec(func).args
-        defaults = inspect.getfullargspec(func).defaults
-    args_part = [(n, str(v)) for n, v in zip(all_names, a)]
-    kwarg_part = [(n, str(kw[n]) if n in kw else str(defaults[i])) for i, n in enumerate(all_names[len(a):])]
-    return args_part + kwarg_part
+        return repr(item)
+
+
+def func_parameters(func, *a, **kw):
+    bowels = inspect.getargspec(func) if sys.version_info.major < 3 else inspect.getfullargspec(func)
+    args_dict = dict(zip(bowels.args, map(represent, a)))
+    kwargs_dict = dict(zip(kw, list(map(lambda i: represent(kw[i]), kw))))
+    kwarg_defaults = dict(zip(reversed(bowels.args), reversed(list(map(represent, bowels.defaults or ())))))
+    kwarg_defaults.update(kwargs_dict)
+    return args_dict, kwarg_defaults
+
+
+def format_traceback(exc_traceback):
+    return ''.join(traceback.format_tb(exc_traceback)) if exc_traceback else None
+
+
+def format_exception(etype, value):
+    """
+    >>> import sys
+
+    >>> try:
+    ...     assert False, u'Привет'
+    ... except AssertionError:
+    ...     etype, e, _ = sys.exc_info()
+    ...     format_exception(etype, e) # doctest: +ELLIPSIS
+    'AssertionError: ...\\n'
+
+    >>> try:
+    ...     assert False, 'Привет'
+    ... except AssertionError:
+    ...     etype, e, _ = sys.exc_info()
+    ...     format_exception(etype, e) # doctest: +ELLIPSIS
+    'AssertionError: ...\\n'
+
+    >>> try:
+    ...    compile("bla u'Привет'", "fake.py", "exec")
+    ... except SyntaxError:
+    ...    etype, e, _ = sys.exc_info()
+    ...    format_exception(etype, e) # doctest: +ELLIPSIS
+    '  File "fake.py", line 1...SyntaxError: invalid syntax\\n'
+
+    >>> try:
+    ...    compile("bla 'Привет'", "fake.py", "exec")
+    ... except SyntaxError:
+    ...    etype, e, _ = sys.exc_info()
+    ...    format_exception(etype, e) # doctest: +ELLIPSIS
+    '  File "fake.py", line 1...SyntaxError: invalid syntax\\n'
+
+    >>> from hamcrest import assert_that, equal_to
+
+    >>> try:
+    ...     assert_that('left', equal_to('right'))
+    ... except AssertionError:
+    ...     etype, e, _ = sys.exc_info()
+    ...     format_exception(etype, e) # doctest: +ELLIPSIS
+    "AssertionError: \\nExpected:...but:..."
+
+    >>> try:
+    ...     assert_that(u'left', equal_to(u'right'))
+    ... except AssertionError:
+    ...     etype, e, _ = sys.exc_info()
+    ...     format_exception(etype, e) # doctest: +ELLIPSIS
+    "AssertionError: \\nExpected:...but:..."
+    """
+    return '\n'.join(format_exception_only(etype, value))

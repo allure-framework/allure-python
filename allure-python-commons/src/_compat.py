@@ -73,7 +73,7 @@ def _some_str(value):
         return str(value)
     except UnicodeError:
         try:
-            value = unicode(value)  # noqa: F821
+            value = unicode(value)
             return value.encode('utf-8', 'replace')
         except Exception:
             pass
