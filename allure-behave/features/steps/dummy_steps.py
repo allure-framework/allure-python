@@ -22,6 +22,21 @@ def step_impl(*args, **kwargs):
     assert False, 'Assert message'
 
 
+@given(u'провальный шаг')
+def step_impl(*args, **kwargs):
+    assert False, u'Фиаско!'
+
+
+@given(u'провальный шаг с ascii')
+def step_impl(*args, **kwargs):
+    assert False, 'Фиаско!'
+
+
+@given(u'проходящий шаг')
+def step_impl(*args, **kwargs):
+    pass
+
+
 @given(u'broken step')
 @given(u'{what} broken step')
 @given(u'broken step {where}')
