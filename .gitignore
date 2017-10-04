@@ -1,3 +1,4 @@
+.DS_Store
 .idea
 .tox
 .cache
@@ -5,3 +6,6 @@
 
 *.pyc
 *.egg-info
+
+*/build
+*/dist

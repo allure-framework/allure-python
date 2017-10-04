@@ -15,12 +15,13 @@ from allure_commons.model2 import Status
 from allure_commons.types import LabelType
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package
+from allure_pytest.utils import get_status, get_status_details
+from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 
 
 class AllureListener(object):
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
         self.allure_logger = AllureReporter()
         self._cache = ItemCache()
 
@@ -32,14 +33,10 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def stop_step(self, uuid, exc_type, exc_val, exc_tb):
-        status = Status.PASSED
-        if exc_type is not None:
-            if exc_type == pytest.skip.Exception:
-                status = Status.SKIPPED
-            else:
-                status = Status.FAILED
-
-        self.allure_logger.stop_step(uuid, stop=now(), status=status)
+        self.allure_logger.stop_step(uuid,
+                                     stop=now(),
+                                     status=get_status(exc_val),
+                                     statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
     @allure_commons.hookimpl
     def start_fixture(self, parent_uuid, uuid, name):
@@ -48,7 +45,10 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
-        self.allure_logger.stop_after_fixture(uuid, stop=now())
+        self.allure_logger.stop_after_fixture(uuid,
+                                              stop=now(),
+                                              status=get_status(exc_val),
+                                              statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
     def pytest_runtest_protocol(self, item, nextitem):
@@ -69,6 +69,9 @@ class AllureListener(object):
 
         yield
 
+        for name, value in item.callspec.params.items() if hasattr(item, 'callspec') else ():
+            self.allure_logger.update_test(uuid, parameters=Parameter(name, represent(value)))
+
         test_case.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_case.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
         test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
@@ -86,11 +89,10 @@ class AllureListener(object):
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         uuid = self._cache.get(item.nodeid)
-        for name, value in item.callspec.params.items() if hasattr(item, 'callspec') else ():
-            self.allure_logger.update_test(uuid, parameters=Parameter(name, represent(value)))
-
         self.allure_logger.update_test(uuid, start=now())
+
         yield
+
         self.allure_logger.update_test(uuid, stop=now())
 
     @pytest.hookimpl(hookwrapper=True)
@@ -110,12 +112,15 @@ class AllureListener(object):
         before_fixture = TestBeforeResult(name=fixture_name, start=now())
         self.allure_logger.start_before_fixture(container_uuid, before_fixture_uuid, before_fixture)
 
-        yield
+        outcome = yield
 
-        self.allure_logger.stop_before_fixture(before_fixture_uuid, stop=now())
+        self.allure_logger.stop_before_fixture(before_fixture_uuid,
+                                               stop=now(),
+                                               status=get_outcome_status(outcome),
+                                               statusDetails=get_outcome_status_details(outcome))
 
         for index, finalizer in enumerate(fixturedef._finalizer or ()):
-            name = u'{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=finalizer.__name__)
+            name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=finalizer.__name__)
             fixturedef._finalizer[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
     @pytest.hookimpl(hookwrapper=True)

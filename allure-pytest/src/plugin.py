@@ -94,7 +94,7 @@ def pytest_configure(config):
     allure_commons.plugin_manager.register(test_helper)
 
     if report_dir:
-        test_listener = AllureListener(config)
+        test_listener = AllureListener()
         config.pluginmanager.register(test_listener)
         allure_commons.plugin_manager.register(test_listener)
 

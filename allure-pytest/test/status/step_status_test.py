@@ -26,7 +26,10 @@ def test_skip_in_deep_step():
     ...                           has_step('Step1',
     ...                                    with_status('skipped'),
     ...                                    has_step('Step2',
-    ...                                             with_status('skipped')
+    ...                                             with_status('skipped'),
+    ...                                             has_status_details(
+    ...                                                                with_status_message('oops!')
+    ...                                             )
     ...                                    )
     ...                            )
     ...             )
@@ -34,7 +37,7 @@ def test_skip_in_deep_step():
     """
     with pytest.allure.step('Step1'):
         with pytest.allure.step('Step2'):
-            pytest.skip()
+            pytest.skip('oops!')
 
 
 def test_fail_in_step_after_step():
@@ -45,6 +48,9 @@ def test_fail_in_step_after_step():
     ...                           with_status('failed'),
     ...                           has_step('Step1',
     ...                                    with_status('failed'),
+    ...                                    has_status_details(
+    ...                                                       with_status_message('AssertionError')
+    ...                                    ),
     ...                                    has_step('Step2',
     ...                                             with_status('passed')
     ...                                    )
