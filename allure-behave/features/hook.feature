@@ -185,3 +185,64 @@ Feature: Hook
      Then allure report has a scenario with name "Scenario with "before_feature" hook and attachment"
       And this scenario has before fixture "before_feature"
       And this before has attachment
+
+
+  Scenario Outline: Hook step as context
+    Given feature definition
+        """
+        Feature: Hook
+          Scenario: Scenario with "<when> <where>" hook and step inside
+            Given simple passed step
+        """
+      And hooks implementation
+        """
+        import allure
+        import allure_commons
+
+
+        @allure_commons.fixture
+        def <when>_<where>(context, <where>):
+            with allure.step('Step inside fixture'):
+              pass
+        """
+     When I run behave with allure formatter
+     Then allure report has a scenario with name "Scenario with "<when> <where>" hook and step inside"
+      And this scenario has <when> fixture "<when>_<where>"
+      And this <when> contains step "Step inside fixture"
+
+    Examples: fixtures
+            | when   | where    |
+            | before | scenario |
+            | after  | scenario |
+
+
+  Scenario Outline: Hook step as function
+    Given feature definition
+        """
+        Feature: Hook
+          Scenario:  Scenario with "<when> <where>" hook and step as function inside
+            Given simple passed step
+        """
+      And hooks implementation
+        """
+        import allure
+        import allure_commons
+
+        @allure.step('Step function')
+        def step():
+            pass
+
+        @allure_commons.fixture
+        def <when>_<where>(context):
+            step()
+        """
+     When I run behave with allure formatter
+     Then allure report has a scenario with name "Scenario with "<when> <where>" hook and step as function inside"
+      And this scenario has <when> fixture "<when>_<where>"
+      And this <when> contains step "Step function"
+
+    Examples: fixtures
+            | when   | where |
+            | before | all   |
+            | after  | all   |
+

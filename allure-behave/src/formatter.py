@@ -33,7 +33,7 @@ class AllureFormatter(Formatter):
         self.listener.match_step(match)
 
     def result(self, result):
-        self.listener.stop_step(result)
+        self.listener.stop_behave_step(result)
 
     def eof(self):
         self.listener.stop_feature()
