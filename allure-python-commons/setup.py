@@ -2,7 +2,7 @@ import sys
 from setuptools import setup
 
 PACKAGE = "allure-python-commons"
-VERSION = "2.2.2b2"
+VERSION = "2.2.3b1"
 
 classifiers = [
     'Development Status :: 4 - Beta',
@@ -27,7 +27,7 @@ def main():
         name=PACKAGE,
         version=VERSION,
         description="Common module for integrate allure with python-based frameworks",
-        url="https://github.com/allure-framework/allure-python2",
+        url="https://github.com/allure-framework/allure-python",
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
