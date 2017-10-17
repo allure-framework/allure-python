@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import six
 import time
 import uuid
+import socket
 import inspect
 import hashlib
 import platform
+import threading
 import traceback
 
 if sys.version_info.major > 2:
@@ -36,6 +39,14 @@ def platform_label():
     implementation = platform.python_implementation()
     return '{implementation}{major_version}'.format(implementation=implementation.lower(),
                                                     major_version=major_version)
+
+
+def thread_tag():
+    return '{0}-{1}'.format(os.getpid(), threading.current_thread().name)
+
+
+def host_tag():
+    return socket.gethostname()
 
 
 def represent(item):

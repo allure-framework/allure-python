@@ -5,6 +5,7 @@ from allure_commons.utils import md5
 from allure_commons.utils import uuid4
 from allure_commons.utils import represent
 from allure_commons.utils import platform_label
+from allure_commons.utils import host_tag, thread_tag
 from allure_commons.reporter import AllureReporter
 from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
@@ -24,6 +25,8 @@ class AllureListener(object):
     def __init__(self):
         self.allure_logger = AllureReporter()
         self._cache = ItemCache()
+        self._host = host_tag()
+        self._thread = thread_tag()
 
     @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
@@ -74,6 +77,8 @@ class AllureListener(object):
 
         test_case.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_case.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
+        test_case.labels.append(Label(name=LabelType.HOST, value=self._host))
+        test_case.labels.append(Label(name=LabelType.THREAD, value=self._thread))
         test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
         test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
 
