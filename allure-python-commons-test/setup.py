@@ -1,7 +1,7 @@
 from setuptools import setup
 
 PACKAGE = "allure-python-commons-test"
-VERSION = "2.2.2b2"
+VERSION = "2.2.3b1"
 
 install_requires = [
     "pyhamcrest>=1.9.0",
@@ -14,7 +14,7 @@ def main():
         name=PACKAGE,
         version=VERSION,
         description="Common module for self-testing allure integrations with python-based frameworks",
-        url="https://github.com/allure-framework/allure-python2",
+        url="https://github.com/allure-framework/allure-python",
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",

@@ -14,7 +14,7 @@ except (DistributionNotFound, VersionConflict):
     pass
 
 PACKAGE = "allure-pytest"
-VERSION = "2.2.2b2"
+VERSION = "2.2.3b1"
 
 classifiers = [
     'Development Status :: 4 - Beta',
@@ -28,7 +28,7 @@ classifiers = [
 install_requires = [
     "pytest>=2.7.3",
     "six>=1.9.0",
-    "allure-python-commons==2.2.2b2"
+    "allure-python-commons==2.2.3b1"
 ]
 
 
@@ -41,7 +41,7 @@ def main():
         name=PACKAGE,
         version=VERSION,
         description="Allure pytest integration",
-        url="https://github.com/allure-framework/allure-python2",
+        url="https://github.com/allure-framework/allure-python",
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
