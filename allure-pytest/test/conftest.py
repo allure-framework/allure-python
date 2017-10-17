@@ -4,6 +4,7 @@ import subprocess
 import shlex
 from inspect import getmembers, isfunction
 from allure_commons_test.report import AllureReport
+from allure_commons.utils import thread_tag
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -31,7 +32,7 @@ def allure_report_with_params(request, tmpdir_factory):
     tmpdir = tmpdir_factory.mktemp('data')
 
     def run_with_params(*params):
-        key = '{module}{param}'.format(module=module, param=''.join(params))
+        key = '{thread}{module}{param}'.format(thread=thread_tag(), module=module, param=''.join(params))
         if not request.config.cache.get(key, False):
             _runner(tmpdir.strpath, module, *params)
             request.config.cache.set(key, True)
