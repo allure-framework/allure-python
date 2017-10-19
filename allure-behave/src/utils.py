@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from enum import Enum
 from behave.model import ScenarioOutline
 from behave.runner_util import make_undefined_step_snippet
 from allure_commons.types import Severity
-from allure_commons.model2 import Status, Parameter, Label
+from allure_commons.model2 import Status, Parameter
 from allure_commons.model2 import StatusDetails
 from allure_commons.utils import md5
 from allure_commons.utils import format_exception, format_traceback
@@ -74,7 +75,10 @@ def step_status(result):
     if result.exception:
         return get_status(result.exception)
     else:
-        return STATUS.get(result.status, None)
+        if isinstance(result.status, Enum):
+            return STATUS.get(result.status.name, None)
+        else:
+            return STATUS.get(result.status, None)
 
 
 def get_status(exception):
