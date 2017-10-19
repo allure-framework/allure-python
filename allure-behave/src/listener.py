@@ -11,7 +11,7 @@ from allure_commons.model2 import TestResult
 from allure_commons.model2 import TestStepResult
 from allure_commons.model2 import TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
-from allure_commons.model2 import Status, Parameter, Label
+from allure_commons.model2 import Parameter, Label
 from allure_behave.utils import scenario_parameters
 from allure_behave.utils import scenario_severity
 from allure_behave.utils import scenario_tags
@@ -21,7 +21,6 @@ from allure_behave.utils import step_status, step_status_details
 from allure_behave.utils import scenario_status, scenario_status_details
 from allure_behave.utils import step_table
 from allure_behave.utils import get_status, get_status_details
-
 
 
 BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
@@ -162,7 +161,6 @@ class AllureListener(object):
                               status=get_status(exc_val),
                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
-
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
         self.logger.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
@@ -185,4 +183,3 @@ class Context(list):
     def exit(self):
         gone, self[:] = self[:], self._stack.pop()
         return gone
-
