@@ -185,7 +185,7 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def add_link(self, url, link_type, name):
-        self.allure_logger.update_test(None, links=[Link(link_type, url, name)])
+        self.allure_logger.update_test(None, links=Link(link_type, url, name))
 
     @allure_commons.hookimpl
     def add_label(self, label_type, labels):
