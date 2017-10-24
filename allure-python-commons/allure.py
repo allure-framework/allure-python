@@ -15,7 +15,7 @@ __all__ = [
     'label',
     'severity',
     'tag',
-    'epic'
+    'epic',
     'feature',
     'story',
 
@@ -23,9 +23,9 @@ __all__ = [
     'issue',
     'testcase',
 
-    'step'
+    'step',
 
-    'dynamic'
+    'dynamic',
 
     'severity_level',
 
