@@ -48,7 +48,7 @@ class AttachmentType(Enum):
     JPG = ("image/jpg", "jpg")
     SVG = ("image/svg-xml", "svg")
     GIF = ("image/gif", "gif")
-    BMP = ("iamge/bmp", "bmp")
+    BMP = ("image/bmp", "bmp")
     TIFF = ("image/tiff", "tiff")
 
     MP4 = ("video/mp4", "mp4")
