@@ -38,6 +38,7 @@ class AttachmentType(Enum):
     TEXT = ("text/plain", "txt")
     CSV = ("text/csv", "csv")
     TSV = ("text/tab-separated-values", "tsv")
+    URI_LIST = ("text/uri-list", "uri")
 
     HTML = ("application/html", "html")
     XML = ("application/xml", "xml")
