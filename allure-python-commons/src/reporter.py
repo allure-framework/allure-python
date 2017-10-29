@@ -68,9 +68,6 @@ class AllureReporter(object):
     def get_test(self, uuid):
         return self.get_item(uuid) if uuid else self.get_last_item(TestResult)
 
-    #def update_test(self, uuid, **kwargs):
-    #    self._update_item(uuid, **kwargs)
-
     def close_test(self, uuid):
         test_case = self._items.pop(uuid)
         plugin_manager.hook.report_result(result=test_case)
