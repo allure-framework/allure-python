@@ -15,7 +15,7 @@ from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
 from allure_commons.types import LabelType
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
-from allure_pytest.utils import allure_full_name, allure_package
+from allure_pytest.utils import allure_full_name, allure_package, allure_name
 from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 
@@ -64,7 +64,7 @@ class AllureListener(object):
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
 
-        test_case = TestResult(name=item.name, uuid=uuid)
+        test_case = TestResult(name=allure_name(item), uuid=uuid)
         self.allure_logger.schedule_test(uuid, test_case)
 
         if hasattr(item, 'function'):
@@ -84,9 +84,9 @@ class AllureListener(object):
 
         test_case.links += [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
 
-        test_case.fullName = allure_full_name(item.nodeid)
+        test_case.fullName = allure_full_name(item)
         test_case.historyId = md5(test_case.fullName)
-        test_case.labels.append(Label('package', allure_package(item.nodeid)))
+        test_case.labels.append(Label('package', allure_package(item)))
 
         uuid = self._cache.pop(item.nodeid)
         self.allure_logger.close_test(uuid)
