@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from allure_commons.types import AttachmentType
 from allure_commons.model2 import ExecutableItem
+from allure_commons.model2 import TestResult
 from allure_commons.model2 import Attachment, ATTACHMENT_PATTERN
 from allure_commons.utils import now
 from allure_commons._core import plugin_manager
@@ -27,6 +28,11 @@ class AllureReporter(object):
 
     def get_item(self, uuid):
         return self._items.get(uuid)
+
+    def get_last_item(self, item_type):
+        for _uuid in reversed(self._items):
+            if type(self._items[_uuid]) == item_type:
+                return self._items.get(_uuid)
 
     def start_group(self, uuid, group):
         self._items[uuid] = group
@@ -59,8 +65,11 @@ class AllureReporter(object):
     def schedule_test(self, uuid, test_case):
         self._items[uuid] = test_case
 
-    def update_test(self, uuid, **kwargs):
-        self._update_item(uuid, **kwargs)
+    def get_test(self, uuid):
+        return self.get_item(uuid) if uuid else self.get_last_item(TestResult)
+
+    #def update_test(self, uuid, **kwargs):
+    #    self._update_item(uuid, **kwargs)
 
     def close_test(self, uuid):
         test_case = self._items.pop(uuid)
