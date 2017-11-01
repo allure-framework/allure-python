@@ -105,7 +105,10 @@ class AllureListener(object):
         self.flush_steps()
         status = scenario_status(scenario)
         status_details = scenario_status_details(scenario)
-        self.logger.update_test(uuid, stop=now(), status=status, statusDetails=status_details)
+        test_result = self.logger.get_test(uuid)
+        test_result.stop = now()
+        test_result.status = status
+        test_result.statusDetails = status_details
         self.logger.close_test(uuid)
         self.current_step_uuid = None
 

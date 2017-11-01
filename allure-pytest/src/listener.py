@@ -15,7 +15,7 @@ from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
 from allure_commons.types import LabelType
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
-from allure_pytest.utils import allure_full_name, allure_package
+from allure_pytest.utils import allure_full_name, allure_package, allure_name
 from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 
@@ -64,7 +64,7 @@ class AllureListener(object):
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
 
-        test_case = TestResult(name=item.name, uuid=uuid)
+        test_case = TestResult(name=allure_name(item), uuid=uuid)
         self.allure_logger.schedule_test(uuid, test_case)
 
         if hasattr(item, 'function'):
@@ -73,7 +73,9 @@ class AllureListener(object):
         yield
 
         for name, value in item.callspec.params.items() if hasattr(item, 'callspec') else ():
-            self.allure_logger.update_test(uuid, parameters=Parameter(name, represent(value)))
+            test_result = self.allure_logger.get_test(uuid)
+            if test_result:
+                test_result.parameters.append(Parameter(name, represent(value)))
 
         test_case.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_case.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
@@ -84,9 +86,9 @@ class AllureListener(object):
 
         test_case.links += [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
 
-        test_case.fullName = allure_full_name(item.nodeid)
+        test_case.fullName = allure_full_name(item)
         test_case.historyId = md5(test_case.fullName)
-        test_case.labels.append(Label('package', allure_package(item.nodeid)))
+        test_case.labels.append(Label('package', allure_package(item)))
 
         uuid = self._cache.pop(item.nodeid)
         self.allure_logger.close_test(uuid)
@@ -94,11 +96,14 @@ class AllureListener(object):
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         uuid = self._cache.get(item.nodeid)
-        self.allure_logger.update_test(uuid, start=now())
+        test_result = self.allure_logger.get_test(uuid)
+        if test_result:
+            test_result.start = now()
 
         yield
 
-        self.allure_logger.update_test(uuid, stop=now())
+        if test_result:
+            test_result.stop = now()
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_setup(self, fixturedef, request):
@@ -170,10 +175,13 @@ class AllureListener(object):
             if report.failed and status == Status.PASSED:
                 status = Status.BROKEN
 
-        if status_details:
-            self.allure_logger.update_test(uuid, status=status, statusDetails=status_details)
-        else:
-            self.allure_logger.update_test(uuid, status=status)
+        test_result = self.allure_logger.get_test(uuid)
+        if test_result:
+            if status_details:
+                test_result.status = status
+                test_result.statusDetails = status_details
+            else:
+                test_result.status = status
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
@@ -185,12 +193,15 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def add_link(self, url, link_type, name):
-        self.allure_logger.update_test(None, links=Link(link_type, url, name))
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.links.append(Link(link_type, url, name))
 
     @allure_commons.hookimpl
     def add_label(self, label_type, labels):
-        for label in labels:
-            self.allure_logger.update_test(None, labels=Label(label_type, label))
+        test_result = self.allure_logger.get_test(None)
+        for label in labels if test_result else ():
+            test_result.labels.append(Label(label_type, label))
 
 
 class ItemCache(object):

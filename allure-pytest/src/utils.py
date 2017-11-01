@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os
+import six
 import pytest
 from allure_commons.utils import represent
 from allure_commons.utils import format_exception, format_traceback
@@ -56,18 +57,32 @@ def mark_to_str(marker):
         return '@pytest.mark.{name}'.format(name=marker.name)
 
 
-def allure_package(nodeid):
-    parts = nodeid.split('::')
+def allure_package(item):
+    parts = item.nodeid.split('::')
     path = parts[0].split('.')[0]
     return path.replace(os.sep, '.')
 
 
-def allure_full_name(nodeid):
-    parts = nodeid.split('::')
-    package = allure_package(nodeid)
+def allure_name(item):
+    return escape_name(item.name)
+
+
+def allure_full_name(item):
+    parts = item.nodeid.split('::')
+    package = allure_package(item)
     clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
     test = parts[-1]
-    return '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+    full_name = '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+    return escape_name(full_name)
+
+
+def escape_name(name):
+    if six.PY2:
+        try:
+            name.decode('string_escape').encode('unicode_escape')
+        except UnicodeDecodeError:
+            return name.decode('string_escape').decode('utf-8')
+    return name.encode('utf_8').decode('unicode_escape')
 
 
 def get_outcome_status(outcome):
