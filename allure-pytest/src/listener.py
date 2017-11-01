@@ -148,10 +148,8 @@ class AllureListener(object):
         status = allure_item.status or None
         status_details = None
 
-        if call.excinfo and hasattr(call.excinfo.value, 'msg'):
-            status_details = StatusDetails(message=call.excinfo.value.msg)
-        elif hasattr(report, 'wasxfail'):
-            status_details = StatusDetails(message=report.wasxfail)
+        if call.excinfo and hasattr(report, 'wasxfail'):
+            status_details = StatusDetails(message=report.wasxfail, trace=report.longreprtext)
         elif report.failed:
             status_details = StatusDetails(message=call.excinfo.exconly(), trace=report.longreprtext)
 
