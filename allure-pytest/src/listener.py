@@ -128,14 +128,11 @@ class AllureListener(object):
                                                stop=now(),
                                                status=get_outcome_status(outcome),
                                                statusDetails=get_outcome_status_details(outcome))
-        try:
-            for index, finalizer in enumerate(fixturedef._finalizer or ()):
-                name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=finalizer.__name__)
-                fixturedef._finalizer[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
-        except AttributeError as ex:
-            for index, finalizer in enumerate(fixturedef._finalizers or ()):
-                name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=finalizer.__name__)
-                fixturedef._finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
+        
+        finalizers = fixturedef._finalizer if hasattr(fixturedef, 'finalizer') else fixturedef._finalizers
+        for index, finalizer in enumerate(finalizers or ()):
+            name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=finalizer.__name__)
+            finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_post_finalizer(self, fixturedef):
