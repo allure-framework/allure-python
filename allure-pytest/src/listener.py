@@ -128,8 +128,9 @@ class AllureListener(object):
                                                stop=now(),
                                                status=get_outcome_status(outcome),
                                                statusDetails=get_outcome_status_details(outcome))
-        finalizers = fixturedef._finalizer if hasattr(fixturedef, 'finalizer') else fixturedef._finalizers
-        for index, finalizer in enumerate(finalizers or ()):
+
+        finalizers = getattr(fixturedef, '_finalizers', [])
+        for index, finalizer in enumerate(finalizers):
             name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=finalizer.__name__)
             finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
