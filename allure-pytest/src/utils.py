@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import os
 import six
 import pytest
 from allure_commons.utils import represent
@@ -59,8 +58,8 @@ def mark_to_str(marker):
 
 def allure_package(item):
     parts = item.nodeid.split('::')
-    path = parts[0].split('.')[0]
-    return path.replace(os.sep, '.')
+    path = parts[0].rsplit('.', 1)[0]
+    return path.replace('/', '.')
 
 
 def allure_name(item):
