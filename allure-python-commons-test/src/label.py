@@ -30,3 +30,7 @@ def has_story(story):
 
 def has_tag(tag):
     return has_label('tag', tag)
+
+
+def has_package(package):
+    return has_label('package', package)
