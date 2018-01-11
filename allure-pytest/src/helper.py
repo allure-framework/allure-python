@@ -12,6 +12,7 @@ class AllureTestHelper(object):
 
     def __init__(self, config):
         self.config = config
+        self.x = 0
 
     @allure_commons.hookimpl
     def decorate_as_title(self, test_title):
@@ -36,7 +37,11 @@ class AllureTestHelper(object):
 
     @allure_commons.hookimpl
     def decorate_as_link(self, url, link_type, name):
-        allure_link_marker = '{prefix}.{link_type}'.format(prefix=ALLURE_LINK_PREFIX, link_type=link_type)
+        allure_link_marker = '{prefix}.{link_type}:{postfix}'.format(
+            prefix=ALLURE_LINK_PREFIX,
+            link_type=link_type,
+            postfix=url
+        )
         pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
         url = pattern.format(url)
         allure_link = getattr(pytest.mark, allure_link_marker)
