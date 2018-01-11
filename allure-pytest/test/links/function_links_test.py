@@ -16,6 +16,7 @@ LINK_TYPE = 'homepage'
 ISSUE = 'https://github.com/qameta/allure-integrations/issues/8'
 ISSUE_NAME = 'Github issue'
 TEST_CASE = 'https://github.com/qameta/allure-integrations/issues/8#issuecomment-268313637'
+ANOTHER_TEST_CASE = 'https://github.com/allure-framework/allure-python/issues/191'
 TEST_CASE_NAME = 'Comment with spec'
 
 
@@ -95,3 +96,16 @@ def test_with_links_cases_and_issues():
     ...             ))
     """
     pass
+
+
+@pytest.allure.testcase(TEST_CASE, name="First")
+@pytest.allure.testcase(ANOTHER_TEST_CASE, name="Second")
+def test_multiply_some_type_links():
+    """
+    >>> allure_report = getfixture('allure_report')
+    >>> assert_that(allure_report,
+    ...             has_test_case('test_multiply_some_type_links',
+    ...                 has_test_case_link(TEST_CASE, name='First'),
+    ...                 has_test_case_link(ANOTHER_TEST_CASE, name='Second')
+    ...             ))
+    """
