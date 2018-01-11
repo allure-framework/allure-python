@@ -12,7 +12,6 @@ class AllureTestHelper(object):
 
     def __init__(self, config):
         self.config = config
-        self.x = 0
 
     @allure_commons.hookimpl
     def decorate_as_title(self, test_title):
