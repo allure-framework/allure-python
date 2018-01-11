@@ -14,6 +14,7 @@ from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
 from allure_commons.types import LabelType
+from allure_pytest.utils import allure_description, allure_description_html
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
 from allure_pytest.utils import get_status, get_status_details
@@ -65,11 +66,10 @@ class AllureListener(object):
             self.allure_logger.update_group(group_uuid, children=uuid)
 
         test_case = TestResult(name=allure_name(item), uuid=uuid)
+        test_case.description = allure_description(item)
+        test_case.descriptionHtml = allure_description_html(item)
+
         self.allure_logger.schedule_test(uuid, test_case)
-
-        if hasattr(item, 'function'):
-            test_case.description = item.function.__doc__
-
         yield
 
         for name, value in item.callspec.params.items() if hasattr(item, 'callspec') else ():
@@ -191,6 +191,24 @@ class AllureListener(object):
     @allure_commons.hookimpl
     def attach_file(self, source, name, attachment_type, extension):
         self.allure_logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def add_title(self, test_title):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.name = test_title
+
+    @allure_commons.hookimpl
+    def add_description(self, test_description):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.description = test_description
+
+    @allure_commons.hookimpl
+    def add_description_html(self, test_description_html):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.descriptionHtml = test_description_html
 
     @allure_commons.hookimpl
     def add_link(self, url, link_type, name):

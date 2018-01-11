@@ -6,7 +6,7 @@ def test_dynamic_title():
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
-    ...             has_test_case('test_title',
+    ...             has_test_case('test_dynamic_title',
     ...                           has_title("It is renamed test")
     ...             )
     ... )

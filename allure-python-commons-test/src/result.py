@@ -65,7 +65,19 @@ Expected: ...
 from hamcrest import all_of, anything
 from hamcrest import equal_to, not_none
 from hamcrest import has_entry, has_item
-from hamcrest import contains_string
+from hamcrest import contains_string, starts_with
+
+
+def has_title(title):
+    return has_entry('name', title)
+
+
+def has_description(*matchers):
+    return has_entry('description', all_of(*matchers))
+
+
+def has_description_html(*matchers):
+    return has_entry('descriptionHtml', all_of(*matchers))
 
 
 def has_step(name, *matchers):
@@ -136,6 +148,3 @@ def with_status_message(message):
 def has_history_id():
     return has_entry('historyId', anything())
 
-
-def has_description(*matchers):
-    return has_entry('description', all_of(*matchers))
