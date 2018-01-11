@@ -7,6 +7,30 @@ hookimpl = HookimplMarker("allure")
 class AllureUserHooks(object):
 
     @hookspec
+    def decorate_as_title(self, test_title):
+        """ title """
+
+    @hookspec
+    def add_title(self, test_title):
+        """ title """
+
+    @hookspec
+    def decorate_as_description(self, test_description):
+        """ description """
+
+    @hookspec
+    def add_description(self, test_description):
+        """ description """
+
+    @hookspec
+    def decorate_as_description_html(self, test_description_html):
+        """ description html"""
+
+    @hookspec
+    def add_description_html(self, test_description_html):
+        """ description html"""
+
+    @hookspec
     def decorate_as_label(self, label_type, labels):
         """ label """
 

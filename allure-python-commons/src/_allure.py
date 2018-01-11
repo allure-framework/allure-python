@@ -15,6 +15,18 @@ def safely(result):
         return dummy
 
 
+def title(test_title):
+    return safely(plugin_manager.hook.decorate_as_title(test_title=test_title))
+
+
+def description(test_description):
+    return safely(plugin_manager.hook.decorate_as_description(test_description=test_description))
+
+
+def description_html(test_description_html):
+    return safely(plugin_manager.hook.decorate_as_description_html(test_description_html=test_description_html))
+
+
 def label(label_type, *labels):
     return safely(plugin_manager.hook.decorate_as_label(label_type=label_type, labels=labels))
 
@@ -52,6 +64,18 @@ def testcase(url, name=None):
 
 
 class Dynamic(object):
+
+    @staticmethod
+    def title(test_title):
+        plugin_manager.hook.add_title(test_title=test_title)
+
+    @staticmethod
+    def description(test_description):
+        plugin_manager.hook.add_description(test_description=test_description)
+
+    @staticmethod
+    def description_html(test_description_html):
+        plugin_manager.hook.add_description_html(test_description_html=test_description_html)
 
     @staticmethod
     def label(label_type, *labels):

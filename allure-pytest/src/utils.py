@@ -8,10 +8,33 @@ from allure_commons.utils import format_exception, format_traceback
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 
-
-ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
+ALLURE_TITLE = 'allure_title'
+ALLURE_DESCRIPTION = 'allure_description'
+ALLURE_DESCRIPTION_HTML = 'allure_description_html'
 ALLURE_LABEL_PREFIX = 'allure_label'
 ALLURE_LINK_PREFIX = 'allure_link'
+ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
+
+
+def get_marker_value(item, keyword):
+    marker = item.keywords.get(keyword)
+    return marker.args[0] if marker and marker.args else None
+
+
+def allure_title(item):
+    return get_marker_value(item, ALLURE_TITLE)
+
+
+def allure_description(item):
+    description = get_marker_value(item, ALLURE_DESCRIPTION)
+    if description:
+        return description
+    elif hasattr(item, 'function'):
+        return item.function.__doc__
+
+
+def allure_description_html(item):
+    return get_marker_value(item, ALLURE_DESCRIPTION_HTML)
 
 
 def allure_labels(item):
@@ -38,8 +61,7 @@ def allure_links(item):
 
 def pytest_markers(item):
     for keyword in item.keywords.keys():
-        if not any((keyword.startswith(ALLURE_LINK_PREFIX),
-                    keyword.startswith(ALLURE_LABEL_PREFIX),
+        if not any((keyword.startswith('allure_'),
                     keyword == 'parametrize')):
             marker = item.get_marker(keyword)
             if marker:
@@ -63,7 +85,9 @@ def allure_package(item):
 
 
 def allure_name(item):
-    return escape_name(item.name)
+    name = escape_name(item.name)
+    title = allure_title(item)
+    return title if title else name
 
 
 def allure_full_name(item):
