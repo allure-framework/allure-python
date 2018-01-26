@@ -3,6 +3,7 @@ import allure
 
 LINK_1 = "https://github.com"
 LINK_2 = "https://gitter.im"
+ISSUE = 'https://github.com/allure-framework/allure-python/pull/199'
 
 
 @allure.link(LINK_1)
@@ -30,3 +31,4 @@ def test_parametrized_dynamic_links(link):
     ...     )
     """
     allure.dynamic.link(link)
+    allure.dynamic.issue(ISSUE)
