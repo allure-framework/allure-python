@@ -65,30 +65,27 @@ class AllureListener(object):
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
 
-        test_case = TestResult(name=allure_name(item), uuid=uuid)
-        test_case.description = allure_description(item)
-        test_case.descriptionHtml = allure_description_html(item)
+        params = item.callspec.params if hasattr(item, 'callspec') else {}
 
-        self.allure_logger.schedule_test(uuid, test_case)
+        test_result = TestResult(name=allure_name(item, params), uuid=uuid)
+        test_result.description = allure_description(item)
+        test_result.descriptionHtml = allure_description_html(item)
+        test_result.fullName = allure_full_name(item)
+        test_result.historyId = md5(test_result.fullName)
+        test_result.parameters.extend([Parameter(name=name, value=represent(value)) for name, value in params.items()])
+
+        self.allure_logger.schedule_test(uuid, test_result)
+
         yield
 
-        for name, value in item.callspec.params.items() if hasattr(item, 'callspec') else ():
-            test_result = self.allure_logger.get_test(uuid)
-            if test_result:
-                test_result.parameters.append(Parameter(name, represent(value)))
-
-        test_case.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
-        test_case.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
-        test_case.labels.append(Label(name=LabelType.HOST, value=self._host))
-        test_case.labels.append(Label(name=LabelType.THREAD, value=self._thread))
-        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
-        test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
-
-        test_case.links += [Link(link_type, url, name) for link_type, url, name in allure_links(item)]
-
-        test_case.fullName = allure_full_name(item)
-        test_case.historyId = md5(test_case.fullName)
-        test_case.labels.append(Label('package', allure_package(item)))
+        test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
+        test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
+        test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
+        test_result.labels.append(Label(name=LabelType.THREAD, value=self._thread))
+        test_result.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
+        test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
+        test_result.labels.append(Label(name='package', value=allure_package(item)))
+        test_result.links.extend([Link(link_type, url, name) for link_type, url, name in allure_links(item)])
 
         uuid = self._cache.pop(item.nodeid)
         self.allure_logger.close_test(uuid)

@@ -84,10 +84,10 @@ def allure_package(item):
     return path.replace('/', '.')
 
 
-def allure_name(item):
+def allure_name(item, parameters):
     name = escape_name(item.name)
     title = allure_title(item)
-    return title if title else name
+    return title.format(**parameters) if title else name
 
 
 def allure_full_name(item):

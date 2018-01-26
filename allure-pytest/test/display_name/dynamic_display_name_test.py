@@ -2,11 +2,11 @@ import allure
 
 
 @allure.title("A some test tile")
-def test_dynamic_title():
+def test_dynamic_display_name():
     """
     >>> allure_report = getfixture('allure_report')
     >>> assert_that(allure_report,
-    ...             has_test_case('test_dynamic_title',
+    ...             has_test_case('test_dynamic_display_name',
     ...                           has_title("It is renamed test")
     ...             )
     ... )
