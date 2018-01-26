@@ -23,7 +23,8 @@ from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 
 class AllureListener(object):
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.allure_logger = AllureReporter()
         self._cache = ItemCache()
         self._host = host_tag()
@@ -211,6 +212,8 @@ class AllureListener(object):
     def add_link(self, url, link_type, name):
         test_result = self.allure_logger.get_test(None)
         if test_result:
+            pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
+            url = pattern.format(url)
             test_result.links.append(Link(link_type, url, name))
 
     @allure_commons.hookimpl

@@ -103,7 +103,7 @@ class Dynamic(object):
 
     @staticmethod
     def issue(url, name=None):
-        Dynamic.link(url, link_type=LinkType.TEST_CASE, name=name)
+        Dynamic.link(url, link_type=LinkType.ISSUE, name=name)
 
     @staticmethod
     def testcase(url, name=None):
