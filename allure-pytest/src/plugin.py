@@ -88,18 +88,30 @@ def pytest_addoption(parser):
                                          str.format().""")
 
 
+def cleanup_factory(plugin):
+    def clean_up():
+        name = allure_commons.plugin_manager.get_name(plugin)
+        allure_commons.plugin_manager.unregister(name=name)
+    return clean_up
+
+
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
+
     test_helper = AllureTestHelper(config)
+    # TODO: Why helper is present anyway?
     allure_commons.plugin_manager.register(test_helper)
+    config.add_cleanup(cleanup_factory(test_helper))
 
     if report_dir:
         test_listener = AllureListener(config)
         config.pluginmanager.register(test_listener)
         allure_commons.plugin_manager.register(test_listener)
+        config.add_cleanup(cleanup_factory(test_listener))
 
         file_logger = AllureFileLogger(report_dir)
         allure_commons.plugin_manager.register(file_logger)
+        config.add_cleanup(cleanup_factory(file_logger))
 
 
 def pytest_collection_modifyitems(items, config):
