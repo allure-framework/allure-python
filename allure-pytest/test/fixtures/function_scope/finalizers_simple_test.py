@@ -55,7 +55,7 @@ def test_two_fixures_with_finalizer(fixture_with_passed_finalizer, fixture_faile
     ...                                                               finalizer='failed_finalizer'),
     ...                                                   with_status('failed'),
     ...                                                   has_status_details(
-    ...                                                                       with_status_message('AssertionError')
+    ...                                                                       with_message_contains('AssertionError')
     ...                                                   )
     ...                                         )
     ...                           )

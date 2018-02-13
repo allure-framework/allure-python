@@ -26,7 +26,7 @@ def test_function_scope_parametrized_fixture(parametrized_fixture):
     ...                                         has_before('parametrized_fixture',
     ...                                                    with_status('passed' if passed else 'failed'),
     ...                                                    has_status_details(
-    ...                                                                       with_status_message('AssertionError')
+    ...                                                                       with_message_contains('AssertionError')
     ...                                                    ) if not passed else anything()
     ...                                         )
     ...                               )

@@ -1,7 +1,7 @@
 .DS_Store
 .idea
 .tox
-.cache
+.pytest_cache
 .python-version
 
 *.pyc

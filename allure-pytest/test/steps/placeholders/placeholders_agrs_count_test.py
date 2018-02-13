@@ -61,7 +61,7 @@ def test_args_less():
     >>> assert_that(allure_report,
     ...             has_test_case('test_args_less',
     ...                           has_status_details(
-    ...                                              with_status_message('IndexError: tuple index out of range')
+    ...                                              with_message_contains('IndexError: tuple index out of range')
     ...                           )
     ...             )
     ... )
