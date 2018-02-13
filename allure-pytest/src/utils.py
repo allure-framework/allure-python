@@ -120,16 +120,24 @@ def get_outcome_status_details(outcome):
 
 def get_status(exception):
     if exception:
-        if isinstance(exception, AssertionError):
+        if isinstance(exception, AssertionError) or isinstance(exception, pytest.fail.Exception):
             return Status.FAILED
         elif isinstance(exception, pytest.skip.Exception):
             return Status.SKIPPED
-    return Status.PASSED
+        return Status.BROKEN
+    else:
+        return Status.PASSED
 
 
 def get_status_details(exception_type, exception, exception_traceback):
-    if isinstance(exception, pytest.skip.Exception):
-        return StatusDetails(message=exception.msg)
-    elif exception:
-        return StatusDetails(message=format_exception(exception_type, exception),
-                             trace=format_traceback(exception_traceback))
+    message = format_exception(exception_type, exception)
+    trace = format_traceback(exception_traceback)
+    return StatusDetails(message=message, trace=trace) if message or trace else None
+
+
+def get_pytest_report_status(pytest_report):
+    pytest_statuses = ('failed', 'passed', 'skipped')
+    statuses = (Status.FAILED, Status.PASSED, Status.SKIPPED)
+    for pytest_status, status in zip(pytest_statuses, statuses):
+        if getattr(pytest_report, pytest_status):
+            return status

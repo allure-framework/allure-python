@@ -19,6 +19,7 @@ from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
 from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
+from allure_pytest.utils import get_pytest_report_status
 
 
 class AllureListener(object):
@@ -142,45 +143,38 @@ class AllureListener(object):
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
         uuid = self._cache.set(item.nodeid)
+
         report = (yield).get_result()
-        allure_item = self.allure_logger.get_item(uuid)
-        status = allure_item.status or None
-        status_details = None
-
-        if call.excinfo and hasattr(call.excinfo.value, 'msg'):
-            status_details = StatusDetails(message=call.excinfo.value.msg)
-        elif hasattr(report, 'wasxfail'):
-            status_details = StatusDetails(message=report.wasxfail)
-        elif report.failed:
-            status_details = StatusDetails(message=call.excinfo.exconly(), trace=report.longreprtext)
-
-        if report.when == 'setup':
-            if report.passed:
-                status = Status.PASSED
-            if report.failed:
-                status = Status.BROKEN
-            if report.skipped:
-                status = Status.SKIPPED
-
-        if report.when == 'call':
-            if report.passed and status == Status.PASSED:
-                pass
-            if report.failed:
-                status = Status.FAILED
-            if report.skipped:
-                status = Status.SKIPPED
-
-        if report.when == 'teardown':
-            if report.failed and status == Status.PASSED:
-                status = Status.BROKEN
 
         test_result = self.allure_logger.get_test(uuid)
-        if test_result:
-            if status_details:
+        status = get_pytest_report_status(report)
+        status_details = None
+
+        if call.excinfo:
+            status_details = StatusDetails(message=call.excinfo.exconly(), trace=report.longreprtext)
+            if (status != Status.SKIPPED
+                and not (call.excinfo.errisinstance(AssertionError)
+                         or call.excinfo.errisinstance(pytest.fail.Exception))):
+                status = Status.BROKEN
+
+        if status == Status.PASSED and hasattr(report, 'wasxfail'):
+            reason = report.wasxfail
+            message = 'XPASS {reason}'.format(reason=reason) if reason else 'XPASS'
+            status_details = StatusDetails(message=message)
+
+        if report.when == 'setup':
+            test_result.status = status
+            test_result.statusDetails = status_details
+
+        if report.when == 'call':
+            if test_result.status == Status.PASSED:
                 test_result.status = status
                 test_result.statusDetails = status_details
-            else:
+
+        if report.when == 'teardown':
+            if status in (Status.FAILED, Status.BROKEN) and test_result.status == Status.PASSED:
                 test_result.status = status
+                test_result.statusDetails = status_details
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):

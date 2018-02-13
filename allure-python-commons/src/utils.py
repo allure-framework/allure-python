@@ -167,4 +167,4 @@ def format_exception(etype, value):
     ...     format_exception(etype, e) # doctest: +ELLIPSIS
     "AssertionError: \\nExpected:...but:..."
     """
-    return '\n'.join(format_exception_only(etype, value))
+    return '\n'.join(format_exception_only(etype, value)) if etype or value else None

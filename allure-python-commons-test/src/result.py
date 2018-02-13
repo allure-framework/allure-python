@@ -141,8 +141,12 @@ def has_status_details(*matchers):
     return has_entry('statusDetails', all_of(*matchers))
 
 
-def with_status_message(message):
-    return has_entry('message', contains_string(message))
+def with_message_contains(string):
+    return has_entry('message', contains_string(string))
+
+
+def with_trace_contains(string):
+    return has_entry('trace', contains_string(string))
 
 
 def has_history_id():
