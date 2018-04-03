@@ -56,16 +56,26 @@ class AllureListener(object):
                                               status=get_status(exc_val),
                                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_setup(self, item):
+        uuid = self._cache.set(item.nodeid)
+        yield
+        print("\nRUNTEST SETUP item: {} uuid: {}".format(item, uuid))
+        for fixturedef in _test_fixtures(item):
+            group_uuid = self._cache.get(fixturedef)
+            print("FIXTUREDEF {} id {} in cache with UUID {}".format(fixturedef, id(fixturedef), group_uuid))
+            if not group_uuid:
+                group_uuid = self._cache.set(fixturedef)
+                print("OOPS, GENERATING NEW CONTAINER {}".format(group_uuid))
+                group = TestResultContainer(uuid=group_uuid)
+                self.allure_logger.start_group(group_uuid, group)
+            print("Container {} got new child {}".format(group_uuid, uuid))
+            self.allure_logger.update_group(group_uuid, children=uuid)
+
+
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
     def pytest_runtest_protocol(self, item, nextitem):
         uuid = self._cache.set(item.nodeid)
-        for fixturedef in _test_fixtures(item):
-            group_uuid = self._cache.get(fixturedef)
-            if not group_uuid:
-                group_uuid = self._cache.set(fixturedef)
-                group = TestResultContainer(uuid=group_uuid)
-                self.allure_logger.start_group(group_uuid, group)
-            self.allure_logger.update_group(group_uuid, children=uuid)
 
         params = item.callspec.params if hasattr(item, 'callspec') else {}
 
@@ -106,14 +116,18 @@ class AllureListener(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_setup(self, fixturedef, request):
+        #print("Container {} got new child {}".format(group_uuid, uuid))
         fixture_name = fixturedef.argname
 
         container_uuid = self._cache.get(fixturedef)
+        print("\nFIXTURE SETUP {} id {} container uuid: {}".format(fixturedef, id(fixturedef), container_uuid))
 
         if not container_uuid:
             container_uuid = self._cache.set(fixturedef)
+            print("FIXTURE SETUP OOPS, CREATING NEW CONTAINER with UUID {}".format(container_uuid))
             container = TestResultContainer(uuid=container_uuid)
             self.allure_logger.start_group(container_uuid, container)
+
 
         self.allure_logger.update_group(container_uuid, start=now())
 
@@ -135,8 +149,10 @@ class AllureListener(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_post_finalizer(self, fixturedef):
+        print("\nFIXTURE POSTFINALIZER {}".format(fixturedef))
         yield
         if hasattr(fixturedef, 'cached_result') and self._cache.get(fixturedef):
+            print("\nFIXTURE POSTFINALIZER popping {}".format(fixturedef))
             container_uuid = self._cache.pop(fixturedef)
             self.allure_logger.stop_group(container_uuid, stop=now())
 
