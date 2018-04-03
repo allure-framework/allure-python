@@ -31,7 +31,7 @@ def main():
         classifiers=classifiers,
         keywords="allure reporting report-engine",
         packages=["allure_commons"],
-        #package_dir={"allure_commons": 'src'},
+        package_dir={"allure_commons": 'src'},
         install_requires=install_requires,
         py_modules=['allure', 'allure_commons']
     )

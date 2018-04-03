@@ -49,7 +49,7 @@ def main():
         keywords="allure reporting pytest",
         long_description=read('README.rst'),
         packages=["allure_pytest"],
-        #package_dir={"allure_pytest": "src"},
+        package_dir={"allure_pytest": "src"},
         entry_points={"pytest11": ["allure_pytest = allure_pytest.plugin"]},
         install_requires=install_requires
     )
