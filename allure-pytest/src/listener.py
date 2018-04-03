@@ -58,7 +58,7 @@ class AllureListener(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_setup(self, item):
-        uuid = self._cache.set(item.nodeid)
+        uuid = self._cache.get(item.nodeid)
         yield
         for fixturedef in _test_fixtures(item):
             group_uuid = self._cache.get(fixturedef)
