@@ -56,9 +56,10 @@ class AllureListener(object):
                                               status=get_status(exc_val),
                                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
-    @pytest.hookimpl(hookwrapper=True, tryfirst=True)
-    def pytest_runtest_protocol(self, item, nextitem):
-        uuid = self._cache.set(item.nodeid)
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_setup(self, item):
+        uuid = self._cache.get(item.nodeid)
+        yield
         for fixturedef in _test_fixtures(item):
             group_uuid = self._cache.get(fixturedef)
             if not group_uuid:
@@ -66,6 +67,10 @@ class AllureListener(object):
                 group = TestResultContainer(uuid=group_uuid)
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
+
+    @pytest.hookimpl(hookwrapper=True, tryfirst=True)
+    def pytest_runtest_protocol(self, item, nextitem):
+        uuid = self._cache.set(item.nodeid)
 
         params = item.callspec.params if hasattr(item, 'callspec') else {}
 
@@ -114,6 +119,7 @@ class AllureListener(object):
             container_uuid = self._cache.set(fixturedef)
             container = TestResultContainer(uuid=container_uuid)
             self.allure_logger.start_group(container_uuid, container)
+
 
         self.allure_logger.update_group(container_uuid, start=now())
 
