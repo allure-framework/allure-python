@@ -56,9 +56,20 @@ class AllureListener(object):
                                               status=get_status(exc_val),
                                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
-    @pytest.hookimpl(hookwrapper=True, tryfirst=True)
-    def pytest_runtest_protocol(self, item, nextitem):
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_protocol(self, item):
         uuid = self._cache.set(item.nodeid)
+        test_result = TestResult(name=item.name, uuid=uuid)
+        self.allure_logger.schedule_test(uuid, test_result)
+        yield
+        uuid = self._cache.pop(item.nodeid)
+        self.allure_logger.close_test(uuid)
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_setup(self, item):
+        yield
+        uuid = self._cache.get(item.nodeid)
+        test_result = self.allure_logger.get_test(uuid)
         for fixturedef in _test_fixtures(item):
             group_uuid = self._cache.get(fixturedef)
             if not group_uuid:
@@ -66,20 +77,31 @@ class AllureListener(object):
                 group = TestResultContainer(uuid=group_uuid)
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
-
         params = item.callspec.params if hasattr(item, 'callspec') else {}
 
-        test_result = TestResult(name=allure_name(item, params), uuid=uuid)
+        test_result.name = allure_name(item, params)
         test_result.description = allure_description(item)
         test_result.descriptionHtml = allure_description_html(item)
         test_result.fullName = allure_full_name(item)
         test_result.historyId = md5(test_result.fullName)
-        test_result.parameters.extend([Parameter(name=name, value=represent(value)) for name, value in params.items()])
+        test_result.parameters.extend(
+            [Parameter(name=name, value=represent(value)) for name, value in params.items()])
 
-        self.allure_logger.schedule_test(uuid, test_result)
-
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_call(self, item):
+        uuid = self._cache.get(item.nodeid)
+        test_result = self.allure_logger.get_test(uuid)
+        if test_result:
+            test_result.start = now()
         yield
+        if test_result:
+            test_result.stop = now()
 
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_teardown(self, item):
+        yield
+        uuid = self._cache.get(item.nodeid)
+        test_result = self.allure_logger.get_test(uuid)
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
         test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
@@ -88,21 +110,6 @@ class AllureListener(object):
         test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
         test_result.labels.append(Label(name='package', value=allure_package(item)))
         test_result.links.extend([Link(link_type, url, name) for link_type, url, name in allure_links(item)])
-
-        uuid = self._cache.pop(item.nodeid)
-        self.allure_logger.close_test(uuid)
-
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_call(self, item):
-        uuid = self._cache.get(item.nodeid)
-        test_result = self.allure_logger.get_test(uuid)
-        if test_result:
-            test_result.start = now()
-
-        yield
-
-        if test_result:
-            test_result.stop = now()
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_setup(self, fixturedef, request):
