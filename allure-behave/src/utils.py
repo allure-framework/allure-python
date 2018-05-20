@@ -54,14 +54,14 @@ def scenario_tags(scenario):
 
 def scenario_status(scenario):
     for step in scenario.all_steps:
-        if step.status != 'passed':
+        if step_status(step) != 'passed':
             return step_status(step)
     return Status.PASSED
 
 
 def scenario_status_details(scenario):
     for step in scenario.all_steps:
-        if step.status != 'passed':
+        if step_status(step) != 'passed':
             return step_status_details(step)
 
 
