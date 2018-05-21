@@ -106,21 +106,159 @@ def represent(item):
         return repr(item)
 
 
-def func_parameters(func, *a, **kw):
-    bowels = inspect.getargspec(func) if sys.version_info.major < 3 else inspect.getfullargspec(func)
-    args_dict = dict(zip(bowels.args, map(represent, a)))
-    try:
-        del args_dict["self"]
-    except KeyError:
-        pass
-    kwargs_dict = dict(zip(kw, list(map(lambda i: represent(kw[i]), kw))))
-    try:
-        del kwargs_dict["self"]
-    except KeyError:
-        pass
-    kwarg_defaults = dict(zip(reversed(bowels.args), reversed(list(map(represent, bowels.defaults or ())))))
-    kwarg_defaults.update(kwargs_dict)
-    return args_dict, kwarg_defaults
+def func_parameters(func, *args, **kwargs):
+    """
+    >>> def helper(func):
+    ...     def wrapper(*args, **kwargs):
+    ...         params = func_parameters(func, *args, **kwargs)
+    ...         print(sorted(params.items()))
+    ...         return func(*args, **kwargs)
+    ...     return wrapper
+
+    >>> @helper
+    ... def args(a, b):
+    ...     pass
+
+    >>> args(1, 2)
+    [('a', '1'), ('b', '2')]
+
+    >>> args(*(1,2))
+    [('a', '1'), ('b', '2')]
+
+    >>> args(1, b=2)
+    [('a', '1'), ('b', '2')]
+
+    >>> @helper
+    ... def kwargs(a=1, b=2):
+    ...     pass
+
+    >>> kwargs()
+    [('a', '1'), ('b', '2')]
+
+    >>> kwargs(a=3, b=4)
+    [('a', '3'), ('b', '4')]
+
+    >>> kwargs(b=4, a=3)
+    [('a', '3'), ('b', '4')]
+
+    >>> kwargs(a=3)
+    [('a', '3'), ('b', '2')]
+
+    >>> kwargs(b=4)
+    [('a', '1'), ('b', '4')]
+
+    >>> @helper
+    ... def args_kwargs(a, b, c=3, d=4):
+    ...     pass
+
+    >>> args_kwargs(1, 2)
+    [('a', '1'), ('b', '2'), ('c', '3'), ('d', '4')]
+
+    >>> args_kwargs(1, 2, d=5)
+    [('a', '1'), ('b', '2'), ('c', '3'), ('d', '5')]
+
+    >>> args_kwargs(1, 2, 5, 6)
+    [('a', '1'), ('b', '2'), ('c', '5'), ('d', '6')]
+
+    >>> @helper
+    ... def varargs(*a):
+    ...     pass
+
+    >>> varargs()
+    []
+
+    >>> varargs(1, 2)
+    [('a', '(1, 2)')]
+
+    >>> @helper
+    ... def keywords(**a):
+    ...     pass
+
+    >>> keywords()
+    []
+
+    >>> keywords(a=1, b=2)
+    [('a', '1'), ('b', '2')]
+
+    >>> @helper
+    ... def args_varargs(a, b, *c):
+    ...     pass
+
+    >>> args_varargs(1, 2)
+    [('a', '1'), ('b', '2')]
+
+    >>> args_varargs(1, 2, 2)
+    [('a', '1'), ('b', '2'), ('c', '(2,)')]
+
+    >>> @helper
+    ... def args_kwargs_varargs(a, b, c=3, **d):
+    ...     pass
+
+    >>> args_kwargs_varargs(1, 2)
+    [('a', '1'), ('b', '2'), ('c', '3')]
+
+    >>> args_kwargs_varargs(1, 2, 4, d=5, e=6)
+    [('a', '1'), ('b', '2'), ('c', '4'), ('d', '5'), ('e', '6')]
+
+    >>> @helper
+    ... def args_kwargs_varargs_keywords(a, b=2, *c, **d):
+    ...     pass
+
+
+    >>> args_kwargs_varargs_keywords(1)
+    [('a', '1'), ('b', '2')]
+
+    >>> args_kwargs_varargs_keywords(1, 2, 4, d=5, e=6)
+    [('a', '1'), ('b', '2'), ('c', '(4,)'), ('d', '5'), ('e', '6')]
+
+
+    >>> class Class(object):
+    ...     @staticmethod
+    ...     @helper
+    ...     def static_args(a, b):
+    ...         pass
+    ...
+    ...     @classmethod
+    ...     @helper
+    ...     def method_args(cls, a, b):
+    ...         pass
+    ...
+    ...     @helper
+    ...     def args(self, a, b):
+    ...         pass
+
+    >>> cls = Class()
+
+    >>> cls.args(1, 2)
+    [('a', '1'), ('b', '2')]
+
+    >>> cls.method_args(1, 2)
+    [('a', '1'), ('b', '2')]
+
+    >>> cls.static_args(1, 2)
+    [('a', '1'), ('b', '2')]
+
+    """
+    parameters = {}
+    arg_spec = inspect.getargspec(func) if sys.version_info.major < 3 else inspect.getfullargspec(func)
+    args_dict = dict(zip(arg_spec.args, args))
+
+    if arg_spec.defaults:
+        kwargs_defaults_dict = dict(zip(arg_spec.args[len(args):], arg_spec.defaults))
+        parameters.update(kwargs_defaults_dict)
+
+    if arg_spec.varargs:
+        varargs = args[len(arg_spec.args):]
+        parameters.update({arg_spec.varargs: varargs} if varargs else {})
+
+    if arg_spec.args and arg_spec.args[0] in ['cls', 'self']:
+        args_dict.pop(arg_spec.args[0], None)
+
+    parameters.update(kwargs)
+    parameters.update(args_dict)
+
+    items = parameters.iteritems() if sys.version_info.major < 3 else parameters.items()
+    return dict(map(lambda kv: (kv[0], represent(kv[1])), items))
 
 
 def format_traceback(exc_traceback):
