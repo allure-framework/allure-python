@@ -1,23 +1,12 @@
-"""
->>> allure_report = getfixture('allure_report')
->>> assert_that(allure_report,
-...             all_of(
-...                 has_property('test_cases', has_length(8)),
-...                 has_property('test_groups', has_length(2)),
-...                 has_property('attachments', has_length(6))
-...             ))  # doctest: +SKIP
-"""
-
 import pytest
-import tempfile
-from six import text_type
+import allure
 
 TEXT = "attachment body"
 
 
 @pytest.fixture
 def attach_file_in_function_scope_fixture(svg_file):
-    pytest.allure.attach.file(svg_file, attachment_type=pytest.allure.attachment_type.SVG)
+    allure.attach.file(svg_file, attachment_type=pytest.allure.attachment_type.SVG)
 
 
 def test_attach_file_in_function_scope_fixture(attach_file_in_function_scope_fixture):
@@ -55,7 +44,7 @@ def test_attach_file_in_reused_function_scope_fixture(attach_file_in_function_sc
 @pytest.fixture
 def attach_file_in_function_scope_finalizer(svg_file, request):
     def finalizer_function_scope_fixture():
-        pytest.allure.attach.file(svg_file, attachment_type=pytest.allure.attachment_type.SVG)
+        allure.attach.file(svg_file, attachment_type=pytest.allure.attachment_type.SVG)
     request.addfinalizer(finalizer_function_scope_fixture)
 
 
@@ -93,7 +82,7 @@ def test_attach_file_in_reused_function_scope_finalizer(attach_file_in_function_
 
 @pytest.fixture(scope='module')
 def attach_data_in_module_scope_fixture():
-    pytest.allure.attach(TEXT, attachment_type='text/plain')
+    allure.attach(TEXT, attachment_type='text/plain')
 
 
 def test_attach_data_in_module_scope_fixture(attach_data_in_module_scope_fixture):
@@ -131,7 +120,7 @@ def test_attach_data_in_reused_module_scope_fixture(attach_data_in_module_scope_
 @pytest.fixture(scope='module')
 def attach_data_in_module_scope_finalizer(request):
     def finalizer_module_scope_fixture():
-        pytest.allure.attach(TEXT, attachment_type='text/plain')
+        allure.attach(TEXT, attachment_type='text/plain')
     request.addfinalizer(finalizer_module_scope_fixture)
 
 
