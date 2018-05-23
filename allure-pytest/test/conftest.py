@@ -2,9 +2,12 @@ import pytest
 import os
 import subprocess
 import shlex
+import ntpath
 from inspect import getmembers, isfunction
 from allure_commons_test.report import AllureReport
 from allure_commons.utils import thread_tag
+
+
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -22,8 +25,14 @@ def inject_matchers(doctest_namespace):
 def _runner(allure_dir, module, *extra_params):
     FNULL = open(os.devnull, 'w')
     extra_params = ' '.join(extra_params)
-    cmd = shlex.split('pytest --alluredir=%s %s %s' % (allure_dir, extra_params, module))
+    cmd = shlex.split('pytest --alluredir=%s %s %s' % (allure_dir, extra_params, module),
+                      posix=False if os.name == "nt" else True)
     subprocess.call(cmd, stdout=FNULL, stderr=FNULL)
+
+
+def path_leaf(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 
 @pytest.fixture(scope='module')
@@ -32,7 +41,7 @@ def allure_report_with_params(request, tmpdir_factory):
     tmpdir = tmpdir_factory.mktemp('data')
 
     def run_with_params(*params):
-        key = '{thread}{module}{param}'.format(thread=thread_tag(), module=module, param=''.join(params))
+        key = '{thread}{module}{param}'.format(thread=thread_tag(), module=os.path.split(path_leaf(module))[0], param=''.join(params).replace(":",""))
         if not request.config.cache.get(key, False):
             _runner(tmpdir.strpath, module, *params)
             request.config.cache.set(key, True)
