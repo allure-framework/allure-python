@@ -1,11 +1,20 @@
 import pytest
 import os
+import sys
 import subprocess
 import shlex
-import ntpath
+import hashlib
 from inspect import getmembers, isfunction
 from allure_commons_test.report import AllureReport
 from allure_commons.utils import thread_tag
+
+
+def _get_hash(input):
+    if sys.version_info < (3, 0):
+        data = bytes(input)
+    else:
+        data = bytes(input, 'utf8')
+    return hashlib.md5(data).hexdigest()
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -28,18 +37,13 @@ def _runner(allure_dir, module, *extra_params):
     subprocess.call(cmd, stdout=FNULL, stderr=FNULL)
 
 
-def path_leaf(path):
-    head, tail = ntpath.split(path)
-    return tail or ntpath.basename(head)
-
-
 @pytest.fixture(scope='module')
 def allure_report_with_params(request, tmpdir_factory):
     module = request.module.__file__
     tmpdir = tmpdir_factory.mktemp('data')
 
     def run_with_params(*params):
-        key = '{thread}{module}{param}'.format(thread=thread_tag(), module=os.path.split(path_leaf(module))[0], param=''.join(params).replace(":",""))
+        key = _get_hash('{thread}{module}{param}'.format(thread=thread_tag(), module=module, param=''.join(params)))
         if not request.config.cache.get(key, False):
             _runner(tmpdir.strpath, module, *params)
             request.config.cache.set(key, True)
