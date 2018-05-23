@@ -8,8 +8,6 @@ from allure_commons_test.report import AllureReport
 from allure_commons.utils import thread_tag
 
 
-
-
 @pytest.fixture(scope='function', autouse=True)
 def inject_matchers(doctest_namespace):
     import hamcrest
