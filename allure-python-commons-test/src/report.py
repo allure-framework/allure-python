@@ -66,6 +66,7 @@ Expected: ...
 
 """
 
+import sys
 import os
 import json
 import fnmatch
@@ -74,6 +75,10 @@ from hamcrest import has_property
 from hamcrest import has_item
 from hamcrest import has_entry
 from hamcrest import ends_with
+
+
+if sys.version_info[0] < 3:
+    from io import open
 
 
 class AllureReport(object):
@@ -86,7 +91,7 @@ class AllureReport(object):
     def _report_items(report_dir, glob):
         for _file in os.listdir(report_dir):
             if fnmatch.fnmatch(_file, glob):
-                with open(os.path.join(report_dir, _file)) as report_file:
+                with open(os.path.join(report_dir, _file), encoding="utf-8") as report_file:
                     yield report_file
 
 
