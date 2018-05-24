@@ -52,15 +52,17 @@ def allure_report_with_params(request, tmpdir_factory):
     module = request.module.__file__
     tmpdir = tmpdir_factory.mktemp('data')
 
-    def run_with_params(*params):
+    def run_with_params(*params, **kwargs):
+        cache = kwargs.get("cache", True)
         key = _get_hash('{thread}{module}{param}'.format(thread=thread_tag(), module=module, param=''.join(params)))
         if not request.config.cache.get(key, False):
             _runner(tmpdir.strpath, module, *params)
-            request.config.cache.set(key, True)
+            if cache:
+                request.config.cache.set(key, True)
 
-            def clear_cache():
-                request.config.cache.set(key, False)
-            request.addfinalizer(clear_cache)
+                def clear_cache():
+                    request.config.cache.set(key, False)
+                request.addfinalizer(clear_cache)
 
         return AllureReport(tmpdir.strpath)
     return run_with_params
