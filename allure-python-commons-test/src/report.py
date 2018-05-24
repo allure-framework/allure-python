@@ -75,7 +75,7 @@ from hamcrest import has_property
 from hamcrest import has_item
 from hamcrest import has_entry
 from hamcrest import ends_with
-
+from hamcrest.core.base_matcher import BaseMatcher
 
 if sys.version_info[0] < 3:
     from io import open
@@ -107,3 +107,40 @@ def has_test_case(name, *matchers):
                                         )
                                  )
                         )
+
+
+class ContainsExactly(BaseMatcher):
+
+    def __init__(self, num, matcher):
+        self.matcher = matcher
+        self.count = 0
+        self.num = num
+
+    def _matches(self, item):
+        self.count = 0
+        for subitem in item:
+            if self.matcher.matches(subitem):
+                self.count += 1
+
+        if self.count == self.num:
+            return True
+        else:
+            return False
+
+    def describe_to(self, description):
+        description.append_text('exactly {} item(s) matching '.format(self.num)).append_text(self.matcher)
+
+
+def has_only_n_test_cases(name, num, *matchers):
+    return has_property('test_cases',
+                        ContainsExactly(num,
+                                        all_of(
+                                                any_of(
+                                                        has_entry('fullName', ends_with(name)),
+                                                        has_entry('name', ends_with(name))
+                                                        ),
+                                                *matchers
+                                              )
+                                        )
+                        )
+

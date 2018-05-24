@@ -19,6 +19,11 @@ def pytest_addoption(parser):
                                            default=None,
                                            help="Generate Allure report in the specified directory (may not exist)")
 
+    parser.getgroup("reporting").addoption('--clean-alluredir',
+                                           action="store_true",
+                                           dest="clean_alluredir",
+                                           help="Clean alluredir folder if it exists")
+
     def label_type(type_name, legal_values=set()):
         def a_label_type(string):
             atoms = set(string.split(','))
@@ -97,6 +102,7 @@ def cleanup_factory(plugin):
 
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
+    clean = config.option.clean_alluredir
 
     test_helper = AllureTestHelper(config)
     # TODO: Why helper is present anyway?
@@ -109,7 +115,7 @@ def pytest_configure(config):
         allure_commons.plugin_manager.register(test_listener)
         config.add_cleanup(cleanup_factory(test_listener))
 
-        file_logger = AllureFileLogger(report_dir)
+        file_logger = AllureFileLogger(report_dir, clean)
         allure_commons.plugin_manager.register(file_logger)
         config.add_cleanup(cleanup_factory(file_logger))
 
