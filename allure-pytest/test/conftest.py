@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pytest
 import os
 import sys
@@ -7,6 +8,11 @@ import hashlib
 from inspect import getmembers, isfunction
 from allure_commons_test.report import AllureReport
 from allure_commons.utils import thread_tag
+
+
+with open("debug-runner", "w") as debugfile:
+    # overwrite debug-runner file with an empty one
+    print("New session", file=debugfile)
 
 
 def _get_hash(input):
@@ -30,11 +36,15 @@ def inject_matchers(doctest_namespace):
 
 
 def _runner(allure_dir, module, *extra_params):
-    FNULL = open(os.devnull, 'w')
     extra_params = ' '.join(extra_params)
-    cmd = shlex.split('pytest --alluredir=%s %s %s' % (allure_dir, extra_params, module),
+    cmd = shlex.split('%s -m pytest --alluredir=%s %s %s' % (sys.executable, allure_dir, extra_params, module),
                       posix=False if os.name == "nt" else True)
-    subprocess.call(cmd, stdout=FNULL, stderr=FNULL)
+    with open("debug-runner", "a") as debugfile:
+        try:
+            subprocess.check_output(cmd, stderr = subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            # Save to debug file errors on execution (includes pytest failing tests)
+            print(e.output, file=debugfile)
 
 
 @pytest.fixture(scope='module')
