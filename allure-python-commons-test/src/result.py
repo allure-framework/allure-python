@@ -81,10 +81,15 @@ def has_description_html(*matchers):
 
 
 def has_step(name, *matchers):
+    if isinstance(name, str):
+        match_name = equal_to(name)
+    else:
+        match_name = name
+
     return has_entry('steps',
                      has_item(
                          all_of(
-                             has_entry('name', equal_to(name)),
+                             has_entry('name', match_name),
                              *matchers
                          )
                      ))

@@ -117,6 +117,10 @@ def step(title):
         return StepContext(title, ({}, {}))
 
 
+def log(msg):
+    plugin_manager.hook.log(uuid=uuid4(), msg=msg)
+
+
 class StepContext:
 
     def __init__(self, title, params):
