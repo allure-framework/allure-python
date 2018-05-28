@@ -61,3 +61,26 @@ def test_text_type_parameters():
     ... )
     """
     step_with_parameters(u'первый', kwarg_parameter='второй')
+
+
+class StepClass(object):
+
+    @allure.step('First step')
+    def first_step_method(self, arg1):
+        pass
+
+
+def test_self_not_in_parameters():
+    """
+    >>> from allure_commons.utils import represent
+    >>> allure_report = getfixture('allure_report_with_params')('-k test_self_not_in_parameters')
+    >>> assert_that(allure_report,
+    ...             has_test_case('test_self_not_in_parameters',
+    ...                           has_step('First step',
+    ...                                    has_parameter('arg1', represent('argument one')),
+    ...                                    doesnt_have_parameter('self'),
+    ...                           )
+    ...             )
+    ... )
+    """
+    StepClass().first_step_method('argument one')
