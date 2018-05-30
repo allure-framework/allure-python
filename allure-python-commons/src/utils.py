@@ -113,6 +113,8 @@ def func_parameters(func, *a, **kw):
         del args_dict["self"]
     except KeyError:
         pass
+    if bowels.varargs is not None:
+        args_dict[bowels.varargs] = represent(tuple(a[len(bowels.args):]))
     kwargs_dict = dict(zip(kw, list(map(lambda i: represent(kw[i]), kw))))
     try:
         del kwargs_dict["self"]
