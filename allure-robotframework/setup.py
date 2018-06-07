@@ -3,8 +3,7 @@ import os
 from setuptools import setup
 
 install_requires = [
-    "allure-python-commons==2.3.1b1",
-    "robotframework==3.0.2"
+    "allure-python-commons==2.3.4b1",
 ]
 
 PACKAGE = "allure-robotframework"
