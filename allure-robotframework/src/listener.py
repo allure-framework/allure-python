@@ -1,10 +1,12 @@
 from __future__ import absolute_import
+
+from collections import OrderedDict
 from allure_commons.model2 import TestResultContainer, TestResult, TestStepResult, TestAfterResult, TestBeforeResult, \
-    StatusDetails, Label
+    StatusDetails, Label, Link
 from allure_commons.reporter import AllureReporter
 from allure_commons.utils import now, uuid4, md5, host_tag
 from allure_commons.logger import AllureFileLogger
-from allure_commons.types import AttachmentType, LabelType
+from allure_commons.types import AttachmentType, LabelType, LinkType
 from allure_commons import plugin_manager
 from robot.libraries.BuiltIn import BuiltIn
 from allure_robotframework.constants import RobotKeywordType, RobotLogLevel
@@ -25,6 +27,7 @@ class allure_robotframework(object):
         self.stack = []
         self.items_log = {}
         self.pool_id = None
+        self.links = OrderedDict()
         plugin_manager.register(self.reporter)
         plugin_manager.register(self.logger)
 
@@ -60,6 +63,7 @@ class allure_robotframework(object):
     # listener event ends
     def start_new_group(self, name, attributes):
         uuid = uuid4()
+        self.set_suite_link(attributes.get('metadata'), uuid)
         if self.stack:
             parent_suite = self.reporter.get_last_item(TestResultContainer)
             parent_suite.children.append(uuid)
@@ -72,6 +76,7 @@ class allure_robotframework(object):
 
     def stop_current_group(self):
         uuid = self.stack.pop()
+        self.remove_suite_link(uuid)
         self.reporter.stop_group(uuid, stop=now())
 
     def start_new_test(self, name, attributes):
@@ -95,12 +100,14 @@ class allure_robotframework(object):
         test.labels.append(Label(LabelType.HOST, value=host_tag()))
         test.statusDetails = StatusDetails(message=attributes.get('message'))
         test.description = attributes.get('doc')
+        last_link = list(self.links.values())[-1] if self.links else None
+        if last_link:
+            test.links.append(Link(LinkType.LINK, last_link, 'Link'))
         test.stop = now()
         self.reporter.close_test(uuid)
 
     def start_new_keyword(self, name, attributes):
         uuid = uuid4()
-        # parent_uuid = self.reporter.get_last_item().uuid
         parent_uuid = self.stack[-1]
         step_name = '{} = {}'.format(attributes.get('assign')[0], name) if attributes.get('assign') else name
         args = {
@@ -154,3 +161,13 @@ class allure_robotframework(object):
         self.items_log[self.stack[-1]] = message_format.format(full_message=full_message,
                                                                level=message.get('level'),
                                                                message=message.get('message'))
+
+    def set_suite_link(self, metadata, uuid):
+        if metadata:
+            link = metadata.get('Link')
+            if link:
+                self.links[uuid] = link
+
+    def remove_suite_link(self, uuid):
+        if self.links.get(uuid):
+            self.links.pop(uuid)
