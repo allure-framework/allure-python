@@ -33,7 +33,7 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
-        parameters = [Parameter(name=name, value=value) for name, value in params]
+        parameters = [Parameter(name=name, value=value) for name, value in params.items()]
         step = TestStepResult(name=title, start=now(), parameters=parameters)
         self.allure_logger.start_step(None, uuid, step)
 

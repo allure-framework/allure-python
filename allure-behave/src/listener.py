@@ -43,7 +43,7 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def start_fixture(self, parent_uuid, uuid, name, parameters):
-        parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters]
+        parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters.items()]
 
         if name in FIXTURES and not self.fixture_context:
             group = TestResultContainer(uuid=uuid4())
@@ -153,7 +153,7 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
-        parameters = [Parameter(name=name, value=value) for name, value in params]
+        parameters = [Parameter(name=name, value=value) for name, value in params.items()]
         step = TestStepResult(name=title, start=now(), parameters=parameters)
         self.logger.start_step(None, uuid, step)
 
