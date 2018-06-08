@@ -79,3 +79,11 @@ def allure_report(request, tmpdir_factory):
 def pytest_collection_modifyitems(items, config):
     if config.option.doctestmodules:
         items[:] = [item for item in items if item.__class__.__name__ == 'DoctestItem']
+
+
+def pytest_ignore_collect(path, config):
+    if sys.version_info.major < 3 and "py3_only" in path.strpath:
+        return True
+
+    if sys.version_info.major > 2 and "py2_only" in path.strpath:
+        return True
