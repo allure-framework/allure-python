@@ -16,7 +16,7 @@ def has_step_with_keyword_log(step_name, *matchers):
 
 
 class CaseStatus(unittest.TestCase):
-    allure_report = AllureReport(os.path.join('output'))
+    allure_report = AllureReport(os.environ.get('TEST_TMP', None))
 
     def test_one_step(self):
         assert_that(

@@ -8,7 +8,7 @@ from hamcrest import assert_that
 
 
 class CaseStatus(unittest.TestCase):
-    allure_report = AllureReport(os.path.join('output'))
+    allure_report = AllureReport(os.environ.get('TEST_TMP', None))
 
     def test_tags(self):
         assert_that(

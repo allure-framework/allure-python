@@ -20,7 +20,7 @@ def has_parent_suite(suite):
 
 
 class TestSuites(unittest.TestCase):
-    allure_report = AllureReport(os.path.join('output'))
+    allure_report = AllureReport(os.environ.get('TEST_TMP', None))
 
     def test_single_suite(self):
         assert_that(
