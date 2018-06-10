@@ -1,12 +1,23 @@
 import os
 from setuptools import setup
 
-install_requires = [
-    "allure-python-commons==2.3.4b1",
-]
 
 PACKAGE = "allure-robotframework"
 VERSION = "0.1.3"
+
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Framework :: Robot Framework',
+    'Framework :: Robot Framework :: Tool',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: Apache Software License',
+    'Topic :: Software Development :: Quality Assurance',
+    'Topic :: Software Development :: Testing',
+]
+
+install_requires = [
+    "allure-python-commons==2.3.4b1",
+]
 
 
 def read(fname):
@@ -24,8 +35,9 @@ if __name__ == '__main__':
         package_dir={"allure_robotframework": "src"},
         install_requires=install_requires,
         py_modules=['allure_robotframework'],
-        url="https://github.com/skhomuti/allure-python",
+        url="https://github.com/allure-framework/allure-python",
         author="Sergey Khomutinin",
         author_email="skhomuti@gmail.com",
         long_description=read('README.rst'),
+        classifiers=classifiers,
     )
