@@ -8,7 +8,7 @@ from hamcrest import assert_that
 
 
 class StepStatus(unittest.TestCase):
-    allure_report = AllureReport(os.path.join('output'))
+    allure_report = AllureReport(os.environ.get('TEST_TMP', None))
 
     def test_passed_with_step(self):
         assert_that(self.allure_report, has_test_case('Passed Case With Step',

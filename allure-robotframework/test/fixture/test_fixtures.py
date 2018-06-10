@@ -7,7 +7,7 @@ from hamcrest import assert_that, all_of
 
 
 class TestSuites(unittest.TestCase):
-    allure_report = AllureReport(os.path.join('output'))
+    allure_report = AllureReport(os.environ.get('TEST_TMP', None))
 
     def test_case_with_setup(self):
         assert_that(
