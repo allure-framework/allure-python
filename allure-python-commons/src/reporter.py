@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from allure_commons.types import AttachmentType
 from allure_commons.model2 import ExecutableItem
+from allure_commons.model2 import TestResult
 from allure_commons.model2 import Attachment, ATTACHMENT_PATTERN
 from allure_commons.utils import now
 from allure_commons._core import plugin_manager
@@ -10,6 +11,7 @@ from allure_commons._core import plugin_manager
 class AllureReporter(object):
     def __init__(self):
         self._items = OrderedDict()
+        self._orphan_items = []
 
     def _update_item(self, uuid, **kwargs):
         item = self._items[uuid] if uuid else self._items[next(reversed(self._items))]
@@ -20,8 +22,20 @@ class AllureReporter(object):
             else:
                 setattr(item, name, value)
 
+    def _last_executable(self):
+        for _uuid in reversed(self._items):
+            if isinstance(self._items[_uuid], ExecutableItem):
+                return _uuid
+
     def get_item(self, uuid):
         return self._items.get(uuid)
+
+    def get_last_item(self, item_type=None):
+        for _uuid in reversed(self._items):
+            if item_type is None:
+                return self._items.get(_uuid)
+            if type(self._items[_uuid]) == item_type:
+                return self._items.get(_uuid)
 
     def start_group(self, uuid, group):
         self._items[uuid] = group
@@ -54,25 +68,27 @@ class AllureReporter(object):
     def schedule_test(self, uuid, test_case):
         self._items[uuid] = test_case
 
-    def update_test(self, uuid, **kwargs):
-        self._update_item(uuid, **kwargs)
+    def get_test(self, uuid):
+        return self.get_item(uuid) if uuid else self.get_last_item(TestResult)
 
     def close_test(self, uuid):
         test_case = self._items.pop(uuid)
         plugin_manager.hook.report_result(result=test_case)
 
     def start_step(self, parent_uuid, uuid, step):
-        if not parent_uuid:
-            for _uuid in reversed(self._items):
-                if isinstance(self._items[_uuid], ExecutableItem):
-                    parent_uuid = _uuid
-                    break
-        self._items[parent_uuid].steps.append(step)
-        self._items[uuid] = step
+        parent_uuid = parent_uuid if parent_uuid else self._last_executable()
+        if parent_uuid is None:
+            self._orphan_items.append(uuid)
+        else:
+            self._items[parent_uuid].steps.append(step)
+            self._items[uuid] = step
 
     def stop_step(self, uuid, **kwargs):
-        self._update_item(uuid, **kwargs)
-        self._items.pop(uuid)
+        if uuid in self._orphan_items:
+            self._orphan_items.remove(uuid)
+        else:
+            self._update_item(uuid, **kwargs)
+            self._items.pop(uuid)
 
     def _attach(self, uuid, name=None, attachment_type=None, extension=None):
         mime_type = attachment_type
@@ -84,7 +100,7 @@ class AllureReporter(object):
 
         file_name = ATTACHMENT_PATTERN.format(prefix=uuid, ext=extension)
         attachment = Attachment(source=file_name, name=name, type=mime_type)
-        last_uuid = next(reversed(self._items))
+        last_uuid = self._last_executable()
         self._items[last_uuid].attachments.append(attachment)
 
         return file_name

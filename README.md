@@ -14,6 +14,10 @@ Allure [pytest](http://pytest.org) integration. It's developed as pytest plugin 
 Allure [behave](http://pythonhosted.org/behave/) integration. Just external formatter that produce test results in
 allure2 format. This package is available on [pypi](https://pypi.python.org/pypi/allure-behave)
 
+## Robot Framework
+Allure [RobotFramework](http://robotframework.org/) integration. This integration is a 
+[Listener](http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#listener-interface) 
+and does not require changing autotests. Available on [pypi](https://pypi.python.org/pypi/allure-robotframework)
 
 ## Allure python commons
 Common engine for all modules. It is useful for make integration with your homemade frameworks.
