@@ -105,7 +105,7 @@ def escape_name(name):
             name.decode('string_escape').encode('unicode_escape')
         except UnicodeDecodeError:
             return name.decode('string_escape').decode('utf-8')
-    return name.encode('utf_8').decode('unicode_escape')
+    return name.encode('ascii', 'backslashreplace').decode('unicode_escape')
 
 
 def get_outcome_status(outcome):
