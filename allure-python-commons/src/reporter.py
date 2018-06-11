@@ -75,6 +75,9 @@ class AllureReporter(object):
         test_case = self._items.pop(uuid)
         plugin_manager.hook.report_result(result=test_case)
 
+    def drop_test(self, uuid):
+        self._items.pop(uuid)
+
     def start_step(self, parent_uuid, uuid, step):
         parent_uuid = parent_uuid if parent_uuid else self._last_executable()
         if parent_uuid is None:
