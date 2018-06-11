@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from behave.model import ScenarioOutline
 from behave.formatter.base import Formatter
 import allure_commons
@@ -9,7 +11,12 @@ class AllureFormatter(Formatter):
     def __init__(self, stream_opener, config):
         super(AllureFormatter, self).__init__(stream_opener, config)
 
-        self.listener = AllureListener()
+        self.config = config
+
+        with open("debug-runner", "a") as debugfile:
+            print(config.show_skipped, file=debugfile)
+
+        self.listener = AllureListener(config)
         file_logger = AllureFileLogger(self.stream_opener.name)
 
         allure_commons.plugin_manager.register(self.listener)

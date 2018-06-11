@@ -5,12 +5,13 @@ import allure_commons
 from allure_commons.reporter import AllureReporter
 from allure_commons.utils import uuid4
 from allure_commons.utils import now
+from allure_commons.utils import platform_label
 from allure_commons.types import LabelType, AttachmentType
 from allure_commons.model2 import TestResult
 from allure_commons.model2 import TestStepResult
 from allure_commons.model2 import TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
-from allure_commons.model2 import Status, Parameter, Label
+from allure_commons.model2 import Parameter, Label
 from allure_behave.utils import scenario_parameters
 from allure_behave.utils import scenario_severity
 from allure_behave.utils import scenario_tags
@@ -18,7 +19,8 @@ from allure_behave.utils import scenario_name
 from allure_behave.utils import scenario_history_id
 from allure_behave.utils import step_status, step_status_details
 from allure_behave.utils import scenario_status, scenario_status_details
-from allure_behave.utils import fixture_status, fixture_status_details
+from allure_behave.utils import step_table
+from allure_behave.utils import get_status, get_status_details
 
 
 BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
@@ -27,12 +29,12 @@ FIXTURES = BEFORE_FIXTURES + AFTER_FIXTURES
 
 
 class AllureListener(object):
-    def __init__(self):
+    def __init__(self, behave_config):
+        self.behave_config = behave_config
         self.logger = AllureReporter()
         self.current_step_uuid = None
         self.execution_context = Context()
         self.fixture_context = Context()
-        self.fixture_context.enter()
         self.steps = deque()
 
     def __del__(self):
@@ -42,7 +44,7 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def start_fixture(self, parent_uuid, uuid, name, parameters):
-        parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters]
+        parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters.items()]
 
         if name in FIXTURES and not self.fixture_context:
             group = TestResultContainer(uuid=uuid4())
@@ -62,9 +64,10 @@ class AllureListener(object):
     @allure_commons.hookimpl
     def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
         if name in FIXTURES:
-            status = fixture_status(exc_val, exc_tb)
-            status_details = fixture_status_details(exc_val, exc_tb)
-            self.logger.stop_before_fixture(uuid=uuid, stop=now(), status=status, statusDetails=status_details)
+            self.logger.stop_before_fixture(uuid=uuid,
+                                            stop=now(),
+                                            status=get_status(exc_val),
+                                            statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
     def start_feature(self):
         self.execution_context.enter()
@@ -85,36 +88,38 @@ class AllureListener(object):
         self.execution_context.append(uuid)
 
         test_case = TestResult(uuid=uuid, start=now())
-
         test_case.name = scenario_name(scenario)
         test_case.historyId = scenario_history_id(scenario)
         test_case.description = '\n'.join(scenario.description)
-
-        labels = []
-        feature_label = Label(name=LabelType.FEATURE.value, value=scenario.feature.name)
-        severity = (Label(name=LabelType.SEVERITY.value, value=scenario_severity(scenario).value))
-        labels.append(feature_label)
-        labels.append(severity)
-        labels += [Label(name=LabelType.TAG.value, value=tag) for tag in scenario_tags(scenario)]
-
         test_case.parameters = scenario_parameters(scenario)
-        test_case.labels = labels
+        test_case.labels.extend([Label(name=LabelType.TAG, value=tag) for tag in scenario_tags(scenario)])
+        test_case.labels.append(Label(name=LabelType.SEVERITY, value=scenario_severity(scenario).value))
+        test_case.labels.append(Label(name=LabelType.FEATURE, value=scenario.feature.name))
+        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))
+        test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
 
         self.logger.schedule_test(uuid, test_case)
 
     @allure_commons.hookimpl
     def stop_test(self, parent_uuid, uuid, name, context, exc_type, exc_val, exc_tb):
         scenario = context['scenario']
-        self.flush_steps()
-        status = scenario_status(scenario)
-        status_details = scenario_status_details(scenario)
-        self.logger.update_test(uuid, stop=now(), status=status, statusDetails=status_details)
-        self.logger.close_test(uuid)
-        self.current_step_uuid = None
+        if scenario.status == 'skipped' and not self.behave_config.show_skipped:
+            self.logger.drop_test(uuid)
+        else:
+            status = scenario_status(scenario)
+            status_details = scenario_status_details(scenario)
 
-        for group in self.fixture_context.exit():
-            group.children.append(uuid)
-            self.logger.stop_group(group.uuid)
+            self.flush_steps()
+            test_result = self.logger.get_test(uuid)
+            test_result.stop = now()
+            test_result.status = status
+            test_result.statusDetails = status_details
+            self.logger.close_test(uuid)
+            self.current_step_uuid = None
+
+            for group in self.fixture_context.exit():
+                group.children.append(uuid)
+                self.logger.stop_group(group.uuid)
 
         self.execution_context.exit()
         self.execution_context.append(uuid)
@@ -124,9 +129,9 @@ class AllureListener(object):
 
     def match_step(self, match):
         step = self.steps.popleft()
-        self.start_step(step)
+        self.start_behave_step(step)
 
-    def start_step(self, step):
+    def start_behave_step(self, step):
 
         self.current_step_uuid = uuid4()
         name = u'{keyword} {title}'.format(keyword=step.keyword, title=step.name)
@@ -138,11 +143,9 @@ class AllureListener(object):
             self.logger.attach_data(uuid4(), step.text, name='.text', attachment_type=AttachmentType.TEXT)
 
         if step.table:
-            table = [','.join(step.table.headings)]
-            [table.append(','.join(list(row))) for row in step.table.rows]
-            self.logger.attach_data(uuid4(), '\n'.join(table), name='.table', attachment_type=AttachmentType.CSV)
+            self.logger.attach_data(uuid4(), step_table(step), name='.table', attachment_type=AttachmentType.CSV)
 
-    def stop_step(self, result):
+    def stop_behave_step(self, result):
         status = step_status(result)
         status_details = step_status_details(result)
         self.logger.stop_step(self.current_step_uuid, stop=now(), status=status, statusDetails=status_details)
@@ -150,8 +153,21 @@ class AllureListener(object):
     def flush_steps(self):
         while self.steps:
             step = self.steps.popleft()
-            self.start_step(step)
-            self.stop_step(step)
+            self.start_behave_step(step)
+            self.stop_behave_step(step)
+
+    @allure_commons.hookimpl
+    def start_step(self, uuid, title, params):
+        parameters = [Parameter(name=name, value=value) for name, value in params.items()]
+        step = TestStepResult(name=title, start=now(), parameters=parameters)
+        self.logger.start_step(None, uuid, step)
+
+    @allure_commons.hookimpl
+    def stop_step(self, uuid, exc_type, exc_val, exc_tb):
+        self.logger.stop_step(uuid,
+                              stop=now(),
+                              status=get_status(exc_val),
+                              statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
@@ -175,4 +191,3 @@ class Context(list):
     def exit(self):
         gone, self[:] = self[:], self._stack.pop()
         return gone
-
