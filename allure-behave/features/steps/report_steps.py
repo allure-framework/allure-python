@@ -31,6 +31,13 @@ def step_scenario(context, scenario):
     assert_that(context.allure_report, matcher())
 
 
+@then(u'allure report has not a scenario with name "{scenario}"')
+def step_scenario(context, scenario):
+    matcher = partial(match, not_, has_test_case, scenario)
+    context.scenario = matcher
+    assert_that(context.allure_report, matcher())
+
+
 @then(u'scenario has before fixture "{fixture}"')
 @then(u'this scenario has before fixture "{fixture}"')
 def step_before_fixture(context, fixture):
