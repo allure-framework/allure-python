@@ -1,10 +1,10 @@
 from setuptools import setup
 
 PACKAGE = "allure-python-commons"
-VERSION = "2.3.4b1"
+VERSION = "2.4.0"
 
 classifiers = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: Apache Software License',
     'Topic :: Software Development :: Quality Assurance',
