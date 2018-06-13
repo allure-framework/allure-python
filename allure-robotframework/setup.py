@@ -3,10 +3,10 @@ from setuptools import setup
 
 
 PACKAGE = "allure-robotframework"
-VERSION = "0.1.3"
+VERSION = "2.4.0"
 
 classifiers = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
     'Framework :: Robot Framework',
     'Framework :: Robot Framework :: Tool',
     'Intended Audience :: Developers',
@@ -16,7 +16,7 @@ classifiers = [
 ]
 
 install_requires = [
-    "allure-python-commons==2.3.4b1",
+    "allure-python-commons==2.4.0",
 ]
 
 
