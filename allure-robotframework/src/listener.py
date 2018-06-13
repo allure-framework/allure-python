@@ -8,6 +8,7 @@ from allure_commons.utils import now, uuid4, md5, host_tag
 from allure_commons.logger import AllureFileLogger
 from allure_commons.types import AttachmentType, LabelType, LinkType
 from allure_commons import plugin_manager
+from allure_commons.utils import platform_label
 from robot.libraries.BuiltIn import BuiltIn
 from allure_robotframework.constants import RobotKeywordType, RobotLogLevel
 from allure_robotframework import utils
@@ -98,6 +99,8 @@ class allure_robotframework(object):
         test.labels.extend(utils.get_allure_tags(attributes.get('tags')))
         test.labels.append(utils.get_allure_thread(self.pool_id))
         test.labels.append(Label(LabelType.HOST, value=host_tag()))
+        test.labels.append(Label(name=LabelType.FRAMEWORK, value='robotframework'))
+        test.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
         test.statusDetails = StatusDetails(message=attributes.get('message'))
         test.description = attributes.get('doc')
         last_link = list(self.links.values())[-1] if self.links else None
