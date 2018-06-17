@@ -20,10 +20,6 @@ STATUS = {
 
 
 def scenario_name(scenario):
-    scenario_outlines = [so for so in scenario.feature if isinstance(so, ScenarioOutline)]
-    current_scenario_outline = next(iter(filter(lambda so: scenario in so.scenarios, scenario_outlines)), None)
-    if current_scenario_outline:
-        return current_scenario_outline.name if current_scenario_outline.name else current_scenario_outline.keyword
     return scenario.name if scenario.name else scenario.keyword
 
 

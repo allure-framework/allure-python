@@ -74,7 +74,7 @@ from hamcrest import all_of, any_of
 from hamcrest import has_property
 from hamcrest import has_item
 from hamcrest import has_entry
-from hamcrest import ends_with
+from hamcrest import ends_with, starts_with
 from hamcrest.core.base_matcher import BaseMatcher
 
 if sys.version_info[0] < 3:
@@ -101,7 +101,7 @@ def has_test_case(name, *matchers):
                                  all_of(
                                         any_of(
                                                has_entry('fullName', ends_with(name)),
-                                               has_entry('name', ends_with(name))
+                                               has_entry('name', starts_with(name))
                                                ),
                                         *matchers
                                         )
