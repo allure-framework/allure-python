@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from enum import Enum
-from behave.model import ScenarioOutline
 from behave.runner_util import make_undefined_step_snippet
 from allure_commons.types import Severity
 from allure_commons.model2 import Status, Parameter
