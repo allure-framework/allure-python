@@ -12,7 +12,7 @@ import platform
 import threading
 import traceback
 
-if sys.version_info.major > 2:
+if six.PY3:
     from traceback import format_exception_only
 else:
     from _compat import format_exception_only
@@ -57,13 +57,12 @@ def represent(item):
     >>> represent(123)
     '123'
 
-    >>> from sys import version_info
-    >>> expected = u"'hi'" if version_info.major < 3 else "'hi'"
+    >>> import six
+    >>> expected = u"'hi'" if six.PY2 else "'hi'"
     >>> represent('hi') == expected
     True
 
-    >>> from sys import version_info
-    >>> expected = u"'привет'" if version_info.major < 3 else "'привет'"
+    >>> expected = u"'привет'" if six.PY2 else "'привет'"
     >>> represent(u'привет') == expected
     True
 
@@ -71,11 +70,11 @@ def represent(item):
     "<... 'bytearray'>"
 
     >>> from struct import pack
-    >>> result = "<type 'str'>" if version_info.major < 3 else "<class 'bytes'>"
+    >>> result = "<type 'str'>" if six.PY2 else "<class 'bytes'>"
     >>> represent(pack('h', 0x89)) == result
     True
 
-    >>> result = "<type 'int'>" if version_info.major < 3 else "<class 'int'>"
+    >>> result = "<type 'int'>" if six.PY2 else "<class 'int'>"
     >>> represent(int) == result
     True
 
@@ -92,7 +91,7 @@ def represent(item):
     "<class 'utils.ClassWithName'>"
     """
 
-    if sys.version_info.major < 3 and isinstance(item, str):
+    if six.PY2 and isinstance(item, str):
         try:
             item = item.decode(encoding='UTF-8')
         except UnicodeDecodeError:
@@ -240,7 +239,7 @@ def func_parameters(func, *args, **kwargs):
 
     """
     parameters = {}
-    arg_spec = inspect.getargspec(func) if sys.version_info.major < 3 else inspect.getfullargspec(func)
+    arg_spec = inspect.getargspec(func) if six.PY2 else inspect.getfullargspec(func)
     args_dict = dict(zip(arg_spec.args, args))
 
     if arg_spec.defaults:
@@ -257,7 +256,7 @@ def func_parameters(func, *args, **kwargs):
     parameters.update(kwargs)
     parameters.update(args_dict)
 
-    items = parameters.iteritems() if sys.version_info.major < 3 else parameters.items()
+    items = parameters.iteritems() if six.PY2 else parameters.items()
     return dict(map(lambda kv: (kv[0], represent(kv[1])), items))
 
 
