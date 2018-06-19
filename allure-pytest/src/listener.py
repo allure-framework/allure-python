@@ -32,6 +32,12 @@ class AllureListener(object):
         self._thread = thread_tag()
 
     @allure_commons.hookimpl
+    def log(self, uuid, msg):
+        # mimics logs using an empty step
+        self.start_step(uuid, msg, [])
+        self.stop_step(uuid, None, None, None)
+
+    @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
         parameters = [Parameter(name=name, value=value) for name, value in params.items()]
         step = TestStepResult(name=title, start=now(), parameters=parameters)

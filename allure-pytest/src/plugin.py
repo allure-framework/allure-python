@@ -1,10 +1,12 @@
 import argparse
+import logging
 
 import allure
 import allure_commons
 
 from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
+from allure_commons.cli_logger import AllureLoggingHandler
 
 from allure_pytest.utils import allure_labels
 from allure_pytest.helper import AllureTestHelper
@@ -118,6 +120,7 @@ def pytest_configure(config):
         file_logger = AllureFileLogger(report_dir, clean)
         allure_commons.plugin_manager.register(file_logger)
         config.add_cleanup(cleanup_factory(file_logger))
+        logging.getLogger().addHandler(AllureLoggingHandler())
 
 
 def pytest_collection_modifyitems(items, config):
