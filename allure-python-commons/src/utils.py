@@ -48,6 +48,19 @@ def host_tag():
     return socket.gethostname()
 
 
+def escape_non_unicode_symbols(item):
+    if not (six.PY2 and isinstance(item, str)):
+        return item
+
+    def escape_symbol(s):
+        try:
+            s.decode(encoding='UTF-8')
+            return s
+        except UnicodeDecodeError:
+            return repr(s)[1:-1]
+    return ''.join(map(escape_symbol, item))
+
+
 def represent(item):
     """
     >>> represent(None)
@@ -260,7 +273,7 @@ def func_parameters(func, *args, **kwargs):
 
 
 def format_traceback(exc_traceback):
-    return ''.join(traceback.format_tb(exc_traceback)) if exc_traceback else None
+    return escape_non_unicode_symbols(''.join(traceback.format_tb(exc_traceback))) if exc_traceback else None
 
 
 def format_exception(etype, value):
@@ -311,4 +324,4 @@ def format_exception(etype, value):
     ...     format_exception(etype, e) # doctest: +ELLIPSIS
     "AssertionError: \\nExpected:...but:..."
     """
-    return '\n'.join(format_exception_only(etype, value)) if etype or value else None
+    return escape_non_unicode_symbols('\n'.join(format_exception_only(etype, value))) if etype or value else None
