@@ -1,3 +1,7 @@
+
+SELENIUM_SCREENSHOT_KEYWORD = 'SeleniumLibrary.Capture Page Screenshot'
+
+
 class RobotStatus(object):
     FAILED = 'FAIL'
     PASSED = 'PASS'
