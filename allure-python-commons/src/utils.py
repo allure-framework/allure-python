@@ -273,7 +273,7 @@ def func_parameters(func, *args, **kwargs):
 
 
 def format_traceback(exc_traceback):
-    return escape_non_unicode_symbols(''.join(traceback.format_tb(exc_traceback))) if exc_traceback else None
+    return ''.join(traceback.format_tb(exc_traceback)) if exc_traceback else None
 
 
 def format_exception(etype, value):
@@ -324,4 +324,4 @@ def format_exception(etype, value):
     ...     format_exception(etype, e) # doctest: +ELLIPSIS
     "AssertionError: \\nExpected:...but:..."
     """
-    return escape_non_unicode_symbols('\n'.join(format_exception_only(etype, value))) if etype or value else None
+    return '\n'.join(format_exception_only(etype, value)) if etype or value else None
