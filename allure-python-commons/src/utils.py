@@ -241,6 +241,8 @@ def func_parameters(func, *args, **kwargs):
     arg_spec = inspect.getargspec(func) if six.PY2 else inspect.getfullargspec(func)
     args_dict = dict(zip(arg_spec.args, args))
 
+    param_order_dict = {v: k for k, v in enumerate(arg_spec.args)}
+
     if arg_spec.defaults:
         kwargs_defaults_dict = dict(zip(arg_spec.args[len(args):], arg_spec.defaults))
         parameters.update(kwargs_defaults_dict)
@@ -256,7 +258,9 @@ def func_parameters(func, *args, **kwargs):
     parameters.update(args_dict)
 
     items = parameters.iteritems() if six.PY2 else parameters.items()
-    return dict(map(lambda kv: (kv[0], represent(kv[1])), items))
+    sorted_items = sorted(map(lambda kv: (kv[0], represent(kv[1])), items), key=lambda x: param_order_dict[x[0]])
+
+    return dict(sorted_items)
 
 
 def format_traceback(exc_traceback):
