@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import six
 import time
 import uuid
@@ -111,7 +112,7 @@ def func_parameters(func, *args, **kwargs):
     >>> def helper(func):
     ...     def wrapper(*args, **kwargs):
     ...         params = func_parameters(func, *args, **kwargs)
-    ...         print(sorted(params.items()))
+    ...         print(list(params.items()))
     ...         return func(*args, **kwargs)
     ...     return wrapper
 
@@ -204,13 +205,11 @@ def func_parameters(func, *args, **kwargs):
     ... def args_kwargs_varargs_keywords(a, b=2, *c, **d):
     ...     pass
 
-
     >>> args_kwargs_varargs_keywords(1)
     [('a', '1'), ('b', '2')]
 
     >>> args_kwargs_varargs_keywords(1, 2, 4, d=5, e=6)
     [('a', '1'), ('b', '2'), ('c', '(4,)'), ('d', '5'), ('e', '6')]
-
 
     >>> class Class(object):
     ...     @staticmethod
@@ -241,6 +240,7 @@ def func_parameters(func, *args, **kwargs):
     """
     parameters = {}
     arg_spec = inspect.getargspec(func) if six.PY2 else inspect.getfullargspec(func)
+    arg_order = list(arg_spec.args)
     args_dict = dict(zip(arg_spec.args, args))
 
     if arg_spec.defaults:
@@ -248,29 +248,27 @@ def func_parameters(func, *args, **kwargs):
         parameters.update(kwargs_defaults_dict)
 
     if arg_spec.varargs:
+        arg_order.append(arg_spec.varargs)
         varargs = args[len(arg_spec.args):]
         parameters.update({arg_spec.varargs: varargs} if varargs else {})
 
     if arg_spec.args and arg_spec.args[0] in ['cls', 'self']:
         args_dict.pop(arg_spec.args[0], None)
 
-    parameters.update(kwargs)
+    if kwargs:
+        if sys.version_info < (3, 6):
+            # Sort alfabetically as old python versions does
+            # not preserve call order for kwargs
+            arg_order.extend(sorted(list(kwargs.keys())))
+        else:
+            # Keep py3.6 behaviour to preserve kwargs order
+            arg_order.extend(list(kwargs.keys()))
+        parameters.update(kwargs)
+
     parameters.update(args_dict)
 
     items = parameters.iteritems() if six.PY2 else parameters.items()
-
-    # Sort according to argument definition order
-    param_order_dict = {v: k for k, v in enumerate(arg_spec.args)}
-
-    def arg_order(arg_val):
-        arg = arg_val[0]
-        if arg in param_order_dict:
-            return param_order_dict[arg]
-        else:
-            # end of list
-            return len(param_order_dict) + 1
-
-    sorted_items = sorted(map(lambda kv: (kv[0], represent(kv[1])), items), key=arg_order)
+    sorted_items = sorted(map(lambda kv: (kv[0], represent(kv[1])), items), key=lambda x: arg_order.index(x[0]))
 
     return collections.OrderedDict(sorted_items)
 
