@@ -10,9 +10,10 @@ from allure_commons.types import AttachmentType, LabelType, LinkType
 from allure_commons import plugin_manager
 from allure_commons.utils import platform_label
 from robot.libraries.BuiltIn import BuiltIn
-from allure_robotframework.constants import RobotKeywordType, RobotLogLevel
+from allure_robotframework.constants import RobotKeywordType, RobotLogLevel, SELENIUM_SCREENSHOT_KEYWORD
 from allure_robotframework import utils
 import os
+import re
 
 
 # noinspection PyPep8Naming
@@ -29,6 +30,7 @@ class allure_robotframework(object):
         self.items_log = {}
         self.pool_id = None
         self.links = OrderedDict()
+        self._catch_screenshot = False
         plugin_manager.register(self.reporter)
         plugin_manager.register(self.logger)
 
@@ -56,6 +58,16 @@ class allure_robotframework(object):
         self.end_current_keyword(name, attributes)
 
     def log_message(self, message):
+        if self._catch_screenshot:
+            screenshot_path = re.search('img src="([\w\W]+.png)"', message.get('message'))
+            if screenshot_path:
+                source = os.path.join(BuiltIn().get_variable_value('${OUTPUTDIR}'), screenshot_path.group(1))
+                self.reporter.attach_file(uuid=uuid4(),
+                                          source=source,
+                                          name='Screenshot',
+                                          attachment_type=AttachmentType.PNG)
+                self._catch_screenshot = False
+                return
         level = message.get('level')
         if level == RobotLogLevel.FAIL:
             self.reporter.get_item(self.stack[-1]).statusDetails = StatusDetails(message=message.get('message'))
@@ -110,6 +122,8 @@ class allure_robotframework(object):
         self.reporter.close_test(uuid)
 
     def start_new_keyword(self, name, attributes):
+        if name == SELENIUM_SCREENSHOT_KEYWORD:
+            self._catch_screenshot = True
         uuid = uuid4()
         parent_uuid = self.stack[-1]
         step_name = '{} = {}'.format(attributes.get('assign')[0], name) if attributes.get('assign') else name
