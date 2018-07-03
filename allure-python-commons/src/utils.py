@@ -261,7 +261,16 @@ def func_parameters(func, *args, **kwargs):
 
     # Sort according to argument definition order
     param_order_dict = {v: k for k, v in enumerate(arg_spec.args)}
-    sorted_items = sorted(map(lambda kv: (kv[0], represent(kv[1])), items), key=lambda x: param_order_dict[x[0]])
+
+    def arg_order(arg_val):
+        arg = arg_val[0]
+        if arg in param_order_dict:
+            return param_order_dict[arg]
+        else:
+            # end of list
+            return len(param_order_dict) + 1
+
+    sorted_items = sorted(map(lambda kv: (kv[0], represent(kv[1])), items), key=arg_order)
 
     return collections.OrderedDict(sorted_items)
 
