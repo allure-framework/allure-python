@@ -7,6 +7,7 @@ from allure_commons.reporter import AllureReporter
 from allure_commons.utils import now, uuid4, md5, host_tag
 from allure_commons.logger import AllureFileLogger
 from allure_commons.types import AttachmentType, LabelType, LinkType
+from allure_commons.types import Severity
 from allure_commons.utils import platform_label
 from robot.libraries.BuiltIn import BuiltIn
 from allure_robotframework.types import RobotKeywordType, RobotLogLevel
@@ -108,6 +109,8 @@ class allure_robotframework(object):
         test.statusDetails = StatusDetails(message=attributes.get('message'))
         test.description = attributes.get('doc')
         last_link = list(self.links.values())[-1] if self.links else None
+        if attributes.get(Severity.CRITICAL, 'no') == 'yes':
+            test.labels.append(Label(name=LabelType.SEVERITY, value=Severity.CRITICAL))
         if last_link:
             test.links.append(Link(LinkType.LINK, last_link, 'Link'))
         test.stop = now()
