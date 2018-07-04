@@ -56,3 +56,5 @@ class AttachmentType(Enum):
     MP4 = ("video/mp4", "mp4")
     OGG = ("video/ogg", "ogg")
     WEBM = ("video/webm", "webm")
+        
+    PDF = ("application/pdf", "pdf")
