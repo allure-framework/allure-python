@@ -9,6 +9,7 @@ from allure_commons_test.result import has_parameter
 from allure_commons_test.result import has_link
 from allure_commons_test.result import has_status_details
 from allure_commons_test.result import with_message_contains
+from allure_commons_test.result import has_attachment
 from allure_commons_test.label import has_tag
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before, has_after
@@ -87,4 +88,9 @@ def should_has_link(allure_report, test_case_matcher, link, link_type=None, link
 
 def should_has_status_detail_with_message(allure_report, item_matcher, message):
     matcher = partial(item_matcher, has_status_details, with_message_contains, message)
+    assert_that(allure_report, matcher())
+
+
+def should_has_attachment(allure_report, item_matcher, attach_type=None, name=None):
+    matcher = partial(item_matcher, has_attachment,  attach_type, name)
     assert_that(allure_report, matcher())
