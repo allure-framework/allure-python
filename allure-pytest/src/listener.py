@@ -1,5 +1,6 @@
 import pytest
 import allure_commons
+from allure_commons.utils import escape_non_unicode_symbols
 from allure_commons.utils import now
 from allure_commons.utils import md5
 from allure_commons.utils import uuid4
@@ -158,7 +159,9 @@ class AllureListener(object):
         status_details = None
 
         if call.excinfo:
-            status_details = StatusDetails(message=call.excinfo.exconly(), trace=report.longreprtext)
+            status_details = StatusDetails(
+                message=escape_non_unicode_symbols(call.excinfo.exconly()),
+                trace=escape_non_unicode_symbols(report.longreprtext))
             if (status != Status.SKIPPED
                 and not (call.excinfo.errisinstance(AssertionError)
                          or call.excinfo.errisinstance(pytest.fail.Exception))):
