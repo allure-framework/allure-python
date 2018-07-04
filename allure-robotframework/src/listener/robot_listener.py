@@ -7,12 +7,14 @@ from allure_commons.reporter import AllureReporter
 from allure_commons.utils import now, uuid4, md5, host_tag
 from allure_commons.logger import AllureFileLogger
 from allure_commons.types import AttachmentType, LabelType, LinkType
-from allure_commons import plugin_manager
+from allure_commons.types import Severity
 from allure_commons.utils import platform_label
 from robot.libraries.BuiltIn import BuiltIn
-from allure_robotframework.constants import RobotKeywordType, RobotLogLevel
+from allure_robotframework.types import RobotKeywordType, RobotLogLevel
 from allure_robotframework import utils
 import os
+from allure_robotframework.allure_listener import AllureListener
+import allure_commons
 
 
 # noinspection PyPep8Naming
@@ -23,14 +25,17 @@ class allure_robotframework(object):
     FAIL_MESSAGE_FORMAT = '{full_message}<p style="color: red"><b>[{level}]</b> {message}</p>'
 
     def __init__(self, logger_path=DEFAULT_OUTPUT_PATH):
-        self.reporter = AllureReporter()
-        self.logger = AllureFileLogger(logger_path)
         self.stack = []
         self.items_log = {}
         self.pool_id = None
         self.links = OrderedDict()
-        plugin_manager.register(self.reporter)
-        plugin_manager.register(self.logger)
+
+        self.reporter = AllureReporter()
+        self.listener = AllureListener(self.reporter)
+        self.logger = AllureFileLogger(logger_path)
+
+        allure_commons.plugin_manager.register(self.logger)
+        allure_commons.plugin_manager.register(self.listener)
 
     def start_suite(self, name, attributes):
         if not self.pool_id:
@@ -104,6 +109,8 @@ class allure_robotframework(object):
         test.statusDetails = StatusDetails(message=attributes.get('message'))
         test.description = attributes.get('doc')
         last_link = list(self.links.values())[-1] if self.links else None
+        if attributes.get(Severity.CRITICAL, 'no') == 'yes':
+            test.labels.append(Label(name=LabelType.SEVERITY, value=Severity.CRITICAL))
         if last_link:
             test.links.append(Link(LinkType.LINK, last_link, 'Link'))
         test.stop = now()
@@ -174,3 +181,8 @@ class allure_robotframework(object):
     def remove_suite_link(self, uuid):
         if self.links.get(uuid):
             self.links.pop(uuid)
+
+    def close(self):
+        for plugin in [self.logger, self.listener]:
+            name = allure_commons.plugin_manager.get_name(plugin)
+            allure_commons.plugin_manager.unregister(name=name)
