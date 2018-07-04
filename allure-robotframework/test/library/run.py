@@ -37,26 +37,27 @@ def robot_run_with_allure(work_dir, *args, **kwargs):
 
     stdout_file = os.path.join(output_dir, 'stdout.txt')
 
-    def target(*a, **kw):
-
-        # ToDo: fix it (_core not works correctly with multiprocessing)
-        import six
-        import allure_commons
-        if six.PY2:
-            reload(allure_commons._core)
-        else:
-            import importlib
-            importlib.reload(allure_commons._core)
-
-        listener = allure_robotframework(logger_path=allure_dir)
-
-        with open(stdout_file, 'w+') as stdout:
-            options = {"listener": listener, "outputdir": output_dir, "stdout": stdout}
-            options.update(kw)
-            run(*a, **options)
-
-    robot_process = Process(target=target, args=args, kwargs=kwargs)
+    arguments = (stdout_file, output_dir, allure_dir) + args
+    robot_process = Process(target=_robot_run, args=arguments, kwargs=kwargs)
     robot_process.start()
     robot_process.join()
 
     return AllureReport(allure_dir)
+
+
+def _robot_run(stdout_file, output_dir, allure_dir, *args, **kwargs):
+    # ToDo: fix it (_core not works correctly with multiprocessing)
+    import six
+    import allure_commons
+    if six.PY2:
+        reload(allure_commons._core)
+    else:
+        import importlib
+        importlib.reload(allure_commons._core)
+
+    listener = allure_robotframework(logger_path=allure_dir)
+
+    with open(stdout_file, 'w+') as stdout:
+        options = {"listener": listener, "outputdir": output_dir, "stdout": stdout}
+        options.update(kwargs)
+        run(*args, **options)
