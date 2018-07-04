@@ -1,7 +1,7 @@
 import os
+import robot
 from tempfile import mkdtemp
 from multiprocessing import Process
-from robot import run
 from allure_robotframework import allure_robotframework
 from allure_commons_test.report import AllureReport
 
@@ -30,22 +30,6 @@ def make_test_case(path, name, test_case):
 
 
 def robot_run_with_allure(work_dir, *args, **kwargs):
-    allure_dir = os.path.join(work_dir, 'allure')
-
-    output_dir = os.path.join(work_dir, 'output')
-    os.mkdir(output_dir)
-
-    stdout_file = os.path.join(output_dir, 'stdout.txt')
-
-    arguments = (stdout_file, output_dir, allure_dir) + args
-    robot_process = Process(target=_robot_run, args=arguments, kwargs=kwargs)
-    robot_process.start()
-    robot_process.join()
-
-    return AllureReport(allure_dir)
-
-
-def _robot_run(stdout_file, output_dir, allure_dir, *args, **kwargs):
     # ToDo: fix it (_core not works correctly with multiprocessing)
     import six
     import allure_commons
@@ -55,9 +39,21 @@ def _robot_run(stdout_file, output_dir, allure_dir, *args, **kwargs):
         import importlib
         importlib.reload(allure_commons._core)
 
+    allure_dir = os.path.join(work_dir, 'allure')
     listener = allure_robotframework(logger_path=allure_dir)
+
+    output_dir = os.path.join(work_dir, 'output')
+    os.mkdir(output_dir)
+
+    stdout_file = os.path.join(output_dir, 'stdout.txt')
 
     with open(stdout_file, 'w+') as stdout:
         options = {"listener": listener, "outputdir": output_dir, "stdout": stdout}
         options.update(kwargs)
-        run(*args, **options)
+
+        robot_process = Process(target=robot.run, args=args, kwargs=options)
+        robot_process.start()
+        robot_process.join()
+
+    return AllureReport(allure_dir)
+
