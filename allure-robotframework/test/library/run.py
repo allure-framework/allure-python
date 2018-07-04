@@ -2,7 +2,6 @@ import os
 import robot
 from tempfile import mkdtemp
 from multiprocessing import Process
-from allure_robotframework import allure_robotframework
 from allure_commons_test.report import AllureReport
 
 
@@ -30,30 +29,18 @@ def make_test_case(path, name, test_case):
 
 
 def robot_run_with_allure(work_dir, *args, **kwargs):
-    # ToDo: fix it (_core not works correctly with multiprocessing)
-    import six
-    import allure_commons
-    if six.PY2:
-        reload(allure_commons._core)
-    else:
-        import importlib
-        importlib.reload(allure_commons._core)
-
     allure_dir = os.path.join(work_dir, 'allure')
-    listener = allure_robotframework(logger_path=allure_dir)
+    os.mkdir(allure_dir)
 
     output_dir = os.path.join(work_dir, 'output')
     os.mkdir(output_dir)
 
-    stdout_file = os.path.join(output_dir, 'stdout.txt')
+    options = {"listener": "allure_robotframework;%s" % allure_dir, "outputdir": output_dir}
+    options.update(kwargs)
 
-    with open(stdout_file, 'w+') as stdout:
-        options = {"listener": listener, "outputdir": output_dir, "stdout": stdout}
-        options.update(kwargs)
-
-        robot_process = Process(target=robot.run, args=args, kwargs=options)
-        robot_process.start()
-        robot_process.join()
+    robot_process = Process(target=robot.run, args=args, kwargs=options)
+    robot_process.start()
+    robot_process.join()
 
     return AllureReport(allure_dir)
 
