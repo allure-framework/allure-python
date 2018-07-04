@@ -50,7 +50,7 @@ def should_not_has_tag(allure_report, test_case_matcher, tag):
 
 def should_has_status(allure_report, item_matcher, status):
     status_matcher = partial(item_matcher, with_status, status)
-    assert_that(allure_report, status_matcher)
+    assert_that(allure_report, status_matcher())
 
 
 def should_has_step(allure_report, item_matcher, step):
