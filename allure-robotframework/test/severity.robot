@@ -4,12 +4,12 @@ Library    ./library/test.py
 
 
 *** Variables ***
-${TC_SEVERITY}    | *Test Cases*                      |              |          |\n
-...               | Demo Test Case Severity - Alpha   | [Tags]       | alpha    |\n
-...               |                                   | No Operation |          |\n
-...               |                                   |              |          |\n
-...               | Demo Test Case Severity - Bravo   | [Tags]       | bravo    |\n
-...               |                                   | No Operation |          |\n
+${TC_SEVERITY}    | *Test Cases*                      |              |       |\n
+...               | Demo Test Case Severity - Alpha   | [Tags]       | alpha |\n
+...               |                                   | No Operation |       |\n
+...               |                                   |              |       |\n
+...               | Demo Test Case Severity - Bravo   | [Tags]       | bravo |\n
+...               |                                   | No Operation |       |\n
 
 
 *** Test Cases ***
