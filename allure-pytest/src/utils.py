@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import six
 import pytest
 from allure_commons.utils import represent
-from allure_commons.utils import format_exception, format_traceback
+from allure_commons.utils import format_exception, format_traceback, escape_non_unicode_symbols
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 
@@ -130,8 +130,8 @@ def get_status(exception):
 
 
 def get_status_details(exception_type, exception, exception_traceback):
-    message = format_exception(exception_type, exception)
-    trace = format_traceback(exception_traceback)
+    message = escape_non_unicode_symbols(format_exception(exception_type, exception))
+    trace = escape_non_unicode_symbols(format_traceback(exception_traceback))
     return StatusDetails(message=message, trace=trace) if message or trace else None
 
 

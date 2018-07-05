@@ -37,24 +37,6 @@ ${TC_NESTED_STEPS_LAST_FAILED}    | *TestCases*                                 
 ...                               | Parent Step                                  |                   |\n
 ...                               |                                              | Fail              |\n
 
-${TC_OUTSIDE_STEP}    | *Settings*                       |                            |\n
-...                   | Library                          | ./helper.py                |\n
-...                   |                                  |                            |\n
-...                   | *TestCase*                       |                            |\n
-...                   | Demo Test Case With Outside Step |                            |\n
-...                   |                                  | Step Contains Outside Step |\n
-
-@{TC_OUTSIDE_STEP__LIBRARY}
-...    from external import outside_step
-...
-...    def step_contains_outside_step(): outside_step()
-
-@{TC_OUTSIDE_STEP__EXTERNAL_PY}
-...    import allure
-...
-...    @allure.step("Outside Step")
-...    def outside_step(): pass
-
 
 *** Test Cases ***
 Test Case With Step
@@ -115,17 +97,3 @@ Test Case With Nested Steps Last Failed
     Should Has Status    ${allure_report}    ${parent_step_matcher}    failed
     ${step_matcher}=    Should Has Step    ${allure_report}    ${parent_step_matcher}   BuiltIn.Fail
     Should Has Status    ${allure_report}    ${step_matcher}    failed
-
-Test Case With Outside Step
-    ${tmp_dir}=    Make Temp Dir
-    ${test_case_dir}=    Make Dir    ${tmp_dir}    test
-    Make File    ${test_case_dir}    helper.py    ${TC_OUTSIDE_STEP__LIBRARY}
-    Make File    ${test_case_dir}    external.py    ${TC_OUTSIDE_STEP__EXTERNAL_PY}
-    ${test_case}=    Make Test Case    ${test_case_dir}    step.robot    ${TC_OUTSIDE_STEP}
-    ${allure_report}=    Robot Run With Allure    ${tmp_dir}    ${test_case}
-    ${tc_matcher}=    Should Has Test Case    ${allure_report}    Demo Test Case With Outside Step
-    ${step_matcher}=    Should Has Step    ${allure_report}    ${tc_matcher}   helper.Step Contains Outside Step
-    # ToDo: Add hook handler to listener
-    #${outside_step_matcher}=    Should Has Step    ${allure_report}    ${step_matcher}   Outside Step
-
-# ToDo: Test Case With Outside Filed Step

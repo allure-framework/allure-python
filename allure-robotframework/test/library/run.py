@@ -38,6 +38,16 @@ def robot_run_with_allure(work_dir, *args, **kwargs):
     stdout_file = os.path.join(output_dir, 'stdout.txt')
 
     def target(*a, **kw):
+
+        # ToDo: fix it (_core not works correctly with multiprocessing)
+        import six
+        import allure_commons
+        if six.PY2:
+            reload(allure_commons._core)
+        else:
+            import importlib
+            importlib.reload(allure_commons._core)
+
         listener = allure_robotframework(logger_path=allure_dir)
 
         with open(stdout_file, 'w+') as stdout:
