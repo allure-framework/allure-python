@@ -13,7 +13,7 @@ ${TC_FAILED_STEP_WITH_MESSAGE}    | *TestCases*                                 
 Test Case With Failed Step With Message
     ${tmp_dir}=    Make Temp Dir
     ${test_case_dir}=    Make Dir    ${tmp_dir}    test
-    ${test_case}=    Make Test Case    ${test_case_dir}    step.robot    ${TC_FAILED_STEP_WITH_MESSAGE}
+    ${test_case}=    Make Test Case    ${test_case_dir}    status.robot    ${TC_FAILED_STEP_WITH_MESSAGE}
     ${allure_report}=    Robot Run With Allure    ${tmp_dir}    ${test_case}
     ${tc_matcher}=    Should Has Test Case    ${allure_report}    Demo Test Case With Failed Step With Message
     Should Has Status    ${allure_report}    ${tc_matcher}    failed

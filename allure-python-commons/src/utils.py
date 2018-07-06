@@ -51,6 +51,19 @@ def host_tag():
     return socket.gethostname()
 
 
+def escape_non_unicode_symbols(item):
+    if not (six.PY2 and isinstance(item, str)):
+        return item
+
+    def escape_symbol(s):
+        try:
+            s.decode(encoding='UTF-8')
+            return s
+        except UnicodeDecodeError:
+            return repr(s)[1:-1]
+    return ''.join(map(escape_symbol, item))
+
+
 def represent(item):
     """
     >>> represent(None)

@@ -16,7 +16,7 @@ ${TC_LOG}    | *Settings*                        |              |               
 Test Case In Suite With link
     ${tmp_dir}=    Make Temp Dir
     ${test_case_dir}=    Make Dir    ${tmp_dir}    test
-    ${test_case}=    Make Test Case    ${test_case_dir}    step.robot    ${TC_LOG}
+    ${test_case}=    Make Test Case    ${test_case_dir}    link.robot    ${TC_LOG}
     ${allure_report}=    Robot Run With Allure    ${tmp_dir}    ${test_case}
     ${tc_matcher}=    Should Has Test Case    ${allure_report}    Demo Test Case In Suite With link
     Should has link   ${allure_report}    ${tc_matcher}    https://github.com/allure-framework

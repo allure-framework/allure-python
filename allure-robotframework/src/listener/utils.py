@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from allure_commons.model2 import Status, Label, Parameter
 from allure_commons.types import LabelType
-from allure_robotframework.constants import RobotStatus
+from allure_robotframework.types import RobotStatus
 
 
 def get_allure_status(status):
