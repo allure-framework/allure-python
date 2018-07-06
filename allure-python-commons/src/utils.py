@@ -257,7 +257,7 @@ def func_parameters(func, *args, **kwargs):
 
     if kwargs:
         if sys.version_info < (3, 6):
-            # Sort alfabetically as old python versions does
+            # Sort alphabetically as old python versions does
             # not preserve call order for kwargs
             arg_order.extend(sorted(list(kwargs.keys())))
         else:
