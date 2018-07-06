@@ -10,17 +10,20 @@ from allure_commons_test.report import AllureReport
 from allure_commons.utils import thread_tag
 
 
-with open("debug-runner", "w") as debugfile:
-    # overwrite debug-runner file with an empty one
-    print("New session", file=debugfile)
-
-
 def _get_hash(input):
     if sys.version_info < (3, 0):
         data = bytes(input)
     else:
         data = bytes(input, 'utf8')
     return hashlib.md5(data).hexdigest()
+
+
+@pytest.fixture(scope='session')
+def debug_output(tmpdir_factory):
+    stdout_path = tmpdir_factory.mktemp('output').join("stdout.txt").strpath
+    with open(stdout_path, "w") as debugfile:
+        print("New session", file=debugfile)
+    return stdout_path
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -35,28 +38,29 @@ def inject_matchers(doctest_namespace):
             doctest_namespace[name] = function
 
 
-def _runner(allure_dir, module, *extra_params):
+def _runner(allure_dir, debug_output, module, *extra_params):
     extra_params = ' '.join(extra_params)
     cmd = shlex.split('%s -m pytest --alluredir=%s %s %s' % (sys.executable, allure_dir, extra_params, module),
                       posix=False if os.name == "nt" else True)
-    with open("debug-runner", "a") as debugfile:
+    with open(debug_output, "a") as debugfile:
         try:
-            subprocess.check_output(cmd, stderr = subprocess.STDOUT)
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             # Save to debug file errors on execution (includes pytest failing tests)
             print(e.output, file=debugfile)
 
 
 @pytest.fixture(scope='module')
-def allure_report_with_params(request, tmpdir_factory):
+def allure_report_with_params(request, debug_output,  tmpdir_factory):
     module = request.module.__file__
-    tmpdir = tmpdir_factory.mktemp('data')
+    name = request.module.__name__
+    tmpdir = tmpdir_factory.mktemp(name)
 
     def run_with_params(*params, **kwargs):
         cache = kwargs.get("cache", True)
         key = _get_hash('{thread}{module}{param}'.format(thread=thread_tag(), module=module, param=''.join(params)))
         if not request.config.cache.get(key, False):
-            _runner(tmpdir.strpath, module, *params)
+            _runner(tmpdir.strpath, debug_output, module, *params)
             if cache:
                 request.config.cache.set(key, True)
 
@@ -69,10 +73,11 @@ def allure_report_with_params(request, tmpdir_factory):
 
 
 @pytest.fixture(scope='module')
-def allure_report(request, tmpdir_factory):
+def allure_report(request, debug_output, tmpdir_factory):
     module = request.module.__file__
-    tmpdir = tmpdir_factory.mktemp('data')
-    _runner(tmpdir.strpath, module)
+    name = request.module.__name__
+    tmpdir = tmpdir_factory.mktemp(name)
+    _runner(tmpdir.strpath, debug_output, module)
     return AllureReport(tmpdir.strpath)
 
 
