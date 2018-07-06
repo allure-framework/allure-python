@@ -58,16 +58,11 @@ class AllureListener(object):
                                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
     @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_protocol(self, item):
+    def pytest_runtest_setup(self, item):
         uuid = self._cache.set(item.nodeid)
         test_result = TestResult(name=item.name, uuid=uuid)
         self.allure_logger.schedule_test(uuid, test_result)
-        yield
-        uuid = self._cache.pop(item.nodeid)
-        self.allure_logger.close_test(uuid)
 
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_setup(self, item):
         yield
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
@@ -185,6 +180,9 @@ class AllureListener(object):
             if status in (Status.FAILED, Status.BROKEN) and test_result.status == Status.PASSED:
                 test_result.status = status
                 test_result.statusDetails = status_details
+
+            uuid = self._cache.pop(item.nodeid)
+            self.allure_logger.close_test(uuid)
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
