@@ -14,7 +14,7 @@ except (DistributionNotFound, VersionConflict):
     pass
 
 PACKAGE = "allure-pytest"
-VERSION = "2.4.1"
+VERSION = "2.5.0"
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -28,7 +28,7 @@ classifiers = [
 install_requires = [
     "pytest>=3.3.0",
     "six>=1.9.0",
-    "allure-python-commons==2.4.1"
+    "allure-python-commons==2.5.0"
 ]
 
 
