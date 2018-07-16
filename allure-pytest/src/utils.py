@@ -8,7 +8,6 @@ from allure_commons.utils import represent
 from allure_commons.utils import format_exception, format_traceback, escape_non_unicode_symbols
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
-from allure_commons.model2 import Label
 from allure_commons.types import LabelType
 
 ALLURE_TITLE = 'allure_title'
