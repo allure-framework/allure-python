@@ -26,10 +26,10 @@ def get_allure_suites(longname):
     labels = []
     suites = longname.split('.')
     if len(suites) > 3:
-        labels.append(Label('parentSuite', suites.pop(0)))
-    labels.append(Label('suite', suites.pop(0)))
+        labels.append(Label(LabelType.PARENT_SUITE, suites.pop(0)))
+    labels.append(Label(LabelType.SUITE, suites.pop(0)))
     if len(suites) > 1:
-        labels.append(Label('subSuite', '.'.join(suites[:-1])))
+        labels.append(Label(LabelType.SUB_SUITE, '.'.join(suites[:-1])))
     return labels
 
 

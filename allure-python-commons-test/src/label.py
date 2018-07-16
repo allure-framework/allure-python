@@ -34,3 +34,15 @@ def has_tag(tag):
 
 def has_package(package):
     return has_label('package', package)
+
+
+def has_suite(suite):
+    return has_label('suite', suite)
+
+
+def has_parent_suite(parent_suite):
+    return has_label('parentSuite', parent_suite)
+
+
+def has_sub_suite(sub_suite):
+    return has_label('subSuite', sub_suite)

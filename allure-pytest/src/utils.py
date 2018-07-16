@@ -3,10 +3,13 @@ from __future__ import unicode_literals
 
 import six
 import pytest
+from itertools import chain, islice
 from allure_commons.utils import represent
 from allure_commons.utils import format_exception, format_traceback, escape_non_unicode_symbols
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
+from allure_commons.model2 import Label
+from allure_commons.types import LabelType
 
 ALLURE_TITLE = 'allure_title'
 ALLURE_DESCRIPTION = 'allure_description'
@@ -97,6 +100,16 @@ def allure_full_name(item):
     test = parts[-1]
     full_name = '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
     return escape_name(full_name)
+
+
+def allure_suite_labels(item):
+    head, possibly_clazz, tail = islice(chain(item.nodeid.split('::'), [None]), 3)
+    clazz = possibly_clazz if tail else None
+    file_name, path = islice(chain(reversed(head.rsplit('/', 1)), [None]), 2)
+    module = file_name.split('.')[0]
+    package = path.replace('/', '.')
+    pairs = zip([LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE], [package, module, clazz])
+    return [(name, value) for name, value in pairs if value is not None]
 
 
 def escape_name(name):

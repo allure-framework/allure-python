@@ -18,6 +18,7 @@ from allure_commons.types import LabelType
 from allure_pytest.utils import allure_description, allure_description_html
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
+from allure_pytest.utils import allure_suite_labels
 from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 from allure_pytest.utils import get_pytest_report_status
@@ -100,6 +101,8 @@ class AllureListener(object):
         test_result = self.allure_logger.get_test(uuid)
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
+        test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
+        test_result.labels.extend([Label(name=name, value=value) for name, value in allure_suite_labels(item)])
         test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
         test_result.labels.append(Label(name=LabelType.THREAD, value=self._thread))
         test_result.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
