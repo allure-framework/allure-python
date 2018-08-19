@@ -14,7 +14,7 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
-from allure_commons.types import LabelType
+from allure_commons.types import LabelType, AttachmentType
 from allure_pytest.utils import allure_description, allure_description_html
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
@@ -186,6 +186,13 @@ class AllureListener(object):
 
             uuid = self._cache.pop(item.nodeid)
             self.allure_logger.close_test(uuid)
+
+    @pytest.hookimpl
+    def pytest_runtest_logreport(self, report):
+        if report.when == "teardown":
+            self.attach_data(report.caplog, "log", AttachmentType.TEXT)
+            self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT)
+            self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT)
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
