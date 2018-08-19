@@ -192,13 +192,6 @@ class AllureListener(object):
             uuid = self._cache.pop(item.nodeid)
             self.allure_logger.close_test(uuid)
 
-    #@pytest.hookimpl
-    #def pytest_runtest_logreport(self, report):
-    #    if report.when == "teardown":
-    #        self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
-    #        self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
-    #        self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
-
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
         self.allure_logger.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
