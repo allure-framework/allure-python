@@ -136,7 +136,7 @@ class AllureListener(object):
 
         finalizers = getattr(fixturedef, '_finalizers', [])
         for index, finalizer in enumerate(finalizers):
-            name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=finalizer.__name__)
+            name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=getattr(finalizer, "__name__", index))
             finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
     @pytest.hookimpl(hookwrapper=True)
@@ -184,15 +184,20 @@ class AllureListener(object):
                 test_result.status = status
                 test_result.statusDetails = status_details
 
+            # Capture at teardown contains data from whole test (setup, call, teardown)
+            self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
+            self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
+            self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
+
             uuid = self._cache.pop(item.nodeid)
             self.allure_logger.close_test(uuid)
 
-    @pytest.hookimpl
-    def pytest_runtest_logreport(self, report):
-        if report.when == "teardown":
-            self.attach_data(report.caplog, "log", AttachmentType.TEXT)
-            self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT)
-            self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT)
+    #@pytest.hookimpl
+    #def pytest_runtest_logreport(self, report):
+    #    if report.when == "teardown":
+    #        self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
+    #        self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
+    #        self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
