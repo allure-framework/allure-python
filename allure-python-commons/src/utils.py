@@ -12,6 +12,43 @@ import platform
 import threading
 import traceback
 import collections
+from functools import partial
+
+
+def getargspec(func):
+    """Like inspect.getargspec but supports functools.partial as well.
+
+    Used because getargspec for python does not accept functools.partial
+    which is the type for pytest fixtures.
+    """
+    if inspect.ismethod(func):
+        func = func.__func__
+    parts = 0, ()
+    if type(func) is partial:
+        keywords = func.keywords
+        if keywords is None:
+            keywords = {}
+        parts = len(func.args), keywords.keys()
+        func = func.func
+    if not inspect.isfunction(func):
+        raise TypeError('%r is not a Python function' % func)
+    args, varargs, varkw = inspect.getargs(func.__code__)
+    func_defaults = func.__defaults__
+    if func_defaults is None:
+        func_defaults = []
+    else:
+        func_defaults = list(func_defaults)
+    if parts[0]:
+        args = args[parts[0]:]
+    if parts[1]:
+        for arg in parts[1]:
+            i = args.index(arg) - len(args)
+            del args[i]
+            try:
+                del func_defaults[i]
+            except IndexError:
+                pass
+    return inspect.ArgSpec(args, varargs, varkw, func_defaults)
 
 
 if six.PY3:
@@ -252,7 +289,7 @@ def func_parameters(func, *args, **kwargs):
 
     """
     parameters = {}
-    arg_spec = inspect.getargspec(func) if six.PY2 else inspect.getfullargspec(func)
+    arg_spec = getargspec(func) if six.PY2 else inspect.getfullargspec(func)
     arg_order = list(arg_spec.args)
     args_dict = dict(zip(arg_spec.args, args))
 
