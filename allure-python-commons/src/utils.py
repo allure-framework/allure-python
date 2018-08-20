@@ -16,14 +16,24 @@ from functools import partial
 
 
 def getargspec(func):
-    """Like inspect.getargspec but supports functools.partial as well.
-
-    Used because getargspec for python does not accept functools.partial
-    which is the type for pytest fixtures.
     """
+    Used because getargspec for python 2.7 does not accept functools.partial
+    which is the type for pytest fixtures.
+
+    getargspec excerpted from:
+
+    sphinx.util.inspect
+    ~~~~~~~~~~~~~~~~~~~
+    Helpers for inspecting Python modules.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+
+    Like inspect.getargspec but supports functools.partial as well.
+    """
+    # type: (Any) -> Any
     if inspect.ismethod(func):
         func = func.__func__
-    parts = 0, ()
+    parts = 0, ()  # type: Tuple[int, Tuple[unicode, ...]]
     if type(func) is partial:
         keywords = func.keywords
         if keywords is None:
@@ -42,13 +52,13 @@ def getargspec(func):
         args = args[parts[0]:]
     if parts[1]:
         for arg in parts[1]:
-            i = args.index(arg) - len(args)
+            i = args.index(arg) - len(args)  # type: ignore
             del args[i]
             try:
                 del func_defaults[i]
             except IndexError:
                 pass
-    return inspect.ArgSpec(args, varargs, varkw, func_defaults)
+    return inspect.ArgSpec(args, varargs, varkw, func_defaults)  # type: ignore
 
 
 if six.PY3:
