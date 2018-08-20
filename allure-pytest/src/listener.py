@@ -136,7 +136,8 @@ class AllureListener(object):
 
         finalizers = getattr(fixturedef, '_finalizers', [])
         for index, finalizer in enumerate(finalizers):
-            name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname, finalizer=getattr(finalizer, "__name__", index))
+            name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname,
+                                                   finalizer=getattr(finalizer, "__name__", index))
             finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
     @pytest.hookimpl(hookwrapper=True)
