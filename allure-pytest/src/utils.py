@@ -106,7 +106,7 @@ def allure_suite_labels(item):
     clazz = possibly_clazz if tail else None
     file_name, path = islice(chain(reversed(head.rsplit('/', 1)), [None]), 2)
     module = file_name.split('.')[0]
-    package = path.replace('/', '.')
+    package = path.replace('/', '.') if path else None
     pairs = zip([LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE], [package, module, clazz])
     return [(name, value) for name, value in pairs if value is not None]
 
