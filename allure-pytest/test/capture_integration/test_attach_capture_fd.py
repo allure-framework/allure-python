@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def fix1():
+    # Just for checking capture in fixtures
     print("fix setup")
     logger.info("fix setup")
     yield
@@ -14,22 +15,17 @@ def fix1():
     print("fix teardown")
 
 
-def test_capture_stdout_logs(fix1):
+def test_capture_stdout_logs_fd(fix1):
     """
-    This test will only work with pytest >= 3.7.3
-    See this bug:
-    https://github.com/pytest-dev/pytest/issues/3819
-
     >>> import os
-    >>> allure_report = getfixture('allure_report_with_params')('--log-cli-level=INFO', '--allure-attach-capture')
+    >>> allure_report = getfixture('allure_report_with_params')('--log-cli-level=INFO')
 
     >>> attachment_names = []
 
     >>> test = None
     >>> for item in allure_report.test_cases:
-    ...     if item["name"] == "test_capture_stdout_logs":
+    ...     if item["name"] == "test_capture_stdout_logs_fd":
     ...         test = item
-
 
     >>> for attachment in test["attachments"]:
     ...     name = attachment["name"]
@@ -56,3 +52,4 @@ def test_capture_stdout_logs(fix1):
     print("begin test")
     logger.info("something in test")
     print("end test")
+
