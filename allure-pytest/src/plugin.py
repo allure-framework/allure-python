@@ -24,6 +24,11 @@ def pytest_addoption(parser):
                                            dest="clean_alluredir",
                                            help="Clean alluredir folder if it exists")
 
+    parser.getgroup("reporting").addoption('--allure-no-capture',
+                                           action="store_false",
+                                           dest="attach_capture",
+                                           help="Do not attach pytest captured logging/stdout/stderr to report")
+
     def label_type(type_name, legal_values=set()):
         def a_label_type(string):
             atoms = set(string.split(','))

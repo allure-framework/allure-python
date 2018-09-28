@@ -83,6 +83,7 @@ if sys.version_info[0] < 3:
 
 class AllureReport(object):
     def __init__(self, result):
+            self.result_dir = result
             self.test_cases = [json.load(item) for item in self._report_items(result, '*result.json')]
             self.test_containers = [json.load(item) for item in self._report_items(result, '*container.json')]
             self.attachments = [item.read() for item in self._report_items(result, '*attachment.*')]

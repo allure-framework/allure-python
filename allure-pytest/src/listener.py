@@ -14,7 +14,7 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
-from allure_commons.types import LabelType
+from allure_commons.types import LabelType, AttachmentType
 from allure_pytest.utils import allure_description, allure_description_html
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
@@ -184,6 +184,12 @@ class AllureListener(object):
             if status in (Status.FAILED, Status.BROKEN) and test_result.status == Status.PASSED:
                 test_result.status = status
                 test_result.statusDetails = status_details
+
+            if self.config.option.attach_capture:
+                # Capture at teardown contains data from whole test (setup, call, teardown)
+                self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
+                self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
+                self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
 
             uuid = self._cache.pop(item.nodeid)
             self.allure_logger.close_test(uuid)
