@@ -68,7 +68,7 @@ def pytest_markers(item):
             markers = list(item.iter_markers(keyword))
             for n, marker in enumerate(markers):
                 # If we have only one marker it is unnecessary to show it as closest
-                closest = True if (len(markers) > 1 and n==0) else False
+                closest = True if (len(markers) > 1 and n == 0) else False
                 yield mark_to_str(marker, closest)
 
 
