@@ -65,19 +65,20 @@ def pytest_markers(item):
     for keyword in item.keywords.keys():
         if not any((keyword.startswith('allure_'),
                     keyword == 'parametrize')):
-            marker = item.get_marker(keyword)
-            if marker:
-                yield mark_to_str(marker)
+            for n, marker in enumerate(item.iter_markers(keyword)):
+                yield mark_to_str(marker, n)
 
 
-def mark_to_str(marker):
+def mark_to_str(marker, distance=None):
     args = [represent(arg) for arg in marker.args]
     kwargs = ['{name}={value}'.format(name=key, value=represent(marker.kwargs[key])) for key in marker.kwargs]
+    markstr = '@pytest.mark.{name}'.format(name=marker.name)
     if args or kwargs:
         parameters = ', '.join(args + kwargs)
-        return '@pytest.mark.{name}({parameters})'.format(name=marker.name, parameters=parameters)
-    else:
-        return '@pytest.mark.{name}'.format(name=marker.name)
+        markstr = '{markstr}({parameters})'.format(markstr=markstr, name=marker.name, parameters=parameters)
+    if distance == 0:
+        markstr = '{} closest'.format(markstr)
+    return markstr
 
 
 def allure_package(item):
