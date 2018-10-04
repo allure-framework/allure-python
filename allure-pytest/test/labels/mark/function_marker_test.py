@@ -26,6 +26,21 @@ def test_pytest_marker():
     pass
 
 
+@pytest.mark.skipif(False, reason="reason2")
+@pytest.mark.skipif(False, reason="reason1")
+def test_pytest_multiple_markers():
+    """
+    >>> allure_report = getfixture('allure_report')
+    >>> assert_that(allure_report,
+    ...                 has_test_case('test_pytest_multiple_markers',
+    ...                     has_tag("@pytest.mark.skipif(False, reason='reason2')"),
+    ...                     has_tag("@pytest.mark.skipif(False, reason='reason1') closest")
+    ...                 )
+    ...             )
+    """
+    pass
+
+
 @pytest.mark.marker('cool', 'stuff')
 def test_pytest_marker_with_args():
     """

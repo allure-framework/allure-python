@@ -73,6 +73,8 @@ def allure_report(request, tmpdir_factory):
     module = request.module.__file__
     tmpdir = tmpdir_factory.mktemp('data')
     _runner(tmpdir.strpath, module)
+    with open("debug-runner", "a") as debugfile:
+        print(tmpdir.strpath, file=debugfile)
     return AllureReport(tmpdir.strpath)
 
 
