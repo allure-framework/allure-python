@@ -62,25 +62,26 @@ def allure_links(item):
 
 
 def pytest_markers(item):
+    """Do not consider pytest marks (has args/kwargs) as user tags
+    e.g. @pytest.mark.parametrize/skip/skipif/usefixtures etc..."""
     for keyword in item.keywords.keys():
-        if not any((keyword.startswith('allure_'),
-                    keyword == 'parametrize')):
-            markers = list(item.iter_markers(keyword))
-            for n, marker in enumerate(markers):
-                # If we have only one marker it is unnecessary to show it as closest
-                closest = True if (len(markers) > 1 and n == 0) else False
-                yield mark_to_str(marker, closest)
+        if keyword.startswith('allure_'):
+            continue
+        marker = item.get_closest_marker(keyword)
+        if marker is None:
+            continue
+        user_tag_mark = (not marker.args and not marker.kwargs)
+        if marker.name == "marker" or user_tag_mark:
+            yield mark_to_str(marker)
 
 
-def mark_to_str(marker, closest):
+def mark_to_str(marker):
     args = [represent(arg) for arg in marker.args]
     kwargs = ['{name}={value}'.format(name=key, value=represent(marker.kwargs[key])) for key in marker.kwargs]
-    markstr = '@pytest.mark.{name}'.format(name=marker.name)
+    markstr = '{name}'.format(name=marker.name)
     if args or kwargs:
         parameters = ', '.join(args + kwargs)
-        markstr = '{markstr}({parameters})'.format(markstr=markstr, name=marker.name, parameters=parameters)
-    if closest:
-        markstr = '{} closest'.format(markstr)
+        markstr = '{}({})'.format(markstr, parameters)
     return markstr
 
 
