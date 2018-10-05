@@ -101,7 +101,6 @@ class AllureListener(object):
         test_result = self.allure_logger.get_test(uuid)
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
-        test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_suite_labels(item)])
         test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
         test_result.labels.append(Label(name=LabelType.THREAD, value=self._thread))

@@ -62,22 +62,27 @@ def allure_links(item):
 
 
 def pytest_markers(item):
+    """Do not consider pytest marks (has args/kwargs) as user tags
+    e.g. @pytest.mark.parametrize/skip/skipif/usefixtures etc..."""
     for keyword in item.keywords.keys():
-        if not any((keyword.startswith('allure_'),
-                    keyword == 'parametrize')):
-            marker = item.get_marker(keyword)
-            if marker:
-                yield mark_to_str(marker)
+        if keyword.startswith('allure_'):
+            continue
+        marker = item.get_closest_marker(keyword)
+        if marker is None:
+            continue
+        user_tag_mark = (not marker.args and not marker.kwargs)
+        if marker.name == "marker" or user_tag_mark:
+            yield mark_to_str(marker)
 
 
 def mark_to_str(marker):
     args = [represent(arg) for arg in marker.args]
     kwargs = ['{name}={value}'.format(name=key, value=represent(marker.kwargs[key])) for key in marker.kwargs]
+    markstr = '{name}'.format(name=marker.name)
     if args or kwargs:
         parameters = ', '.join(args + kwargs)
-        return '@pytest.mark.{name}({parameters})'.format(name=marker.name, parameters=parameters)
-    else:
-        return '@pytest.mark.{name}'.format(name=marker.name)
+        markstr = '{}({})'.format(markstr, parameters)
+    return markstr
 
 
 def allure_package(item):
