@@ -19,7 +19,7 @@ ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
 
 
 def get_marker_value(item, keyword):
-    marker = item.keywords.get(keyword)
+    marker = item.get_closest_marker(keyword)
     return marker.args[0] if marker and marker.args else None
 
 
@@ -42,7 +42,7 @@ def allure_description_html(item):
 def allure_labels(item):
     for keyword in item.keywords.keys():
         if keyword.startswith(ALLURE_LABEL_PREFIX):
-            marker = item.get_marker(keyword)
+            marker = item.get_closest_marker(keyword)
             label_type = marker.kwargs['label_type']
             if label_type in ALLURE_UNIQUE_LABELS:
                 yield (label_type, marker.args[0])
@@ -54,7 +54,7 @@ def allure_labels(item):
 def allure_links(item):
     for keyword in item.keywords.keys():
         if keyword.startswith(ALLURE_LINK_PREFIX):
-            marker = item.get_marker(keyword)
+            marker = item.get_closest_marker(keyword)
             link_type = marker.kwargs['link_type']
             url = marker.args[0]
             name = marker.kwargs['name']
