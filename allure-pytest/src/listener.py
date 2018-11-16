@@ -83,19 +83,14 @@ class AllureListener(object):
         test_result.historyId = md5(test_result.fullName)
         test_result.parameters.extend(
             [Parameter(name=name, value=represent(value)) for name, value in params.items()])
-
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_call(self, item):
-        uuid = self._cache.get(item.nodeid)
-        test_result = self.allure_logger.get_test(uuid)
-        if test_result:
-            test_result.start = now()
-        yield
-        if test_result:
-            test_result.stop = now()
+        test_result.start = now()
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_teardown(self, item):
+        uuid = self._cache.get(item.nodeid)
+        test_result = self.allure_logger.get_test(uuid)
+        test_result.stop = now()
+
         yield
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
