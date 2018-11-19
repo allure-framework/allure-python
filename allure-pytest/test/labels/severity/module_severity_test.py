@@ -7,9 +7,9 @@
 ...             ))  # doctest: +SKIP
 """
 
-import pytest
+import allure
 
-pytestmark = pytest.allure.severity(pytest.allure.severity_level.TRIVIAL)
+pytestmark = allure.severity(allure.severity_level.TRIVIAL)
 
 
 def test_not_decorated_function():
@@ -24,7 +24,7 @@ def test_not_decorated_function():
     pass
 
 
-@pytest.allure.severity(pytest.allure.severity_level.MINOR)
+@allure.severity(allure.severity_level.MINOR)
 def test_decorated_function():
     """
     >>> allure_report = getfixture('allure_report')
@@ -51,7 +51,7 @@ class TestNotDecorated(object):
         pass
 
 
-@pytest.allure.severity(pytest.allure.severity_level.NORMAL)
+@allure.severity(allure.severity_level.NORMAL)
 class TestDecorated(object):
 
     def test_method_of_decorated_class(self):

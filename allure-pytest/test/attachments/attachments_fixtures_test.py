@@ -6,7 +6,7 @@ TEXT = "attachment body"
 
 @pytest.fixture
 def attach_file_in_function_scope_fixture(svg_file):
-    allure.attach.file(svg_file, attachment_type=pytest.allure.attachment_type.SVG)
+    allure.attach.file(svg_file, attachment_type=allure.attachment_type.SVG)
 
 
 def test_attach_file_in_function_scope_fixture(attach_file_in_function_scope_fixture):
@@ -44,7 +44,7 @@ def test_attach_file_in_reused_function_scope_fixture(attach_file_in_function_sc
 @pytest.fixture
 def attach_file_in_function_scope_finalizer(svg_file, request):
     def finalizer_function_scope_fixture():
-        allure.attach.file(svg_file, attachment_type=pytest.allure.attachment_type.SVG)
+        allure.attach.file(svg_file, attachment_type=allure.attachment_type.SVG)
     request.addfinalizer(finalizer_function_scope_fixture)
 
 

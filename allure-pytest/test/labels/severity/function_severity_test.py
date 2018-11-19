@@ -1,7 +1,7 @@
-import pytest
+import allure
 
 
-@pytest.allure.severity(pytest.allure.severity_level.MINOR)
+@allure.severity(allure.severity_level.MINOR)
 def test_decorated_function():
     """
     >>> allure_report = getfixture('allure_report')

@@ -1,4 +1,5 @@
 import pytest
+import allure
 
 
 def test_skip_in_step():
@@ -17,5 +18,5 @@ def test_skip_in_step():
     ...             )
     ... )
     """
-    with pytest.allure.step('Step'):
+    with allure.step('Step'):
         pytest.skip()

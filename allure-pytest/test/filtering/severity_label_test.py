@@ -7,10 +7,10 @@
 ...             ))  # doctest: +SKIP
 """
 
-import pytest
+import allure
 
 
-@pytest.allure.severity(pytest.allure.severity_level.TRIVIAL)
+@allure.severity(allure.severity_level.TRIVIAL)
 def test_function_with_trivial_severity():
     """
     >>> allure_report = getfixture('allure_report_with_params')('--allure-severities=trivial')
@@ -25,7 +25,7 @@ def test_function_with_trivial_severity():
 
 class TestClass(object):
 
-    @pytest.allure.severity(pytest.allure.severity_level.TRIVIAL)
+    @allure.severity(allure.severity_level.TRIVIAL)
     def test_method_with_trivial_severity(self):
         """
         >>> allure_report = getfixture('allure_report_with_params')('--allure-severities=trivial')
@@ -37,7 +37,7 @@ class TestClass(object):
         """
         pass
 
-    @pytest.allure.severity(pytest.allure.severity_level.NORMAL)
+    @allure.severity(allure.severity_level.NORMAL)
     def test_method_with_normal_severity(self):
         """
         >>> from hamcrest import not_
@@ -49,7 +49,7 @@ class TestClass(object):
         pass
 
 
-@pytest.allure.severity(pytest.allure.severity_level.TRIVIAL)
+@allure.severity(allure.severity_level.TRIVIAL)
 class TestClassAgain(object):
 
     def test_method_with_whole_class_trivial_severity(self):
@@ -63,7 +63,7 @@ class TestClassAgain(object):
         """
         pass
 
-    @pytest.allure.severity(pytest.allure.severity_level.NORMAL)
+    @allure.severity(allure.severity_level.NORMAL)
     def test_method_with_overridden_class_severity(self):
         """
         >>> from hamcrest import not_

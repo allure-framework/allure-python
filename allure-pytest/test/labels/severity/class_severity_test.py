@@ -9,10 +9,10 @@
 """
 
 
-import pytest
+import allure
 
 
-@pytest.allure.severity(pytest.allure.severity_level.TRIVIAL)
+@allure.severity(allure.severity_level.TRIVIAL)
 class TestDecoratedClass(object):
 
     def test_not_decorated_method(self):
@@ -26,7 +26,7 @@ class TestDecoratedClass(object):
         """
         pass
 
-    @pytest.allure.severity(pytest.allure.severity_level.MINOR)
+    @allure.severity(allure.severity_level.MINOR)
     def test_decorated_method(self):
         """
         >>> allure_report = getfixture('allure_report')
@@ -54,7 +54,7 @@ class TestNotDecoratedSubClass(TestDecoratedClass):
         """
         pass
 
-    @pytest.allure.severity(pytest.allure.severity_level.CRITICAL)
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_decorated_method(self):
         """
         >>> allure_report = getfixture('allure_report')

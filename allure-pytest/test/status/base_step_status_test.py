@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
+import allure
 
 
 def test_broken_step():
@@ -20,7 +21,7 @@ def test_broken_step():
     ...             )
     ... )
     """
-    with pytest.allure.step('Step'):
+    with allure.step('Step'):
         raise ZeroDivisionError
 
 
@@ -42,7 +43,7 @@ def test_pytest_fail_in_step():
     ...             )
     ... )
     """
-    with pytest.allure.step('Step'):
+    with allure.step('Step'):
         pytest.fail()
 
 
@@ -64,5 +65,5 @@ def test_pytest_bytes_data_in_assert():
     ...             )
     ... )
     """
-    with pytest.allure.step('Step'):
+    with allure.step('Step'):
         assert '0\x82' == 1

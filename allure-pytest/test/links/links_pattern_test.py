@@ -9,8 +9,8 @@ CUSTOM_LINK_PATTERN = 'https://docs.qameta.io/allure/2.0/integration/{}/'
 CUSTOM_LINK = 'pytest'
 
 
-@pytest.allure.issue(ISSUE)
-@pytest.allure.link(CUSTOM_LINK, link_type=CUSTOM_LINK_TYPE)
+@allure.issue(ISSUE)
+@allure.link(CUSTOM_LINK, link_type=CUSTOM_LINK_TYPE)
 def test_link_pattern():
     """
     >>> allure_report = getfixture('allure_report_with_params')('--allure-link-pattern=issue:{pattern}'.format(

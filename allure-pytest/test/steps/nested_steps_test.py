@@ -52,7 +52,7 @@ fruit_machine = [variants for variants in product([True, False], [True, False], 
 
 @pytest.mark.parametrize("first_fail_before_second, first_fail_after_second, second_fail", fruit_machine)
 def test_nested_steps_inside_test(first_fail_before_second, first_fail_after_second, second_fail):
-    with pytest.allure.step('First step'):
+    with allure.step('First step'):
         assert not first_fail_before_second
         with allure.step('Second step'):
             assert not second_fail
@@ -91,7 +91,7 @@ def test_mixed_nested_steps(first_fail_before_second, first_fail_after_second, s
 
 @pytest.mark.parametrize("first_fail_before_second, first_fail_after_second, second_fail", fruit_machine)
 def test_again_mixed_nested_steps(first_fail_before_second, first_fail_after_second, second_fail):
-    with pytest.allure.step('First step'):
+    with allure.step('First step'):
         assert not first_fail_before_second
         second_step(second_fail)
         assert not first_fail_after_second
