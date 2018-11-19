@@ -1,4 +1,5 @@
 import pytest
+import allure
 
 
 @pytest.mark.xfail()
@@ -20,5 +21,5 @@ def test_xfail_step_failure():
     ...             )
     ... )
     """
-    with pytest.allure.step('Step'):
+    with allure.step('Step'):
         assert False

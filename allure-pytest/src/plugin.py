@@ -132,7 +132,3 @@ def pytest_collection_modifyitems(items, config):
                              config.option.allure_severities)
 
     items[:] = filter(lambda item: arg_labels & set(allure_labels(item)) if arg_labels else True, items)
-
-
-def pytest_namespace():
-    return {"allure": allure}

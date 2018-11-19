@@ -8,7 +8,7 @@
 ...             ))  # doctest: +SKIP
 """
 
-import pytest
+import allure
 
 LINK = 'http://qameta.io'
 LINK_NAME = 'QAMETA'
@@ -20,7 +20,7 @@ ANOTHER_TEST_CASE = 'https://github.com/allure-framework/allure-python/issues/19
 TEST_CASE_NAME = 'Comment with spec'
 
 
-@pytest.allure.link(LINK)
+@allure.link(LINK)
 def test_single_link():
     """
     >>> allure_report = getfixture('allure_report')
@@ -33,7 +33,7 @@ def test_single_link():
     pass
 
 
-@pytest.allure.link(LINK, name=LINK_NAME)
+@allure.link(LINK, name=LINK_NAME)
 def test_single_named_link():
     """
     >>> allure_report = getfixture('allure_report')
@@ -46,7 +46,7 @@ def test_single_named_link():
     pass
 
 
-@pytest.allure.link(LINK, name=LINK_NAME, link_type=LINK_TYPE)
+@allure.link(LINK, name=LINK_NAME, link_type=LINK_TYPE)
 def test_single_named_link_with_custom_type():
     """
     >>> allure_report = getfixture('allure_report')
@@ -58,7 +58,7 @@ def test_single_named_link_with_custom_type():
     pass
 
 
-@pytest.allure.issue(ISSUE)
+@allure.issue(ISSUE)
 def test_single_issue():
     """
     >>> allure_report = getfixture('allure_report')
@@ -70,7 +70,7 @@ def test_single_issue():
     pass
 
 
-@pytest.allure.testcase(TEST_CASE)
+@allure.testcase(TEST_CASE)
 def test_single_test_case():
     """
     >>> allure_report = getfixture('allure_report')
@@ -82,9 +82,9 @@ def test_single_test_case():
     pass
 
 
-@pytest.allure.link(LINK, name=LINK_NAME, link_type=LINK_TYPE)
-@pytest.allure.testcase(TEST_CASE, name=TEST_CASE_NAME)
-@pytest.allure.issue(ISSUE, name=ISSUE_NAME)
+@allure.link(LINK, name=LINK_NAME, link_type=LINK_TYPE)
+@allure.testcase(TEST_CASE, name=TEST_CASE_NAME)
+@allure.issue(ISSUE, name=ISSUE_NAME)
 def test_with_links_cases_and_issues():
     """
     >>> allure_report = getfixture('allure_report')
@@ -98,8 +98,8 @@ def test_with_links_cases_and_issues():
     pass
 
 
-@pytest.allure.testcase(TEST_CASE, name="First")
-@pytest.allure.testcase(ANOTHER_TEST_CASE, name="Second")
+@allure.testcase(TEST_CASE, name="First")
+@allure.testcase(ANOTHER_TEST_CASE, name="Second")
 def test_multiply_some_type_links():
     """
     >>> allure_report = getfixture('allure_report')

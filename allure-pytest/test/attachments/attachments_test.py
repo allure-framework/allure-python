@@ -34,7 +34,7 @@ def test_attach_file_from_test_with_name_and_type(xml_file):
     ...                           has_attachment(attach_type='application/xml', name='my name')
     ...             ))
     """
-    allure.attach.file(xml_file, name='my name', attachment_type=pytest.allure.attachment_type.XML)
+    allure.attach.file(xml_file, name='my name', attachment_type=allure.attachment_type.XML)
 
 
 def test_attach_data_from_test_with_name_and_type(xml_body):
@@ -45,7 +45,7 @@ def test_attach_data_from_test_with_name_and_type(xml_body):
     ...                           has_attachment(attach_type='application/xml', name='my name')
     ...             ))
     """
-    allure.attach(xml_body, name='my name', attachment_type=pytest.allure.attachment_type.XML)
+    allure.attach(xml_body, name='my name', attachment_type=allure.attachment_type.XML)
 
 
 def test_attach_file_from_test_with_user_type(xml_file):
@@ -71,7 +71,7 @@ def test_attach_data_from_test_with_user_type(xml_body):
 
 
 def attach_svg_file(svg_file):
-    allure.attach.file(svg_file, attachment_type=pytest.allure.attachment_type.SVG)
+    allure.attach.file(svg_file, attachment_type=allure.attachment_type.SVG)
 
 
 def test_attach_file_from_function(svg_file):
@@ -96,7 +96,7 @@ def test_many_attaches(svg_file, xml_body):
     ...             ))
     """
     attach_svg_file(svg_file)
-    allure.attach(xml_body, attachment_type=pytest.allure.attachment_type.XML)
+    allure.attach(xml_body, attachment_type=allure.attachment_type.XML)
 
 
 def test_attach_from_step(svg_file, xml_body):
@@ -115,6 +115,6 @@ def test_attach_from_step(svg_file, xml_body):
     ... )
     """
     with allure.step('Step with attachment'):
-        allure.attach.file(svg_file, attachment_type=pytest.allure.attachment_type.SVG)
-        with pytest.allure.step('Nested step with attachment'):
-            allure.attach(xml_body, attachment_type=pytest.allure.attachment_type.XML)
+        allure.attach.file(svg_file, attachment_type=allure.attachment_type.SVG)
+        with allure.step('Nested step with attachment'):
+            allure.attach(xml_body, attachment_type=allure.attachment_type.XML)
