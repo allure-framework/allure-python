@@ -1,6 +1,6 @@
 *** Settings ***
-Library    ./library/run.py
-Library    ./library/test.py
+Library     ../run_robot_library.py
+Library     ../test_allure_library.py
 
 
 *** Variables ***
