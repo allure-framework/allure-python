@@ -5,8 +5,7 @@ Library     ../test_allure_library.py
 
 *** Test Case ***
 Run Without options
-    ${example_file}     Get Example File
-    ${allure_report}   Run Robot With Allure   ${example_file}
+    ${allure_report}   Run Robot With Allure   examples/severity/severity.rst
     ${test_case}     Should Has Test Case   ${allure_report}   Test Case With Tag Alpha
     Should Has Severity     ${test_case}    critical
     ${test_case}    Should Has Test Case    ${allure_report}    Test Case With Tag Bravo
@@ -14,8 +13,7 @@ Run Without options
 
 
 Run With Critical Tags Option
-    ${example_file}     Get Example File
-    ${allure_report}   Run Robot With Allure   ${example_file}  critical=alpha
+    ${allure_report}   Run Robot With Allure   examples/severity/severity.rst   critical=alpha
     ${test_case}     Should Has Test Case   ${allure_report}   Test Case With Tag Alpha
     Should Has Severity     ${test_case}    critical
     ${test_case}    Should Has Test Case    ${allure_report}    Test Case With Tag Bravo
@@ -23,8 +21,7 @@ Run With Critical Tags Option
 
 
 Run With Noncritical Tags Option
-    ${example_file}     Get Example File
-    ${allure_report}   Run Robot With Allure   ${example_file}  noncritical=bravo
+    ${allure_report}   Run Robot With Allure   examples/severity/severity.rst   noncritical=bravo
     ${test_case}     Should Has Test Case   ${allure_report}   Test Case With Tag Alpha
     Should Has Severity     ${test_case}    critical
     ${test_case}    Should Has Test Case    ${allure_report}    Test Case With Tag Bravo

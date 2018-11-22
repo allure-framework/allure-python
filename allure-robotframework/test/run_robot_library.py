@@ -1,22 +1,14 @@
 import os
 from tempfile import mkdtemp
 from robot import run
-from robot.libraries.BuiltIn import BuiltIn
 from multiprocessing import Process
 from allure_commons_test.report import AllureReport
 
 
-def get_example_file():
-    suite_source = BuiltIn().get_variable_value("${SUITE SOURCE}")
-    root = os.path.abspath(os.path.join(__file__, "..", ".."))
-    examples = os.path.join(root, "examples")
-    test = os.path.join(root, "test")
-    return "{path}.rst".format(path=os.path.splitext(os.path.join(examples, os.path.relpath(suite_source, test)))[0])
-
-
 def run_robot_with_allure(*args, **kwargs):
-
-    allure_path = mkdtemp(dir=os.environ.get('TEST_TMP', '/tmp'))
+    root = os.path.abspath(os.path.join(__file__, "..", ".."))
+    targets = map(lambda target: os.path.join(root, target), args)
+    tmp_path = mkdtemp(dir=os.environ.get('TEST_TMP', '/tmp'))
 
     def run_robot(path, **kw):
 
@@ -33,17 +25,17 @@ def run_robot_with_allure(*args, **kwargs):
 
         from allure_robotframework import allure_robotframework
 
-        listener = allure_robotframework(logger_path=allure_path)
-        stdout_file = os.path.abspath(os.path.join(allure_path, "..", "stdout.txt"))
-        output_dir = os.path.abspath(os.path.join(allure_path, ".."))
+        listener = allure_robotframework(logger_path=tmp_path)
+        stdout_file = os.path.abspath(os.path.join(tmp_path, "..", "stdout.txt"))
+        output_path = os.path.abspath(os.path.join(tmp_path, ".."))
 
         with open(stdout_file, 'w+') as stdout:
-            options = {"listener": listener, "outputdir": output_dir, "stdout": stdout}
+            options = {"listener": listener, "outputdir": output_path, "stdout": stdout}
             options.update(kw)
             run(path, **options)
 
-    robot_process = Process(target=run_robot, args=args, kwargs=kwargs)
+    robot_process = Process(target=run_robot, args=targets, kwargs=kwargs)
     robot_process.start()
     robot_process.join()
 
-    return AllureReport(allure_path)
+    return AllureReport(tmp_path)

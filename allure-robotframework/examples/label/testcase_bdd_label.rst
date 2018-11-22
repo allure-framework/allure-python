@@ -1,8 +1,8 @@
 
 .. code:: robotframework
 
-    *** Settings ****
-    Force Tags:   epic:Tag    feature:Label
+    *** Settings ***
+    Force Tags  feature:Label
 
     *** Test Case ***
     Test Cases With BDD Labels

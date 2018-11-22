@@ -6,8 +6,7 @@ Suite Setup  Run exampe
 
 *** Keywords ***
 Run exampe
-    ${example_file}     Get Example File
-    ${allure_report}   Run Robot With Allure   ${example_file}
+    ${allure_report}   Run Robot With Allure   examples/tag/tag.rst
     Set Suite Variable	${report}   ${allure_report}
 
 
