@@ -12,6 +12,7 @@ from allure_commons_test.result import with_message_contains
 from allure_commons_test.result import has_attachment
 from allure_commons_test.label import has_severity
 from allure_commons_test.label import has_tag
+from allure_commons_test.label import has_label
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before, has_after
 
@@ -116,4 +117,10 @@ def should_has_status_detail_with_message(conext, message):
 def should_has_link(context, link, link_type=None, link_name=None):
     allure_report, test_case_matcher = context
     matcher = partial(test_case_matcher, has_link, link, link_type, link_name)
+    assert_that(allure_report, matcher())
+
+
+def should_has_label(context, name, value):
+    allure_report, test_case_matcher = context
+    matcher = partial(test_case_matcher, has_label, name, value)
     assert_that(allure_report, matcher())
