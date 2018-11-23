@@ -4,9 +4,9 @@ Library     ../test_allure_library.py
 
 
 *** Test Case ***
-Use Library Keyword With Allure Step
+Failed Test Case With Message
     ${allure_report}    Run Robot With Allure   examples/status/status.rst
-    ${test_case}    Should Has Test Case   ${allure_report}   Test Case With Failed Step With Message
+    ${test_case}    Should Has Test Case   ${allure_report}   Failed Test Case With Message
     Should Has Status    ${test_case}    failed
     Should Has Status Detail With Message    ${test_case}    Failed Details
     ${step}    Should Has Step    ${test_case}   BuiltIn.Fail

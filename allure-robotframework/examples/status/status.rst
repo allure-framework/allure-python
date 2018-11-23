@@ -2,5 +2,5 @@
 .. code:: robotframework
 
     *** Test Cases ***
-    Test Case With Failed Step With Message
+    Failed Test Case With Message
         Fail    msg=Failed Details
