@@ -34,9 +34,17 @@ def get_allure_suites(longname):
     return labels
 
 
-def get_allure_tags(tags):
-    return [Label(LabelType.TAG, tag) for tag in tags]
+def allure_tags(attributes):
+    return [Label(LabelType.TAG, tag) for tag in attributes.get('tags', ())]
 
 
-def get_allure_thread(pool_id):
-    return Label(LabelType.THREAD, 'Thread #{number}'.format(number=pool_id))
+def allure_labels(attributes, prefix):
+    tags = attributes.get('tags', ())
+
+    def is_label(label):
+        return label.startswith("{label}:".format(label=prefix))
+
+    def label_value(label):
+        return label.split(':')[1] or 'unknown'
+
+    return [Label(name=prefix, value=label_value(tag)) for tag in tags if is_label(tag)]
