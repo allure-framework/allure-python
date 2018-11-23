@@ -17,7 +17,7 @@ Single Line Description
 
 Multi Line Description
     ${test_case}     Should Has Test Case   ${report}   Multi Line Description
-    Should Has Description    ${test_case}    Multi line\ndescription
+    Should Has Description    ${test_case}    Multi line\n description
 
 Dynamic Description
     ${test_case}     Should Has Test Case   ${report}   Dynamic Description

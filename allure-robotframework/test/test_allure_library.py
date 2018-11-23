@@ -9,7 +9,6 @@ from allure_commons_test.result import has_parameter
 from allure_commons_test.result import has_link
 from allure_commons_test.result import has_status_details
 from allure_commons_test.result import with_message_contains
-from allure_commons_test.result import with_trace_contains
 from allure_commons_test.result import has_attachment
 from allure_commons_test.label import has_severity
 from allure_commons_test.label import has_tag
@@ -112,12 +111,6 @@ def should_has_parameter(context, name, value):
 def should_has_status_detail_with_message(conext, message):
     allure_report, item_matcher = conext
     matcher = partial(item_matcher, has_status_details, with_message_contains, message)
-    assert_that(allure_report, matcher())
-
-
-def should_has_status_detail_with_traceback(conext, traceback):
-    allure_report, item_matcher = conext
-    matcher = partial(item_matcher, has_status_details, with_trace_contains, traceback)
     assert_that(allure_report, matcher())
 
 

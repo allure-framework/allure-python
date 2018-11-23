@@ -2,9 +2,9 @@
 .. code:: robotframework
 
     *** Settings ***
-    Force Tags  allure.feature:Label
+    Force Tags  feature:Label
 
     *** Test Case ***
     Test Cases With BDD Labels
-        [Tags]  allure.story:Test case BDD labels
+        [Tags]  story:Test case BDD labels
         No Operation

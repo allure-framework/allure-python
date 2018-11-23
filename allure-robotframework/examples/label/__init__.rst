@@ -2,4 +2,4 @@
 .. code:: robotframework
 
     *** Settings ***
-    Force Tags   allure.epic:Tag
+    Force Tags   epic:Tag
