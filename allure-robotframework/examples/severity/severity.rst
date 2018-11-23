@@ -15,5 +15,5 @@ Allure utilize a native severity, for example, we have two test cases with diffe
         No Operation
 
 
-In case, when we run it with option --critical=alpha, first test case will be marked as critical. The same result gets
-when use --noncritical=bravo.
+In case, when we run it with option ``--critical=alpha``, first test case will be marked as critical. The same result
+gets when use ``--noncritical=bravo``.

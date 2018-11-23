@@ -48,4 +48,3 @@ def allure_labels(attributes, prefix):
         return label.split(':')[1] or 'unknown'
 
     return [Label(name=prefix, value=label_value(tag)) for tag in tags if is_label(tag)]
-

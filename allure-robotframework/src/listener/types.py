@@ -21,4 +21,3 @@ class RobotLogLevel(object):
     TRACE = 'TRACE'
 
     CRITICAL_LEVELS = [FAIL, ERROR]
-
