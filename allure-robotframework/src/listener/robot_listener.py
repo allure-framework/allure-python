@@ -13,7 +13,7 @@ from allure_commons.types import AttachmentType, LabelType, LinkType
 from allure_commons.types import Severity
 from allure_commons.utils import platform_label
 from robot.libraries.BuiltIn import BuiltIn
-from allure_robotframework.types import RobotKeywordType, RobotLogLevel, RobotStatus
+from allure_robotframework.types import RobotKeywordType, RobotLogLevel
 from allure_robotframework import utils
 from allure_robotframework.allure_listener import AllureListener
 
