@@ -71,7 +71,7 @@ class allure_robotframework(object):
             self._traceback_message = message.get('message')
             self._previous_keyword_failed = False
         if level == RobotLogLevel.FAIL:
-            self._previous_keyword_failed = message.get('level') == RobotStatus.FAILED
+            self._previous_keyword_failed = True
             self.reporter.get_item(self.stack[-1]).statusDetails = StatusDetails(message=message.get('message'))
         self.append_message_to_last_item_log(message, level)
 
