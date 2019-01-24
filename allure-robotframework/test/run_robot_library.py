@@ -30,7 +30,7 @@ def run_robot_with_allure(*args, **kwargs):
         output_path = os.path.abspath(os.path.join(tmp_path, ".."))
 
         with open(stdout_file, 'w+') as stdout:
-            options = {"listener": listener, "outputdir": output_path, "stdout": stdout}
+            options = {"listener": listener, "outputdir": output_path, "stdout": stdout, "extension": "rst"}
             options.update(kw)
             run(path, **options)
 
