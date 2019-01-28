@@ -1,8 +1,8 @@
 Allure Python Integrations
 ==========================
 The repository contains adaptors for python-based test frameworks.
-Documentation is available `online <https://docs.qameta.io/allure/2.0/)>`_, also you can get help at
-`gitter chanel <https://gitter.im/allure-framework/allure-core>`_
+Documentation is available `online https://docs.qameta.io/allure/2.0/)`_, also you can get help at
+`gitter chanel https://gitter.im/allure-framework/allure-core)`_
 
 
 Pytest
@@ -14,8 +14,8 @@ Pytest
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-pytest
 
-Allure `pytest <http://pytest.org>`_ integration. It's developed as pytest plugin and distributed via
-`pypi <https://pypi.python.org/pypi/allure-pytest>`_
+Allure `pytest http://pytest.org`_ integration. It's developed as pytest plugin and distributed via
+`pypi https://pypi.python.org/pypi/allure-pytest`_
 
 
 Behave
@@ -27,8 +27,8 @@ Behave
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-behave
 
-Allure `behave <https://behave.readthedocs.io/en/latest/>`_ integration. Just external formatter that produce test results in
-allure2 format. This package is available on `pypi <https://pypi.python.org/pypi/allure-behave>`_
+Allure `behave https://behave.readthedocs.io/en/latest/`_ integration. Just external formatter that produce test results in
+allure2 format. This package is available on `pypi https://pypi.python.org/pypi/allure-behave`_
 
 
 Robot Framework
@@ -40,34 +40,9 @@ Robot Framework
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-robotframework
 
-Allure `RobotFramework <http://robotframework.org/>`_ integration. This integration is a
-`Listener <http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#listener-interface)>`_
-and does not require changing autotests. Available on `pypi <https://pypi.python.org/pypi/allure-robotframework>`_
-
-`Read more ... </allure-robotframework/README.rst>`_
-
-Pytest-BDD
-----------
-.. image:: https://pypip.in/v/allure-pytest-bdd/badge.png
-        :alt: Release Status
-        :target: https://pypi.python.org/pypi/allure-pytest-bdd
-.. image:: https://pypip.in/d/allure-pytest-bdd/badge.png
-        :alt: Downloads
-        :target: https://pypi.python.org/pypi/allure-pytest-bdd
-
-Allure `pytest-bdd <http://pytest.org>`_ integration. It's developed as pytest plugin and distributed via
-`pypi <https://pypi.python.org/pypi/allure-pytest-bdd>`_
-
-
-Nose2
-----------
-.. image:: https://pypip.in/v/allure-nose2/badge.png
-        :alt: Release Status
-        :target: https://pypi.python.org/pypi/allure-nose2
-.. image:: https://pypip.in/d/allure-nose2/badge.png
-        :alt: Downloads
-        :target: https://pypi.python.org/pypi/allure-nose2
-
+Allure `RobotFramework http://robotframework.org/`_ integration. This integration is a
+`Listener http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#listener-interface)`_
+and does not require changing autotests. Available on `pypi https://pypi.python.org/pypi/allure-robotframework`_
 
 
 Allure python commons
