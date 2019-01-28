@@ -1,9 +1,9 @@
 Allure Pytest Plugin
 ====================
-.. image:: https://pypip.in/v/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/v/allure-pytest/badge.png
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-pytest
-.. image:: https://pypip.in/d/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/d/allure-pytest/badge.png
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-pytest
 

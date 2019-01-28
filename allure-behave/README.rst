@@ -1,9 +1,9 @@
 Allure Behave Formatter
 =======================
-.. image:: https://pypip.in/v/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/v/allure-behave/badge.png
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-behave
-.. image:: https://pypip.in/d/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/d/allure-behave/badge.png
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-behave
 

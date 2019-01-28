@@ -1,9 +1,9 @@
 Allure Robot Framework Listener
 ===============================
-.. image:: https://pypip.in/v/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/v/allure-robotframework/badge.png
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-robotframework
-.. image:: https://pypip.in/d/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/d/allure-robotframework/badge.png
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-robotframework
 

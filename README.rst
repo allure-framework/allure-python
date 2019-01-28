@@ -7,10 +7,10 @@ Documentation is available `online https://docs.qameta.io/allure/2.0/)`_, also y
 
 Pytest
 ------
-.. image:: https://pypip.in/v/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/v/allure-pytest/badge.png
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-pytest
-.. image:: https://pypip.in/d/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/d/allure-pytest/badge.png
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-pytest
 
@@ -20,10 +20,10 @@ Allure `pytest http://pytest.org`_ integration. It's developed as pytest plugin 
 
 Behave
 ------
-.. image:: https://pypip.in/v/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/v/allure-behave/badge.png
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-behave
-.. image:: https://pypip.in/d/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/d/allure-behave/badge.png
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-behave
 
@@ -33,10 +33,10 @@ allure2 format. This package is available on `pypi https://pypi.python.org/pypi/
 
 Robot Framework
 ---------------
-.. image:: https://pypip.in/v/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/v/allure-robotframework/badge.png
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-robotframework
-.. image:: https://pypip.in/d/nose-allure-plugin/badge.png
+.. image:: https://pypip.in/d/allure-robotframework/badge.png
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-robotframework
 
