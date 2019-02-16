@@ -1,91 +1,108 @@
-from __future__ import print_function
 import pytest
-import os
-import sys
-import subprocess
-import shlex
-import hashlib
-from inspect import getmembers, isfunction
-from allure_commons_test.report import AllureReport
-from allure_commons.utils import thread_tag
+
+from attr import asdict
+from allure_commons import hookimpl
+import six
 
 
-with open("debug-runner", "w") as debugfile:
-    # overwrite debug-runner file with an empty one
-    print("New session", file=debugfile)
+class AllureMemoryLogger(object):
+    def __init__(self):
+        self.test_cases = []
+        self.test_containers = []
+        self.attachments = {}
+
+    @hookimpl
+    def report_result(self, result):
+        data = asdict(result, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        self.test_cases.append(data)
+
+    @hookimpl
+    def report_container(self, container):
+        data = asdict(container, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        self.test_containers.append(data)
+
+    @hookimpl
+    def report_attached_file(self, source, file_name):
+        pass
+
+    @hookimpl
+    def report_attached_data(self, body, file_name):
+        self.attachments[file_name] = body
 
 
-def _get_hash(input):
-    if sys.version_info < (3, 0):
-        data = bytes(input)
-    else:
-        data = bytes(input, 'utf8')
-    return hashlib.md5(data).hexdigest()
+import mock
+import allure_commons
+from contextlib import contextmanager
 
 
-@pytest.fixture(scope='function', autouse=True)
-def inject_matchers(doctest_namespace):
-    import hamcrest
-    for name, function in getmembers(hamcrest, isfunction):
-            doctest_namespace[name] = function
+@contextmanager
+def fake_logger(path, logger):
+    blocked_plugins = []
+    for name, plugin in allure_commons.plugin_manager.list_name_plugin():
+        allure_commons.plugin_manager.unregister(plugin=plugin, name=name)
+        blocked_plugins.append(plugin)
 
-    from allure_commons_test import container, label, report, result
-    for module in [container, label, report, result]:
-        for name, function in getmembers(module, isfunction):
-            doctest_namespace[name] = function
+    with mock.patch(path) as ReporterMock:
+        ReporterMock.return_value = logger
+        yield
 
-
-def _runner(allure_dir, module, *extra_params):
-    extra_params = ' '.join(extra_params)
-    cmd = shlex.split('%s -m pytest --alluredir=%s %s %s' % (sys.executable, allure_dir, extra_params, module),
-                      posix=False if os.name == "nt" else True)
-    with open("debug-runner", "a") as debugfile:
-        try:
-            subprocess.check_output(cmd, stderr = subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            # Save to debug file errors on execution (includes pytest failing tests)
-            print(e.output, file=debugfile)
+    for plugin in blocked_plugins:
+        allure_commons.plugin_manager.register(plugin)
 
 
-@pytest.fixture(scope='module')
-def allure_report_with_params(request, tmpdir_factory):
-    module = request.module.__file__
-    tmpdir = tmpdir_factory.mktemp('data')
-
-    def run_with_params(*params, **kwargs):
-        cache = kwargs.get("cache", True)
-        key = _get_hash('{thread}{module}{param}'.format(thread=thread_tag(), module=module, param=''.join(params)))
-        if not request.config.cache.get(key, False):
-            _runner(tmpdir.strpath, module, *params)
-            if cache:
-                request.config.cache.set(key, True)
-
-                def clear_cache():
-                    request.config.cache.set(key, False)
-                request.addfinalizer(clear_cache)
-
-        return AllureReport(tmpdir.strpath)
-    return run_with_params
+from doctest import script_from_examples
 
 
-@pytest.fixture(scope='module')
-def allure_report(request, tmpdir_factory):
-    module = request.module.__file__
-    tmpdir = tmpdir_factory.mktemp('data')
-    _runner(tmpdir.strpath, module)
-    with open("debug-runner", "a") as debugfile:
-        print(tmpdir.strpath, file=debugfile)
-    return AllureReport(tmpdir.strpath)
+class AlluredTestdir(object):
+    def __init__(self, testdir):
+        self.testdir = testdir
+        self.allure_report = AllureMemoryLogger()
+
+    def parse_docstring_source(self, request):
+        docstring = request.node.function.__doc__ or request.node.module.__doc__
+        source = script_from_examples(docstring).replace('#\n', '\n')
+        if six.PY2:
+            self.testdir.makepyfile("# -*- coding: utf-8 -*-\n%s" % source)
+        else:
+            self.testdir.makepyfile(source)
+
+    def parse_docstring_path(self, request):
+        doc_file = request.node.function.__doc__ or request.node.module.__doc__
+        example_dir = request.config.rootdir.join(doc_file.strip())
+
+        if six.PY2:
+            with open(str(example_dir)) as f:
+                content = "# -*- coding: utf-8 -*-\n%s" % f.read()
+                source = script_from_examples(content)
+                self.testdir.makepyfile(source)
+        else:
+            with open(example_dir, encoding='utf-8') as f:
+
+                content = f.read()
+                source = script_from_examples(content)
+                self.testdir.makepyfile(source)
+
+    def run_with_allure(self, *args, **kwargs):
+        with fake_logger('allure_pytest.plugin.AllureFileLogger', self.allure_report):
+            self.testdir.runpytest("--alluredir", self.testdir.tmpdir, *args, **kwargs)
+
+        return self.allure_report
 
 
-def pytest_collection_modifyitems(items, config):
-    if config.option.doctestmodules:
-        items[:] = [item for item in items if item.__class__.__name__ == 'DoctestItem']
+@pytest.fixture
+def allured_testdir(testdir):
+    return AlluredTestdir(testdir)
 
 
-def pytest_ignore_collect(path, config):
-    if sys.version_info.major < 3 and "py3_only" in path.strpath:
-        return True
+@pytest.fixture
+def executed_docstring_source(allured_testdir, request):
+    allured_testdir.parse_docstring_source(request)
+    allured_testdir.run_with_allure()
+    return allured_testdir
 
-    if sys.version_info.major > 2 and "py2_only" in path.strpath:
-        return True
+
+@pytest.fixture
+def executed_docstring_path(allured_testdir, request):
+    allured_testdir.parse_docstring_path(request)
+    allured_testdir.run_with_allure()
+    return allured_testdir
