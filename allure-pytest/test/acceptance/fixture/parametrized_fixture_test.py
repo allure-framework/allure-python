@@ -1,5 +1,5 @@
 import pytest
-from hamcrest import assert_that, not_
+from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before
@@ -34,12 +34,12 @@ def test_function_scope_parametrized_fixture(param, executed_docstring_source):
                 )
 
 
-@pytest.mark.parametrize("param", [True, False], ids=['param_true', 'param_false'])
+@pytest.mark.parametrize("param", [True, False], ids=["param_true", "param_false"])
 def test_function_scope_parametrized_fixture_with_ids(param, executed_docstring_source, request):
     """
     >>> import pytest
 
-    >>> @pytest.fixture(params=[True, False], ids=['param_true', 'param_false'])
+    >>> @pytest.fixture(params=[True, False], ids=["param_true", "param_false"])
     ... def parametrized_fixture(request):
     ...     pass
 

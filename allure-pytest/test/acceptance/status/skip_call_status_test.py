@@ -14,8 +14,8 @@ def test_skip(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_skip_example',
-                              with_status('skipped'),
+                has_test_case("test_skip_example",
+                              with_status("skipped"),
                               has_status_details(with_message_contains("Skipped: <Skipped instance>"))
                               )
                 )
@@ -30,8 +30,8 @@ def test_skip_with_reason(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_skip_with_reason_example',
-                              with_status('skipped'),
+                has_test_case("test_skip_with_reason_example",
+                              with_status("skipped"),
                               has_status_details(with_message_contains("Skipped: Skip reason"))
                               )
                 )
@@ -41,14 +41,14 @@ def test_skip_decorator_and_reason(executed_docstring_source):
     """
     >>> import pytest
 
-    >>> @pytest.mark.skip(reason='Skip reason')
+    >>> @pytest.mark.skip(reason="Skip reason")
     ... def test_skip_decorator_and_reason_example():
     ...     pass
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_skip_decorator_and_reason_example',
-                              with_status('skipped'),
+                has_test_case("test_skip_decorator_and_reason_example",
+                              with_status("skipped"),
                               has_status_details(with_message_contains("Skipped: Skip reason"))
                               )
                 )
@@ -58,14 +58,14 @@ def test_skipif_true(executed_docstring_source):
     """
     >>> import pytest
 
-    >>> @pytest.mark.skipif(True, reason='Skip reason')
+    >>> @pytest.mark.skipif(True, reason="Skip reason")
     ... def test_skipif_true_example():
     ...     pass
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_skipif_true_example',
-                              with_status('skipped'),
+                has_test_case("test_skipif_true_example",
+                              with_status("skipped"),
                               has_status_details(with_message_contains("Skipped: Skip reason"))
                               )
                 )
@@ -75,13 +75,13 @@ def test_skipif_false(executed_docstring_source):
     """
     >>> import pytest
 
-    >>> @pytest.mark.skipif(False, reason='Skip reason')
+    >>> @pytest.mark.skipif(False, reason="Skip reason")
     ... def test_skipif_false_example():
     ...     pass
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_skipif_false_example',
-                              with_status('passed')
+                has_test_case("test_skipif_false_example",
+                              with_status("passed")
                               )
                 )

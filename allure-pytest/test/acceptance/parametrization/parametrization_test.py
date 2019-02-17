@@ -10,50 +10,50 @@ def params_name(request):
     return name
 
 
-@pytest.mark.parametrize('param', [True, False])
+@pytest.mark.parametrize("param", [True, False])
 def test_parametrization(executed_docstring_source, param):
     """
     >>> import pytest
 
-    >>> @pytest.mark.parametrize('param', [True, False])
+    >>> @pytest.mark.parametrize("param", [True, False])
     ... def test_parametrization_example(param):
     ...     assert param
     """
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_parametrization_example[{param}]".format(param=param),
-                              has_parameter('param', str(param))
+                              has_parameter("param", str(param))
                               )
                 )
 
 
 @pytest.mark.xfail()
-@pytest.mark.parametrize('param', [True, False], ids=['pass', 'fail'])
+@pytest.mark.parametrize("param", [True, False], ids=["pass", "fail"])
 def test_parametrization_with_ids(executed_docstring_source, param):
     """
     >>> import pytest
 
-    >>> @pytest.mark.parametrize('param', [True, False], ids=['pass', 'fail'])
+    >>> @pytest.mark.parametrize("param", [True, False], ids=["pass", "fail"])
     ... def test_parametrization_with_ids_example(param):
     ...     assert param
     """
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(
-                    "test_parametrization_with_ids_example[{param}]".format(param='pass' if param else 'fail'),
-                    has_parameter('pass' if param else 'fail', str(param))
+                    "test_parametrization_with_ids_example[{param}]".format(param="pass" if param else "fail"),
+                    has_parameter("pass" if param else "fail", str(param))
                 )
                 )
 
 
-@pytest.mark.parametrize('param1', [True, False])
-@pytest.mark.parametrize('param2', [True, True])
+@pytest.mark.parametrize("param1", [True, False])
+@pytest.mark.parametrize("param2", [True, True])
 def test_parametrization_many_decorators(executed_docstring_source, request, param1, param2):
     """
     >>> import pytest
 
-    >>> @pytest.mark.parametrize('param1', [True, False])
-    ... @pytest.mark.parametrize('param2', [True, True])
+    >>> @pytest.mark.parametrize("param1", [True, False])
+    ... @pytest.mark.parametrize("param2", [True, True])
     ... def test_parametrization_many_decorators_example(param1, param2):
     ...     pass
     """
@@ -62,22 +62,22 @@ def test_parametrization_many_decorators(executed_docstring_source, request, par
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(test_name,
-                              has_parameter('param1', str(param1)),
-                              has_parameter('param2', str(param2))
+                              has_parameter("param1", str(param1)),
+                              has_parameter("param2", str(param2))
 
                               )
                 )
 
 
 @pytest.mark.xfail()
-@pytest.mark.parametrize('param1', [True, False], ids=['pass', 'fail'])
-@pytest.mark.parametrize('param2', [True, True])
+@pytest.mark.parametrize("param1", [True, False], ids=["pass", "fail"])
+@pytest.mark.parametrize("param2", [True, True])
 def test_parametrization_many_decorators_with_partial_ids(executed_docstring_source, request, param1, param2):
     """
     >>> import pytest
 
-    >>> @pytest.mark.parametrize('param1', [True, False], ids=['first_pass', 'first_fail'])
-    ... @pytest.mark.parametrize('param2', [True, True])
+    >>> @pytest.mark.parametrize("param1", [True, False], ids=["first_pass", "first_fail"])
+    ... @pytest.mark.parametrize("param2", [True, True])
     ... def test_parametrization_many_decorators_with_partial_ids_example(param1, param2):
     ...     pass
     """
@@ -87,8 +87,8 @@ def test_parametrization_many_decorators_with_partial_ids(executed_docstring_sou
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(test_name,
-                              has_parameter('pass' if param1 else 'fail', str(param1)),
-                              has_parameter('param2', str(param2))
+                              has_parameter("pass" if param1 else "fail", str(param1)),
+                              has_parameter("param2", str(param2))
 
                               )
                 )

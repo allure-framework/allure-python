@@ -1,5 +1,5 @@
 import pytest
-from hamcrest import assert_that, not_
+from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 

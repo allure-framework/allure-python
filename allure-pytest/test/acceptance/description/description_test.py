@@ -8,7 +8,7 @@ from allure_commons_test.result import has_description, has_description_html
 
 def test_description(executed_docstring_path):
     assert_that(executed_docstring_path.allure_report,
-                has_test_case('test_description',
+                has_test_case("test_description",
                               has_description(contains_string("Test description"))
                               )
                 )

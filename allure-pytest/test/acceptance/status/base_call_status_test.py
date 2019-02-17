@@ -13,8 +13,8 @@ def test_passed(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_passed_example',
-                              with_status('passed')
+                has_test_case("test_passed_example",
+                              with_status("passed")
                               )
                 )
 
@@ -26,8 +26,8 @@ def test_failed(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_failed_example',
-                              with_status('failed'),
+                has_test_case("test_failed_example",
+                              with_status("failed"),
                               has_status_details(with_message_contains("AssertionError"),
                                                  with_trace_contains("def test_failed_example():")
                                                  )
@@ -42,8 +42,8 @@ def test_broken(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_broken_example',
-                              with_status('broken'),
+                has_test_case("test_broken_example",
+                              with_status("broken"),
                               has_status_details(with_message_contains("IndentationError"),
                                                  with_trace_contains("def test_broken_example():")
                                                  )
@@ -60,8 +60,8 @@ def test_call_pytest_fail(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_call_pytest_fail_example',
-                              with_status('failed'),
+                has_test_case("test_call_pytest_fail_example",
+                              with_status("failed"),
                               has_status_details(with_message_contains("Failed: <Failed instance>"),
                                                  with_trace_contains("def test_call_pytest_fail_example():")
                                                  )
@@ -78,8 +78,8 @@ def test_call_pytest_fail_with_reason(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_call_pytest_fail_with_reason_example',
-                              with_status('failed'),
+                has_test_case("test_call_pytest_fail_with_reason_example",
+                              with_status("failed"),
                               has_status_details(with_message_contains("Fail message"),
                                                  with_trace_contains("def test_call_pytest_fail_with_reason_example():")
                                                  )

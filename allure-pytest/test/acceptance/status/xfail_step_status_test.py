@@ -14,18 +14,18 @@ def test_xfail_step_failure(executed_docstring_source):
 
     >>> @pytest.mark.xfail()
     ... def test_xfail_step_failure_example():
-    ...     with allure.step('Step'):
+    ...     with allure.step("Step"):
     ...         assert False
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_xfail_step_failure_example',
-                              with_status('skipped'),
+                has_test_case("test_xfail_step_failure_example",
+                              with_status("skipped"),
                               has_status_details(with_message_contains("AssertionError"),
                                                  with_trace_contains("def test_xfail_step_failure_example():")
                                                  ),
-                              has_step('Step',
-                                       with_status('failed'),
+                              has_step("Step",
+                                       with_status("failed"),
                                        has_status_details(with_message_contains("AssertionError"),
                                                           with_trace_contains("test_xfail_step_failure_example")
                                                           )

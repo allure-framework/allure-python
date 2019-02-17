@@ -14,11 +14,11 @@ def test_xdistr_and_select_test_by_bdd_label(allured_testdir):
 
     >>> @pytest.mark.foo
     ... def test_with_mark_foo():
-    ...     print ('hello')
+    ...     print ("hello")
 
-    >>> @allure.feature('boo')
+    >>> @allure.feature("boo")
     ... def test_with_feature_boo():
-    ...     print ('hello')
+    ...     print ("hello")
     """
 
     allured_testdir.parse_docstring_source()
@@ -26,7 +26,7 @@ def test_xdistr_and_select_test_by_bdd_label(allured_testdir):
 
     assert_that(allured_testdir.allure_report,
                 has_only_testcases(
-                    has_entry('fullName',
+                    has_entry("fullName",
                               ends_with("test_with_feature_boo")
                               )
                 ))

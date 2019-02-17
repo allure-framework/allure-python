@@ -31,7 +31,7 @@ def test_fixture(allured_testdir, first_scope, second_scope):
     allured_testdir.run_with_allure()
 
     assert_that(allured_testdir.allure_report,
-                has_test_case('test_fixture_example',
+                has_test_case("test_fixture_example",
                               has_container(allured_testdir.allure_report,
                                             has_before("first_fixture")
                                             ),
@@ -69,7 +69,7 @@ def test_nested_fixture(allured_testdir, parent_scope, child_scope):
     allured_testdir.run_with_allure()
 
     assert_that(allured_testdir.allure_report,
-                has_test_case('test_nested_fixture_example',
+                has_test_case("test_nested_fixture_example",
                               has_container(allured_testdir.allure_report,
                                             has_before("parent_fixture")
                                             ),
@@ -80,7 +80,7 @@ def test_nested_fixture(allured_testdir, parent_scope, child_scope):
                 )
 
     assert_that(allured_testdir.allure_report,
-                has_test_case('test_fixture_used_in_other_fixtures_example',
+                has_test_case("test_fixture_used_in_other_fixtures_example",
                               has_container(allured_testdir.allure_report,
                                             has_before("parent_fixture")
                                             ),
@@ -118,7 +118,7 @@ def test_nested_fixtures(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_nested_fixtures_example',
+                has_test_case("test_nested_fixtures_example",
                               has_container(executed_docstring_source.allure_report,
                                             has_before("first_fixture")
                                             ),

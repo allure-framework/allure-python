@@ -8,6 +8,6 @@ def test_severity(executed_docstring_path):
 
     assert_that(executed_docstring_path.allure_report,
                 has_test_case("test_severity",
-                              has_severity('minor'),
+                              has_severity("minor"),
                               )
                 )

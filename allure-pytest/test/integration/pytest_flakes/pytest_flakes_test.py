@@ -12,4 +12,3 @@ def test_pytest_flakes(allured_testdir, request):
     allured_testdir.run_with_allure("--flakes")
 
     assert False, allured_testdir.allure_report
-

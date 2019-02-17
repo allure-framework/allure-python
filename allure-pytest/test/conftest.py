@@ -1,9 +1,12 @@
 import pytest
 import six
-
 from attr import asdict
 from allure_commons import hookimpl
 from allure_commons_test.report import AllureReport
+from doctest import script_from_examples
+import mock
+import allure_commons
+from contextlib import contextmanager
 
 
 class AllureMemoryLogger(object):
@@ -31,11 +34,6 @@ class AllureMemoryLogger(object):
         self.attachments[file_name] = body
 
 
-import mock
-import allure_commons
-from contextlib import contextmanager
-
-
 @contextmanager
 def fake_logger(path, logger):
     blocked_plugins = []
@@ -51,9 +49,6 @@ def fake_logger(path, logger):
         allure_commons.plugin_manager.register(plugin)
 
 
-from doctest import script_from_examples
-
-
 class AlluredTestdir(object):
     def __init__(self, testdir, request):
         self.testdir = testdir
@@ -62,7 +57,7 @@ class AlluredTestdir(object):
 
     def parse_docstring_source(self):
         docstring = self.request.node.function.__doc__ or self.request.node.module.__doc__
-        source = script_from_examples(docstring).replace('#\n', '\n')
+        source = script_from_examples(docstring).replace("#\n", "\n")
         if six.PY2:
             self.testdir.makepyfile("# -*- coding: utf-8 -*-\n%s" % source)
         else:
@@ -78,7 +73,7 @@ class AlluredTestdir(object):
                 source = script_from_examples(content)
                 self.testdir.makepyfile(source)
         else:
-            with open(example_dir, encoding='utf-8') as f:
+            with open(example_dir, encoding="utf-8") as f:
 
                 content = f.read()
                 source = script_from_examples(content)
@@ -90,7 +85,7 @@ class AlluredTestdir(object):
             self.allure_report = AllureReport(self.testdir.tmpdir.strpath)
         else:
             self.allure_report = AllureMemoryLogger()
-            with fake_logger('allure_pytest.plugin.AllureFileLogger', self.allure_report):
+            with fake_logger("allure_pytest.plugin.AllureFileLogger", self.allure_report):
                 self.testdir.runpytest("--alluredir", self.testdir.tmpdir, *args, **kwargs)
 
         return self.allure_report

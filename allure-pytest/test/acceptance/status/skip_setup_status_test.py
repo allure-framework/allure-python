@@ -24,12 +24,12 @@ def test_skip_fixture(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_skip_fixture_example',
-                              with_status('skipped'),
+                has_test_case("test_skip_fixture_example",
+                              with_status("skipped"),
                               has_status_details(with_message_contains("Skipped: <Skipped instance>")),
                               has_container(executed_docstring_source.allure_report,
-                                            has_before('skip_fixture',
-                                                       with_status('skipped'),
+                                            has_before("skip_fixture",
+                                                       with_status("skipped"),
                                                        has_status_details(
                                                            with_message_contains("Skipped: <Skipped instance>"),
                                                            with_trace_contains("skip_fixture")

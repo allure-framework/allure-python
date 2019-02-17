@@ -11,7 +11,7 @@ def test_fixture_finalizer(executed_docstring_source):
     """
     >>> import pytest
 
-    Let's define fixture with finalizer:
+    Let"s define fixture with finalizer:
     >>> @pytest.fixture
     ... def fixture_with_finalizer(request):
     ...     def finalizer():
@@ -24,11 +24,11 @@ def test_fixture_finalizer(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_fixture_with_finalizer_example',
+                has_test_case("test_fixture_with_finalizer_example",
                               has_container(executed_docstring_source.allure_report,
                                             has_before("fixture_with_finalizer"),
-                                            has_after('{fixture}::{finalizer}'.format(fixture='fixture_with_finalizer',
-                                                                                      finalizer='finalizer')
+                                            has_after("{fixture}::{finalizer}".format(fixture="fixture_with_finalizer",
+                                                                                      finalizer="finalizer")
                                                       )
                                             )
                               )
@@ -58,14 +58,14 @@ def test_fixture_finalizers(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_fixture_with_finalizers_example',
+                has_test_case("test_fixture_with_finalizers_example",
                               has_container(executed_docstring_source.allure_report,
                                             has_before("fixture_with_finalizers"),
-                                            has_after('{fixture}::{finalizer}'.format(fixture='fixture_with_finalizers',
-                                                                                      finalizer='first_finalizer')
+                                            has_after("{fixture}::{finalizer}".format(fixture="fixture_with_finalizers",
+                                                                                      finalizer="first_finalizer")
                                                       ),
-                                            has_after('{fixture}::{finalizer}'.format(fixture='fixture_with_finalizers',
-                                                                                      finalizer='second_finalizer'),
+                                            has_after("{fixture}::{finalizer}".format(fixture="fixture_with_finalizers",
+                                                                                      finalizer="second_finalizer"),
                                                       )
                                             )
                               )

@@ -49,8 +49,8 @@ def test_step_parameters(executed_docstring_source, request, args, kwargs):
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(test_name,
                               has_step("step",
-                                       *([has_parameter('arg', represent(arg)) for arg in args] +
-                                         [has_parameter('kwarg', represent(kwarg)) for kwarg in kwargs.values()]
+                                       *([has_parameter("arg", represent(arg)) for arg in args] +
+                                         [has_parameter("kwarg", represent(kwarg)) for kwarg in kwargs.values()]
                                          )
 
                                        )

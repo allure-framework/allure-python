@@ -21,14 +21,14 @@ def test_failed_fixture(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_failed_fixture_example',
-                              with_status('failed'),
+                has_test_case("test_failed_fixture_example",
+                              with_status("failed"),
                               has_status_details(with_message_contains("AssertionError"),
                                                  with_trace_contains("def failed_fixture():")
                                                  ),
                               has_container(executed_docstring_source.allure_report,
-                                            has_before('failed_fixture',
-                                                       with_status('failed'),
+                                            has_before("failed_fixture",
+                                                       with_status("failed"),
                                                        has_status_details(with_message_contains("AssertionError"),
                                                                           with_trace_contains("failed_fixture")
                                                                           ),
@@ -51,14 +51,14 @@ def test_broken_fixture(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_broken_fixture_example',
-                              with_status('broken'),
+                has_test_case("test_broken_fixture_example",
+                              with_status("broken"),
                               has_status_details(with_message_contains("IndexError"),
                                                  with_trace_contains("def broken_fixture():")
                                                  ),
                               has_container(executed_docstring_source.allure_report,
-                                            has_before('broken_fixture',
-                                                       with_status('broken'),
+                                            has_before("broken_fixture",
+                                                       with_status("broken"),
                                                        has_status_details(with_message_contains("IndexError"),
                                                                           with_trace_contains("broken_fixture")
                                                                           ),
@@ -81,12 +81,12 @@ def test_skip_fixture(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_skip_fixture_example',
-                              with_status('skipped'),
+                has_test_case("test_skip_fixture_example",
+                              with_status("skipped"),
                               has_status_details(with_message_contains("Skipped: <Skipped instance>")),
                               has_container(executed_docstring_source.allure_report,
-                                            has_before('skip_fixture',
-                                                       with_status('skipped'),
+                                            has_before("skip_fixture",
+                                                       with_status("skipped"),
                                                        has_status_details(
                                                            with_message_contains("Skipped: <Skipped instance>"),
                                                            with_trace_contains("skip_fixture")
@@ -110,14 +110,14 @@ def test_pytest_fail_fixture(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_pytest_fail_fixture_example',
-                              with_status('failed'),
+                has_test_case("test_pytest_fail_fixture_example",
+                              with_status("failed"),
                               has_status_details(with_message_contains("Failed: <Failed instance>"),
                                                  with_trace_contains("def pytest_fail_fixture():")
                                                  ),
                               has_container(executed_docstring_source.allure_report,
-                                            has_before('pytest_fail_fixture',
-                                                       with_status('failed'),
+                                            has_before("pytest_fail_fixture",
+                                                       with_status("failed"),
                                                        has_status_details(
                                                            with_message_contains("Failed: <Failed instance>"),
                                                            with_trace_contains("pytest_fail_fixture")
@@ -141,14 +141,14 @@ def test_pytest_fail_with_reason_fixture(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_pytest_fail_with_reason_fixture_example',
-                              with_status('failed'),
+                has_test_case("test_pytest_fail_with_reason_fixture_example",
+                              with_status("failed"),
                               has_status_details(with_message_contains("Fail message"),
                                                  with_trace_contains("def pytest_fail_with_reason_fixture():")
                                                  ),
                               has_container(executed_docstring_source.allure_report,
-                                            has_before('pytest_fail_with_reason_fixture',
-                                                       with_status('failed'),
+                                            has_before("pytest_fail_with_reason_fixture",
+                                                       with_status("failed"),
                                                        has_status_details(with_message_contains("Fail message"),
                                                                           with_trace_contains(
                                                                               "pytest_fail_with_reason_fixture")

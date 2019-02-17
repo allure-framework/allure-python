@@ -36,7 +36,7 @@ def test_args_less_than_placeholders(executed_docstring_source):
     >>> import allure
 
     >>> @allure.step("{0} and {1}")
-    ... def step(a):
+    ... def step(arg):
     ...     pass
 
     >>> def test_args_less_than_placeholders_example():
@@ -45,6 +45,6 @@ def test_args_less_than_placeholders(executed_docstring_source):
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_args_less_than_placeholders_example",
-                              has_status_details(with_message_contains('IndexError: tuple index out of range'))
+                              has_status_details(with_message_contains("IndexError: tuple index out of range"))
                               )
                 )
