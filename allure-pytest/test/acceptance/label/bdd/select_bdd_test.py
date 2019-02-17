@@ -32,8 +32,8 @@ from hamcrest import assert_that, only_contains, any_of, ends_with
 
     ]
 )
-def test_select_by_bdd_label(allured_testdir, request, options, expected_tests):
-    allured_testdir.parse_docstring_path(request)
+def test_select_by_bdd_label(allured_testdir, options, expected_tests):
+    allured_testdir.parse_docstring_path()
 
     params = []
 

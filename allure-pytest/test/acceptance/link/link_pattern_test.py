@@ -3,10 +3,10 @@ from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_link, has_issue_link
 
 
-def test_link_pattern(allured_testdir, request):
+def test_link_pattern(allured_testdir):
     """ ./examples/link/dynamic_link.rst """
 
-    allured_testdir.parse_docstring_path(request)
+    allured_testdir.parse_docstring_path()
 
     allured_testdir.run_with_allure("--allure-link-pattern",
                                     "issue:https://github.com/allure-framework/allure-python2/{}",

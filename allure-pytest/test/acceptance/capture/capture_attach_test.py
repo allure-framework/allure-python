@@ -6,7 +6,7 @@ from hamcrest import contains_string
 
 
 @pytest.mark.parametrize("capture", ["sys", "fd", "no"])
-def test_capture_stdout(allured_testdir, request, capture):
+def test_capture_stdout(allured_testdir, capture):
     """
     >>> import pytest
     >>> import allure
@@ -24,7 +24,7 @@ def test_capture_stdout(allured_testdir, request, capture):
     ...         print ("Start step")
     """
 
-    allured_testdir.parse_docstring_source(request)
+    allured_testdir.parse_docstring_source()
     allured_testdir.run_with_allure("--capture={capture}".format(capture=capture))
 
     if_pytest_capture_ = is_not if capture == "no" else is_
@@ -42,7 +42,7 @@ def test_capture_stdout(allured_testdir, request, capture):
 
 
 @pytest.mark.parametrize("logging", [True, False])
-def test_capture_log(allured_testdir, request, logging):
+def test_capture_log(allured_testdir, logging):
     """
     >>> import logging
     >>> import pytest
@@ -63,7 +63,7 @@ def test_capture_log(allured_testdir, request, logging):
     ...         logger.info("Start step")
     """
 
-    allured_testdir.parse_docstring_source(request)
+    allured_testdir.parse_docstring_source()
 
     params = [] if logging else ["-p", "no:logging"]
     if_logging_ = is_ if logging else is_not

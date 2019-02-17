@@ -1,8 +1,9 @@
 import pytest
+import six
 
 from attr import asdict
 from allure_commons import hookimpl
-import six
+from allure_commons_test.report import AllureReport
 
 
 class AllureMemoryLogger(object):
@@ -54,21 +55,22 @@ from doctest import script_from_examples
 
 
 class AlluredTestdir(object):
-    def __init__(self, testdir):
+    def __init__(self, testdir, request):
         self.testdir = testdir
-        self.allure_report = AllureMemoryLogger()
+        self.request = request
+        self.allure_report = None
 
-    def parse_docstring_source(self, request):
-        docstring = request.node.function.__doc__ or request.node.module.__doc__
+    def parse_docstring_source(self):
+        docstring = self.request.node.function.__doc__ or self.request.node.module.__doc__
         source = script_from_examples(docstring).replace('#\n', '\n')
         if six.PY2:
             self.testdir.makepyfile("# -*- coding: utf-8 -*-\n%s" % source)
         else:
             self.testdir.makepyfile(source)
 
-    def parse_docstring_path(self, request):
-        doc_file = request.node.function.__doc__ or request.node.module.__doc__
-        example_dir = request.config.rootdir.join(doc_file.strip())
+    def parse_docstring_path(self):
+        doc_file = self.request.node.function.__doc__ or self.request.node.module.__doc__
+        example_dir = self.request.config.rootdir.join(doc_file.strip())
 
         if six.PY2:
             with open(str(example_dir)) as f:
@@ -83,26 +85,31 @@ class AlluredTestdir(object):
                 self.testdir.makepyfile(source)
 
     def run_with_allure(self, *args, **kwargs):
-        with fake_logger('allure_pytest.plugin.AllureFileLogger', self.allure_report):
+        if self.request.node.get_closest_marker("real_logger"):
             self.testdir.runpytest("--alluredir", self.testdir.tmpdir, *args, **kwargs)
+            self.allure_report = AllureReport(self.testdir.tmpdir.strpath)
+        else:
+            self.allure_report = AllureMemoryLogger()
+            with fake_logger('allure_pytest.plugin.AllureFileLogger', self.allure_report):
+                self.testdir.runpytest("--alluredir", self.testdir.tmpdir, *args, **kwargs)
 
         return self.allure_report
 
 
 @pytest.fixture
-def allured_testdir(testdir):
-    return AlluredTestdir(testdir)
+def allured_testdir(testdir, request):
+    return AlluredTestdir(testdir, request)
 
 
 @pytest.fixture
-def executed_docstring_source(allured_testdir, request):
-    allured_testdir.parse_docstring_source(request)
+def executed_docstring_source(allured_testdir):
+    allured_testdir.parse_docstring_source()
     allured_testdir.run_with_allure()
     return allured_testdir
 
 
 @pytest.fixture
-def executed_docstring_path(allured_testdir, request):
-    allured_testdir.parse_docstring_path(request)
+def executed_docstring_path(allured_testdir):
+    allured_testdir.parse_docstring_path()
     allured_testdir.run_with_allure()
     return allured_testdir

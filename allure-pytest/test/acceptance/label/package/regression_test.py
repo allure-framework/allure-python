@@ -25,12 +25,12 @@ def test_path_with_dots_test(allured_testdir):
                 )
 
 
-def test_with_no_package(allured_testdir, request):
+def test_with_no_package(allured_testdir):
     """
     >>> def test_package_less(request):
     ...     pass
     """
-    allured_testdir.parse_docstring_source(request)
+    allured_testdir.parse_docstring_source()
 
     allured_testdir.testdir.makeini("""[pytest]""")
     allured_testdir.run_with_allure(allured_testdir.testdir.tmpdir)
