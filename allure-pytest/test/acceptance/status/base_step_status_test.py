@@ -70,13 +70,13 @@ def test_pytest_bytes_data_in_assert(executed_docstring_source):
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_pytest_bytes_data_in_assert_example",
                               with_status("failed"),
-                              has_status_details(with_message_contains("AssertionError: assert \"0\\x82\" == 1"),
+                              has_status_details(with_message_contains("AssertionError: assert \'0\\x82\' == 1"),
                                                  with_trace_contains("def test_pytest_bytes_data_in_assert_example():")
                                                  ),
                               has_step("Step",
                                        with_status("failed"),
                                        has_status_details(
-                                           with_message_contains("AssertionError: assert \"0\\x82\" == 1"),
+                                           with_message_contains("AssertionError: assert \'0\\x82\' == 1"),
                                            with_trace_contains("test_pytest_bytes_data_in_assert_example")
                                        )
                                        )
