@@ -2,6 +2,7 @@ import argparse
 
 import allure
 import allure_commons
+import os
 
 from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
@@ -115,6 +116,7 @@ def pytest_configure(config):
     config.add_cleanup(cleanup_factory(test_helper))
 
     if report_dir:
+        report_dir = os.path.abspath(report_dir)
         test_listener = AllureListener(config)
         config.pluginmanager.register(test_listener)
         allure_commons.plugin_manager.register(test_listener)
