@@ -30,10 +30,10 @@ def getargspec(func):
 
     Like inspect.getargspec but supports functools.partial as well.
     """
-    # type: (Any) -> Any
+    # noqa: E731 type: (Any) -> Any
     if inspect.ismethod(func):
         func = func.__func__
-    parts = 0, ()  # type: Tuple[int, Tuple[unicode, ...]]
+    parts = 0, ()  # noqa: E731 type: Tuple[int, Tuple[unicode, ...]]
     if type(func) is partial:
         keywords = func.keywords
         if keywords is None:
@@ -108,6 +108,7 @@ def escape_non_unicode_symbols(item):
             return s
         except UnicodeDecodeError:
             return repr(s)[1:-1]
+
     return ''.join(map(escape_symbol, item))
 
 
