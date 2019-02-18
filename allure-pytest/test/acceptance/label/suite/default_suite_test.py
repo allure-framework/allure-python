@@ -6,6 +6,7 @@ from allure_commons_test.label import has_suite
 from allure_commons_test.label import has_sub_suite
 
 
+@pytest.mark.skip
 def test_default_suite(executed_docstring_source):
     """
     >>> def test_default_suite_example():
@@ -21,7 +22,6 @@ def test_default_suite(executed_docstring_source):
                 )
 
 
-@pytest.mark.skip
 def test_default_class_suite(executed_docstring_source):
     """
     >>> class TestSuiteClass(object):
