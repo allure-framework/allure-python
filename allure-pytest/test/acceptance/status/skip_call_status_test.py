@@ -16,7 +16,7 @@ def test_skip(executed_docstring_source):
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_skip_example",
                               with_status("skipped"),
-                              has_status_details(with_message_contains("Skipped"))
+                              has_status_details(with_message_contains("Skipped: <Skipped instance>"))
                               )
                 )
 

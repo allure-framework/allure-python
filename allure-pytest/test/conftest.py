@@ -1,57 +1,110 @@
 import pytest
-import os
-import subprocess
-import shlex
-from inspect import getmembers, isfunction
+import six
+from attr import asdict
+from allure_commons import hookimpl
 from allure_commons_test.report import AllureReport
+from doctest import script_from_examples
+import mock
+import allure_commons
+from contextlib import contextmanager
 
 
-@pytest.fixture(scope='function', autouse=True)
-def inject_matchers(doctest_namespace):
-    import hamcrest
-    for name, function in getmembers(hamcrest, isfunction):
-            doctest_namespace[name] = function
+class AllureMemoryLogger(object):
+    def __init__(self):
+        self.test_cases = []
+        self.test_containers = []
+        self.attachments = {}
 
-    from allure_commons_test import container, label, report, result
-    for module in [container, label, report, result]:
-        for name, function in getmembers(module, isfunction):
-            doctest_namespace[name] = function
+    @hookimpl
+    def report_result(self, result):
+        data = asdict(result, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        self.test_cases.append(data)
 
+    @hookimpl
+    def report_container(self, container):
+        data = asdict(container, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        self.test_containers.append(data)
 
-def _runner(allure_dir, module, *extra_params):
-    FNULL = open(os.devnull, 'w')
-    extra_params = ' '.join(extra_params)
-    cmd = shlex.split('pytest --alluredir=%s %s %s' % (allure_dir, extra_params, module))
-    subprocess.call(cmd, stdout=FNULL, stderr=FNULL)
+    @hookimpl
+    def report_attached_file(self, source, file_name):
+        pass
 
-
-@pytest.fixture(scope='module')
-def allure_report_with_params(request, tmpdir_factory):
-    module = request.module.__file__
-    tmpdir = tmpdir_factory.mktemp('data')
-
-    def run_with_params(*params):
-        key = '{module}{param}'.format(module=module, param=''.join(params))
-        if not request.config.cache.get(key, False):
-            _runner(tmpdir.strpath, module, *params)
-            request.config.cache.set(key, True)
-
-            def clear_cache():
-                request.config.cache.set(key, False)
-            request.addfinalizer(clear_cache)
-
-        return AllureReport(tmpdir.strpath)
-    return run_with_params
+    @hookimpl
+    def report_attached_data(self, body, file_name):
+        self.attachments[file_name] = body
 
 
-@pytest.fixture(scope='module')
-def allure_report(request, tmpdir_factory):
-    module = request.module.__file__
-    tmpdir = tmpdir_factory.mktemp('data')
-    _runner(tmpdir.strpath, module)
-    return AllureReport(tmpdir.strpath)
+@contextmanager
+def fake_logger(path, logger):
+    blocked_plugins = []
+    for name, plugin in allure_commons.plugin_manager.list_name_plugin():
+        allure_commons.plugin_manager.unregister(plugin=plugin, name=name)
+        blocked_plugins.append(plugin)
+
+    with mock.patch(path) as ReporterMock:
+        ReporterMock.return_value = logger
+        yield
+
+    for plugin in blocked_plugins:
+        allure_commons.plugin_manager.register(plugin)
 
 
-def pytest_collection_modifyitems(items, config):
-    if config.option.doctestmodules:
-        items[:] = [item for item in items if item.__class__.__name__ == 'DoctestItem']
+class AlluredTestdir(object):
+    def __init__(self, testdir, request):
+        self.testdir = testdir
+        self.request = request
+        self.allure_report = None
+
+    def parse_docstring_source(self):
+        docstring = self.request.node.function.__doc__ or self.request.node.module.__doc__
+        source = script_from_examples(docstring).replace("#\n", "\n")
+        if six.PY2:
+            self.testdir.makepyfile("# -*- coding: utf-8 -*-\n%s" % source)
+        else:
+            self.testdir.makepyfile(source)
+
+    def parse_docstring_path(self):
+        doc_file = self.request.node.function.__doc__ or self.request.node.module.__doc__
+        example_dir = self.request.config.rootdir.join(doc_file.strip())
+
+        if six.PY2:
+            with open(str(example_dir)) as f:
+                content = "# -*- coding: utf-8 -*-\n%s" % f.read()
+                source = script_from_examples(content)
+                self.testdir.makepyfile(source)
+        else:
+            with open(example_dir, encoding="utf-8") as f:
+
+                content = f.read()
+                source = script_from_examples(content)
+                self.testdir.makepyfile(source)
+
+    def run_with_allure(self, *args, **kwargs):
+        if self.request.node.get_closest_marker("real_logger"):
+            self.testdir.runpytest("--alluredir", self.testdir.tmpdir, *args, **kwargs)
+            self.allure_report = AllureReport(self.testdir.tmpdir.strpath)
+        else:
+            self.allure_report = AllureMemoryLogger()
+            with fake_logger("allure_pytest.plugin.AllureFileLogger", self.allure_report):
+                self.testdir.runpytest("--alluredir", self.testdir.tmpdir, *args, **kwargs)
+
+        return self.allure_report
+
+
+@pytest.fixture
+def allured_testdir(testdir, request):
+    return AlluredTestdir(testdir, request)
+
+
+@pytest.fixture
+def executed_docstring_source(allured_testdir):
+    allured_testdir.parse_docstring_source()
+    allured_testdir.run_with_allure()
+    return allured_testdir
+
+
+@pytest.fixture
+def executed_docstring_path(allured_testdir):
+    allured_testdir.parse_docstring_path()
+    allured_testdir.run_with_allure()
+    return allured_testdir

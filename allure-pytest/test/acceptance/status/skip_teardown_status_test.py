@@ -30,7 +30,7 @@ def test_skip_finalizer_fixture(executed_docstring_source):
                                                 fixture="skip_finalizer_fixture",
                                                 finalizer="fixture_finalizer"),
                                                 with_status("skipped"),
-                                                has_status_details(with_message_contains("Skipped"),
+                                                has_status_details(with_message_contains("Skipped: <Skipped instance>"),
                                                                    with_trace_contains("fixture_finalizer")
                                                                    ),
                                             ),
