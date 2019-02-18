@@ -22,6 +22,7 @@ def test_default_suite(executed_docstring_source):
                 )
 
 
+@pytest.mark.skip
 def test_default_class_suite(executed_docstring_source):
     """
     >>> class TestSuiteClass(object):
