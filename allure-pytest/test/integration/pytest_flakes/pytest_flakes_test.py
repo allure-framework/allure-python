@@ -1,8 +1,10 @@
+import allure
 from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 
 
+@allure.issue("352")
 def test_pytest_flakes(allured_testdir):
     """
     >>> from os.path import *
