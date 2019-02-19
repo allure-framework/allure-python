@@ -18,7 +18,7 @@ def test_pytest_flakes(allured_testdir):
     assert_that(allured_testdir.allure_report,
                 has_test_case("test_pytest_flakes.py",
                               with_status("broken")
-                             ),
+                              ),
 
                 )
 
