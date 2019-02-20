@@ -58,13 +58,22 @@ class AllureListener(object):
                                               status=get_status(exc_val),
                                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
+    @pytest.hookimpl(hookwrapper=True, tryfirst=True)
+    def pytest_runtest_protocol(self, item, nextitem):
+        uuid = self._cache.push(item.nodeid)
+        test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
+        self.allure_logger.schedule_test(uuid, test_result)
+        yield
+
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_setup(self, item):
-        uuid = self._cache.push(item.nodeid)
-        test_result = TestResult(name=item.name, uuid=uuid)
-        self.allure_logger.schedule_test(uuid, test_result)
+        if not self._cache.get(item.nodeid):
+            uuid = self._cache.push(item.nodeid)
+            test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
+            self.allure_logger.schedule_test(uuid, test_result)
 
         yield
+
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         for fixturedef in _test_fixtures(item):
