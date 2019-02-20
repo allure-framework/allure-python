@@ -1,9 +1,12 @@
+import allure
 import pytest
 from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 
 
+@allure.issue("140")
+@allure.feature("Integration")
 @pytest.mark.parametrize("countdown", [2, 4])
 def test_pytest_rerunfailures(allured_testdir, countdown):
     allured_testdir.testdir.makepyfile("""
