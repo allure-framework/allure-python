@@ -1,6 +1,7 @@
 class RobotStatus(object):
     FAILED = 'FAIL'
     PASSED = 'PASS'
+    SKIPPED = 'SKIP'
 
 
 class RobotKeywordType(object):
