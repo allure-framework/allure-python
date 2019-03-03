@@ -199,8 +199,11 @@ class AllureListener(object):
                 self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
                 self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
 
-            uuid = self._cache.pop(item.nodeid)
-            self.allure_logger.close_test(uuid)
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_logfinish(self, nodeid, location):
+        yield
+        uuid = self._cache.pop(nodeid)
+        self.allure_logger.close_test(uuid)
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
