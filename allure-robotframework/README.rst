@@ -34,3 +34,10 @@ Listener support `robotframework-pabot library <https://pypi.python.org/pypi/rob
 .. code:: bash
 
     $ pabot --listener allure_robotframework ./my_robot_test
+
+
+Contributing to allure-robotframework
+=====================================
+
+This project exists thanks to all the people who contribute. Especially by `Megafon <https://corp.megafon.com>`_ and
+`@skhomuti <https://github.com/skhomuti>`_ who started and maintaining allure-robotframework.
