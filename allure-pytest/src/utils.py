@@ -107,7 +107,7 @@ def allure_full_name(item):
 
 
 def allure_suite_labels(item):
-    head, possibly_clazz, tail = islice(chain(item.nodeid.split('::'), [None]), 3)
+    head, possibly_clazz, tail = islice(chain(item.nodeid.split('::'), [None], [None]), 3)
     clazz = possibly_clazz if tail else None
     file_name, path = islice(chain(reversed(head.rsplit('/', 1)), [None]), 2)
     module = file_name.split('.')[0]

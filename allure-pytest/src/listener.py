@@ -58,19 +58,28 @@ class AllureListener(object):
                                               status=get_status(exc_val),
                                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
+    @pytest.hookimpl(hookwrapper=True, tryfirst=True)
+    def pytest_runtest_protocol(self, item, nextitem):
+        uuid = self._cache.push(item.nodeid)
+        test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
+        self.allure_logger.schedule_test(uuid, test_result)
+        yield
+
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_setup(self, item):
-        uuid = self._cache.set(item.nodeid)
-        test_result = TestResult(name=item.name, uuid=uuid)
-        self.allure_logger.schedule_test(uuid, test_result)
+        if not self._cache.get(item.nodeid):
+            uuid = self._cache.push(item.nodeid)
+            test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
+            self.allure_logger.schedule_test(uuid, test_result)
 
         yield
+
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         for fixturedef in _test_fixtures(item):
             group_uuid = self._cache.get(fixturedef)
             if not group_uuid:
-                group_uuid = self._cache.set(fixturedef)
+                group_uuid = self._cache.push(fixturedef)
                 group = TestResultContainer(uuid=group_uuid)
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
@@ -116,7 +125,7 @@ class AllureListener(object):
         container_uuid = self._cache.get(fixturedef)
 
         if not container_uuid:
-            container_uuid = self._cache.set(fixturedef)
+            container_uuid = self._cache.push(fixturedef)
             container = TestResultContainer(uuid=container_uuid)
             self.allure_logger.start_group(container_uuid, container)
 
@@ -148,7 +157,7 @@ class AllureListener(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
-        uuid = self._cache.set(item.nodeid)
+        uuid = self._cache.push(item.nodeid)
 
         report = (yield).get_result()
 
@@ -242,7 +251,7 @@ class ItemCache(object):
     def get(self, _id):
         return self._items.get(str(_id))
 
-    def set(self, _id):
+    def push(self, _id):
         return self._items.setdefault(str(_id), uuid4())
 
     def pop(self, _id):

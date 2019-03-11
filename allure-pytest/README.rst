@@ -1,5 +1,11 @@
 Allure Pytest Plugin
 ====================
+.. image:: https://pypip.in/v/allure-pytest/badge.png
+        :alt: Release Status
+        :target: https://pypi.python.org/pypi/allure-pytest
+.. image:: https://pypip.in/d/allure-pytest/badge.png
+        :alt: Downloads
+        :target: https://pypi.python.org/pypi/allure-pytest
 
 - `Source <https://github.com/allure-framework/allure-python>`_
 
