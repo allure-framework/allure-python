@@ -44,6 +44,7 @@ Allure `RobotFramework <http://robotframework.org/>`_ integration. This integrat
 `Listener <http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#listener-interface)>`_
 and does not require changing autotests. Available on `pypi <https://pypi.python.org/pypi/allure-robotframework>`_
 
+`Read more ... </allure-robotframework/README.rst>`_
 
 Allure python commons
 ---------------------
