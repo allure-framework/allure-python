@@ -1,7 +1,7 @@
 from setuptools import setup
 
 PACKAGE = "allure-python-commons"
-VERSION = "2.6.0"
+VERSION = "2.6.1"
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
