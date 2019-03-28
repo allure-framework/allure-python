@@ -44,4 +44,5 @@ class AllureTestHelper(object):
         pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
         url = pattern.format(url)
         allure_link = getattr(pytest.mark, allure_link_marker)
+        name = url if name is None else name
         return allure_link(url, name=name, link_type=link_type)
