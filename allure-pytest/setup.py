@@ -1,11 +1,23 @@
-import os
+import os,sys
 from setuptools import setup
+from pkg_resources import require, DistributionNotFound, VersionConflict
+
+try:
+    require('pytest-allure-adaptor')
+    print("""
+    You have pytest-allure-adaptor installed.
+    You need to remove pytest-allure-adaptor from your site-packages
+    before installing allure-pytest, or conflicts may result.
+    """)
+    sys.exit()
+except (DistributionNotFound, VersionConflict):
+    pass
 
 PACKAGE = "allure-pytest"
-VERSION = "2.0.0b2"
+VERSION = "2.6.1"
 
 classifiers = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
     'Framework :: Pytest',
     'Intended Audience :: Developers',
     'License :: OSI Approved :: Apache Software License',
@@ -14,8 +26,9 @@ classifiers = [
 ]
 
 install_requires = [
-    "pytest>=2.7.3",
-    "allure-python-commons==2.0.0b2"
+    "pytest>=3.4.0",
+    "six>=1.9.0",
+    "allure-python-commons==2.6.1"
 ]
 
 
@@ -28,7 +41,7 @@ def main():
         name=PACKAGE,
         version=VERSION,
         description="Allure pytest integration",
-        url="https://github.com/allure-framework/allure-python2",
+        url="https://github.com/allure-framework/allure-python",
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
