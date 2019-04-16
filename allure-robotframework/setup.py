@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 PACKAGE = "allure-robotframework"
@@ -31,10 +31,8 @@ if __name__ == '__main__':
         description="Allure Robot Framework integration",
         license="Apache-2.0",
         keywords="allure reporting robotframework",
-        packages=['allure_robotframework', 'AllureLibrary'],
-        package_dir={"allure_robotframework": "src/listener", 'AllureLibrary': 'src/library'},
+        packages=find_packages(),
         install_requires=install_requires,
-        py_modules=['allure_robotframework'],
         url="https://github.com/allure-framework/allure-python",
         author="Sergey Khomutinin",
         author_email="skhomuti@gmail.com",

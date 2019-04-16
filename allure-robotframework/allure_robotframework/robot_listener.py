@@ -12,10 +12,10 @@ from allure_commons.types import AttachmentType, LabelType, LinkType
 from allure_commons.types import Severity
 from allure_commons.utils import host_tag, md5, now, uuid4
 from allure_commons.utils import platform_label
-from allure_robotframework import utils
 from allure_robotframework.allure_listener import AllureListener
 from allure_robotframework.types import RobotKeywordType, RobotLogLevel
-from allure_robotframework.utils import allure_labels, allure_links, allure_tags
+from allure_robotframework.utils import allure_tags, allure_links, allure_labels, get_allure_suites, \
+    get_allure_status, get_allure_parameters
 from robot.libraries.BuiltIn import BuiltIn
 
 
@@ -116,8 +116,8 @@ class allure_robotframework(object):
     def stop_current_test(self, name, attributes):
         uuid = self.stack.pop()
         test = self.reporter.get_test(uuid)
-        test.status = utils.get_allure_status(attributes.get('status'))
-        test.labels.extend(utils.get_allure_suites(attributes.get('longname')))
+        test.status = get_allure_status(attributes.get('status'))
+        test.labels.extend(get_allure_suites(attributes.get('longname')))
 
         test.labels.extend(allure_tags(attributes))
         for label_type in (LabelType.EPIC, LabelType.FEATURE, LabelType.STORY):
@@ -144,7 +144,7 @@ class allure_robotframework(object):
         step_name = '{} = {}'.format(attributes.get('assign')[0], name) if attributes.get('assign') else name
         args = {
             'name': step_name,
-            'parameters': utils.get_allure_parameters(attributes.get('args')),
+            'parameters': get_allure_parameters(attributes.get('args')),
             'start': now(),
             'stop': now()
         }
@@ -177,7 +177,7 @@ class allure_robotframework(object):
                                           attachment_type=AttachmentType.HTML)
         args = {
             'uuid': uuid,
-            'status': utils.get_allure_status(attributes.get('status')),
+            'status': get_allure_status(attributes.get('status')),
             'stop': now()
         }
         keyword_type = attributes.get('type')
