@@ -17,7 +17,7 @@ from allure_robotframework.types import RobotKeywordType, RobotLogLevel
 from allure_robotframework import utils
 from allure_robotframework.allure_listener import AllureListener
 
-from allure_robotframework.utils import allure_tags, allure_labels
+from allure_robotframework.utils import allure_tags, allure_labels, allure_links
 
 
 # noinspection PyPep8Naming
@@ -114,7 +114,8 @@ class allure_robotframework(object):
         test.labels.extend(allure_labels(attributes, LabelType.EPIC))
         test.labels.extend(allure_labels(attributes, LabelType.FEATURE))
         test.labels.extend(allure_labels(attributes, LabelType.STORY))
-
+        test.links.extend(allure_links(attributes, LinkType.ISSUE))
+        test.links.extend(allure_links(attributes, LinkType.TEST_CASE))
         test.labels.append(Label(name=LabelType.THREAD, value=self.pool_id))
         test.labels.append(Label(name=LabelType.HOST, value=host_tag()))
         test.labels.append(Label(name=LabelType.FRAMEWORK, value='robotframework'))

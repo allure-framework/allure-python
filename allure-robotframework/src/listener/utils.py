@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from allure_commons.model2 import Status, Label, Parameter
+from allure_commons.model2 import Status, Label, Parameter, Link
 from allure_commons.types import LabelType
 from allure_robotframework.types import RobotStatus
 
@@ -47,3 +47,15 @@ def allure_labels(attributes, prefix):
         return label.split(':')[1] or 'unknown'
 
     return [Label(name=prefix, value=label_value(tag)) for tag in tags if is_label(tag)]
+
+
+def allure_links(attributes, prefix):
+    tags = attributes.get('tags', ())
+
+    def is_label(label):
+        return label.startswith("{label}:".format(label=prefix))
+
+    def label_value(label):
+        return label.split(':', 1)[1] or 'unknown'
+
+    return [Link(type=prefix, url=label_value(tag), name=label_value(tag)) for tag in tags if is_label(tag)]
