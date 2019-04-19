@@ -40,7 +40,15 @@ Ordinary links are supported via tags prefixed with :code:`link:` :
 .. code:: robotframework
 
     *** Test Cases ***
-    Test Case With Link
+    Test Case With Unnamed Link
+        [Tags]  link:https://homepage.com/
+        No Operation
+
+
+.. code:: robotframework
+
+    *** Test Cases ***
+    Test Case With Named Link
         [Tags]  link:[Home Page]https://homepage.com/
         No Operation
 

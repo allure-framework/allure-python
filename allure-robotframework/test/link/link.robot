@@ -27,6 +27,11 @@ Test Case With TMS Link With URL
     ${test_case}     Should Has Test Case   ${report}   Test Case With TMS Link With URL
     Should Has Link  ${test_case}  https://testrail.com/browse/TEST-1  test_case
 
-Test Case With Link
-    ${test_case}     Should Has Test Case   ${report}   Test Case With Link
+Test Case With Unnamed Link
+    ${test_case}     Should Has Test Case   ${report}   Test Case With Unnamed Link
+    Should Has Link  ${test_case}  https://homepage.com/  link
+
+Test Case With Named Link
+    ${test_case}     Should Has Test Case   ${report}   Test Case With Named Link
+    Should Has Link  ${test_case}  https://homepage.com/  link  Home Page
 
