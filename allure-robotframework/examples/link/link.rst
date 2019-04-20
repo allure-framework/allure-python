@@ -40,16 +40,15 @@ Ordinary links are supported via tags prefixed with :code:`link:` :
 .. code:: robotframework
 
     *** Test Cases ***
-    Test Case With Unnamed Link
+    Test Case With Unlabeled Link
         [Tags]  link:https://homepage.com/
         No Operation
 
+Link label can be specified by text placed in :code:`[square brackets]` :
 
 .. code:: robotframework
 
     *** Test Cases ***
-    Test Case With Named Link
+    Test Case With Labeled Link
         [Tags]  link:[Home Page]https://homepage.com/
         No Operation
-
-allure will track it and show actual tags set.
