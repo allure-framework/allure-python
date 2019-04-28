@@ -157,7 +157,7 @@ class AllureListener(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
-        uuid = self._cache.push(item.nodeid)
+        uuid = self._cache.get(item.nodeid)
 
         report = (yield).get_result()
 
@@ -203,7 +203,8 @@ class AllureListener(object):
     def pytest_runtest_logfinish(self, nodeid, location):
         yield
         uuid = self._cache.pop(nodeid)
-        self.allure_logger.close_test(uuid)
+        if uuid:
+            self.allure_logger.close_test(uuid)
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
@@ -258,7 +259,7 @@ class ItemCache(object):
         return self._items.setdefault(str(_id), uuid4())
 
     def pop(self, _id):
-        return self._items.pop(str(_id))
+        return self._items.pop(str(_id), None)
 
 
 def _test_fixtures(item):
