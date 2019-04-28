@@ -7,7 +7,7 @@ from allure_commons_test.report import has_only_testcases
 @allure.issue("292")
 @allure.feature("Integration")
 @pytest.mark.real_logger
-def test_xdistr_and_select_test_by_bdd_label(allured_testdir):
+def test_xdist_and_select_test_by_bdd_label(allured_testdir):
     """
     >>> import pytest
     >>> import allure
@@ -22,7 +22,7 @@ def test_xdistr_and_select_test_by_bdd_label(allured_testdir):
     """
 
     allured_testdir.parse_docstring_source()
-    allured_testdir.run_with_allure("-v", "--allure-features=boo", "-n2")
+    allured_testdir.run_with_allure("-v", "--allure-features=boo", "-n1")
 
     assert_that(allured_testdir.allure_report,
                 has_only_testcases(
