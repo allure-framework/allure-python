@@ -194,10 +194,12 @@ class AllureListener(object):
                 test_result.statusDetails = status_details
 
             if self.config.option.attach_capture:
-                # Capture at teardown contains data from whole test (setup, call, teardown)
-                self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
-                self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
-                self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
+                if report.caplog:
+                    self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
+                if report.capstdout:
+                    self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
+                if report.capstderr:
+                    self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_logfinish(self, nodeid, location):

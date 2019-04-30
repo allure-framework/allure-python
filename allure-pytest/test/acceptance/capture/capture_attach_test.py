@@ -41,6 +41,31 @@ def test_capture_stdout(allured_testdir, capture):
                 )
 
 
+@pytest.mark.parametrize("capture", ["sys", "fd"])
+def test_capture_empty_stdout(allured_testdir, capture):
+    """
+    >>> import pytest
+    >>> import allure
+
+    >>> @pytest.fixture
+    ... def fixture(request):
+    ...     def finalizer():
+    ...         pass
+    ...     request.addfinalizer(finalizer)
+
+    >>> def test_capture_stdout_example(fixture):
+    ...     with allure.step("Step"):
+    ...         pass
+    """
+
+    allured_testdir.parse_docstring_source()
+    allured_testdir.run_with_allure("--capture={capture}".format(capture=capture))
+
+    assert_that(allured_testdir.allure_report,
+                has_property("attachments", empty())
+                )
+
+
 @pytest.mark.parametrize("logging", [True, False])
 def test_capture_log(allured_testdir, logging):
     """
@@ -93,7 +118,9 @@ def test_capture_disabled(allured_testdir):
 
     """
 
+    allured_testdir.parse_docstring_source()
     allured_testdir.run_with_allure("--log-cli-level=INFO", "--allure-no-capture")
+
     assert_that(allured_testdir.allure_report,
                 has_property("attachments", empty())
                 )
