@@ -24,4 +24,3 @@ def test_parametrized_attachment(executed_docstring_source, param):
                                  has_value(contains_string(param))
                                  )
                 ))
-
