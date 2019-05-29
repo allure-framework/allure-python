@@ -33,6 +33,7 @@ class AllureListener(object):
         self.behave_config = behave_config
         self.logger = AllureReporter()
         self.current_step_uuid = None
+        self.current_scenario_uuid = None
         self.execution_context = Context()
         self.fixture_context = Context()
         self.steps = deque()
@@ -82,12 +83,15 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def start_test(self, parent_uuid, uuid, name, parameters, context):
-        scenario = context['scenario']
+        self.start_scenario(context['scenario'])
+
+    def start_scenario(self, scenario):
+        self.current_scenario_uuid = uuid4()
         self.fixture_context.enter()
         self.execution_context.enter()
-        self.execution_context.append(uuid)
+        self.execution_context.append(self.current_scenario_uuid)
 
-        test_case = TestResult(uuid=uuid, start=now())
+        test_case = TestResult(uuid=self.current_scenario_uuid, start=now())
         test_case.name = scenario_name(scenario)
         test_case.historyId = scenario_history_id(scenario)
         test_case.description = '\n'.join(scenario.description)
@@ -98,31 +102,34 @@ class AllureListener(object):
         test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))
         test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
 
-        self.logger.schedule_test(uuid, test_case)
+        self.logger.schedule_test(self.current_scenario_uuid, test_case)
 
     @allure_commons.hookimpl
     def stop_test(self, parent_uuid, uuid, name, context, exc_type, exc_val, exc_tb):
-        scenario = context['scenario']
+        self.stop_scenario(context['scenario'])
+
+    def stop_scenario(self, scenario):
         if scenario.status == 'skipped' and not self.behave_config.show_skipped:
-            self.logger.drop_test(uuid)
+            self.logger.drop_test(self.current_scenario_uuid)
         else:
             status = scenario_status(scenario)
             status_details = scenario_status_details(scenario)
 
             self.flush_steps()
-            test_result = self.logger.get_test(uuid)
+            test_result = self.logger.get_test(self.current_scenario_uuid)
             test_result.stop = now()
             test_result.status = status
             test_result.statusDetails = status_details
-            self.logger.close_test(uuid)
+            self.logger.close_test(self.current_scenario_uuid)
             self.current_step_uuid = None
 
             for group in self.fixture_context.exit():
-                group.children.append(uuid)
+                group.children.append(self.current_scenario_uuid)
                 self.logger.stop_group(group.uuid)
 
         self.execution_context.exit()
-        self.execution_context.append(uuid)
+        self.execution_context.append(self.current_scenario_uuid)
+        self.current_scenario_uuid = None
 
     def schedule_step(self, step):
         self.steps.append(step)
