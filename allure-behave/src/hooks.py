@@ -25,7 +25,7 @@ def wrapper(original, allured):
 
 
 def allure_report(result_dir="allure_results"):
-    allure_hooks = AllureHooks()
+    allure_hooks = AllureHooks(result_dir)
     frame = inspect.currentframe()
     try:
         for hook_name in HOOKS:
@@ -39,11 +39,11 @@ def allure_report(result_dir="allure_results"):
 
 
 class AllureHooks(object):
-    def __init__(self):
+    def __init__(self, result_dir):
         self.listener = AllureListener({})
 
         if not hasattr(_storage, 'file_logger'):
-            _storage.file_logger = AllureFileLogger("./ter")
+            _storage.file_logger = AllureFileLogger(result_dir)
             allure_commons.plugin_manager.register(_storage.file_logger)
 
         allure_commons.plugin_manager.register(self.listener)
