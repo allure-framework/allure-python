@@ -87,7 +87,8 @@ def get_status(exception):
 def step_status_details(result):
     if result.exception:
         # workaround for https://github.com/behave/behave/pull/616
-        trace = result.exc_traceback if type(result.exc_traceback) == list else format_traceback(result.exc_traceback)
+        trace = "\n".join(result.exc_traceback) if type(result.exc_traceback) == list else format_traceback(
+            result.exc_traceback)
         return StatusDetails(message=format_exception(type(result.exception), result.exception), trace=trace)
 
     elif result.status == 'undefined':
