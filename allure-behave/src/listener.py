@@ -99,7 +99,7 @@ class AllureListener(object):
         test_case.labels.extend([Label(name=LabelType.TAG, value=tag) for tag in scenario_tags(scenario)])
         test_case.labels.append(Label(name=LabelType.SEVERITY, value=scenario_severity(scenario).value))
         test_case.labels.append(Label(name=LabelType.FEATURE, value=scenario.feature.name))
-        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave-x'))
+        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))
         test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
 
         self.logger.schedule_test(self.current_scenario_uuid, test_case)
