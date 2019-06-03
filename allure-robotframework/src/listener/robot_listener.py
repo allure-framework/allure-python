@@ -13,7 +13,7 @@ from allure_commons.types import AttachmentType, LabelType, LinkType
 from allure_commons.types import Severity
 from allure_commons.utils import platform_label
 from robot.libraries.BuiltIn import BuiltIn
-from allure_robotframework.types import RobotKeywordType, RobotLogLevel
+from allure_robotframework.types import RobotKeywordType, RobotLogLevel, RobotStatus
 from allure_robotframework import utils
 from allure_robotframework.allure_listener import AllureListener
 
@@ -107,6 +107,8 @@ class allure_robotframework(object):
     def stop_current_test(self, name, attributes):
         uuid = self.stack.pop()
         test = self.reporter.get_test(uuid)
+        if 'skipped' in [tag.lower() for tag in attributes['tags']]:
+            attributes['status'] = RobotStatus.SKIPPED
         test.status = utils.get_allure_status(attributes.get('status'))
         test.labels.extend(utils.get_allure_suites(attributes.get('longname')))
 
