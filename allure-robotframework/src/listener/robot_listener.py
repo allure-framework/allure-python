@@ -25,7 +25,7 @@ class allure_robotframework(object):
     DEFAULT_OUTPUT_PATH = os.path.join('output', 'allure')
     LOG_MESSAGE_FORMAT = '<p><b>[{level}]</b> {message}</p>'
     FAIL_MESSAGE_FORMAT = '<p style="color: red"><b>[{level}]</b> {message}</p>'
-    MAX_STEP_MESSAGE_COUNT = 5
+    MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 0))
 
     def __init__(self, logger_path=DEFAULT_OUTPUT_PATH):
         self.stack = []
