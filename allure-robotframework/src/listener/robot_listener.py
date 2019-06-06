@@ -2,30 +2,30 @@ from __future__ import absolute_import
 
 import os
 from collections import OrderedDict
-import allure_commons
 
-from allure_commons.model2 import TestResultContainer, TestResult, TestStepResult, TestAfterResult, TestBeforeResult, \
-    StatusDetails, Label, Link
-from allure_commons.reporter import AllureReporter
-from allure_commons.utils import now, uuid4, md5, host_tag
+import allure_commons
 from allure_commons.logger import AllureFileLogger
+from allure_commons.model2 import Label, Link, Status, StatusDetails, TestAfterResult, TestBeforeResult, TestResult, \
+    TestResultContainer, TestStepResult
+from allure_commons.reporter import AllureReporter
 from allure_commons.types import AttachmentType, LabelType, LinkType
 from allure_commons.types import Severity
+from allure_commons.utils import host_tag, md5, now, uuid4
 from allure_commons.utils import platform_label
-from robot.libraries.BuiltIn import BuiltIn
-from allure_robotframework.types import RobotKeywordType, RobotLogLevel
 from allure_robotframework import utils
 from allure_robotframework.allure_listener import AllureListener
-
-from allure_robotframework.utils import allure_tags, allure_labels, allure_links
+from allure_robotframework.types import RobotKeywordType, RobotLogLevel
+from allure_robotframework.utils import allure_labels, allure_links, allure_tags
+from robot.libraries.BuiltIn import BuiltIn
 
 
 # noinspection PyPep8Naming
 class allure_robotframework(object):
     ROBOT_LISTENER_API_VERSION = 2
     DEFAULT_OUTPUT_PATH = os.path.join('output', 'allure')
-    LOG_MESSAGE_FORMAT = '{full_message}<p><b>[{level}]</b> {message}</p>'
-    FAIL_MESSAGE_FORMAT = '{full_message}<p style="color: red"><b>[{level}]</b> {message}</p>'
+    LOG_MESSAGE_FORMAT = '<p><b>[{level}]</b> {message}</p>'
+    FAIL_MESSAGE_FORMAT = '<p style="color: red"><b>[{level}]</b> {message}</p>'
+    MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 0))
 
     def __init__(self, logger_path=DEFAULT_OUTPUT_PATH):
         self.stack = []
@@ -66,6 +66,13 @@ class allure_robotframework(object):
         self.end_current_keyword(name, attributes)
 
     def log_message(self, message):
+        message_item = {
+            'name': message.get('message'),
+            'start': now(),
+            'status': Status.FAILED if message.get('level') in RobotLogLevel.CRITICAL_LEVELS else Status.PASSED,
+            'stop': now()
+        }
+
         level = message.get('level')
         if self._previous_keyword_failed:
             self._traceback_message = message.get('message')
@@ -73,7 +80,9 @@ class allure_robotframework(object):
         if level == RobotLogLevel.FAIL:
             self._previous_keyword_failed = True
             self.reporter.get_item(self.stack[-1]).statusDetails = StatusDetails(message=message.get('message'))
-        self.append_message_to_last_item_log(message, level)
+        if not self.items_log.get(self.stack[-1]):
+            self.items_log[self.stack[-1]] = []
+        self.items_log[self.stack[-1]].append((message_item, level))
 
     def start_new_group(self, name, attributes):
         uuid = uuid4()
@@ -135,9 +144,9 @@ class allure_robotframework(object):
         step_name = '{} = {}'.format(attributes.get('assign')[0], name) if attributes.get('assign') else name
         args = {
             'name': step_name,
-            'description': attributes.get('doc'),
             'parameters': utils.get_allure_parameters(attributes.get('args')),
-            'start': now()
+            'start': now(),
+            'stop': now()
         }
         keyword_type = attributes.get('type')
         last_item = self.reporter.get_last_item()
@@ -158,10 +167,14 @@ class allure_robotframework(object):
     def end_current_keyword(self, name, attributes):
         uuid = self.stack.pop()
         if uuid in self.items_log:
-            self.reporter.attach_data(uuid=uuid4(),
-                                      body=self.items_log.pop(uuid).replace('\n', '<br>'),
-                                      name='Keyword Log',
-                                      attachment_type=AttachmentType.HTML)
+            keyword_logs = self.items_log.pop(uuid)
+            if len(keyword_logs) < self.MAX_STEP_MESSAGE_COUNT:
+                self.create_message_steps(uuid, *keyword_logs)
+            else:
+                self.reporter.attach_data(uuid=uuid4(),
+                                          body=self.format_keyword_logs_to_attachment(*keyword_logs),
+                                          name='Keyword Log',
+                                          attachment_type=AttachmentType.HTML)
         args = {
             'uuid': uuid,
             'status': utils.get_allure_status(attributes.get('status')),
@@ -178,12 +191,22 @@ class allure_robotframework(object):
                 return
         self.reporter.stop_step(**args)
 
-    def append_message_to_last_item_log(self, message, level):
-        full_message = self.items_log[self.stack[-1]] if self.stack[-1] in self.items_log else ''
-        message_format = self.FAIL_MESSAGE_FORMAT if level in RobotLogLevel.CRITICAL_LEVELS else self.LOG_MESSAGE_FORMAT
-        self.items_log[self.stack[-1]] = message_format.format(full_message=full_message,
-                                                               level=message.get('level'),
-                                                               message=message.get('message'))
+    def format_keyword_logs_to_attachment(self, *steps):
+        full_message = ''
+        for step, level in steps:
+            message_format = self.FAIL_MESSAGE_FORMAT if level in RobotLogLevel.CRITICAL_LEVELS \
+                else self.LOG_MESSAGE_FORMAT
+            full_message += message_format.format(level=level,
+                                                  message=step.get('name').replace('\n', '<br>'))
+        return full_message
+
+    def create_message_steps(self, parent_uuid, *steps):
+        for step, level in steps:
+            uuid = uuid4()
+            self.reporter.start_step(parent_uuid=parent_uuid,
+                                     uuid=uuid,
+                                     step=TestStepResult(**step))
+            self.reporter.stop_step(uuid=uuid)
 
     def set_suite_link(self, metadata, uuid):
         if metadata:
