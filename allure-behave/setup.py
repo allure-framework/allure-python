@@ -2,7 +2,7 @@ import os
 from setuptools import setup
 
 PACKAGE = "allure-behave"
-VERSION = "2.6.3"
+VERSION = "2.6.4"
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -10,12 +10,17 @@ classifiers = [
     'License :: OSI Approved :: Apache Software License',
     'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
-    'Topic :: Software Development :: Testing :: BDD'
+    'Topic :: Software Development :: Testing :: BDD',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
 ]
 
 install_requires = [
     "behave>=1.2.5",
-    "allure-python-commons==2.6.3"
+    "allure-python-commons==2.6.4"
 ]
 
 
