@@ -13,6 +13,7 @@ def get_allure_status(status):
     else:
         return Status.FAILED
 
+
 def get_allure_parameters(parameters):
     return [Parameter(name="arg{}".format(i + 1), value=param) for i, param in enumerate(parameters)]
 
