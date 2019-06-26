@@ -47,6 +47,18 @@ def story(*stories):
     return label(LabelType.STORY, *stories)
 
 
+def suite(suite_name):
+    return label(LabelType.SUITE, suite_name)
+
+
+def parent_suite(parent_suite_name):
+    return label(LabelType.PARENT_SUITE, parent_suite_name)
+
+
+def sub_suite(sub_suite_name):
+    return label(LabelType.SUB_SUITE, sub_suite_name)
+
+
 def tag(*tags):
     return label(LabelType.TAG, *tags)
 

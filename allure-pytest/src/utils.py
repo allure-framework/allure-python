@@ -15,7 +15,14 @@ ALLURE_DESCRIPTION = 'allure_description'
 ALLURE_DESCRIPTION_HTML = 'allure_description_html'
 ALLURE_LABEL_PREFIX = 'allure_label'
 ALLURE_LINK_PREFIX = 'allure_link'
-ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
+ALLURE_UNIQUE_LABELS = [
+    LabelType.SEVERITY,
+    LabelType.FRAMEWORK,
+    LabelType.HOST,
+    LabelType.SUITE,
+    LabelType.PARENT_SUITE,
+    LabelType.SUB_SUITE
+]
 
 
 def get_marker_value(item, keyword):
@@ -112,8 +119,14 @@ def allure_suite_labels(item):
     file_name, path = islice(chain(reversed(head.rsplit('/', 1)), [None]), 2)
     module = file_name.split('.')[0]
     package = path.replace('/', '.') if path else None
-    pairs = zip([LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE], [package, module, clazz])
-    return [(name, value) for name, value in pairs if value is not None]
+    pairs = dict(zip([LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE], [package, module, clazz]))
+    labels = dict(allure_labels(item))
+    default_suite_labels = []
+    for suite_label in pairs.keys():
+        if suite_label not in labels.keys():
+            default_suite_labels.append((suite_label, pairs[suite_label]))
+
+    return default_suite_labels
 
 
 def escape_name(name):
