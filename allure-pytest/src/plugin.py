@@ -16,7 +16,6 @@ from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML
 from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 
 
-
 def pytest_addoption(parser):
     parser.getgroup("reporting").addoption('--alluredir',
                                            action="store",
