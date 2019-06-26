@@ -10,11 +10,11 @@ from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType
 
-ALLURE_TITLE = 'allure_title'
-ALLURE_DESCRIPTION = 'allure_description'
-ALLURE_DESCRIPTION_HTML = 'allure_description_html'
-ALLURE_LABEL_PREFIX = 'allure_label'
-ALLURE_LINK_PREFIX = 'allure_link'
+ALLURE_DISPLAY_NAME_MARK = 'allure_display_name'
+ALLURE_DESCRIPTION_MARK = 'allure_description'
+ALLURE_DESCRIPTION_HTML_MARK = 'allure_description_html'
+ALLURE_LABEL_MARK = 'allure_label'
+ALLURE_LINK_MARK = 'allure_link'
 ALLURE_UNIQUE_LABELS = [
     LabelType.SEVERITY,
     LabelType.FRAMEWORK,
@@ -31,11 +31,11 @@ def get_marker_value(item, keyword):
 
 
 def allure_title(item):
-    return get_marker_value(item, ALLURE_TITLE)
+    return get_marker_value(item, ALLURE_DISPLAY_NAME_MARK)
 
 
 def allure_description(item):
-    description = get_marker_value(item, ALLURE_DESCRIPTION)
+    description = get_marker_value(item, ALLURE_DESCRIPTION_MARK)
     if description:
         return description
     elif hasattr(item, 'function'):
@@ -43,29 +43,29 @@ def allure_description(item):
 
 
 def allure_description_html(item):
-    return get_marker_value(item, ALLURE_DESCRIPTION_HTML)
+    return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
 
 
 def allure_labels(item):
-    for keyword in item.keywords.keys():
-        if keyword.startswith(ALLURE_LABEL_PREFIX):
-            marker = item.get_closest_marker(keyword)
-            label_type = marker.kwargs['label_type']
-            if label_type in ALLURE_UNIQUE_LABELS:
-                yield (label_type, marker.args[0])
-            else:
-                for value in marker.args:
-                    yield (label_type, value)
+    unique_labels = dict()
+    labels = set()
+    for mark in item.iter_markers(name=ALLURE_LABEL_MARK):
+        label_type = mark.kwargs["label_type"]
+        if label_type in ALLURE_UNIQUE_LABELS:
+            if label_type not in unique_labels.keys():
+                unique_labels[label_type] = mark.args[0]
+        else:
+            for arg in mark.args:
+                labels.add((label_type, arg))
+    for k, v in unique_labels.items():
+        labels.add((k, v))
+
+    return labels
 
 
 def allure_links(item):
-    for keyword in item.keywords.keys():
-        if keyword.startswith(ALLURE_LINK_PREFIX):
-            marker = item.get_closest_marker(keyword)
-            link_type = marker.kwargs['link_type']
-            url = marker.args[0]
-            name = marker.kwargs['name']
-            yield (link_type, url, name)
+    for mark in item.iter_markers(name=ALLURE_LINK_MARK):
+        yield (mark.kwargs["link_type"], mark.args[0], mark.kwargs["name"])
 
 
 def pytest_markers(item):
