@@ -11,6 +11,10 @@ from allure_pytest.utils import allure_labels
 from allure_pytest.helper import AllureTestHelper
 from allure_pytest.listener import AllureListener
 
+from allure_pytest.utils import ALLURE_DISPLAY_NAME_MARK
+from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
+from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
+
 
 def pytest_addoption(parser):
     parser.getgroup("reporting").addoption('--alluredir',
@@ -125,6 +129,12 @@ def pytest_configure(config):
         file_logger = AllureFileLogger(report_dir, clean)
         allure_commons.plugin_manager.register(file_logger)
         config.add_cleanup(cleanup_factory(file_logger))
+
+    config.addinivalue_line("markers", "{mark}: allure label marker".format(mark=ALLURE_LABEL_MARK))
+    config.addinivalue_line("markers", "{mark}: allure link marker".format(mark=ALLURE_LINK_MARK))
+    config.addinivalue_line("markers", "{mark}: allure test name marker".format(mark=ALLURE_DISPLAY_NAME_MARK))
+    config.addinivalue_line("markers", "{mark}: allure description".format(mark=ALLURE_DESCRIPTION_MARK))
+    config.addinivalue_line("markers", "{mark}: allure description html".format(mark=ALLURE_DESCRIPTION_HTML_MARK))
 
 
 def pytest_collection_modifyitems(items, config):
