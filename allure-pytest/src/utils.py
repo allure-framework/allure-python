@@ -1,94 +1,173 @@
-import os
-import sys
-import inspect
-from itertools import product
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-ALLURE_UNIQUE_LABELS = ['severity', 'thread', 'host']
+import six
+import pytest
+from itertools import chain, islice
+from allure_commons.utils import represent
+from allure_commons.utils import format_exception, format_traceback, escape_non_unicode_symbols
+from allure_commons.model2 import Status
+from allure_commons.model2 import StatusDetails
+from allure_commons.types import LabelType
+
+ALLURE_TITLE = 'allure_title'
+ALLURE_DESCRIPTION = 'allure_description'
+ALLURE_DESCRIPTION_HTML = 'allure_description_html'
 ALLURE_LABEL_PREFIX = 'allure_label'
 ALLURE_LINK_PREFIX = 'allure_link'
+ALLURE_UNIQUE_LABELS = [
+    LabelType.SEVERITY,
+    LabelType.FRAMEWORK,
+    LabelType.HOST,
+    LabelType.SUITE,
+    LabelType.PARENT_SUITE,
+    LabelType.SUB_SUITE
+]
 
 
-def allure_parameters(fixturedef, request):
-    parameters = {}
-    param_name = request.fixturename
+def get_marker_value(item, keyword):
+    marker = item.get_closest_marker(keyword)
+    return marker.args[0] if marker and marker.args else None
 
-    if hasattr(request, 'param'):
-        parameters = {'name': fixturedef.ids[request.param_index] if fixturedef.ids else param_name,
-                      'value': str(request.param)}
 
-    if 'parametrize' in request.node.keywords.keys():
-        param_map = list()
-        for mark_info in request.node.keywords['parametrize']:
+def allure_title(item):
+    return get_marker_value(item, ALLURE_TITLE)
 
-            _ids = mark_info.kwargs['ids'] if 'ids' in mark_info.kwargs.keys() else None
-            _args = mark_info.args[0]
-            if not isinstance(_args, (tuple, list)):
-                _args = [x.strip() for x in _args.split(",") if x.strip()]
 
-            param_map.append({'args': _args,
-                              'has_ids': _ids is not None,
-                              'ids': _ids if _ids else mark_info.args[1],
-                              'values': list()})
+def allure_description(item):
+    description = get_marker_value(item, ALLURE_DESCRIPTION)
+    if description:
+        return description
+    elif hasattr(item, 'function'):
+        return item.function.__doc__
 
-        for variant in product(*[item['ids'] for item in param_map]):
-            for i, item in enumerate(param_map):
-                item['values'].append(variant[i])
 
-        for item in param_map:
-            if param_name in item['args'] and item['has_ids']:
-                ids = item['values'][request.param_index]
-                if len(item['args']) == 1:
-                    parameters = {'name': ids, 'value': str(request.param)}
-                else:
-                    param_name = u'{ids}::{param}'.format(ids=ids, param=param_name)
-                    parameters = {'name': param_name, 'value': str(request.param)}
-
-    return parameters
+def allure_description_html(item):
+    return get_marker_value(item, ALLURE_DESCRIPTION_HTML)
 
 
 def allure_labels(item):
     for keyword in item.keywords.keys():
         if keyword.startswith(ALLURE_LABEL_PREFIX):
-            marker = item.get_marker(keyword)
+            marker = item.get_closest_marker(keyword)
             label_type = marker.kwargs['label_type']
-            if label_type.value in ALLURE_UNIQUE_LABELS:
-                yield (label_type.value, marker.args[0])
+            if label_type in ALLURE_UNIQUE_LABELS:
+                yield (label_type, marker.args[0])
             else:
                 for value in marker.args:
-                    yield (label_type.value, value)
+                    yield (label_type, value)
 
 
 def allure_links(item):
     for keyword in item.keywords.keys():
         if keyword.startswith(ALLURE_LINK_PREFIX):
-            marker = item.get_marker(keyword)
-            link_type = marker.name.split('.', 1)[-1]
+            marker = item.get_closest_marker(keyword)
+            link_type = marker.kwargs['link_type']
             url = marker.args[0]
             name = marker.kwargs['name']
             yield (link_type, url, name)
 
 
-def allure_package(nodeid):
-    parts = nodeid.split('::')
-    path = parts[0].split('.')[0]
-    return path.replace(os.sep, '.')
+def pytest_markers(item):
+    """Do not consider pytest marks (has args/kwargs) as user tags
+    e.g. @pytest.mark.parametrize/skip/skipif/usefixtures etc..."""
+    for keyword in item.keywords.keys():
+        if keyword.startswith('allure_'):
+            continue
+        marker = item.get_closest_marker(keyword)
+        if marker is None:
+            continue
+        user_tag_mark = (not marker.args and not marker.kwargs)
+        if marker.name == "marker" or user_tag_mark:
+            yield mark_to_str(marker)
 
 
-def allure_full_name(nodeid):
-    parts = nodeid.split('::')
-    package = allure_package(nodeid)
-    clazz = u'.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
+def mark_to_str(marker):
+    args = [represent(arg) for arg in marker.args]
+    kwargs = ['{name}={value}'.format(name=key, value=represent(marker.kwargs[key])) for key in marker.kwargs]
+    markstr = '{name}'.format(name=marker.name)
+    if args or kwargs:
+        parameters = ', '.join(args + kwargs)
+        markstr = '{}({})'.format(markstr, parameters)
+    return markstr
+
+
+def allure_package(item):
+    parts = item.nodeid.split('::')
+    path = parts[0].rsplit('.', 1)[0]
+    return path.replace('/', '.')
+
+
+def allure_name(item, parameters):
+    name = escape_name(item.name)
+    title = allure_title(item)
+    return title.format(**parameters) if title else name
+
+
+def allure_full_name(item):
+    parts = item.nodeid.split('::')
+    package = allure_package(item)
+    clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
     test = parts[-1]
-    return u'{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+    full_name = '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+    return escape_name(full_name)
 
 
-def step_parameters(func, *a, **kw):
-    if sys.version_info.major < 3:
-        all_names = inspect.getargspec(func).args
-        defaults = inspect.getargspec(func).defaults
+def allure_suite_labels(item):
+    head, possibly_clazz, tail = islice(chain(item.nodeid.split('::'), [None], [None]), 3)
+    clazz = possibly_clazz if tail else None
+    file_name, path = islice(chain(reversed(head.rsplit('/', 1)), [None]), 2)
+    module = file_name.split('.')[0]
+    package = path.replace('/', '.') if path else None
+    pairs = dict(zip([LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE], [package, module, clazz]))
+    labels = dict(allure_labels(item))
+    default_suite_labels = []
+    for suite_label in pairs.keys():
+        if suite_label not in labels.keys():
+            default_suite_labels.append((suite_label, pairs[suite_label]))
+
+    return default_suite_labels
+
+
+def escape_name(name):
+    if six.PY2:
+        try:
+            name.decode('string_escape').encode('unicode_escape')
+        except UnicodeDecodeError:
+            return name.decode('string_escape').decode('utf-8')
+    return name.encode('ascii', 'backslashreplace').decode('unicode_escape')
+
+
+def get_outcome_status(outcome):
+    _, exception, _ = outcome.excinfo or (None, None, None)
+    return get_status(exception)
+
+
+def get_outcome_status_details(outcome):
+    exception_type, exception, exception_traceback = outcome.excinfo or (None, None, None)
+    return get_status_details(exception_type, exception, exception_traceback)
+
+
+def get_status(exception):
+    if exception:
+        if isinstance(exception, AssertionError) or isinstance(exception, pytest.fail.Exception):
+            return Status.FAILED
+        elif isinstance(exception, pytest.skip.Exception):
+            return Status.SKIPPED
+        return Status.BROKEN
     else:
-        all_names = inspect.getfullargspec(func).args
-        defaults = inspect.getfullargspec(func).defaults
-    args_part = [(n, str(v)) for n, v in zip(all_names, a)]
-    kwarg_part = [(n, str(kw[n]) if n in kw else str(defaults[i])) for i, n in enumerate(all_names[len(a):])]
-    return args_part + kwarg_part
+        return Status.PASSED
+
+
+def get_status_details(exception_type, exception, exception_traceback):
+    message = escape_non_unicode_symbols(format_exception(exception_type, exception))
+    trace = escape_non_unicode_symbols(format_traceback(exception_traceback))
+    return StatusDetails(message=message, trace=trace) if message or trace else None
+
+
+def get_pytest_report_status(pytest_report):
+    pytest_statuses = ('failed', 'passed', 'skipped')
+    statuses = (Status.FAILED, Status.PASSED, Status.SKIPPED)
+    for pytest_status, status in zip(pytest_statuses, statuses):
+        if getattr(pytest_report, pytest_status):
+            return status
