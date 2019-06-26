@@ -2,7 +2,7 @@ import os
 from setuptools import setup
 
 PACKAGE = "allure-behave"
-VERSION = "2.6.5"
+VERSION = "2.6.6"
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -20,7 +20,7 @@ classifiers = [
 
 install_requires = [
     "behave>=1.2.5",
-    "allure-python-commons==2.6.5"
+    "allure-python-commons==2.6.6"
 ]
 
 
