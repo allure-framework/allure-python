@@ -6,7 +6,12 @@ from allure_robotframework.types import RobotStatus
 
 
 def get_allure_status(status):
-    return Status.PASSED if status == RobotStatus.PASSED else Status.FAILED
+    if status == RobotStatus.PASSED:
+        return Status.PASSED
+    elif status == RobotStatus.SKIPPED:
+        return Status.SKIPPED
+    else:
+        return Status.FAILED
 
 
 def get_allure_parameters(parameters):
