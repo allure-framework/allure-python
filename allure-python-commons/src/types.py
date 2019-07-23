@@ -28,6 +28,7 @@ class LabelType(str):
     THREAD = 'thread'
     HOST = 'host'
     TAG = 'tag'
+    ID = 'as_id'
     FRAMEWORK = 'framework'
     LANGUAGE = 'language'
 

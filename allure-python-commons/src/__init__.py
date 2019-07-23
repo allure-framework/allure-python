@@ -7,7 +7,6 @@ from allure_commons._allure import test  # noqa: F401
 __all__ = [
     'hookimpl',
     'plugin_manager',
-
     'fixture',
     'test'
 ]
