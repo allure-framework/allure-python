@@ -2,8 +2,7 @@ from functools import wraps
 
 from allure_commons._core import plugin_manager
 from allure_commons.types import LabelType, LinkType
-from allure_commons.utils import uuid4
-from allure_commons.utils import func_parameters, represent
+from allure_commons.utils import uuid4, func_parameters, represent, StepFailMark
 
 
 def safely(result):
@@ -139,12 +138,21 @@ class StepContext:
         self.title = title
         self.params = params
         self.uuid = uuid4()
+        self.fail_mark = ''
 
     def __enter__(self):
         plugin_manager.hook.start_step(uuid=self.uuid, title=self.title, params=self.params)
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        plugin_manager.hook.stop_step(uuid=self.uuid, title=self.title, exc_type=exc_type, exc_val=exc_val,
+        _exc_type = exc_type
+        _exc_val = exc_val
+
+        if exc_type is None and self.fail_mark:
+            _exc_type = StepFailMark
+            _exc_val = StepFailMark(self.fail_mark)
+
+        plugin_manager.hook.stop_step(uuid=self.uuid, title=self.title, exc_type=_exc_type, exc_val=_exc_val,
                                       exc_tb=exc_tb)
 
     def __call__(self, func):

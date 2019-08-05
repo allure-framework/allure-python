@@ -10,6 +10,11 @@ Steps
     ...         pass
 
 
+    >>> def test_inline_fail_mark_step():
+    ...     with allure.step("inline fail mark step") as step:
+    ...         step.fail_mark = "some fail message"
+
+
     >>> @allure.step
     ... def passed_step():
     ...     pass
