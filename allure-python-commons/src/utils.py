@@ -391,3 +391,11 @@ def format_exception(etype, value):
 
 class StepFailMark(Exception):
     pass
+
+
+class StepBrokenMark(Exception):
+    pass
+
+
+class StepPassedMark(Exception):
+    pass

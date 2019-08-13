@@ -5,7 +5,14 @@ import six
 import pytest
 from itertools import chain, islice
 from allure_commons.utils import represent
-from allure_commons.utils import format_exception, format_traceback, escape_non_unicode_symbols, StepFailMark
+from allure_commons.utils import (
+    format_exception,
+    format_traceback,
+    escape_non_unicode_symbols,
+    StepBrokenMark,
+    StepFailMark,
+    StepPassedMark,
+)
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType
@@ -152,10 +159,14 @@ def get_status(exception):
     if exception:
         if isinstance(exception, AssertionError) or isinstance(exception, pytest.fail.Exception):
             return Status.FAILED
-        if isinstance(exception, StepFailMark):
-            return Status.FAILED
         if isinstance(exception, pytest.skip.Exception):
             return Status.SKIPPED
+        if isinstance(exception, StepFailMark):
+            return Status.FAILED
+        if isinstance(exception, StepBrokenMark):
+            return Status.BROKEN
+        if isinstance(exception, StepPassedMark):
+            return Status.PASSED
         return Status.BROKEN
     else:
         return Status.PASSED

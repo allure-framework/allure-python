@@ -1,8 +1,9 @@
 from functools import wraps
 
 from allure_commons._core import plugin_manager
+from allure_commons.model2 import Status
 from allure_commons.types import LabelType, LinkType
-from allure_commons.utils import uuid4, func_parameters, represent, StepFailMark
+from allure_commons.utils import uuid4, func_parameters, represent, StepFailMark, StepBrokenMark, StepPassedMark
 
 
 def safely(result):
@@ -138,22 +139,30 @@ class StepContext:
         self.title = title
         self.params = params
         self.uuid = uuid4()
-        self.fail_mark = ''
+        self.status = ''
+        self.message = ''
+        self.trace = ''
 
     def __enter__(self):
         plugin_manager.hook.start_step(uuid=self.uuid, title=self.title, params=self.params)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        _exc_type = exc_type
-        _exc_val = exc_val
+        _exc_type, _exc_val, _exc_tb = exc_type, exc_val, exc_tb
 
-        if exc_type is None and self.fail_mark:
-            _exc_type = StepFailMark
-            _exc_val = StepFailMark(self.fail_mark)
+        if exc_type is None:
+            if self.status == Status.FAILED:
+                _exc_type, _exc_val = StepFailMark, StepFailMark(self.message)
+            elif self.status == Status.BROKEN:
+                _exc_type, _exc_val = StepBrokenMark, StepBrokenMark(self.message)
+            elif self.status == Status.PASSED:
+                _exc_type, _exc_val = StepPassedMark, StepPassedMark(self.message)
+
+            if self.trace:
+                _exc_tb = self.trace
 
         plugin_manager.hook.stop_step(uuid=self.uuid, title=self.title, exc_type=_exc_type, exc_val=_exc_val,
-                                      exc_tb=exc_tb)
+                                      exc_tb=_exc_tb)
 
     def __call__(self, func):
         @wraps(func)
