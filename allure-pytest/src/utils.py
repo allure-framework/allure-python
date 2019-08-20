@@ -9,6 +9,8 @@ from allure_commons.utils import format_exception, format_traceback, escape_non_
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType
+from allure_commons.utils import md5
+
 
 ALLURE_DISPLAY_NAME_MARK = 'allure_display_name'
 ALLURE_DESCRIPTION_MARK = 'allure_description'
@@ -108,7 +110,8 @@ def allure_full_name(item):
     parts = item.nodeid.split('::')
     package = allure_package(item)
     clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
-    test = parts[-1]
+    test_with_params = parts[-1]
+    test = test_with_params.rsplit("[", 1)[0]
     full_name = '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
     return escape_name(full_name)
 
