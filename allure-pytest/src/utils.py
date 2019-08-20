@@ -10,6 +10,7 @@ from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType
 
+
 ALLURE_DISPLAY_NAME_MARK = 'allure_display_name'
 ALLURE_DESCRIPTION_MARK = 'allure_description'
 ALLURE_DESCRIPTION_HTML_MARK = 'allure_description_html'
@@ -108,7 +109,8 @@ def allure_full_name(item):
     parts = item.nodeid.split('::')
     package = allure_package(item)
     clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
-    test = parts[-1]
+    test_with_params = parts[-1]
+    test = test_with_params.rsplit("[", 1)[0]
     full_name = '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
     return escape_name(full_name)
 

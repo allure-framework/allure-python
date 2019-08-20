@@ -2,7 +2,6 @@ import pytest
 import allure_commons
 from allure_commons.utils import escape_non_unicode_symbols
 from allure_commons.utils import now
-from allure_commons.utils import md5
 from allure_commons.utils import uuid4
 from allure_commons.utils import represent
 from allure_commons.utils import platform_label
@@ -22,6 +21,7 @@ from allure_pytest.utils import allure_suite_labels
 from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 from allure_pytest.utils import get_pytest_report_status
+from allure_commons.utils import md5
 
 
 class AllureListener(object):
@@ -86,10 +86,11 @@ class AllureListener(object):
         params = item.callspec.params if hasattr(item, 'callspec') else {}
 
         test_result.name = allure_name(item, params)
+        test_result.fullName = allure_full_name(item)
+        test_result.historyId = md5(item.name)
         test_result.description = allure_description(item)
         test_result.descriptionHtml = allure_description_html(item)
         test_result.fullName = allure_full_name(item)
-        test_result.historyId = md5(test_result.fullName)
         test_result.parameters.extend(
             [Parameter(name=name, value=represent(value)) for name, value in params.items()])
 

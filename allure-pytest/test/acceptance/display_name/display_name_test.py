@@ -16,7 +16,7 @@ def test_display_name(executed_docstring_path):
 
 def test_display_name_template(executed_docstring_path):
     assert_that(executed_docstring_path.allure_report,
-                has_test_case("test_display_name_template[False]",
+                has_test_case("test_display_name_template",
                               has_title("A some test title with param False")
                               )
                 )
@@ -48,7 +48,7 @@ def test_unicode_display_name_template(executed_docstring_source):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_unicode_display_name_template_example[False]",
+                has_test_case("test_unicode_display_name_template_example",
                               has_title(u"Тест с шаблоном и параметром: False")
                               )
                 )
