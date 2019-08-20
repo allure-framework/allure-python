@@ -9,7 +9,6 @@ from allure_commons.utils import format_exception, format_traceback, escape_non_
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType
-from allure_commons.utils import md5
 
 
 ALLURE_DISPLAY_NAME_MARK = 'allure_display_name'
