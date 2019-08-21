@@ -86,7 +86,9 @@ class AllureListener(object):
         params = item.callspec.params if hasattr(item, 'callspec') else {}
 
         test_result.name = allure_name(item, params)
-        test_result.fullName = allure_full_name(item)
+        full_name = allure_full_name(item)
+        test_result.fullName = full_name
+        test_result.testCaseId = md5(full_name)
         test_result.historyId = md5(item.name)
         test_result.description = allure_description(item)
         test_result.descriptionHtml = allure_description_html(item)
