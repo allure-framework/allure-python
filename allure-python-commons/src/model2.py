@@ -45,6 +45,7 @@ class TestResult(ExecutableItem):
 
     uuid = attrib(default=None)
     historyId = attrib(default=None)
+    testCaseId = attrib(default=None)
     fullName = attrib(default=None)
     labels = attrib(default=Factory(list))
     links = attrib(default=Factory(list))
