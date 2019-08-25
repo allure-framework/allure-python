@@ -159,4 +159,3 @@ def with_trace_contains(string):
 
 def has_history_id():
     return has_entry('historyId', anything())
-
