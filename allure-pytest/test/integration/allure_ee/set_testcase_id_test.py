@@ -3,7 +3,7 @@ from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_label
 
 
-def test_allure_ee_id_label(executed_docstring_source):
+def test_set_testcase_id_label(executed_docstring_source):
     """
     >>> import allure
 

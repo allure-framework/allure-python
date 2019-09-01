@@ -3,11 +3,13 @@ import argparse
 import allure
 import allure_commons
 import os
+import json
 
 from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
 
-from allure_pytest.utils import allure_labels
+
+from allure_pytest.utils import allure_label, allure_labels
 from allure_pytest.helper import AllureTestHelper
 from allure_pytest.listener import AllureListener
 
@@ -137,10 +139,23 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "{mark}: allure description html".format(mark=ALLURE_DESCRIPTION_HTML_MARK))
 
 
-def pytest_collection_modifyitems(items, config):
+def select_by_labels(items, config):
     arg_labels = set().union(config.option.allure_epics,
                              config.option.allure_features,
                              config.option.allure_stories,
                              config.option.allure_severities)
+    return filter(lambda item: arg_labels & set(allure_labels(item)) if arg_labels else True, items)
 
-    items[:] = filter(lambda item: arg_labels & set(allure_labels(item)) if arg_labels else True, items)
+
+def select_by_testcase(items):
+    file_path = os.environ.get("AS_TESTPLAN_PATH")
+    ids = []
+    if file_path:
+        with open(file_path, 'r') as file:
+            ids = set(json.load(file))
+    return filter(lambda item: ids & set(allure_label(item, LabelType.ID)) if ids else True, items)
+
+
+def pytest_collection_modifyitems(items, config):
+    items[:] = select_by_testcase(items)
+    items[:] = select_by_labels(items, config)
