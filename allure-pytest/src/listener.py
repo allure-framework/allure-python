@@ -242,8 +242,12 @@ class AllureListener(object):
         test_result = self.allure_logger.get_test(None)
         if test_result:
             pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
-            url = pattern.format(url)
-            test_result.links.append(Link(link_type, url, name))
+            link_url = pattern.format(url)
+            new_link = Link(link_type, link_url, link_url if name is None else name)
+            for link in test_result.links:
+                if link.url == new_link.url:
+                    return
+            test_result.links.append(new_link)
 
     @allure_commons.hookimpl
     def add_label(self, label_type, labels):
