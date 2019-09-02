@@ -1,16 +1,21 @@
-import pytest
 import argparse
-from six import text_type
 
 import allure
 import allure_commons
+import os
+import json
 
 from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
 
-from allure_pytest.utils import allure_labels
+
+from allure_pytest.utils import allure_label, allure_labels
 from allure_pytest.helper import AllureTestHelper
 from allure_pytest.listener import AllureListener
+
+from allure_pytest.utils import ALLURE_DISPLAY_NAME_MARK
+from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
+from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 
 
 def pytest_addoption(parser):
@@ -21,13 +26,25 @@ def pytest_addoption(parser):
                                            default=None,
                                            help="Generate Allure report in the specified directory (may not exist)")
 
-    def label_type(name, legal_values=set()):
+    parser.getgroup("reporting").addoption('--clean-alluredir',
+                                           action="store_true",
+                                           dest="clean_alluredir",
+                                           help="Clean alluredir folder if it exists")
+
+    parser.getgroup("reporting").addoption('--allure-no-capture',
+                                           action="store_false",
+                                           dest="attach_capture",
+                                           help="Do not attach pytest captured logging/stdout/stderr to report")
+
+    def label_type(type_name, legal_values=set()):
         def a_label_type(string):
             atoms = set(string.split(','))
-            if legal_values and not atoms < legal_values:
-                raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
-                    name, ', '.join(atoms - legal_values), ', '.join(legal_values)))
-            return set((name.value, atom) for atom in atoms)
+            if type_name is LabelType.SEVERITY:
+                if not atoms < legal_values:
+                    raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
+                        type_name, ', '.join(atoms - legal_values), ', '.join(legal_values)))
+                return set((type_name, allure.severity_level(atom)) for atom in atoms)
+            return set((type_name, atom) for atom in atoms)
         return a_label_type
 
     severities = [x.value for x in list(allure.severity_level)]
@@ -36,17 +53,26 @@ def pytest_addoption(parser):
                                          dest="allure_severities",
                                          metavar="SEVERITIES_SET",
                                          default={},
-                                         type=label_type(name=LabelType.SEVERITY, legal_values=set(severities)),
+                                         type=label_type(LabelType.SEVERITY, legal_values=set(severities)),
                                          help="""Comma-separated list of severity names.
                                          Tests only with these severities will be run.
                                          Possible values are: %s.""" % ', '.join(severities))
+
+    parser.getgroup("general").addoption('--allure-epics',
+                                         action="store",
+                                         dest="allure_epics",
+                                         metavar="EPICS_SET",
+                                         default={},
+                                         type=label_type(LabelType.EPIC),
+                                         help="""Comma-separated list of epic names.
+                                         Run tests that have at least one of the specified feature labels.""")
 
     parser.getgroup("general").addoption('--allure-features',
                                          action="store",
                                          dest="allure_features",
                                          metavar="FEATURES_SET",
                                          default={},
-                                         type=label_type(name=LabelType.FEATURE),
+                                         type=label_type(LabelType.FEATURE),
                                          help="""Comma-separated list of feature names.
                                          Run tests that have at least one of the specified feature labels.""")
 
@@ -55,7 +81,7 @@ def pytest_addoption(parser):
                                          dest="allure_stories",
                                          metavar="STORIES_SET",
                                          default={},
-                                         type=label_type(name=LabelType.STORY),
+                                         type=label_type(LabelType.STORY),
                                          help="""Comma-separated list of story names.
                                          Run tests that have at least one of the specified story labels.""")
 
@@ -79,31 +105,57 @@ def pytest_addoption(parser):
                                          str.format().""")
 
 
+def cleanup_factory(plugin):
+    def clean_up():
+        name = allure_commons.plugin_manager.get_name(plugin)
+        allure_commons.plugin_manager.unregister(name=name)
+    return clean_up
+
+
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
+    clean = config.option.clean_alluredir
+
+    test_helper = AllureTestHelper(config)
+    # TODO: Why helper is present anyway?
+    allure_commons.plugin_manager.register(test_helper)
+    config.add_cleanup(cleanup_factory(test_helper))
 
     if report_dir:
-        test_helper = AllureTestHelper(config)
-        allure_commons.register(test_helper)
-
+        report_dir = os.path.abspath(report_dir)
         test_listener = AllureListener(config)
         config.pluginmanager.register(test_listener)
-        allure_commons.register(test_listener)
+        allure_commons.plugin_manager.register(test_listener)
+        config.add_cleanup(cleanup_factory(test_listener))
 
-        file_logger = AllureFileLogger(report_dir)
-        allure_commons.register(file_logger)
+        file_logger = AllureFileLogger(report_dir, clean)
+        allure_commons.plugin_manager.register(file_logger)
+        config.add_cleanup(cleanup_factory(file_logger))
 
-
-def pytest_runtest_setup(item):
-    item_labels = set((name, value) for name, value in allure_labels(item))
-
-    arg_labels = set().union(item.config.option.allure_features,
-                             item.config.option.allure_stories,
-                             item.config.option.allure_severities)
-
-    if arg_labels and not item_labels & arg_labels:
-        pytest.skip('Not suitable with selected labels: %s.' % ', '.join(text_type(l) for l in sorted(arg_labels)))
+    config.addinivalue_line("markers", "{mark}: allure label marker".format(mark=ALLURE_LABEL_MARK))
+    config.addinivalue_line("markers", "{mark}: allure link marker".format(mark=ALLURE_LINK_MARK))
+    config.addinivalue_line("markers", "{mark}: allure test name marker".format(mark=ALLURE_DISPLAY_NAME_MARK))
+    config.addinivalue_line("markers", "{mark}: allure description".format(mark=ALLURE_DESCRIPTION_MARK))
+    config.addinivalue_line("markers", "{mark}: allure description html".format(mark=ALLURE_DESCRIPTION_HTML_MARK))
 
 
-def pytest_namespace():
-    return {"allure": allure}
+def select_by_labels(items, config):
+    arg_labels = set().union(config.option.allure_epics,
+                             config.option.allure_features,
+                             config.option.allure_stories,
+                             config.option.allure_severities)
+    return filter(lambda item: arg_labels & set(allure_labels(item)) if arg_labels else True, items)
+
+
+def select_by_testcase(items):
+    file_path = os.environ.get("AS_TESTPLAN_PATH")
+    ids = []
+    if file_path:
+        with open(file_path, 'r') as file:
+            ids = set(json.load(file))
+    return filter(lambda item: ids & set(allure_label(item, LabelType.ID)) if ids else True, items)
+
+
+def pytest_collection_modifyitems(items, config):
+    items[:] = select_by_testcase(items)
+    items[:] = select_by_labels(items, config)
