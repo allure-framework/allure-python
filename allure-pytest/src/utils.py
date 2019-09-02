@@ -47,6 +47,14 @@ def allure_description_html(item):
     return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
 
 
+def allure_label(item, label):
+    labels = []
+    for mark in item.iter_markers(name=ALLURE_LABEL_MARK):
+        if mark.kwargs.get("label_type") == label:
+            labels.extend(mark.args)
+    return labels
+
+
 def allure_labels(item):
     unique_labels = dict()
     labels = set()
@@ -60,7 +68,6 @@ def allure_labels(item):
                 labels.add((label_type, arg))
     for k, v in unique_labels.items():
         labels.add((k, v))
-
     return labels
 
 
