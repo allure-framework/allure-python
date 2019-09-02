@@ -3,7 +3,7 @@ from setuptools import setup
 
 
 PACKAGE = "allure-robotframework"
-VERSION = "2.8.0"
+VERSION = "2.8.1"
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -16,7 +16,7 @@ classifiers = [
 ]
 
 install_requires = [
-    "allure-python-commons==2.8.0",
+    "allure-python-commons==2.8.1",
 ]
 
 
