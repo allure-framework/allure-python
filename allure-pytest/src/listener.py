@@ -89,10 +89,8 @@ class AllureListener(object):
         full_name = allure_full_name(item)
         test_result.fullName = full_name
         test_result.testCaseId = md5(full_name)
-        test_result.historyId = md5(item.name)
         test_result.description = allure_description(item)
         test_result.descriptionHtml = allure_description_html(item)
-        test_result.fullName = allure_full_name(item)
         test_result.parameters.extend(
             [Parameter(name=name, value=represent(value)) for name, value in params.items()])
 
