@@ -131,9 +131,9 @@ def allure_suite_labels(item):
     pairs = dict(zip([LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE], [package, module, clazz]))
     labels = dict(allure_labels(item))
     default_suite_labels = []
-    for suite_label in pairs.keys():
-        if suite_label not in labels.keys():
-            default_suite_labels.append((suite_label, pairs[suite_label]))
+    for label, value in pairs.items():
+        if label not in labels.keys() and value:
+            default_suite_labels.append((label, value))
 
     return default_suite_labels
 
