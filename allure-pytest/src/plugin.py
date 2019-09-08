@@ -153,7 +153,7 @@ def select_by_testcase(items):
     if file_path:
         with open(file_path, 'r') as file:
             plan = json.load(file)
-            ids = set([item.get("id") for item in plan])
+            ids = set([str(item.get("id")) for item in plan])
     return filter(lambda item: ids & set(allure_label(item, LabelType.ID)) if ids else True, items)
 
 
