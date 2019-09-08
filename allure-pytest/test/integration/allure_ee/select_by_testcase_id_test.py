@@ -8,11 +8,11 @@ from hamcrest import assert_that, only_contains, any_of, ends_with
     ["ids", "expected_tests"],
     [
         (
-            ["1", "2"],
+            [{"id": "1"}, {"id": "2"}],
             ["test_number_one", "test_number_two"]
         ),
         (
-            ["1", "3", "3+"],
+            [{"id": "1"}, {"id": "3"}, {"id": "3+"}],
             ["test_number_one", "test_number_three"]
         ),
         (
