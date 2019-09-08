@@ -8,11 +8,11 @@ from hamcrest import assert_that, only_contains, any_of, ends_with
     ["ids", "expected_tests"],
     [
         (
-            [{"id": "1"}, {"id": "2"}],
+            [{"id": 1}, {"id": 2}],
             ["test_number_one", "test_number_two"]
         ),
         (
-            [{"id": "1"}, {"id": "3"}, {"id": "3+"}],
+            [{"id": 1}, {"id": 3}, {"id": 4}],
             ["test_number_one", "test_number_three"]
         ),
         (
@@ -34,7 +34,7 @@ def test_select_by_testcase_id_test(ids, expected_tests, allured_testdir):
     ...     pass
 
     >>> @allure.id("3")
-    ... @allure.id("3+")
+    ... @allure.id("4")
     ... def test_number_three():
     ...     pass
 
