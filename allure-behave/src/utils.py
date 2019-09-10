@@ -3,11 +3,14 @@ from __future__ import unicode_literals
 
 from enum import Enum
 from behave.runner_util import make_undefined_step_snippet
-from allure_commons.types import Severity
+from allure_commons.types import Severity, LabelType
 from allure_commons.model2 import Status, Parameter
+from allure_commons.model2 import Link, Label
 from allure_commons.model2 import StatusDetails
 from allure_commons.utils import md5
 from allure_commons.utils import format_exception, format_traceback
+from allure_commons.mapping import parse_tag, labels_set
+
 
 STATUS = {
     'passed': Status.PASSED,
@@ -35,16 +38,17 @@ def scenario_parameters(scenario):
     return [Parameter(name=name, value=value) for name, value in zip(row.headings, row.cells)] if row else None
 
 
-def scenario_severity(scenario):
+def scenario_links(scenario):
     tags = scenario.feature.tags + scenario.tags
-    severities = list(filter(lambda tag: tag in [severity.value for severity in Severity], tags))
-    return Severity(severities[-1]) if severities else Severity.NORMAL
+    parsed = [parse_tag(item) for item in tags]
+    return filter(lambda x: isinstance(x, Link), parsed)
 
 
-def scenario_tags(scenario):
+def scenario_labels(scenario):
     tags = scenario.feature.tags + scenario.tags
-    tags = list(filter(lambda tag: tag not in [severity.value for severity in Severity], tags))
-    return set(tags) if tags else []
+    default_labels = [Label(name=LabelType.SEVERITY, value=Severity.NORMAL)]
+    parsed = [parse_tag(item) for item in tags]
+    return labels_set(list(filter(lambda x: isinstance(x, Label), default_labels + parsed)))
 
 
 def scenario_status(scenario):
