@@ -7,11 +7,13 @@ from allure_commons_test.result import has_step
 from allure_commons_test.result import has_attachment
 from allure_commons_test.result import has_parameter
 from allure_commons_test.result import has_status_details
-from allure_commons_test.result import with_status_message
+from allure_commons_test.result import with_message_contains
+from allure_commons_test.result import has_link
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before, has_after
 from allure_commons_test.label import has_severity
 from allure_commons_test.label import has_tag
+from allure_commons_test.label import has_label
 
 
 def match(matcher, *args):
@@ -93,7 +95,7 @@ def step_status(context, item, status):
 @then(u'this {item} has status details with message "{message}"')
 def step_status(context, item, message):
     context_matcher = getattr(context, item)
-    matcher = partial(context_matcher, has_status_details, with_status_message, message)
+    matcher = partial(context_matcher, has_status_details, with_message_contains, message)
     assert_that(context.allure_report, matcher())
 
 
@@ -110,6 +112,26 @@ def step_severity(context, severity):
 def step_tag(context, tag):
     context_matcher = context.scenario
     matcher = partial(context_matcher, has_tag, tag)
+    assert_that(context.allure_report, matcher())
+
+
+@then(u'scenario has "{url}" link')
+@then(u'this scenario has "{url}" link')
+@then(u'scenario has "{url}" link with type "{link_type}"')
+@then(u'this scenario has "{url}" link with type "{link_type}"')
+@then(u'scenario has "{url}" link with type "{link_type}" and name "{name}"')
+@then(u'this scenario has "{url}" link with type "{link_type}" and name "{name}"')
+def step_link(context, url, link_type=None, name=None,):
+    context_matcher = context.scenario
+    matcher = partial(context_matcher, has_link, url, link_type, name)
+    assert_that(context.allure_report, matcher())
+
+
+@then(u'scenario has "{name}" label with value "{value}"')
+@then(u'this scenario has "{name}" label with value "{value}"')
+def step_label(context, name, value):
+    context_matcher = context.scenario
+    matcher = partial(context_matcher, has_label, name, value)
     assert_that(context.allure_report, matcher())
 
 

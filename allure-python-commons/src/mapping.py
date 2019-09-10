@@ -1,6 +1,6 @@
 from itertools import chain, islice
 import attr
-import re
+
 from allure_commons.types import Severity, LabelType, LinkType
 from allure_commons.types import ALLURE_UNIQUE_LABELS
 from allure_commons.model2 import Label, Link
@@ -8,22 +8,12 @@ from allure_commons.model2 import Label, Link
 
 TAG_PREFIX = "allure"
 
-semi_sep = re.compile(r"allure[\.\w]+:")
-eq_sep = re.compile(r"allure[\.\w]+=")
-
-
-def allure_tag_sep(tag):
-    if semi_sep.search(tag):
-        return ":"
-    if eq_sep.search(tag):
-        return "="
-
 
 def __is(kind, t):
     return kind in [v for k, v in t.__dict__.items() if not k.startswith('__')]
 
 
-def parse_tag(tag, issue_pattern=None, link_pattern=None):
+def parse_tag(tag):
     """
     >>> parse_tag("blocker")
     Label(name='severity', value='blocker')
@@ -49,8 +39,7 @@ def parse_tag(tag, issue_pattern=None, link_pattern=None):
     >>> parse_tag("allure.foo:1")
     Label(name='tag', value='allure.foo:1')
     """
-    sep = allure_tag_sep(tag)
-    schema, value = islice(chain(tag.split(sep, 1), [None]), 2)
+    schema, value = islice(chain(tag.split(':', 1), [None]), 2)
     prefix, kind, name = islice(chain(schema.split('.'), [None], [None]), 3)
 
     if tag in [severity for severity in Severity]:
@@ -59,17 +48,10 @@ def parse_tag(tag, issue_pattern=None, link_pattern=None):
     if prefix == TAG_PREFIX and value is not None:
 
         if __is(kind, LinkType):
-            if issue_pattern and kind == "issue" and not value.startswith("http"):
-                value = issue_pattern.format(value)
-            if link_pattern and kind == "link" and not value.startswith("http"):
-                value = link_pattern.format(value)
             return Link(type=kind, name=name or value, url=value)
 
         if __is(kind, LabelType):
             return Label(name=kind, value=value)
-
-        if kind == "id":
-            return Label(name=LabelType.ID, value=value)
 
         if kind == "label" and name is not None:
             return Label(name=name, value=value)
@@ -116,4 +98,4 @@ def labels_set(labels):
                 return hash(self.label.name)
             return hash(repr(self))
 
-    return sorted([wl.label for wl in set([Wl(label) for label in reversed(labels)])])
+    return sorted([wl.label for wl in set([Wl(l) for l in reversed(labels)])])

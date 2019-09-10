@@ -13,14 +13,14 @@ from allure_commons.model2 import TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
 from allure_commons.model2 import Parameter, Label
 from allure_behave.utils import scenario_parameters
-from allure_behave.utils import scenario_severity
-from allure_behave.utils import scenario_tags
 from allure_behave.utils import scenario_name
 from allure_behave.utils import scenario_history_id
 from allure_behave.utils import step_status, step_status_details
 from allure_behave.utils import scenario_status, scenario_status_details
 from allure_behave.utils import step_table
 from allure_behave.utils import get_status, get_status_details
+from allure_behave.utils import scenario_links
+from allure_behave.utils import scenario_labels
 
 
 BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
@@ -96,8 +96,9 @@ class AllureListener(object):
         test_case.historyId = scenario_history_id(scenario)
         test_case.description = '\n'.join(scenario.description)
         test_case.parameters = scenario_parameters(scenario)
-        test_case.labels.extend([Label(name=LabelType.TAG, value=tag) for tag in scenario_tags(scenario)])
-        test_case.labels.append(Label(name=LabelType.SEVERITY, value=scenario_severity(scenario).value))
+
+        test_case.links.extend(scenario_links(scenario))
+        test_case.labels.extend(scenario_labels(scenario))
         test_case.labels.append(Label(name=LabelType.FEATURE, value=scenario.feature.name))
         test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))
         test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))

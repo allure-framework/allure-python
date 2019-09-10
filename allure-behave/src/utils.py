@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from behave.model import ScenarioOutline
+from enum import Enum
 from behave.runner_util import make_undefined_step_snippet
-from allure_commons.types import Severity
-from allure_commons.model2 import Status, Parameter, Label
+from allure_commons.types import Severity, LabelType
+from allure_commons.model2 import Status, Parameter
+from allure_commons.model2 import Link, Label
 from allure_commons.model2 import StatusDetails
 from allure_commons.utils import md5
 from allure_commons.utils import format_exception, format_traceback
+from allure_commons.mapping import parse_tag, labels_set
+
 
 STATUS = {
     'passed': Status.PASSED,
@@ -19,10 +22,6 @@ STATUS = {
 
 
 def scenario_name(scenario):
-    scenario_outlines = [so for so in scenario.feature if isinstance(so, ScenarioOutline)]
-    current_scenario_outline = next(iter(filter(lambda so: scenario in so.scenarios, scenario_outlines)), None)
-    if current_scenario_outline:
-        return current_scenario_outline.name if current_scenario_outline.name else current_scenario_outline.keyword
     return scenario.name if scenario.name else scenario.keyword
 
 
@@ -39,56 +38,63 @@ def scenario_parameters(scenario):
     return [Parameter(name=name, value=value) for name, value in zip(row.headings, row.cells)] if row else None
 
 
-def scenario_severity(scenario):
+def scenario_links(scenario):
     tags = scenario.feature.tags + scenario.tags
-    severities = list(filter(lambda tag: tag in [severity.value for severity in Severity], tags))
-    return Severity(severities[-1]) if severities else Severity.NORMAL
+    parsed = [parse_tag(item) for item in tags]
+    return filter(lambda x: isinstance(x, Link), parsed)
 
 
-def scenario_tags(scenario):
+def scenario_labels(scenario):
     tags = scenario.feature.tags + scenario.tags
-    tags = list(filter(lambda tag: tag not in [severity.value for severity in Severity], tags))
-    return set(tags) if tags else []
+    default_labels = [Label(name=LabelType.SEVERITY, value=Severity.NORMAL)]
+    parsed = [parse_tag(item) for item in tags]
+    return labels_set(list(filter(lambda x: isinstance(x, Label), default_labels + parsed)))
 
 
 def scenario_status(scenario):
     for step in scenario.all_steps:
-        if step.status != 'passed':
+        if step_status(step) != 'passed':
             return step_status(step)
     return Status.PASSED
 
 
 def scenario_status_details(scenario):
     for step in scenario.all_steps:
-        if step.status != 'passed':
+        if step_status(step) != 'passed':
             return step_status_details(step)
 
 
-def fixture_status(exception, exc_traceback):
+def get_status_details(exc_type, exception, exc_traceback):
     if exception:
-        return Status.FAILED if isinstance(exception, AssertionError) else Status.BROKEN
-    else:
-        return Status.BROKEN if exc_traceback else Status.PASSED
-
-
-def fixture_status_details(exception, exc_traceback):
-    if exception:
-        return StatusDetails(message=format_exception(type(exception), exception),
+        return StatusDetails(message=format_exception(exc_type, exception),
                              trace=format_traceback(exc_traceback))
-    return None
 
 
 def step_status(result):
-    if result.exception and not isinstance(result.exception, AssertionError):
-        return Status.BROKEN
+    if result.exception:
+        return get_status(result.exception)
     else:
-        return STATUS.get(result.status, None)
+        if isinstance(result.status, Enum):
+            return STATUS.get(result.status.name, None)
+        else:
+            return STATUS.get(result.status, None)
+
+
+def get_status(exception):
+    if exception and isinstance(exception, AssertionError):
+        return Status.FAILED
+    elif exception:
+        return Status.BROKEN
+    return Status.PASSED
 
 
 def step_status_details(result):
     if result.exception:
-        return StatusDetails(message=format_exception(type(result.exception), result.exception),
-                             trace=format_traceback(result.exc_traceback))
+        # workaround for https://github.com/behave/behave/pull/616
+        trace = "\n".join(result.exc_traceback) if type(result.exc_traceback) == list else format_traceback(
+            result.exc_traceback)
+        return StatusDetails(message=format_exception(type(result.exception), result.exception), trace=trace)
+
     elif result.status == 'undefined':
         message = '\nYou can implement step definitions for undefined steps with these snippets:\n\n'
         message += make_undefined_step_snippet(result)
