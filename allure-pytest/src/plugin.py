@@ -148,12 +148,17 @@ def select_by_labels(items, config):
 
 
 def select_by_testcase(items):
-    file_path = os.environ.get("AS_TESTPLAN_PATH")
     ids = []
-    if file_path:
+    file_path = os.environ.get("AS_TESTPLAN_PATH")
+    env_string = os.environ.get("AS_TESTPLAN_IDS")
+
+    if env_string:
+        ids = set(env_string.strip().split(","))
+    elif file_path:
         with open(file_path, 'r') as file:
             plan = json.load(file)
             ids = set([str(item.get("id")) for item in plan])
+
     return filter(lambda item: ids & set(allure_label(item, LabelType.ID)) if ids else True, items)
 
 
