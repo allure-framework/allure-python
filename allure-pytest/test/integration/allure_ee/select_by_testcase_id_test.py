@@ -4,6 +4,7 @@ import os
 from hamcrest import assert_that, only_contains, any_of, ends_with
 
 
+@pytest.mark.parametrize("strategy", ["env_string", "env_path"])
 @pytest.mark.parametrize(
     ["ids", "expected_tests"],
     [
@@ -21,7 +22,7 @@ from hamcrest import assert_that, only_contains, any_of, ends_with
         ),
     ]
 )
-def test_select_by_testcase_id_test(ids, expected_tests, allured_testdir):
+def test_select_by_testcase_id_test(strategy, ids, expected_tests, allured_testdir):
     """
     >>> import allure
 
@@ -43,11 +44,14 @@ def test_select_by_testcase_id_test(ids, expected_tests, allured_testdir):
     """
     allured_testdir.parse_docstring_source()
 
-    if ids:
+    if strategy == "env_path" and ids:
         py_path = allured_testdir.testdir.makefile(".json", json.dumps(ids))
         os.environ["AS_TESTPLAN_PATH"] = py_path.strpath
+    elif strategy == "env_string" and ids:
+        os.environ["AS_TESTPLAN_IDS"] = ",".join([str(item["id"]) for item in ids])
     else:
-        del os.environ["AS_TESTPLAN_PATH"]
+        os.environ.pop("AS_TESTPLAN_PATH", None)
+        os.environ.pop("AS_TESTPLAN_IDS", None)
 
     allured_testdir.run_with_allure()
     test_cases = [test_case["fullName"] for test_case in allured_testdir.allure_report.test_cases]
