@@ -61,4 +61,3 @@ class AllureLifecycle(object):
         step = self._pop_item(uuid=uuid, item_type=TestStepResult)
         if step and not step.stop:
             step.stop = now()
-
