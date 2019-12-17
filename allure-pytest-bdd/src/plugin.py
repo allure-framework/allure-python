@@ -1,13 +1,8 @@
-import argparse
-
 import allure_commons
 import os
 from allure_commons.logger import AllureFileLogger
 from .pytest_bdd_listener import PytestBDDListener
-from .utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
-from .utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 
-from .helper import AllureTestHelper, AllureTitleHelper
 
 def pytest_addoption(parser):
     parser.getgroup("reporting").addoption('--alluredir',
@@ -53,26 +48,16 @@ def cleanup_factory(plugin):
         allure_commons.plugin_manager.unregister(name=name)
     return clean_up
 
-def pytest_addhooks(pluginmanager):
-    # Need register title hooks before conftest init
-    title_helper = AllureTitleHelper()
-    allure_commons.plugin_manager.register(title_helper)
 
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
     clean = config.option.clean_alluredir
 
-    test_helper = AllureTestHelper(config)
-    allure_commons.plugin_manager.register(test_helper)
-    config.add_cleanup(cleanup_factory(test_helper))
-
     if report_dir:
         report_dir = os.path.abspath(report_dir)
 
-        pytest_bdd_listener = PytestBDDListener(config)
+        pytest_bdd_listener = PytestBDDListener()
         config.pluginmanager.register(pytest_bdd_listener)
-        allure_commons.plugin_manager.register(pytest_bdd_listener)
-        config.add_cleanup(cleanup_factory(pytest_bdd_listener))
 
         file_logger = AllureFileLogger(report_dir, clean)
         allure_commons.plugin_manager.register(file_logger)

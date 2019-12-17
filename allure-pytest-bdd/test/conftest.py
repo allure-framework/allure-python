@@ -4,8 +4,8 @@ from contextlib import contextmanager
 import allure_commons
 from allure_commons_test.report import AllureReport
 from allure_commons.logger import AllureFileLogger
-from .steps import * # noqa F401 F403
-from pytest_bdd import given, when, parsers
+from .pytest_bdd_steps import *
+from .report_steps import *
 
 
 @contextmanager
@@ -32,9 +32,9 @@ class AlluredTestdir(object):
     def run_with_allure(self):
         logger = AllureFileLogger(self.testdir.tmpdir.strpath)
         with fake_logger("allure_pytest_bdd.plugin.AllureFileLogger", logger):
-            self.testdir.runpytest("-s", "-v", "--alluredir", self.testdir.tmpdir)
-            # print(a.stdout.lines)
-            # print(a.stderr.lines)
+            a = self.testdir.runpytest("-s", "-v", "--alluredir", self.testdir.tmpdir)
+            print(a.stdout.lines)
+            print(a.stderr.lines)
             self.allure_report = AllureReport(self.testdir.tmpdir.strpath)
 
 
@@ -42,22 +42,3 @@ class AlluredTestdir(object):
 def allured_testdir(testdir, request):
     return AlluredTestdir(testdir, request)
 
-
-@pytest.fixture
-def context():
-    return dict()
-
-
-@pytest.fixture
-def allure_report(allured_testdir, context):
-    return allured_testdir.allure_report
-
-
-@given(parsers.re("(?P<name>\\w+)(?P<extension>\\.\\w+) with content:(?:\n)(?P<content>[\\S|\\s]*)"))
-def feature_definition(name, extension, content, testdir):
-    testdir.makefile(extension, **dict([(name, content)]))
-
-
-@when("run pytest-bdd with allure")
-def run(allured_testdir):
-    allured_testdir.run_with_allure()

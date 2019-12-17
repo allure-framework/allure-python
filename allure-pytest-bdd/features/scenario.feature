@@ -1,32 +1,14 @@
 Feature: Scenario
-  Scenario: Simple passed scenario
-    Given example.feature with content:
+  Scenario: Default labels
+    Given feature file aaa with content:
       """
-      Feature: Scenario
-        Scenario: Simple passed example
+      Feature: Scenario example
+        Scenario: Scenario example
           Given passed step
-          When passed step
+          When failed step
           Then passed step
       """
-    And example_test.py with content:
-      """
-      from pytest_bdd import scenario
-      from pytest_bdd import given, then, when
-
-      @given("passed step")
-      def given_passed_step():
-          pass
-
-      @when("passed step")
-      @then("passed step")
-      def passed_step():
-          pass
-
-      @scenario("example.feature", "Simple passed example")
-      def test_scenario_example():
-          pass
-      """
+    And dummy steps in conftest.py
+    And test file with "Scenario example" scenario in example
     When run pytest-bdd with allure
-    Then allure report has result for "Simple passed example" scenario
-    Then this scenario has passed status
-    Then this scenario has a history id
+    Then it has result for example scenario

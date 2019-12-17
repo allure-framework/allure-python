@@ -34,6 +34,12 @@ def get_name(node, scenario):
         parts = node.nodeid.rsplit("[")
         return "{name} [{params}".format(name=scenario.name, params=parts[-1])
     return scenario.name
+from allure_commons.model2 import StatusDetails
+from allure_commons.utils import format_exception
+
+
+def get_step_name(step):
+    return "{step_keyword} {step_name}".format(step_keyword=step.keyword, step_name=step.name)
 
 
 def get_full_name(feature, scenario):

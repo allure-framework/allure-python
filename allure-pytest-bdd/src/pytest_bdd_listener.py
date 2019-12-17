@@ -45,7 +45,6 @@ class PytestBDDListener(object):
 
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
             test_result.fullName = full_name
-            test_result.name = name
             test_result.start = now()
             test_result.historyId = md5(request.node.nodeid)
             test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(request.node)])
@@ -76,6 +75,7 @@ class PytestBDDListener(object):
         uuid = get_uuid(str(id(step)))
         with self.lifecycle.start_step(parent_uuid=parent_uuid, uuid=uuid) as step_result:
             step_result.name = get_step_name(request.node, step)
+            step_result.name = get_step_name(step)
 
     @pytest.hookimpl
     def pytest_bdd_after_step(self, request, feature, scenario, step, step_func, step_func_args):
@@ -104,6 +104,8 @@ class PytestBDDListener(object):
         report = (yield).get_result()
 
         status = get_pytest_report_status(report)
+        status = reduce(lambda final_status, current_status: final_status or getattr(report, current_status, None),
+                        ["failed", "passed", "skipped"])
 
         status_details = StatusDetails(
             message=call.excinfo.exconly(),
