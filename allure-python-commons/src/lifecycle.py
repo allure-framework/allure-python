@@ -1,11 +1,16 @@
 from collections import OrderedDict
 from contextlib import contextmanager
-from ._core import plugin_manager
-from .model2 import TestResult
-from .model2 import TestStepResult
-from .model2 import ExecutableItem
-from .utils import uuid4
-from .utils import now
+from allure_commons._core import plugin_manager
+from allure_commons.model2 import TestResultContainer
+from allure_commons.model2 import TestResult
+from allure_commons.model2 import Attachment, ATTACHMENT_PATTERN
+from allure_commons.model2 import TestStepResult
+from allure_commons.model2 import ExecutableItem
+from allure_commons.model2 import TestBeforeResult
+from allure_commons.model2 import TestAfterResult
+from allure_commons.utils import uuid4
+from allure_commons.utils import now
+from allure_commons.types import AttachmentType
 
 
 class AllureLifecycle(object):
@@ -61,3 +66,82 @@ class AllureLifecycle(object):
         step = self._pop_item(uuid=uuid, item_type=TestStepResult)
         if step and not step.stop:
             step.stop = now()
+
+    @contextmanager
+    def start_container(self, uuid=None):
+        container = TestResultContainer(uuid=uuid or uuid4())
+        self._items[container.uuid] = container
+        yield container
+
+    def containers(self):
+        for item in self._items.values():
+            if type(item) == TestResultContainer:
+                yield item
+
+    @contextmanager
+    def update_container(self, uuid=None):
+        yield self._get_item(uuid=uuid, item_type=TestResultContainer)
+
+    def write_container(self, uuid=None):
+        container = self._pop_item(uuid=uuid, item_type=TestResultContainer)
+        if container and (container.befores or container.afters):
+            plugin_manager.hook.report_container(container=container)
+
+    @contextmanager
+    def start_before_fixture(self, parent_uuid=None, uuid=None):
+        fixture = TestBeforeResult()
+        parent = self._get_item(uuid=parent_uuid, item_type=TestResultContainer)
+        if parent:
+            parent.befores.append(fixture)
+        self._items[uuid or uuid4()] = fixture
+        yield fixture
+
+    @contextmanager
+    def update_before_fixture(self, uuid=None):
+        yield self._get_item(uuid=uuid, item_type=TestBeforeResult)
+
+    def stop_before_fixture(self, uuid=None):
+        fixture = self._pop_item(uuid=uuid, item_type=TestBeforeResult)
+        if fixture and not fixture.stop:
+            fixture.stop = now()
+
+    @contextmanager
+    def start_after_fixture(self, parent_uuid=None, uuid=None):
+        fixture = TestAfterResult()
+        parent = self._get_item(uuid=parent_uuid, item_type=TestResultContainer)
+        if parent:
+            parent.afters.append(fixture)
+        self._items[uuid or uuid4()] = fixture
+        yield fixture
+
+    @contextmanager
+    def update_after_fixture(self, uuid=None):
+        yield self._get_item(uuid=uuid, item_type=TestAfterResult)
+
+    def stop_after_fixture(self, uuid=None):
+        fixture = self._pop_item(uuid=uuid, item_type=TestAfterResult)
+        if fixture and not fixture.stop:
+            fixture.stop = now()
+
+    def _attach(self, uuid, name=None, attachment_type=None, extension=None):
+        mime_type = attachment_type
+        extension = extension if extension else 'attach'
+
+        if type(attachment_type) is AttachmentType:
+            extension = attachment_type.extension
+            mime_type = attachment_type.mime_type
+
+        file_name = ATTACHMENT_PATTERN.format(prefix=uuid, ext=extension)
+        attachment = Attachment(source=file_name, name=name, type=mime_type)
+        uuid = self._last_item_uuid(item_type=ExecutableItem)
+        self._items[uuid].attachments.append(attachment)
+
+        return file_name
+
+    def attach_file(self, uuid, source, name=None, attachment_type=None, extension=None):
+        file_name = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+        plugin_manager.hook.report_attached_file(source=source, file_name=file_name)
+
+    def attach_data(self, uuid, body, name=None, attachment_type=None, extension=None):
+        file_name = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+        plugin_manager.hook.report_attached_data(body=body, file_name=file_name)

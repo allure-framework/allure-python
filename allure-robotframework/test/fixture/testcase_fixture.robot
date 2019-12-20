@@ -6,7 +6,7 @@ Suite Setup  Run exampe
 
 *** Keywords ***
 Run exampe
-    ${allure_report}   Run Robot With Allure   examples/fixture/testcase_fixture.rst
+    ${allure_report}   Run Robot With Allure   examples/fixture/suite_fixture/
     Set Suite Variable	${report}   ${allure_report}
 
 
