@@ -46,7 +46,7 @@ def get_message_time(timestamp):
 
 LOG_MESSAGE_FORMAT = '<p><b>[{level}]</b>&nbsp;{message}</p>'
 FAIL_MESSAGE_FORMAT = '<p style="color: red"><b>[{level}]</b>&nbsp;{message}</p>'
-MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 0))
+MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 10))
 
 
 class AllureListener(object):
@@ -57,18 +57,40 @@ class AllureListener(object):
         self._current_msg = None
         self._current_tb = None
 
-    def start_suite_container(self):
+    def start_suite_container(self, name, attributes):
         with self.lifecycle.start_container():
             pass
 
-    def stop_suite_container(self):
+    def stop_suite_container(self, name, attributes):
+        suite_status = get_allure_status(attributes.get('status'))
+        suite_message = attributes.get('message')
+
+        with self.lifecycle.update_container() as container:
+            for uuid in container.children:
+                with self.lifecycle.update_test_case(uuid) as test_result:
+                    if test_result and test_result.status == Status.PASSED and suite_status != RobotStatus.PASSED:
+                        test_result.status = suite_status
+                        test_result.statusDetails = StatusDetails(message=self._current_msg or suite_message,
+                                                                  trace=self._current_tb)
+                self.lifecycle.write_test_case(uuid)
+        self._current_tb, self._current_msg = None, None
         self.lifecycle.write_container()
 
-    def start_test_container(self):
+    def start_test_container(self, name, attributes):
         with self.lifecycle.start_container():
             pass
 
-    def stop_test_container(self):
+    def stop_test_container(self, name, attributes):
+        suite_status = get_allure_status(attributes.get('status'))
+        suite_message = attributes.get('message')
+
+        with self.lifecycle.schedule_test_case() as test_result:
+            if test_result.status == Status.PASSED and suite_status != RobotStatus.PASSED:
+                test_result.status = suite_status
+                test_result.statusDetails = StatusDetails(message=self._current_msg or suite_message,
+                                                          trace=self._current_tb)
+
+        self._current_tb, self._current_msg = None, None
         self.lifecycle.write_container()
 
     def start_before_fixture(self, name):
@@ -133,7 +155,6 @@ class AllureListener(object):
             for link_type in (LinkType.ISSUE, LinkType.TEST_CASE, LinkType.LINK):
                 test_result.links.extend(allure_links(attributes, link_type))
 
-        self.lifecycle.write_test_case()
         self._current_tb, self._current_msg = None, None
 
     def start_keyword(self, name):

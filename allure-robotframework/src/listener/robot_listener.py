@@ -26,21 +26,21 @@ class allure_robotframework(object):
 
     def start_suite(self, name, attributes):
         self.messages.start_context()
-        self.listener.start_suite_container()
+        self.listener.start_suite_container(name, attributes)
 
     def end_suite(self, name, attributes):
         self.messages.stop_context()
-        self.listener.stop_suite_container()
+        self.listener.stop_suite_container(name, attributes)
 
     def start_test(self, name, attributes):
         self.messages.start_context()
-        self.listener.start_test_container()
+        self.listener.start_test_container(name, attributes)
         self.listener.start_test(name, attributes)
 
     def end_test(self, name, attributes):
         messages = self.messages.stop_context()
         self.listener.stop_test(name, attributes, messages)
-        self.listener.stop_test_container()
+        self.listener.stop_test_container(name, attributes)
 
     def start_keyword(self, name, attributes):
         self.messages.start_context()
