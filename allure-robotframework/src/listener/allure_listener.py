@@ -68,7 +68,7 @@ class AllureListener(object):
         with self.lifecycle.update_container() as container:
             for uuid in container.children:
                 with self.lifecycle.update_test_case(uuid) as test_result:
-                    if test_result and test_result.status == Status.PASSED and suite_status != RobotStatus.PASSED:
+                    if test_result and test_result.status == Status.PASSED and suite_message:
                         test_result.status = suite_status
                         test_result.statusDetails = StatusDetails(message=self._current_msg or suite_message,
                                                                   trace=self._current_tb)
@@ -85,7 +85,7 @@ class AllureListener(object):
         suite_message = attributes.get('message')
 
         with self.lifecycle.schedule_test_case() as test_result:
-            if test_result.status == Status.PASSED and suite_status != RobotStatus.PASSED:
+            if test_result.status == Status.PASSED and suite_message:
                 test_result.status = suite_status
                 test_result.statusDetails = StatusDetails(message=self._current_msg or suite_message,
                                                           trace=self._current_tb)
