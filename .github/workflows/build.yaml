@@ -19,4 +19,4 @@ jobs:
     - name: Install Tox
       run: pip install tox
     - name: Run tox
-      run: tox -e py -c ${{ matrix.package }}/tox.ini
+      run: tox -e py37 -c ${{ matrix.package }}/tox.ini
