@@ -3,19 +3,20 @@ name: Allure python
 on: [push]
 
 jobs:
-  build:
-
+  test_commons:
+    name: Test common packages
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.7, 3.8]
-        package: [allure-behave]
+        package: [allure-python-commons-test, allure-python-commons]
 
     steps:
-    - uses: actions/checkout@v2
-    - run: |
-        echo ${{ matrix.python-version }} ${{ matrix.package }}
-#    - name: Set up Python ${{ matrix.python-version }}
-#      uses: actions/setup-python@v1
-#      with:
-#        python-version: ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Tox
+        run: pip install tox
+    - name: Run tox
+        run: tox -e ${{ matrix.python-version }} -c ${{ matrix.package }}
