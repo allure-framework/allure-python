@@ -20,4 +20,4 @@ jobs:
     - name: Install Tox
       run: pip install tox
     - name: Run tox
-      run: tox -e py37 -c ${{ matrix.package }}/tox.ini
+      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
