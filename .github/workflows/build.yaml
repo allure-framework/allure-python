@@ -9,11 +9,7 @@ jobs:
       matrix:
         package: [allure-behave, allure-pytest, allure-robotframework]
         python-version: [2.7, 3.6, 3.7]
-        exclude:
-            - package: allure-pytest
-              python-version: 2.7
-            - package: allure-robotframework
-              python-version: 2.7    
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
