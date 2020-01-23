@@ -69,7 +69,8 @@ jobs:
     - name: Prepare allure-python-commons
       run: tox -e dry-run -c allure-python-commons/tox.ini
     - name: Static check ${{ matrix.package }}
-      if: ${{ matrix.package}}
-      run: tox -e static-check -c ${{ matrix.package }}/tox.ini
+      if: matrix.additional-env == static-check:
+        run: |
+          tox -e static-check -c ${{ matrix.package }}/tox.ini
     - name: Test ${{ matrix.package }}
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
