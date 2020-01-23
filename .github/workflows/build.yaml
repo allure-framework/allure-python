@@ -12,6 +12,7 @@ jobs:
         package: [allure-python-commons-test, allure-python-commons]
 
     steps:
+    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
@@ -19,5 +20,4 @@ jobs:
     - name: Install Tox
       run: pip install tox
     - name: Run tox
-      run: ls ${{ matrix.package }}
-#      run: tox -e py37 -c ${{ matrix.package }}/tox.ini
+      run: tox -e py37 -c ${{ matrix.package }}/tox.ini
