@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python: [3.7, 3.8]
         package: [allure-python-commons-test, allure-python-commons]
 
     steps:
@@ -19,4 +19,4 @@ jobs:
     - name: Install Tox
       run: pip install tox
     - name: Run tox
-      run: tox -e ${{ matrix.python-version }} -c ${{ matrix.package }}/tox.ini
+      run: tox -e py -c ${{ matrix.package }}/tox.ini
