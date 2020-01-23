@@ -17,6 +17,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Tox
-        run: pip install tox
+      run: pip install tox
     - name: Run tox
-        run: tox -e ${{ matrix.python-version }} -c ${{ matrix.package }}
+      run: tox -e ${{ matrix.python-version }} -c ${{ matrix.package }}
