@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7]
-        package: [allure-behave]
+        python-version: [3.6, 3.7]
+        package: [allure-behave, allure-pytest, allure-robotframework]
     
     steps:
     - uses: actions/checkout@v2
@@ -23,5 +23,5 @@ jobs:
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons-test/tox.ini
     - name: Install allure-python-commons
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons/tox.ini
-    - name: Run tox
+    - name: Test ${{ matrix.package }}
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
