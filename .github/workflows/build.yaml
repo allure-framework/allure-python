@@ -22,6 +22,6 @@ jobs:
     - name: Install allure-python-commons-test
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons-test/tox.ini
     - name: Install allure-python-commons
-      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons-test/tox.ini
+      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons/tox.ini
     - name: Run tox
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
