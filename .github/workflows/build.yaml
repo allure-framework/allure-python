@@ -4,12 +4,14 @@ on: [push]
 
 jobs:
   build:
-    name: Test allure plugins
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.6, 3.7]
         package: [allure-behave, allure-pytest, allure-robotframework]
+        include:
+          - python-version: 2.7
+            package: allure-behave
     
     steps:
     - uses: actions/checkout@v2
