@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         package: [allure-behave, allure-pytest, allure-robotframework]
-        python-version: [2.7 3.6, 3.7]
+        python-version: [2.7, 3.6, 3.7]
         exclude:
             - package: allure-pytest
               python-version: 2.7
