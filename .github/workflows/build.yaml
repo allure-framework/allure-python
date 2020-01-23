@@ -1,0 +1,21 @@
+name: Allure python
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+        package: [allure-behave]
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        echo ${{ matrix.python-version }} ${{ matrix.package }}
+#    - name: Set up Python ${{ matrix.python-version }}
+#      uses: actions/setup-python@v1
+#      with:
+#        python-version: ${{ matrix.python-version }}
