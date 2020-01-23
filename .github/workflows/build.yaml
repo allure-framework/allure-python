@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [3.7, 3.8]
+        python-version: [3.7, 3.8]
         package: [allure-python-commons-test, allure-python-commons]
 
     steps:
