@@ -186,9 +186,9 @@ class AllureListener(object):
                 attachment += message_format.format(level=level, message=name.replace('\n', '<br>'))
             else:
                 with self.lifecycle.start_step() as step:
-                            step.name = name
-                            step.start = step.stop = get_message_time(message.get("timestamp"))
-                            step.status = Status.FAILED if level in RobotLogLevel.CRITICAL_LEVELS else Status.PASSED
+                        step.name = name
+                        step.start = step.stop = get_message_time(message.get("timestamp"))
+                        step.status = Status.FAILED if level in RobotLogLevel.CRITICAL_LEVELS else Status.PASSED
                 self.lifecycle.stop_step()
 
         if attachment:
