@@ -3,26 +3,7 @@ name: Allure python
 on: [push]
 
 jobs:
-  test_commons:
-    name: Test common packages
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.7]
-        package: [allure-python-commons-test, allure-python-commons]
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install Tox
-      run: pip install tox
-    - name: Run tox
-      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
-
-  test_plugins:
+  build:
     name: Test allure plugins
     runs-on: ubuntu-latest
     strategy:
@@ -38,5 +19,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Tox
       run: pip install tox
+    - name: Install allure-python-commons-test
+      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons-test/tox.ini
+    - name: Install allure-python-commons
+      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons-test/tox.ini
     - name: Run tox
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
