@@ -4,7 +4,7 @@ import allure_commons
 from allure_commons.lifecycle import AllureLifecycle
 from allure_commons.logger import AllureFileLogger
 from allure_robotframework.allure_listener import AllureListener
-from allure_robotframework.types import RobotKeywordType, RobotLogLevel, RobotStatus
+from allure_robotframework.types import RobotKeywordType
 
 
 DEFAULT_OUTPUT_PATH = os.path.join('output', 'allure')

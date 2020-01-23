@@ -46,7 +46,7 @@ def get_message_time(timestamp):
 
 LOG_MESSAGE_FORMAT = '<p><b>[{level}]</b>&nbsp;{message}</p>'
 FAIL_MESSAGE_FORMAT = '<p style="color: red"><b>[{level}]</b>&nbsp;{message}</p>'
-MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 10))
+MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 0))
 
 
 class AllureListener(object):
@@ -217,4 +217,3 @@ class AllureListener(object):
             step.status = get_status(exc_val)
             step.statusDetails = get_status_details(exc_type, exc_val, exc_tb)
         self.lifecycle.stop_step()
-
