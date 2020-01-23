@@ -1,9 +1,28 @@
-name: Allure python
+name: allure python
 
 on: [push]
 
 jobs:
-  build:
+  build-commons:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [allure-python-commons-test, allure-python-commons]
+        python-version: [3.6, 3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Tox
+      run: pip install tox
+    - name: Test ${{ matrix.package }}
+      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
+
+  build-plugins:
+    needs: build-commons
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,9 +37,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Tox
       run: pip install tox
-    - name: Install allure-python-commons-test
-      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons-test/tox.ini
-    - name: Install allure-python-commons
-      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c allure-python-commons/tox.ini
+    - name: Prepare allure-python-commons-test
+      run: tox -e dry-run -c allure-python-commons-test/tox.ini
+    - name: Prepare allure-python-commons
+      run: tox -e dry-run -c allure-python-commons/tox.ini
     - name: Test ${{ matrix.package }}
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
