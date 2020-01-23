@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         package: [
-          allure-python-commons,
+#          allure-python-commons,
           allure-behave,
           allure-pytest,
           allure-robotframework
