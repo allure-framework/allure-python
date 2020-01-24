@@ -1,0 +1,43 @@
+name: allure python
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [
+          allure-python-commons-test,
+          allure-python-commons,
+          allure-behave,
+          allure-pytest,
+          allure-pytest-bdd,
+          allure-robotframework
+        ]
+        python-version: [3.6, 3.7]
+        include:
+          - python-version: 3.7
+            static-check: yes
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Tox
+      run: pip install tox
+      
+    - name: Static check ${{ matrix.package }}
+      if: matrix.static-check
+      run: tox -e static-check -c ${{ matrix.package }}/tox.ini
+
+    - name: Prepare commons
+      if: "!startsWith(matrix.package, 'allure-python-commons')"
+      run: tox --sdistonly -c ./allure-python-commons && tox --sdistonly -c ./allure-python-commons-test
+
+    - name: Test ${{ matrix.package }}
+      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
