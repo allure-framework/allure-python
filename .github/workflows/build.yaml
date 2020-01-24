@@ -3,55 +3,13 @@ name: allure python
 on: [push]
 
 jobs:
-#  static-check:
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        package: [
-##          allure-python-commons,
-#          allure-behave,
-#          allure-pytest,
-#          allure-robotframework
-#        ]
-#        python-version: [3.7]
-#
-#    steps:
-#    - uses: actions/checkout@v2
-#    - name: Set up Python ${{ matrix.python-version }}
-#      uses: actions/setup-python@v1
-#      with:
-#        python-version: ${{ matrix.python-version }}
-#    - name: Install Tox
-#      run: pip install tox
-#    - name: Test ${{ matrix.package }}
-#      run: tox -e static-check -c ${{ matrix.package }}/tox.ini
-#
-#  build-commons:
-#    needs: static-check
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        package: [allure-python-commons-test, allure-python-commons]
-#        python-version: [3.6, 3.7]
-#
-#    steps:
-#    - uses: actions/checkout@v2
-#    - name: Set up Python ${{ matrix.python-version }}
-#      uses: actions/setup-python@v1
-#      with:
-#        python-version: ${{ matrix.python-version }}
-#    - name: Install Tox
-#      run: pip install tox
-#    - name: Test ${{ matrix.package }}
-#      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
-
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         package: [
-#          allure-python-commons-test,
-#          allure-python-commons,
+          allure-python-commons-test,
+          allure-python-commons,
           allure-behave,
           allure-pytest,
           allure-robotframework
@@ -72,9 +30,9 @@ jobs:
     - name: Install Tox
       run: pip install tox
       
-#     - name: Static check ${{ matrix.package }}
-#       if: matrix.static-check
-#       run: tox -e static-check -c ${{ matrix.package }}/tox.ini
+    - name: Static check ${{ matrix.package }}
+      if: matrix.static-check
+      run: tox -e static-check -c ${{ matrix.package }}/tox.ini
       
     - name: Prepare environment 
       if: matrix.package != 'allure-python-commons-test' || matrix.package != 'allure-python-commons'
