@@ -34,5 +34,9 @@ jobs:
       if: matrix.static-check
       run: tox -e static-check -c ${{ matrix.package }}/tox.ini
 
+    - name: Prepare commons
+      if: !startsWith(matrix.package, 'allure-pytest-commons')
+      run: tox --sdistonly -c ./allure-python-commons && ox --sdistonly -c ./allure-python-commons-test
+
     - name: Test ${{ matrix.package }}
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
