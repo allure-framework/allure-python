@@ -35,7 +35,7 @@ jobs:
       run: tox -e static-check -c ${{ matrix.package }}/tox.ini
 
     - name: Prepare commons
-      if: ${{ !startsWith(${{ matrix.package }}, 'allure-pytest-commons') }}
+      if: startsWith(${{ matrix.package }}, 'allure-pytest-commons')
       run: tox --sdistonly -c ./allure-python-commons && tox --sdistonly -c ./allure-python-commons-test
 
     - name: Test ${{ matrix.package }}
