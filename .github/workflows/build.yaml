@@ -59,7 +59,7 @@ jobs:
         python-version: [3.6, 3.7]
         include:
           - python-version: 3.7
-            additional-env: static-check
+            static-check: yes
 
     steps:
     - uses: actions/checkout@v2
@@ -79,7 +79,7 @@ jobs:
       run: tox -e dry-run -c allure-python-commons/tox.ini
 
     - name: Static check ${{ matrix.package }}
-      if: matrix.additional-env == 'static-check'
+      if: matrix.static-check
       run: tox -e static-check -c ${{ matrix.package }}/tox.ini
 
     - name: Test ${{ matrix.package }}
