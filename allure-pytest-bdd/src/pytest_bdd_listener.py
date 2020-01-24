@@ -1,9 +1,9 @@
 import pytest
 from allure_commons.utils import now
-from allure_commons.model2 import Label, Link
+from allure_commons.model2 import Label
 from allure_commons.model2 import Status
 
-from allure_commons.types import LabelType, AttachmentType
+from allure_commons.types import LabelType
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from .utils import get_uuid
