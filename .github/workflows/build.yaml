@@ -72,12 +72,12 @@ jobs:
     - name: Install Tox
       run: pip install tox
       
-    - name: Static check ${{ matrix.package }}
-      if: matrix.static-check
-      run: tox -e static-check -c ${{ matrix.package }}/tox.ini
+#     - name: Static check ${{ matrix.package }}
+#       if: matrix.static-check
+#       run: tox -e static-check -c ${{ matrix.package }}/tox.ini
       
     - name: Prepare environment 
-      if: matrix.package != "allure-python-commons-test" || matrix.package != "allure-python-commons"
+      if: matrix.package != 'allure-python-commons-test' || matrix.package != 'allure-python-commons'
       run: tox -e dry-run -c allure-python-commons-test/tox.ini && tox -e dry-run -c allure-python-commons/tox.ini
 
     - name: Test ${{ matrix.package }}
