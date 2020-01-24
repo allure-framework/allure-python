@@ -1,3 +1,4 @@
+import errno
 import io
 import os
 import sys
@@ -16,13 +17,16 @@ class AllureFileLogger(object):
     def __init__(self, report_dir, clean=False):
         self._report_dir = report_dir
 
-        if not os.path.exists(report_dir):
+        try:
             os.makedirs(report_dir)
-        elif clean:
-            for f in os.listdir(report_dir):
-                f = os.path.join(report_dir, f)
-                if os.path.isfile(f):
-                    os.unlink(f)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+            elif clean:
+                for f in os.listdir(report_dir):
+                    f = os.path.join(report_dir, f)
+                    if os.path.isfile(f):
+                        os.unlink(f)
 
     def _report_item(self, item):
         indent = INDENT if os.environ.get("ALLURE_INDENT_OUTPUT") else None
