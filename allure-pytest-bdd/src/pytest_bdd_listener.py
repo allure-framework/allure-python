@@ -15,7 +15,7 @@ from .utils import get_step_name
 from .utils import get_status_details
 from .utils import get_pytest_report_status
 from allure_commons.model2 import StatusDetails
-from functools import partial
+from functools import partial, reduce
 from allure_commons.lifecycle import AllureLifecycle
 from .utils import get_full_name, get_name, get_params
 

@@ -4,8 +4,8 @@ from contextlib import contextmanager
 import allure_commons
 from allure_commons_test.report import AllureReport
 from allure_commons.logger import AllureFileLogger
-from .pytest_bdd_steps import *
-from .report_steps import *
+from .pytest_bdd_steps import *  # noqa F401 F403
+from .report_steps import * # noqa F401 F403
 
 
 @contextmanager
@@ -41,4 +41,3 @@ class AlluredTestdir(object):
 @pytest.fixture
 def allured_testdir(testdir, request):
     return AlluredTestdir(testdir, request)
-

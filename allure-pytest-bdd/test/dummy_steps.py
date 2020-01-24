@@ -1,9 +1,11 @@
 import pytest
 from pytest_bdd import given, then, when
 
+
 @given('passed step1')
 def given_passed_step1():
     pass
+
 
 @given('passed step')
 def given_passed_step():
@@ -36,21 +38,21 @@ def then_skipped_step():
 
 
 @given('failed step')
-def given_skipped_step():
+def given_failed_step():
     assert False
 
 
 @when('failed step')
-def when_skipped_step():
+def when_failed_step():
     assert False
 
 
 @then('failed step')
-def then_skipped_step():
+def then_failed_step():
     assert False
 
 
 @when('<status> step')
-def when_skipped_step():
+def when_sfailed_step():
     pass
     assert False

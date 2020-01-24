@@ -1,4 +1,4 @@
-from pytest_bdd import given, when, then
+from pytest_bdd import given, when
 from pytest_bdd import parsers
 
 
@@ -16,7 +16,6 @@ def dummy_steps(request, testdir):
         testdir.makeconftest(content)
 
 
-#@given(parsers.parse("test file with {scenario} scenario"))
 @given(parsers.parse('test file with "{scenario}" scenario in {feature}'))
 def test_file_with_scenario(testdir, scenario, feature):
     testdir.makepyfile(current_test="""
@@ -32,6 +31,3 @@ def test_file_with_scenario(testdir, scenario, feature):
 @when("run pytest-bdd with allure")
 def run(allured_testdir):
     allured_testdir.run_with_allure()
-
-
-

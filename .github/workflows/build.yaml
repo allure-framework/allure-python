@@ -1,6 +1,6 @@
-name: build allure python
+name: allure python
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -10,7 +10,6 @@ jobs:
         package: [
           allure-python-commons-test,
           allure-python-commons,
-          allure-nose2,
           allure-behave,
           allure-pytest,
           allure-pytest-bdd,
@@ -29,7 +28,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install tox
+    - name: Install Tox
       run: pip install tox
       
     - name: Static check ${{ matrix.package }}
