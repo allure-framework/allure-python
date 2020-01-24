@@ -43,6 +43,6 @@ def main():
         install_requires=install_requires
     )
 
+
 if __name__ == '__main__':
     main()
-
