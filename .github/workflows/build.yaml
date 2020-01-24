@@ -45,12 +45,17 @@ jobs:
 #    - name: Test ${{ matrix.package }}
 #      run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
 
-  build-plugins:
-#    needs: build-commons
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [allure-behave, allure-pytest, allure-robotframework]
+        package: [
+#          allure-python-commons-test,
+#          allure-python-commons,
+          allure-behave,
+          allure-pytest,
+          allure-robotframework
+        ]
         python-version: [3.6, 3.7]
         include:
           - python-version: 3.7
@@ -58,18 +63,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install Tox
       run: pip install tox
+
     - name: Prepare allure-python-commons-test
       run: tox -e dry-run -c allure-python-commons-test/tox.ini
+
     - name: Prepare allure-python-commons
       run: tox -e dry-run -c allure-python-commons/tox.ini
+
     - name: Static check ${{ matrix.package }}
       if: matrix.additional-env == 'static-check'
       run: tox -e static-check -c ${{ matrix.package }}/tox.ini
+
     - name: Test ${{ matrix.package }}
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
