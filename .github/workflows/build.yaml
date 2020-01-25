@@ -10,9 +10,9 @@ jobs:
         package: [
           allure-python-commons-test,
           allure-python-commons,
-          allure-behave,
-          allure-pytest,
-          allure-pytest-bdd,
+#          allure-behave,
+#          allure-pytest,
+#          allure-pytest-bdd,
           allure-robotframework
         ]
         python-version: [3.6, 3.7]
