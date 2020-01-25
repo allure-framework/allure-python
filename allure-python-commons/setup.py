@@ -21,7 +21,7 @@ install_requires = [
 def main():
     setup(
         name=PACKAGE,
-        use_scm_version={"root": ".."},
+        use_scm_version={"root": "..", "relative_to": __file__, "local_scheme": "dirty-tag"},
         setup_requires=['setuptools_scm'],
         description="Common module for integrate allure with python-based frameworks",
         url="https://github.com/allure-framework/allure-python",
