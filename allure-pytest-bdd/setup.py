@@ -25,7 +25,7 @@ install_requires = [
 
 def prepare_version():
     from setuptools_scm import get_version
-    configuration = {"root": ".."}
+    configuration = {"root": "..", "relative_to": __file__}
     version = get_version(**configuration)
     install_requires.append("allure-python-commons=={version}".format(version=version))
     return configuration

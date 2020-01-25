@@ -8,11 +8,11 @@ jobs:
     strategy:
       matrix:
         package: [
-#           allure-python-commons-test,
-#           allure-python-commons,
-#          allure-behave,
-#          allure-pytest,
-#          allure-pytest-bdd,
+          allure-python-commons-test,
+          allure-python-commons,
+          allure-behave,
+          allure-pytest,
+          allure-pytest-bdd,
           allure-robotframework
         ]
         python-version: [3.6, 3.7]
@@ -35,9 +35,6 @@ jobs:
       if: matrix.static-check
       run: tox -e static-check -c ${{ matrix.package }}/tox.ini
 
-    - name: Test
-      run: cd ./allure-python-commons && python setup.py --version
-      
     - name: Prepare commons
       if: "!startsWith(matrix.package, 'allure-python-commons')"
       run: tox --sdistonly -c ./allure-python-commons && tox --sdistonly -c ./allure-python-commons-test
