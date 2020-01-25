@@ -37,7 +37,7 @@ jobs:
 
     - name: Prepare commons
       if: "!startsWith(matrix.package, 'allure-python-commons')"
-      run: tox --sdistonly -c ./allure-python-commons && tox --sdistonly -c ./allure-python-commons-test && ls /home/runner/.tox/distshare/
+      run: tox --sdistonly -c ./allure-python-commons && tox --sdistonly -c ./allure-python-commons-test && ls -la
 
     - name: Test ${{ matrix.package }}
       run: tox -e py`echo ${{ matrix.python-version }} | sed 's/\.//g'` -c ${{ matrix.package }}/tox.ini
