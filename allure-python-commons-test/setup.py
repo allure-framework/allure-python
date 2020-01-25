@@ -1,7 +1,6 @@
 from setuptools import setup
 
 PACKAGE = "allure-python-commons-test"
-VERSION = "2.8.6"
 
 install_requires = [
     "pyhamcrest>=1.9.0",
@@ -12,7 +11,8 @@ install_requires = [
 def main():
     setup(
         name=PACKAGE,
-        version=VERSION,
+        use_scm_version={"root": ".."},
+        setup_requires=['setuptools_scm'],
         description="Common module for self-testing allure integrations with python-based frameworks",
         url="https://github.com/allure-framework/allure-python",
         author="QAMetaSoftware, Stanislav Seliverstov",

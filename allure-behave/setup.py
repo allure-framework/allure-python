@@ -2,7 +2,6 @@ import os
 from setuptools import setup
 
 PACKAGE = "allure-behave"
-VERSION = "2.8.6"
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -18,20 +17,31 @@ classifiers = [
     'Programming Language :: Python :: 3.7',
 ]
 
+setup_requires = [
+    "setuptools_scm"
+]
+
 install_requires = [
     "behave>=1.2.5",
-    "allure-python-commons==2.8.6"
 ]
 
 
-def read(fname):
+def prepare_version():
+    from setuptools_scm import get_version
+    configuration = {"root": ".."}
+    version = get_version(**configuration)
+    install_requires.append("allure-python-commons=={version}".format(version=version))
+    return configuration
+
+
+def get_readme(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
 def main():
     setup(
         name=PACKAGE,
-        version=VERSION,
+        use_scm_version=prepare_version,
         description="Allure behave integration",
         url="https://github.com/allure-framework/allure-python",
         author="QAMetaSoftware, Stanislav Seliverstov",
@@ -39,9 +49,10 @@ def main():
         license="Apache-2.0",
         classifiers=classifiers,
         keywords="allure reporting behave",
-        long_description=read('README.rst'),
+        long_description=get_readme('README.rst'),
         packages=["allure_behave"],
         package_dir={"allure_behave": "src"},
+        setup_requires=setup_requires,
         install_requires=install_requires
     )
 
