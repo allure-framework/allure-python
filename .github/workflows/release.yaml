@@ -1,0 +1,56 @@
+name: release allure python
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+        
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        pushd allure-python-commons-test
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+        popd
+
+        pushd allure-python-commons
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+        popd
+
+        pushd allure-behave
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+        popd
+
+        pushd allure-pytest
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+        popd
+
+        pushd allure-pytest-bdd
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+        popd
+
+        pushd allure-robotframework
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+        popd
