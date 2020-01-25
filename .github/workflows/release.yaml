@@ -2,7 +2,7 @@ name: release allure python
 
 on:
   release:
-    types: [published]
+    types: [created]
 
 jobs:
   deploy:
@@ -36,11 +36,6 @@ jobs:
         popd
 
         pushd allure-behave
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
-        popd
-
-        pushd allure-nose2
         python setup.py sdist bdist_wheel
         twine upload dist/*
         popd
