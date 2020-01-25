@@ -1,7 +1,6 @@
 from setuptools import setup
 
 PACKAGE = "allure-python-commons"
-VERSION = "2.8.6"
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -22,7 +21,8 @@ install_requires = [
 def main():
     setup(
         name=PACKAGE,
-        version=VERSION,
+        use_scm_version={"root": "..", "relative_to": __file__},
+        setup_requires=['setuptools_scm'],
         description="Common module for integrate allure with python-based frameworks",
         url="https://github.com/allure-framework/allure-python",
         author="QAMetaSoftware, Stanislav Seliverstov",

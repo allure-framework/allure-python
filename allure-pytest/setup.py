@@ -14,7 +14,6 @@ except (DistributionNotFound, VersionConflict):
     pass
 
 PACKAGE = "allure-pytest"
-VERSION = "2.8.6"
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -25,21 +24,33 @@ classifiers = [
     'Topic :: Software Development :: Testing',
 ]
 
-install_requires = [
-    "pytest>=4.5.0",
-    "six>=1.9.0",
-    "allure-python-commons==2.8.6"
+setup_requires = [
+    "setuptools_scm"
 ]
 
 
-def read(fname):
+install_requires = [
+    "pytest>=4.5.0",
+    "six>=1.9.0",
+]
+
+
+def prepare_version():
+    from setuptools_scm import get_version
+    configuration = {"root": "..",  "relative_to": __file__}
+    version = get_version(**configuration)
+    install_requires.append("allure-python-commons=={version}".format(version=version))
+    return configuration
+
+
+def get_readme(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
 def main():
     setup(
         name=PACKAGE,
-        version=VERSION,
+        use_scm_version=prepare_version,
         description="Allure pytest integration",
         url="https://github.com/allure-framework/allure-python",
         author="QAMetaSoftware, Stanislav Seliverstov",
@@ -47,10 +58,11 @@ def main():
         license="Apache-2.0",
         classifiers=classifiers,
         keywords="allure reporting pytest",
-        long_description=read('README.rst'),
+        long_description=get_readme('README.rst'),
         packages=["allure_pytest"],
         package_dir={"allure_pytest": "src"},
         entry_points={"pytest11": ["allure_pytest = allure_pytest.plugin"]},
+        setup_requires=setup_requires,
         install_requires=install_requires
     )
 
