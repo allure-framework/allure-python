@@ -35,6 +35,7 @@ def get_name(node, scenario):
         return "{name} [{params}".format(name=scenario.name, params=parts[-1])
     return scenario.name
 from allure_commons.model2 import StatusDetails
+from allure_commons.model2 import Status
 from allure_commons.utils import format_exception
 
 
