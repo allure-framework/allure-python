@@ -13,7 +13,7 @@ def __is(kind, t):
     return kind in [v for k, v in t.__dict__.items() if not k.startswith('__')]
 
 
-def parse_tag(tag):
+def parse_tag(tag, *, issue_pattern=None, link_pattern=None):
     """
     >>> parse_tag("blocker")
     Label(name='severity', value='blocker')
@@ -48,6 +48,10 @@ def parse_tag(tag):
     if prefix == TAG_PREFIX and value is not None:
 
         if __is(kind, LinkType):
+            if issue_pattern and kind == "issue" and not value.startswith("http"):
+                value = issue_pattern.format(value)
+            if link_pattern and kind == "link" and not value.startswith("http"):
+                value = issue_pattern.format(value)
             return Link(type=kind, name=name or value, url=value)
 
         if __is(kind, LabelType):
