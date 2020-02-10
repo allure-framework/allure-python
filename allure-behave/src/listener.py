@@ -97,7 +97,9 @@ class AllureListener(object):
         test_case.description = '\n'.join(scenario.description)
         test_case.parameters = scenario_parameters(scenario)
 
-        test_case.links.extend(scenario_links(scenario))
+        issue_pattern = self.behave_config.userdata.get('AllureFormatter.issue_pattern', None)
+        link_pattern = self.behave_config.userdata.get('AllureFormatter.link_pattern', None)
+        test_case.links.extend(scenario_links(scenario, issue_pattern=issue_pattern, link_pattern=link_pattern))
         test_case.labels.extend(scenario_labels(scenario))
         test_case.labels.append(Label(name=LabelType.FEATURE, value=scenario.feature.name))
         test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))

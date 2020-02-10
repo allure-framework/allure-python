@@ -38,9 +38,12 @@ def scenario_parameters(scenario):
     return [Parameter(name=name, value=value) for name, value in zip(row.headings, row.cells)] if row else None
 
 
-def scenario_links(scenario):
+def scenario_links(scenario, issue_pattern, link_pattern):
     tags = scenario.feature.tags + scenario.tags
-    parsed = [parse_tag(item) for item in tags]
+    parsed = [
+        parse_tag(item, issue_pattern=issue_pattern, link_pattern=link_pattern)
+        for item in tags
+    ]
     return filter(lambda x: isinstance(x, Link), parsed)
 
 
