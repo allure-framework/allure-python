@@ -1,9 +1,9 @@
 name: release allure python
 
 on:
-  create:
+  push:
     tags:
-      - '*'
+    - '*'
 
 jobs:
   deploy:
