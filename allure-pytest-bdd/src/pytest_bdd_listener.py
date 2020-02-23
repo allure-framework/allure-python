@@ -1,5 +1,7 @@
 import pytest
+import allure_commons
 from allure_commons.utils import now
+from allure_commons.utils import uuid4
 from allure_commons.model2 import Label
 from allure_commons.model2 import Status
 
@@ -110,3 +112,11 @@ class PytestBDDListener(object):
 
         if report.when == 'teardown':
             self.lifecycle.write_test_case(uuid=uuid)
+
+    @allure_commons.hookimpl
+    def attach_data(self, body, name, attachment_type, extension):
+        self.lifecycle.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def attach_file(self, source, name, attachment_type, extension):
+        self.lifecycle.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)

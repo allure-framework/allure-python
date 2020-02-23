@@ -34,6 +34,8 @@ def pytest_configure(config):
 
         pytest_bdd_listener = PytestBDDListener()
         config.pluginmanager.register(pytest_bdd_listener)
+        allure_commons.plugin_manager.register(pytest_bdd_listener)
+        config.add_cleanup(cleanup_factory(pytest_bdd_listener))
 
         file_logger = AllureFileLogger(report_dir, clean)
         allure_commons.plugin_manager.register(file_logger)
