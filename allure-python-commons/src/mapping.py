@@ -13,7 +13,7 @@ def __is(kind, t):
     return kind in [v for k, v in t.__dict__.items() if not k.startswith('__')]
 
 
-def parse_tag(tag, *, issue_pattern=None, link_pattern=None):
+def parse_tag(tag, issue_pattern=None, link_pattern=None):
     """
     >>> parse_tag("blocker")
     Label(name='severity', value='blocker')
