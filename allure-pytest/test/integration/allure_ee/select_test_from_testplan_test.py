@@ -5,7 +5,7 @@ from hamcrest import assert_that, contains_inanyorder, ends_with
 
 
 @pytest.mark.parametrize(
-    ["plan_json", "expected_tests"],
+    ["planned_tests", "expected_tests"],
     [
         # by ids only
         (
@@ -56,7 +56,7 @@ from hamcrest import assert_that, contains_inanyorder, ends_with
         ),
     ]
 )
-def test_select_by_testcase_id_test(plan_json, expected_tests, allured_testdir, request):
+def test_select_by_testcase_id_test(planned_tests, expected_tests, allured_testdir, request):
     """
     >>> import allure
 
@@ -82,11 +82,13 @@ def test_select_by_testcase_id_test(plan_json, expected_tests, allured_testdir, 
     full_name_base_template = "{base}.test_select_by_testcase_id_test".format(
         base=test_dir.strip(os.sep).replace(os.sep, "."))
 
-    if plan_json:
-        for item in plan_json:
+    if planned_tests:
+        for item in planned_tests:
             if "selector" in item:
                 item["selector"] = "{base}#{name}".format(base=full_name_base_template, name=item["selector"])
-        py_path = allured_testdir.testdir.makefile(".json", json.dumps(plan_json))
+
+        testplan = {"tests": planned_tests}
+        py_path = allured_testdir.testdir.makefile(".json", json.dumps(testplan))
         os.environ["AS_TESTPLAN_PATH"] = py_path.strpath
     else:
         os.environ.pop("AS_TESTPLAN_PATH", None)
