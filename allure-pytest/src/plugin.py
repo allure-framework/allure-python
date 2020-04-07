@@ -9,7 +9,7 @@ from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
 
 
-from allure_pytest.utils import allure_label, allure_labels
+from allure_pytest.utils import allure_label, allure_labels, allure_full_name
 from allure_pytest.helper import AllureTestHelper
 from allure_pytest.listener import AllureListener
 
@@ -148,12 +148,19 @@ def select_by_labels(items, config):
 
 
 def select_by_testcase(items):
+    planned_tests = []
     file_path = os.environ.get("AS_TESTPLAN_PATH")
-    ids = []
+
     if file_path:
-        with open(file_path, 'r') as file:
-            ids = set(json.load(file))
-    return filter(lambda item: ids & set(allure_label(item, LabelType.ID)) if ids else True, items)
+        with open(file_path, 'r') as plan_file:
+            plan = json.load(plan_file)
+            planned_tests = plan.get("tests", [])
+
+    return filter(lambda item: any(
+        [str(planed_item.get("id")) in [str(allure_id) for allure_id in allure_label(item, LabelType.ID)]
+         or
+         (planed_item.get("selector") == allure_full_name(item))
+         for planed_item in planned_tests]), items) if planned_tests else items
 
 
 def pytest_collection_modifyitems(items, config):
