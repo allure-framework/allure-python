@@ -148,18 +148,19 @@ def select_by_labels(items, config):
 
 
 def select_by_testcase(items):
-    plan = []
+    planned_tests = []
     file_path = os.environ.get("AS_TESTPLAN_PATH")
 
     if file_path:
         with open(file_path, 'r') as plan_file:
             plan = json.load(plan_file)
+            planned_tests = plan.get("tests", [])
 
     return filter(lambda item: any(
         [str(planed_item.get("id")) in [str(allure_id) for allure_id in allure_label(item, LabelType.ID)]
          or
          (planed_item.get("selector") == allure_full_name(item))
-         for planed_item in plan]), items) if plan else items
+         for planed_item in planned_tests]), items) if planned_tests else items
 
 
 def pytest_collection_modifyitems(items, config):
