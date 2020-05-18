@@ -102,4 +102,4 @@ def labels_set(labels):
                 return hash(self.label.name)
             return hash(repr(self))
 
-    return sorted([wl.label for wl in set([Wl(l) for l in reversed(labels)])])
+    return sorted([wl.label for wl in set([Wl(label) for label in reversed(labels)])])
