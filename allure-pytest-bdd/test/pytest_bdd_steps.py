@@ -4,7 +4,7 @@ from pytest_bdd import parsers
 
 @given(parsers.parse("feature file {name} with content:\n\"\"\"\n{feature}\n\"\"\""))
 def feature_definition(feature, testdir, name="example"):
-    testdir.makefile(".feature".format(name=name), **dict([(name, feature)]))
+    testdir.makefile("{name}.feature".format(name=name), **dict([(name, feature)]))
     pass
 
 
