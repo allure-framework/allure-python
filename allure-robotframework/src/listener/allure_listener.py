@@ -10,7 +10,7 @@ from allure_commons.utils import md5
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag
 from allure_commons.utils import format_exception, format_traceback
-from allure_commons.model2 import Label
+from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status, StatusDetails
 from allure_commons.model2 import Parameter
 from allure_commons.types import LabelType, AttachmentType, Severity, LinkType
@@ -209,6 +209,13 @@ class AllureListener(object):
         with self.lifecycle.update_test_case() as case:
             for label in labels if case else ():
                 case.labels.append(Label(label_type, label))
+
+    @allure_commons.hookimpl
+    def add_link(self, url, link_type, name):
+        with self.lifecycle.update_test_case() as case:
+            link = Link(url=url, type=link_type, name=name)
+            if case and link not in case.links:
+                case.links.append(Link(url=url, type=link_type, name=name))
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
