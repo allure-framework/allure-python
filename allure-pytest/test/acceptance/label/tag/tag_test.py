@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from allure_commons.utils import represent
-from hamcrest import assert_that, not_
+from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_tag
 
@@ -24,7 +24,7 @@ def test_pytest_marker(executed_docstring_source):
                 )
 
 
-def test_omit_pytest_markers(executed_docstring_source):
+def test_pytest_markers(executed_docstring_source):
     """
     >>> import pytest
 
@@ -33,7 +33,7 @@ def test_omit_pytest_markers(executed_docstring_source):
     ... @pytest.mark.parametrize("param", ["foo"])
     ... @pytest.mark.skipif(False, reason="reason2")
     ... @pytest.mark.skipif(False, reason="reason1")
-    ... def test_omit_pytest_markers_example(param):
+    ... def test_pytest_markers_example(param):
     ...     pass
     """
 
@@ -41,19 +41,19 @@ def test_omit_pytest_markers(executed_docstring_source):
                 has_test_case('test_omit_pytest_markers_example[foo]',
                               has_tag("usermark1"),
                               has_tag("usermark2"),
-                              not_(has_tag("skipif(False, reason='reason2')")),
-                              not_(has_tag("skipif(False, reason='reason1')")),
-                              not_(has_tag("parametrize('param', ['foo'])"))
+                              has_tag("skipif(False, reason='reason2')"),
+                              has_tag("skipif(False, reason='reason1')"),
+                              has_tag("parametrize('param', ['foo'])")
                               )
                 )
 
 
-def test_pytest_marker_with_args(executed_docstring_source):
+def test_pytest_mark_marker_with_args(executed_docstring_source):
     """
     >>> import pytest
 
     >>> @pytest.mark.marker('cool', 'stuff')
-    ... def test_pytest_marker_with_args_example():
+    ... def test_pytest_mark_marker_with_args_example():
     ...     pass
     """
 
