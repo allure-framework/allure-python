@@ -86,7 +86,7 @@ def pytest_markers(item):
         if marker is None:
             continue
         user_tag_mark = (not marker.args and not marker.kwargs)
-        if marker.name == "marker" or user_tag_mark:
+        if marker.name or user_tag_mark:
             yield mark_to_str(marker)
 
 
