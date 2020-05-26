@@ -24,7 +24,7 @@ def test_pytest_marker(executed_docstring_source):
                 )
 
 
-def test_omit_pytest_markers(executed_docstring_source):
+def test_show_reserved_pytest_markers_full_decorator(executed_docstring_source):
     """
     >>> import pytest
 
@@ -33,17 +33,33 @@ def test_omit_pytest_markers(executed_docstring_source):
     ... @pytest.mark.parametrize("param", ["foo"])
     ... @pytest.mark.skipif(False, reason="reason2")
     ... @pytest.mark.skipif(False, reason="reason1")
-    ... def test_omit_pytest_markers_example(param):
+    ... def test_show_reserved_pytest_markers_full_decorator_example(param):
     ...     pass
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case('test_omit_pytest_markers_example[foo]',
+                has_test_case('test_show_reserved_pytest_markers_full_decorator_example[foo]',
                               has_tag("usermark1"),
                               has_tag("usermark2"),
-                              not_(has_tag("skipif(False, reason='reason2')")),
-                              not_(has_tag("skipif(False, reason='reason1')")),
-                              not_(has_tag("parametrize('param', ['foo'])"))
+                              has_tag("@pytest.mark.skipif(False, reason='reason1')"),
+                              not_(has_tag("@pytest.mark.skipif(False, reason='reason2')")),
+                              not_(has_tag("@pytest.mark.parametrize('param', ['foo'])"))
+                              )
+                )
+
+
+def test_pytest_xfail_marker(executed_docstring_source):
+    """
+    >>> import pytest
+
+    >>> @pytest.mark.xfail(reason='this is unexpect pass')
+    ... def test_pytest_xfail_marker_example():
+    ...     pass
+    """
+
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case('test_pytest_xfail_marker_example',
+                              has_tag("@pytest.mark.xfail(reason='this is unexpect pass')"),
                               )
                 )
 
