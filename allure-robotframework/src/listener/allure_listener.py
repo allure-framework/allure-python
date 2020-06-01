@@ -143,7 +143,7 @@ class AllureListener(object):
             test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=pool_id()))
             test_result.labels.extend(allure_tags(attributes))
-            test_result.statusDetails = StatusDetails(message=self._current_msg or attributes.get('message'),
+            test_result.statusDetails = StatusDetails(message=attributes.get('message'),
                                                       trace=self._current_tb)
 
             if attributes.get('critical') == 'yes':
