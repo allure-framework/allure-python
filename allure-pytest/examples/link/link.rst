@@ -2,7 +2,6 @@ Links
 -----
 
     >>> import allure
-    >>> import pytest
 
     >>> @allure.link("http://qameta.io")
     >>> def test_link():
@@ -23,6 +22,7 @@ Links
     ... def test_custom_link():
     ...     pass
 
+    >>> import pytest
     >>> @allure.link("{link}")
     >>> @pytest.mark.parametrize("test, link", [(True, 'link/666'), (False, 'link/777')])
     >>> def test_parametrize_link(test, link):
