@@ -44,4 +44,3 @@ def test_unique_dynamic_links(executed_docstring_source):
     """
     assert_that(executed_docstring_source.allure_report.test_cases[0]['links'],
                 equal_to([{'url': u'some/unique/dynamic/link', 'type': 'link', 'name': u'some/unique/dynamic/link'}]))
-

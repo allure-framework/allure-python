@@ -50,7 +50,8 @@ def test_parametrize_link(executed_docstring_path):
 
 
 def test_parametrize_link_multiple(executed_docstring_path):
-    testcases = [{'issue': 'issues/666', 'testcase': 'testcase/666'}, {'issue': 'issues/777', 'testcase': 'testcase/777'}]
+    testcases = [{'issue': 'issues/666', 'testcase': 'testcase/666'},
+                 {'issue': 'issues/777', 'testcase': 'testcase/777'}]
     for test in testcases:
         assert_that(executed_docstring_path.allure_report,
                     has_test_case("test_parametrize_link_multiple",
