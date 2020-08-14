@@ -1,3 +1,4 @@
+import pytest
 from pytest_bdd import scenario
 
 
@@ -6,6 +7,7 @@ from pytest_bdd import scenario
 #     pass
 
 
+@pytest.mark.skip
 @scenario('../features/outline.feature', 'Default labels')
 def test_pytest_bdd_background():
     pass
