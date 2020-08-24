@@ -35,8 +35,14 @@ def get_status_details(exc_type, exception, exc_traceback):
                              trace=format_traceback(exc_traceback))
 
 
+DEFAULT_POOL_ID = "default-" + uuid4()
+
+
 def pool_id():
-    return BuiltIn().get_variable_value('${PABOTEXECUTIONPOOLID}') or "default"
+    pabot_pool_id = BuiltIn().get_variable_value('${PABOTEXECUTIONPOOLID}')
+    pabot_caller_id = BuiltIn().get_variable_value('${CALLER_ID}')
+    return "{}-{}".format(pabot_pool_id, pabot_caller_id) \
+        if all([pabot_pool_id, pabot_caller_id]) else DEFAULT_POOL_ID
 
 
 def get_message_time(timestamp):

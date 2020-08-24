@@ -156,11 +156,24 @@ def select_by_testcase(items):
             plan = json.load(plan_file)
             planned_tests = plan.get("tests", [])
 
-    return filter(lambda item: any(
-        [str(planed_item.get("id")) in [str(allure_id) for allure_id in allure_label(item, LabelType.ID)]
-         or
-         (planed_item.get("selector") == allure_full_name(item))
-         for planed_item in planned_tests]), items) if planned_tests else items
+    if planned_tests:
+
+        def is_planed(item):
+            allure_ids = allure_label(item, LabelType.ID)
+            allure_string_ids = list(map(str, allure_ids))
+            for planed_item in planned_tests:
+                planed_item_string_id = str(planed_item.get("id"))
+                planed_item_selector = planed_item.get("selector")
+                if (
+                    planed_item_string_id in allure_string_ids
+                    or planed_item_selector == allure_full_name(item)
+                ):
+                    return True
+            return False
+
+        return [item for item in items if is_planed(item)]
+    else:
+        return items
 
 
 def pytest_collection_modifyitems(items, config):
