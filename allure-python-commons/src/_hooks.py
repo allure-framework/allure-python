@@ -47,6 +47,10 @@ class AllureUserHooks(object):
         """ url """
 
     @hookspec
+    def add_testcase_id(self, testcase_id):
+        """ test case id """
+
+    @hookspec
     def start_step(self, uuid, title, params):
         """ step """
 

@@ -126,6 +126,10 @@ def has_test_case_link(url, name=None):
     return has_link(url, link_type='test_case', name=name)
 
 
+def has_testcase_id(testcase_id):
+    return has_entry('testCaseId', testcase_id)
+
+
 def has_attachment(attach_type=None, name=None):
     return has_entry('attachments',
                      has_item(

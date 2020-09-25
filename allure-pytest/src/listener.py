@@ -254,6 +254,12 @@ class AllureListener(object):
         for label in labels if test_result else ():
             test_result.labels.append(Label(label_type, label))
 
+    @allure_commons.hookimpl
+    def add_testcase_id(self, testcase_id):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.testCaseId = testcase_id
+
 
 class ItemCache(object):
 

@@ -245,3 +245,8 @@ class AllureListener(object):
             step.status = get_status(exc_val)
             step.statusDetails = get_status_details(exc_type, exc_val, exc_tb)
         self.lifecycle.stop_step()
+
+    @allure_commons.hookimpl
+    def add_testcase_id(self, testcase_id):
+        with self.lifecycle.update_test_case() as case:
+            case.testCaseId = testcase_id

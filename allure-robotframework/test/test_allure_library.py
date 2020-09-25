@@ -11,6 +11,7 @@ from allure_commons_test.result import has_status_details
 from allure_commons_test.result import with_message_contains
 from allure_commons_test.result import with_trace_contains
 from allure_commons_test.result import has_attachment
+from allure_commons_test.result import has_testcase_id
 from allure_commons_test.label import has_severity
 from allure_commons_test.label import has_tag
 from allure_commons_test.label import has_label
@@ -130,4 +131,10 @@ def should_has_link(context, link, link_type=None, link_name=None):
 def should_has_label(context, name, value):
     allure_report, test_case_matcher = context
     matcher = partial(test_case_matcher, has_label, name, value)
+    assert_that(allure_report, matcher())
+
+
+def should_has_testcase_id(context, testcase_id):
+    allure_report, test_case_matcher = context
+    matcher = partial(test_case_matcher, has_testcase_id, testcase_id)
     assert_that(allure_report, matcher())

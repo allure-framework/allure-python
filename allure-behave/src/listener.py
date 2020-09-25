@@ -180,6 +180,12 @@ class AllureListener(object):
                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
     @allure_commons.hookimpl
+    def add_testcase_id(self, testcase_id):
+        case = self.logger.get_test(None)
+        if case:
+            case.testCaseId = testcase_id
+
+    @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
         self.logger.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
 

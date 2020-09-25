@@ -98,6 +98,10 @@ class Dynamic(object):
         plugin_manager.hook.add_label(label_type=label_type, labels=labels)
 
     @staticmethod
+    def testcase_id(testcase_id):
+        plugin_manager.hook.add_testcase_id(testcase_id=testcase_id)
+
+    @staticmethod
     def severity(severity_level):
         Dynamic.label(LabelType.SEVERITY, severity_level)
 
