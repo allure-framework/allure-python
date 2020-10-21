@@ -125,6 +125,17 @@ class Dynamic(object):
     def testcase(url, name=None):
         Dynamic.link(url, link_type=LinkType.TEST_CASE, name=name)
 
+    @staticmethod
+    def suite(suite_name):
+        Dynamic.label(LabelType.SUITE, suite_name)
+
+    @staticmethod
+    def parent_suite(parent_suite_name):
+        Dynamic.label(LabelType.PARENT_SUITE, parent_suite_name)
+
+    @staticmethod
+    def sub_suite(sub_suite_name):
+        Dynamic.label(LabelType.SUB_SUITE, sub_suite_name)
 
 def step(title):
     if callable(title):
