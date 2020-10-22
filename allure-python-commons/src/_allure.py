@@ -137,6 +137,7 @@ class Dynamic(object):
     def sub_suite(sub_suite_name):
         Dynamic.label(LabelType.SUB_SUITE, sub_suite_name)
 
+
 def step(title):
     if callable(title):
         return StepContext(title.__name__, {})(title)
