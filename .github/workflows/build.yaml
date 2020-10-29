@@ -10,6 +10,7 @@ jobs:
         package: [
           allure-python-commons-test,
           allure-python-commons,
+          allure-nose2,
           allure-behave,
           allure-pytest,
           allure-pytest-bdd,

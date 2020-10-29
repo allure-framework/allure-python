@@ -60,3 +60,29 @@ class AllureFileLogger(object):
                 attached_file.write(body.encode('utf-8'))
             else:
                 attached_file.write(body)
+
+
+class AllureMemoryLogger(object):
+
+    def __init__(self):
+        self.test_cases = []
+        self.test_containers = []
+        self.attachments = {}
+
+    @hookimpl
+    def report_result(self, result):
+        data = asdict(result, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        self.test_cases.append(data)
+
+    @hookimpl
+    def report_container(self, container):
+        data = asdict(container, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        self.test_containers.append(data)
+
+    @hookimpl
+    def report_attached_file(self, source, file_name):
+        pass
+
+    @hookimpl
+    def report_attached_data(self, body, file_name):
+        self.attachments[file_name] = body
