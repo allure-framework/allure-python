@@ -40,6 +40,11 @@ jobs:
         twine upload dist/*
         popd
 
+        pushd allure-nose2
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+        popd
+
         pushd allure-pytest
         python setup.py sdist bdist_wheel
         twine upload dist/*
