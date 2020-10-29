@@ -3,7 +3,7 @@ from allure_commons import plugin_manager
 from allure_commons.logger import AllureFileLogger
 from allure_nose2.listener import AllureListener
 from allure_commons.lifecycle import AllureLifecycle
-from nose2 import events, result, util
+from nose2 import result
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Label
@@ -127,6 +127,7 @@ class Allure(Plugin):
                     # skipped = ET.SubElement(testcase, 'skipped')
                     # skipped.set('message', 'expected test failure')
                     # skipped.text = msg
+
 
 
 
