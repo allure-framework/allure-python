@@ -7,7 +7,7 @@ from nose2 import result
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Label
-from allure_commons.types import LabelType, AttachmentType
+from allure_commons.types import LabelType
 from allure_commons.utils import host_tag, thread_tag
 
 from allure_commons.utils import platform_label, md5
@@ -127,9 +127,3 @@ class Allure(Plugin):
                     # skipped = ET.SubElement(testcase, 'skipped')
                     # skipped.set('message', 'expected test failure')
                     # skipped.text = msg
-
-
-
-
-
-
