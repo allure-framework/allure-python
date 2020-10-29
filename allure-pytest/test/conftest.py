@@ -1,37 +1,11 @@
 import pytest
 import six
-from attr import asdict
-from allure_commons import hookimpl
 from allure_commons_test.report import AllureReport
 from doctest import script_from_examples
 import mock
 import allure_commons
 from contextlib import contextmanager
-
-
-class AllureMemoryLogger(object):
-    def __init__(self):
-        self.test_cases = []
-        self.test_containers = []
-        self.attachments = {}
-
-    @hookimpl
-    def report_result(self, result):
-        data = asdict(result, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
-        self.test_cases.append(data)
-
-    @hookimpl
-    def report_container(self, container):
-        data = asdict(container, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
-        self.test_containers.append(data)
-
-    @hookimpl
-    def report_attached_file(self, source, file_name):
-        pass
-
-    @hookimpl
-    def report_attached_data(self, body, file_name):
-        self.attachments[file_name] = body
+from allure_commons.logger import AllureMemoryLogger
 
 
 @contextmanager
