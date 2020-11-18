@@ -168,9 +168,14 @@ class AllureListener(object):
         status_details = None
 
         if call.excinfo:
+            message = escape_non_unicode_symbols(call.excinfo.exconly())
+            if hasattr(report, 'wasxfail'):
+                reason = report.wasxfail
+                message = ('XFAIL {}'.format(reason) if reason else 'XFAIL') + '\n\n' + message
+            trace = escape_non_unicode_symbols(report.longreprtext)
             status_details = StatusDetails(
-                message=escape_non_unicode_symbols(call.excinfo.exconly()),
-                trace=escape_non_unicode_symbols(report.longreprtext))
+                message=message,
+                trace=trace)
             if (status != Status.SKIPPED
                 and not (call.excinfo.errisinstance(AssertionError)
                          or call.excinfo.errisinstance(pytest.fail.Exception))):
