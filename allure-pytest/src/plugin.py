@@ -149,7 +149,7 @@ def select_by_labels(items, config):
 
 def select_by_testcase(items):
     planned_tests = []
-    file_path = os.environ.get("AS_TESTPLAN_PATH")
+    file_path = os.environ.get("ALLURE_TESTPLAN_PATH")
 
     if file_path:
         with open(file_path, 'r') as plan_file:
