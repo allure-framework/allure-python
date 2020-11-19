@@ -64,7 +64,12 @@ def labels(test):
 
 def name(event):
     full_name = fullname(event)
-    return full_name.split(".")[-1]
+    test_params = params(event)
+    allure_name = full_name.split(".")[-1]
+    if test_params:
+        params_str = "-".join([p.value for p in test_params])
+        return "{name}[{params_str}]".format(name=allure_name, params_str=params_str)
+    return allure_name
 
 
 def fullname(event):
