@@ -5,7 +5,7 @@ import allure_commons
 from allure_commons_test.report import AllureReport
 from allure_commons.logger import AllureFileLogger
 from .steps import * # noqa F401 F403
-from pytest_bdd import given, when
+from pytest_bdd import given, when, parsers
 
 
 @contextmanager
@@ -32,7 +32,7 @@ class AlluredTestdir(object):
     def run_with_allure(self):
         logger = AllureFileLogger(self.testdir.tmpdir.strpath)
         with fake_logger("allure_pytest_bdd.plugin.AllureFileLogger", logger):
-            a = self.testdir.runpytest("-s", "-v", "--alluredir", self.testdir.tmpdir)
+            self.testdir.runpytest("-s", "-v", "--alluredir", self.testdir.tmpdir)
             # print(a.stdout.lines)
             # print(a.stderr.lines)
             self.allure_report = AllureReport(self.testdir.tmpdir.strpath)
