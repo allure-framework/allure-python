@@ -15,7 +15,7 @@ from .utils import get_pytest_report_status
 from allure_commons.model2 import StatusDetails
 from functools import partial
 from allure_commons.lifecycle import AllureLifecycle
-from .utils import get_full_name
+from .utils import get_full_name, get_name, get_params
 
 
 class PytestBDDListener(object):
@@ -36,14 +36,17 @@ class PytestBDDListener(object):
     def pytest_bdd_before_scenario(self, request, feature, scenario):
         uuid = get_uuid(request.node.nodeid)
         full_name = get_full_name(feature, scenario)
+        name = get_name(request.node, scenario)
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
             test_result.fullName = full_name
+            test_result.name = name
             test_result.start = now()
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
             test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))
+            test_result.parameters = get_params(request.node)
 
         finalizer = partial(self._scenario_finalizer, scenario)
         request.node.addfinalizer(finalizer)
@@ -59,7 +62,7 @@ class PytestBDDListener(object):
         parent_uuid = get_uuid(request.node.nodeid)
         uuid = get_uuid(str(id(step)))
         with self.lifecycle.start_step(parent_uuid=parent_uuid, uuid=uuid) as step_result:
-            step_result.name = get_step_name(step)
+            step_result.name = get_step_name(request.node, step)
 
     @pytest.hookimpl
     def pytest_bdd_after_step(self, request, feature, scenario, step, step_func, step_func_args):
