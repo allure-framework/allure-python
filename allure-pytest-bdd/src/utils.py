@@ -36,11 +36,24 @@ def get_name(node, scenario):
     return scenario.name
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Status
+from allure_commons.model2 import Parameter
 from allure_commons.utils import format_exception
 
 
-def get_step_name(step):
-    return "{step_keyword} {step_name}".format(step_keyword=step.keyword, step_name=step.name)
+def get_step_name(node, step):
+    name = "{step_keyword} {step_name}".format(step_keyword=step.keyword, step_name=step.name)
+    if hasattr(node, 'callspec'):
+        for key, value in node.callspec.params.items():
+            name = name.replace("<{key}>".format(key=key), "<{{{key}}}>".format(key=key))
+            name = name.format(**node.callspec.params)
+    return name
+
+
+def get_name(node, scenario):
+    if hasattr(node, 'callspec'):
+        parts = node.nodeid.rsplit("[")
+        return "{name} [{params}".format(name=scenario.name, params=parts[-1])
+    return scenario.name
 
 
 def get_full_name(feature, scenario):
