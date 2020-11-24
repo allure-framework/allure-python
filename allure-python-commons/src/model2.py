@@ -105,3 +105,4 @@ class Status(object):
     BROKEN = 'broken'
     PASSED = 'passed'
     SKIPPED = 'skipped'
+    UNKNOWN = 'unknown'
