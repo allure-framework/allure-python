@@ -89,9 +89,9 @@ def test_select_by_testcase_id_test(planned_tests, expected_tests, allured_testd
 
         testplan = {"tests": planned_tests}
         py_path = allured_testdir.testdir.makefile(".json", json.dumps(testplan))
-        os.environ["AS_TESTPLAN_PATH"] = py_path.strpath
+        os.environ["ALLURE_TESTPLAN_PATH"] = py_path.strpath
     else:
-        os.environ.pop("AS_TESTPLAN_PATH", None)
+        os.environ.pop("ALLURE_TESTPLAN_PATH", None)
 
     allured_testdir.parse_docstring_source()
     allured_testdir.run_with_allure()
