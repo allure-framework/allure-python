@@ -51,7 +51,7 @@ def parse_tag(tag, issue_pattern=None, link_pattern=None):
             if issue_pattern and kind == "issue" and not value.startswith("http"):
                 value = issue_pattern.format(value)
             if link_pattern and kind == "link" and not value.startswith("http"):
-                value = issue_pattern.format(value)
+                value = link_pattern.format(value)
             return Link(type=kind, name=name or value, url=value)
 
         if __is(kind, LabelType):
