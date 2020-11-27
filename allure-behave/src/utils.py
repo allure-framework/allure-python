@@ -91,6 +91,12 @@ def get_status(exception):
     return Status.PASSED
 
 
+def get_fullname(scenario):
+    name_with_param = scenario_name(scenario)
+    name = name_with_param.rsplit(" -- ")[0]
+    return "{filename}:{name}".format(filename=scenario.filename, name=name)
+
+
 def step_status_details(result):
     if result.exception:
         # workaround for https://github.com/behave/behave/pull/616
