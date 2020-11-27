@@ -46,6 +46,30 @@ and does not require changing autotests. Available on `pypi <https://pypi.python
 
 `Read more ... </allure-robotframework/README.rst>`_
 
+Pytest-BDD
+----------
+.. image:: https://pypip.in/v/allure-pytest-bdd/badge.png
+        :alt: Release Status
+        :target: https://pypi.python.org/pypi/allure-pytest-bdd
+.. image:: https://pypip.in/d/allure-pytest-bdd/badge.png
+        :alt: Downloads
+        :target: https://pypi.python.org/pypi/allure-pytest-bdd
+
+Allure `pytest-bdd <http://pytest.org>`_ integration. It's developed as pytest plugin and distributed via
+`pypi <https://pypi.python.org/pypi/allure-pytest-bdd>`_
+
+
+Nose2
+----------
+.. image:: https://pypip.in/v/allure-nose2/badge.png
+        :alt: Release Status
+        :target: https://pypi.python.org/pypi/allure-nose2
+.. image:: https://pypip.in/d/allure-nose2/badge.png
+        :alt: Downloads
+        :target: https://pypi.python.org/pypi/allure-nose2
+
+
+
 Allure python commons
 ---------------------
 Common engine for all modules. It is useful for make integration with your homemade frameworks.
