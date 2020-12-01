@@ -1,5 +1,6 @@
 import pytest
 import allure_commons
+import inspect
 from allure_commons.utils import escape_non_unicode_symbols
 from allure_commons.utils import now
 from allure_commons.utils import uuid4
@@ -122,7 +123,12 @@ class AllureListener(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_setup(self, fixturedef, request):
-        fixture_name = fixturedef.argname
+        fixture_source = inspect.getsource(fixturedef.func).splitlines()
+        fixture_decorators = list(filter(lambda x: x.startswith('@allure.title'), fixture_source))
+        if fixture_decorators:
+            fixture_name = fixture_decorators[0][15:-2]
+        else:
+            fixture_name = fixturedef.argname
 
         container_uuid = self._cache.get(fixturedef)
 
@@ -148,7 +154,7 @@ class AllureListener(object):
         for index, finalizer in enumerate(finalizers):
             name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname,
                                                    finalizer=getattr(finalizer, "__name__", index))
-            finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
+            finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=fixture_name)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_post_finalizer(self, fixturedef):
