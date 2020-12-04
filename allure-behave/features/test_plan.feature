@@ -26,63 +26,19 @@ Feature: Test plan
         "version":"1.0",
         "tests": [
           {
-            "selector": "Test plan example: Scenario with passed step"
+            "selector": "<string>:Scenario with passed step"
           },
           {
-            "selector": "Another Test plan example: Another scenario with passed step"
+            "selector": "<string>:Another scenario with passed step"
           }
         ]
       }
       """
     When I run behave with allure formatter
     Then allure report has a scenario with name "Scenario with passed step"
-    Then allure report has a scenario with name "Ignored scenario"
-      And this scenario has "skipped" status
-    Then allure report has a scenario with name "Another scenario with passed step"
-    Then allure report has a scenario with name "Another ignored scenario"
-      And this scenario has "skipped" status
-
-  Scenario: Drop unselected test from report
-    Given feature definition
-      """
-      Feature: Test plan example
-
-      Scenario: Scenario with passed step
-        Given passed step
-
-      Scenario: Ignored scenario
-        Given passed step
-      """
-    Given feature definition
-      """
-      Feature: Another Test plan example
-
-      Scenario: Another scenario with passed step
-        Given passed step
-
-      Scenario: Another ignored scenario
-        Given passed step
-      """
-    Given test plan
-      """
-      {
-        "version":"1.0",
-        "tests": [
-          {
-            "selector": "Test plan example: Scenario with passed step"
-          },
-          {
-            "selector": "Another Test plan example: Another scenario with passed step"
-          }
-        ]
-      }
-      """
-    When I run behave with allure formatter with options "-D AllureFormatter.hide_excluded=True"
-    Then allure report has a scenario with name "Scenario with passed step"
     Then allure report has not a scenario with name "Ignored scenario"
     Then allure report has a scenario with name "Another scenario with passed step"
     Then allure report has not a scenario with name "Another ignored scenario"
-
 
   Scenario: Select scenarios by allureid
     Given feature definition
@@ -123,7 +79,7 @@ Feature: Test plan
         ]
       }
       """
-    When I run behave with allure formatter with options "-D AllureFormatter.hide_excluded=True"
+    When I run behave with allure formatter
     Then allure report has a scenario with name "Scenario with passed step"
     Then allure report has not a scenario with name "Ignored scenario"
     Then allure report has a scenario with name "Another scenario with passed step"

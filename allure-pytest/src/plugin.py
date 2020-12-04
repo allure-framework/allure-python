@@ -3,11 +3,10 @@ import argparse
 import allure
 import allure_commons
 import os
-import json
 
 from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
-
+from allure_commons.utils import get_testplan
 
 from allure_pytest.utils import allure_label, allure_labels, allure_full_name
 from allure_pytest.helper import AllureTestHelper
@@ -148,19 +147,26 @@ def select_by_labels(items, config):
 
 
 def select_by_testcase(items):
-    planned_tests = []
-    file_path = os.environ.get("AS_TESTPLAN_PATH")
+    planned_tests = get_testplan()
 
-    if file_path:
-        with open(file_path, 'r') as plan_file:
-            plan = json.load(plan_file)
-            planned_tests = plan.get("tests", [])
+    if planned_tests:
 
-    return filter(lambda item: any(
-        [str(planed_item.get("id")) in [str(allure_id) for allure_id in allure_label(item, LabelType.ID)]
-         or
-         (planed_item.get("selector") == allure_full_name(item))
-         for planed_item in planned_tests]), items) if planned_tests else items
+        def is_planed(item):
+            allure_ids = allure_label(item, LabelType.ID)
+            allure_string_ids = list(map(str, allure_ids))
+            for planed_item in planned_tests:
+                planed_item_string_id = str(planed_item.get("id"))
+                planed_item_selector = planed_item.get("selector")
+                if (
+                    planed_item_string_id in allure_string_ids
+                    or planed_item_selector == allure_full_name(item)
+                ):
+                    return True
+            return False
+
+        return [item for item in items if is_planed(item)]
+    else:
+        return items
 
 
 def pytest_collection_modifyitems(items, config):
