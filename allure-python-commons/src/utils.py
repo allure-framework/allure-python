@@ -5,6 +5,7 @@ import sys
 import six
 import time
 import uuid
+import json
 import socket
 import inspect
 import hashlib
@@ -12,6 +13,7 @@ import platform
 import threading
 import traceback
 import collections
+
 from functools import partial
 
 
@@ -387,3 +389,15 @@ def format_exception(etype, value):
     "AssertionError: \\nExpected:...but:..."
     """
     return '\n'.join(format_exception_only(etype, value)) if etype or value else None
+
+
+def get_testplan():
+    planned_tests = []
+    file_path = os.environ.get("ALLURE_TESTPLAN_PATH")
+
+    if file_path:
+        with open(file_path, 'r') as plan_file:
+            plan = json.load(plan_file)
+            planned_tests = plan.get("tests", [])
+
+    return planned_tests
