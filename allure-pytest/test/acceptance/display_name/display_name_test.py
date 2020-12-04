@@ -52,3 +52,24 @@ def test_unicode_display_name_template(executed_docstring_source):
                               has_title(u"Тест с шаблоном и параметром: False")
                               )
                 )
+
+
+def test_fixture_value_in_display_name(executed_docstring_source):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.fixture
+    ... def fix():
+    ...     return 'fixture value'
+
+    >>> @allure.title('title with {fix}')
+    ... def test_fixture_value_name(fix):
+    ...     pass
+    """
+
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_fixture_value_name",
+                              has_title("title with fixture value")
+                              )
+                )
