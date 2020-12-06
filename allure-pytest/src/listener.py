@@ -120,7 +120,7 @@ class AllureListener(object):
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_fixture_setup(self, fixturedef, request):
-        fixture_name = fixturedef.argname
+        fixture_name = getattr(fixturedef.func, '__allure_display_name__', fixturedef.argname)
 
         container_uuid = self._cache.get(fixturedef)
 
@@ -144,7 +144,7 @@ class AllureListener(object):
 
         finalizers = getattr(fixturedef, '_finalizers', [])
         for index, finalizer in enumerate(finalizers):
-            name = '{fixture}::{finalizer}'.format(fixture=fixturedef.argname,
+            name = '{fixture}::{finalizer}'.format(fixture=fixture_name,
                                                    finalizer=getattr(finalizer, "__name__", index))
             finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
@@ -170,8 +170,8 @@ class AllureListener(object):
                 message=escape_non_unicode_symbols(call.excinfo.exconly()),
                 trace=escape_non_unicode_symbols(report.longreprtext))
             if (status != Status.SKIPPED
-                and not (call.excinfo.errisinstance(AssertionError)
-                         or call.excinfo.errisinstance(pytest.fail.Exception))):
+                    and not (call.excinfo.errisinstance(AssertionError)
+                             or call.excinfo.errisinstance(pytest.fail.Exception))):
                 status = Status.BROKEN
 
         if status == Status.PASSED and hasattr(report, 'wasxfail'):
