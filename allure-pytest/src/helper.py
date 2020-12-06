@@ -7,10 +7,10 @@ from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML
 from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 
 
-class AllureTestHelper(object):
+class AllureTitleHelper(object):
 
     def __init__(self, config=None):
-        self.config = None
+        self.config = config
 
     @allure_commons.hookimpl
     def decorate_as_title(self, test_title):
@@ -23,6 +23,11 @@ class AllureTestHelper(object):
             return func
 
         return decorator
+
+
+class AllureTestHelper(object):
+    def __init__(self, config):
+        self.config = config
 
     @allure_commons.hookimpl
     def decorate_as_description(self, test_description):

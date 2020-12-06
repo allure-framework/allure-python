@@ -9,7 +9,7 @@ from allure_commons.logger import AllureFileLogger
 from allure_commons.utils import get_testplan
 
 from allure_pytest.utils import allure_label, allure_labels, allure_full_name
-from allure_pytest.helper import AllureTestHelper
+from allure_pytest.helper import AllureTestHelper, AllureTitleHelper
 from allure_pytest.listener import AllureListener
 
 from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
@@ -111,17 +111,16 @@ def cleanup_factory(plugin):
 
 
 def pytest_addhooks(pluginmanager):
-    test_helper = AllureTestHelper()
-    # TODO: Why helper is present anyway?
-    allure_commons.plugin_manager.register(test_helper)
+    title_helper = AllureTitleHelper()
+    allure_commons.plugin_manager.register(title_helper)
 
 
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
     clean = config.option.clean_alluredir
 
-    test_helper = list(allure_commons.plugin_manager.get_plugin_manager()._name2plugin.values())[0]
-    test_helper.config = config
+    test_helper = AllureTestHelper(config)
+    allure_commons.plugin_manager.register(test_helper)
     config.add_cleanup(cleanup_factory(test_helper))
 
     if report_dir:
