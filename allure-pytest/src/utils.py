@@ -109,6 +109,11 @@ def allure_package(item):
 def allure_name(item, parameters):
     name = escape_name(item.name)
     title = allure_title(item)
+    if title and getattr(item, 'callspec', None):
+        parametrize_id = item.callspec.id
+        parametrize_params = '-'.join([str(value) for value in item.callspec.params.values()])
+        if parametrize_id != parametrize_params:
+            title = f'{title}[{parametrize_id}]'
     return title.format(**{**parameters, **item.funcargs}) if title else name
 
 

@@ -73,3 +73,24 @@ def test_fixture_value_in_display_name(executed_docstring_source):
                               has_title("title with fixture value")
                               )
                 )
+
+
+def test_ids_for_display_name(executed_docstring_source):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @allure.title("Title with ids from parametrize:")
+    ... @pytest.mark.parametrize("id", [1,2], ids=['first_id', 'second_id'])
+    ... def test_ids_in_display_name(id):
+    ...     pass
+    """
+
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_ids_in_display_name",
+                              has_title("Title with ids from parametrize:[first_id]")
+                              ),
+                has_test_case("test_ids_in_display_name",
+                              has_title("Title with ids from parametrize:[second_id]")
+                              )
+                )
