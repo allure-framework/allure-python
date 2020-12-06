@@ -130,3 +130,90 @@ def test_nested_fixtures(executed_docstring_source):
                                             )
                               )
                 )
+
+
+@allure.feature("Fixture")
+def test_fixture_allure_title(allured_testdir):
+    allured_testdir.testdir.makepyfile("""
+        import pytest
+        import allure
+
+        @pytest.fixture
+        @allure.title("Allure fixture title")
+        def first_fixture():
+            pass
+
+        def test_titled_fixture_example(first_fixture):
+            pass
+    """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_titled_fixture_example",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("Allure fixture title")
+                                            )
+                              )
+                )
+
+
+@allure.feature("Fixture")
+def test_fixture_allure_title_before(allured_testdir):
+    allured_testdir.testdir.makepyfile("""
+        import pytest
+        import allure
+
+        @allure.title("Allure fixture title")
+        @pytest.fixture
+        def first_fixture():
+            pass
+
+        def test_titled_before_fixture_example(first_fixture):
+            pass
+    """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_titled_before_fixture_example",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("Allure fixture title")
+                                            )
+                              )
+                )
+
+
+def test_titled_fixture_from_conftest(allured_testdir):
+    allured_testdir.testdir.makeconftest("""
+        import allure
+        import pytest
+
+        @allure.title('Titled fixture before pytest.fixture')
+        @pytest.fixture
+        def first_fixture():
+            pass
+
+        @pytest.fixture
+        @allure.title('Titled fixture after pytest.fixture')
+        def second_fixture():
+            pass
+    """)
+
+    allured_testdir.testdir.makepyfile("""
+        def test_with_titled_conftest_fixtures(first_fixture, second_fixture):
+            pass
+    """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_with_titled_conftest_fixtures",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("Titled fixture before pytest.fixture")
+                                            ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("Titled fixture after pytest.fixture")
+                                            )
+                              )
+                )

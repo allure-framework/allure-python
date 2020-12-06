@@ -3,20 +3,28 @@ from __future__ import unicode_literals
 
 import pytest
 import allure_commons
-from allure_pytest.utils import ALLURE_DISPLAY_NAME_MARK
 from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
 from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 
 
-class AllureTestHelper(object):
-
-    def __init__(self, config):
-        self.config = config
-
+class AllureTitleHelper(object):
     @allure_commons.hookimpl
     def decorate_as_title(self, test_title):
-        allure_title = getattr(pytest.mark, ALLURE_DISPLAY_NAME_MARK)
-        return allure_title(test_title)
+        def decorator(func):
+            # pytest.fixture wraps function, so we need to get it directly
+            if getattr(func, '__pytest_wrapped__', None):
+                function = func.__pytest_wrapped__.obj
+            else:
+                function = func
+            function.__allure_display_name__ = test_title
+            return func
+
+        return decorator
+
+
+class AllureTestHelper(object):
+    def __init__(self, config):
+        self.config = config
 
     @allure_commons.hookimpl
     def decorate_as_description(self, test_description):

@@ -4,6 +4,7 @@
 from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_title
+from allure_commons_test.label import has_label
 
 
 def test_display_name(executed_docstring_path):
@@ -71,5 +72,28 @@ def test_fixture_value_in_display_name(executed_docstring_source):
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_fixture_value_name",
                               has_title("title with fixture value")
+                              )
+                )
+
+
+def test_display_name_with_features(allured_testdir):
+    allured_testdir.testdir.makepyfile("""
+        import allure
+        import pytest
+
+        @allure.feature('Feature 1')
+        @allure.title('Titled test with features')
+        @allure.feature('Feature 2')
+        def test_feature_label_for_titled_test():
+            pass
+        """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_feature_label_for_titled_test",
+                              has_label("feature", "Feature 1"),
+                              has_label("feature", "Feature 2"),
+                              has_title("Titled test with features")
                               )
                 )
