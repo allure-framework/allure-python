@@ -22,6 +22,7 @@ from allure_behave.utils import get_status, get_status_details
 from allure_behave.utils import scenario_links
 from allure_behave.utils import scenario_labels
 from allure_behave.utils import get_fullname
+from allure_behave.utils import TEST_PLAN_SKIP_REASON
 
 
 BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
@@ -114,7 +115,8 @@ class AllureListener(object):
         self.stop_scenario(context['scenario'])
 
     def stop_scenario(self, scenario):
-        if scenario.status == 'skipped' and not self.behave_config.show_skipped:
+        if scenario.status == 'skipped' \
+                and not self.behave_config.show_skipped or scenario.skip_reason == TEST_PLAN_SKIP_REASON:
             self.logger.drop_test(self.current_scenario_uuid)
         else:
             status = scenario_status(scenario)

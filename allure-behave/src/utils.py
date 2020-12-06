@@ -11,6 +11,7 @@ from allure_commons.utils import md5
 from allure_commons.utils import format_exception, format_traceback
 from allure_commons.mapping import parse_tag, labels_set
 
+TEST_PLAN_SKIP_REASON = "Not in allure test plan"
 
 STATUS = {
     'passed': Status.PASSED,
@@ -114,3 +115,15 @@ def step_table(step):
     table = [','.join(step.table.headings)]
     [table.append(','.join(list(row))) for row in step.table.rows]
     return '\n'.join(table)
+
+
+def is_planned_scenario(scenario, test_plan):
+    if test_plan:
+        fullname = get_fullname(scenario)
+        labels = scenario_labels(scenario)
+        id_labels = list(filter(lambda label: label.name == LabelType.ID, labels))
+        allure_id = id_labels[0].value if id_labels else None
+        for item in test_plan:
+            if (allure_id and allure_id == item.get("id")) or fullname == item.get("selector"):
+                return
+        scenario.skip(reason=TEST_PLAN_SKIP_REASON)

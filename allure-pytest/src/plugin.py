@@ -3,11 +3,10 @@ import argparse
 import allure
 import allure_commons
 import os
-import json
 
 from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
-
+from allure_commons.utils import get_testplan
 
 from allure_pytest.utils import allure_label, allure_labels, allure_full_name
 from allure_pytest.helper import AllureTestHelper
@@ -148,13 +147,7 @@ def select_by_labels(items, config):
 
 
 def select_by_testcase(items):
-    planned_tests = []
-    file_path = os.environ.get("ALLURE_TESTPLAN_PATH")
-
-    if file_path:
-        with open(file_path, 'r') as plan_file:
-            plan = json.load(plan_file)
-            planned_tests = plan.get("tests", [])
+    planned_tests = get_testplan()
 
     if planned_tests:
 

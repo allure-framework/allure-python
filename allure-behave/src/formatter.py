@@ -3,6 +3,8 @@ from behave.formatter.base import Formatter
 import allure_commons
 from allure_commons.logger import AllureFileLogger
 from allure_behave.listener import AllureListener
+from allure_commons.utils import get_testplan
+from allure_behave.utils import is_planned_scenario
 
 
 class AllureFormatter(Formatter):
@@ -15,12 +17,15 @@ class AllureFormatter(Formatter):
         allure_commons.plugin_manager.register(self.listener)
         allure_commons.plugin_manager.register(file_logger)
 
+        self.testplan = get_testplan()
+
     def _wrap_scenario(self, scenarios):
         for scenario in scenarios:
             if isinstance(scenario, ScenarioOutline):
                 self._wrap_scenario(scenario)
             else:
                 scenario.run = allure_commons.test(scenario.run, context={'scenario': scenario})
+            is_planned_scenario(scenario, self.testplan)
 
     def feature(self, feature):
         self._wrap_scenario(feature.scenarios)
