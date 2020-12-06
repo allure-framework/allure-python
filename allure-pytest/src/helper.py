@@ -8,13 +8,10 @@ from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 
 
 class AllureTitleHelper(object):
-
-    def __init__(self, config=None):
-        self.config = config
-
     @allure_commons.hookimpl
     def decorate_as_title(self, test_title):
         def decorator(func):
+            # pytest.fixture wraps function, so we need to get it directly
             if getattr(func, '__pytest_wrapped__', None):
                 function = func.__pytest_wrapped__.obj
             else:

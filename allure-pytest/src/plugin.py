@@ -111,6 +111,7 @@ def cleanup_factory(plugin):
 
 
 def pytest_addhooks(pluginmanager):
+    # Need register title hooks before conftest init
     title_helper = AllureTitleHelper()
     allure_commons.plugin_manager.register(title_helper)
 
