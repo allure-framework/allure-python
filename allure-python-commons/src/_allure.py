@@ -1,9 +1,12 @@
 from functools import wraps
+from typing import Any, Callable, TypeVar
 
 from allure_commons._core import plugin_manager
 from allure_commons.types import LabelType, LinkType
 from allure_commons.utils import uuid4
 from allure_commons.utils import func_parameters, represent
+
+_TFunc = TypeVar("_TFunc", bound=Callable[..., Any])
 
 
 def safely(result):
@@ -159,7 +162,7 @@ class StepContext:
         plugin_manager.hook.stop_step(uuid=self.uuid, title=self.title, exc_type=exc_type, exc_val=exc_val,
                                       exc_tb=exc_tb)
 
-    def __call__(self, func):
+    def __call__(self, func: _TFunc) -> _TFunc:
         @wraps(func)
         def impl(*a, **kw):
             __tracebackhide__ = True
