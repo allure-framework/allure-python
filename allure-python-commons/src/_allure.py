@@ -8,6 +8,7 @@ from allure_commons.utils import func_parameters, represent
 
 _TFunc = TypeVar("_TFunc", bound=Callable[..., Any])
 
+
 def safely(result):
     if result:
         return result[0]
