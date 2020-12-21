@@ -32,7 +32,6 @@ class LabelType(str):
     FRAMEWORK = 'framework'
     LANGUAGE = 'language'
 
-
 class AttachmentType(Enum):
 
     def __init__(self, mime_type, extension):

@@ -149,14 +149,13 @@ class AllureListener(object):
             test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=pool_id()))
             test_result.labels.extend(allure_tags(attributes))
+            tags = attributes.get('tags', ())
+            test_result.labels.extend(allure_labels(tags))
             test_result.statusDetails = StatusDetails(message=attributes.get('message'),
                                                       trace=self._current_tb)
 
             if attributes.get('critical') == 'yes':
                 test_result.labels.append(Label(name=LabelType.SEVERITY, value=Severity.CRITICAL))
-
-            for label_type in (LabelType.EPIC, LabelType.FEATURE, LabelType.STORY):
-                test_result.labels.extend(allure_labels(attributes, label_type))
 
             for link_type in (LinkType.ISSUE, LinkType.TEST_CASE, LinkType.LINK):
                 test_result.links.extend(allure_links(attributes, link_type))
