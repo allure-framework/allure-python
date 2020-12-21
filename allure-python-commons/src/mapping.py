@@ -1,12 +1,22 @@
 from itertools import chain, islice
 import attr
-
+import re
 from allure_commons.types import Severity, LabelType, LinkType
 from allure_commons.types import ALLURE_UNIQUE_LABELS
 from allure_commons.model2 import Label, Link
 
 
 TAG_PREFIX = "allure"
+
+semi_sep = re.compile(r"allure[\.\w]+:")
+eq_sep = re.compile(r"allure[\.\w]+=")
+
+
+def allure_tag_sep(tag):
+    if semi_sep.search(tag):
+        return ":"
+    if eq_sep.search(tag):
+        return "="
 
 
 def __is(kind, t):
@@ -39,7 +49,8 @@ def parse_tag(tag, issue_pattern=None, link_pattern=None):
     >>> parse_tag("allure.foo:1")
     Label(name='tag', value='allure.foo:1')
     """
-    schema, value = islice(chain(tag.split(':', 1), [None]), 2)
+    sep = allure_tag_sep(tag)
+    schema, value = islice(chain(tag.split(sep, 1), [None]), 2)
     prefix, kind, name = islice(chain(schema.split('.'), [None], [None]), 3)
 
     if tag in [severity for severity in Severity]:
@@ -56,6 +67,9 @@ def parse_tag(tag, issue_pattern=None, link_pattern=None):
 
         if __is(kind, LabelType):
             return Label(name=kind, value=value)
+
+        if kind == "id":
+            return Label(name=LabelType.ID, value=value)
 
         if kind == "label" and name is not None:
             return Label(name=name, value=value)

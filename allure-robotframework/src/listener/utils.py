@@ -3,6 +3,7 @@ from re import search
 from allure_commons.model2 import Status, Label, Parameter, Link
 from allure_commons.types import LabelType
 from allure_robotframework.types import RobotStatus
+from allure_commons.mapping import parse_tag, labels_set, allure_tag_sep
 
 
 def get_allure_status(status):
@@ -40,19 +41,12 @@ def get_allure_suites(longname):
 
 
 def allure_tags(attributes):
-    return [Label(LabelType.TAG, tag) for tag in attributes.get('tags', ())]
+    return [Label(LabelType.TAG, tag) for tag in attributes.get('tags', ()) if not allure_tag_sep(tag)]
 
 
-def allure_labels(attributes, prefix):
-    tags = attributes.get('tags', ())
-
-    def is_label(label):
-        return label.startswith("{label}:".format(label=prefix))
-
-    def label_value(label):
-        return label.split(':')[1] or 'unknown'
-
-    return [Label(name=prefix, value=label_value(tag)) for tag in tags if is_label(tag)]
+def allure_labels(tags):
+    parsed = [parse_tag(item) for item in tags]
+    return labels_set(list(filter(lambda x: isinstance(x, Label),  parsed)))
 
 
 def allure_links(attributes, prefix):
