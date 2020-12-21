@@ -25,4 +25,3 @@ class allure_testplan(SuiteVisitor):
                 included_tests.append(test.name)
 
         return included_tests or [test["selector"] for test in self.testplan]
-
