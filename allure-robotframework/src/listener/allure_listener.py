@@ -35,8 +35,14 @@ def get_status_details(exc_type, exception, exc_traceback):
                              trace=format_traceback(exc_traceback))
 
 
+DEFAULT_POOL_ID = "default-" + uuid4()
+
+
 def pool_id():
-    return BuiltIn().get_variable_value('${PABOTEXECUTIONPOOLID}') or "default"
+    pabot_pool_id = BuiltIn().get_variable_value('${PABOTEXECUTIONPOOLID}')
+    pabot_caller_id = BuiltIn().get_variable_value('${CALLER_ID}')
+    return "{}-{}".format(pabot_pool_id, pabot_caller_id) \
+        if all([pabot_pool_id, pabot_caller_id]) else DEFAULT_POOL_ID
 
 
 def get_message_time(timestamp):
@@ -143,14 +149,13 @@ class AllureListener(object):
             test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=pool_id()))
             test_result.labels.extend(allure_tags(attributes))
-            test_result.statusDetails = StatusDetails(message=self._current_msg or attributes.get('message'),
+            tags = attributes.get('tags', ())
+            test_result.labels.extend(allure_labels(tags))
+            test_result.statusDetails = StatusDetails(message=attributes.get('message'),
                                                       trace=self._current_tb)
 
             if attributes.get('critical') == 'yes':
                 test_result.labels.append(Label(name=LabelType.SEVERITY, value=Severity.CRITICAL))
-
-            for label_type in (LabelType.EPIC, LabelType.FEATURE, LabelType.STORY):
-                test_result.labels.extend(allure_labels(attributes, label_type))
 
             for link_type in (LinkType.ISSUE, LinkType.TEST_CASE, LinkType.LINK):
                 test_result.links.extend(allure_links(attributes, link_type))

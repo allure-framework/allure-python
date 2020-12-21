@@ -8,27 +8,20 @@ from allure_commons.types import LabelType
 class allure_testplan(SuiteVisitor):
     def __init__(self):
         self.testplan = get_testplan()
-        self.allure_ids = [test["id"] for test in self.testplan] if self.testplan else []
-        self.selectors = [test["selector"] for test in self.testplan] if self.testplan else []
 
     def start_suite(self, suite):
         if self.testplan:
-            suite.tests = self.included_tests(suite)
+            # included_tests = [test["selector"] for test in self.testplan]
+            suite.filter(included_tests=self.included_tests(suite))
 
     def included_tests(self, suite):
-        included_tests = []
-
+        included_tests = [""]
         for test in suite.tests:
             allure_id = None
             for label in allure_labels(test.tags):
                 if label.name == LabelType.ID:
                     allure_id = str(label.value)
-            if allure_id and allure_id in self.allure_ids:
-                included_tests.append(test)
-            elif test.longname in self.selectors:
-                included_tests.append(test)
+            if allure_id and any([allure_id == item.get("id", None) for item in self.testplan]):
+                included_tests.append(test.name)
 
-        return included_tests
-
-    def end_suite(self, suite):
-        suite.suites = [s for s in suite.suites if s.test_count > 0]
+        return included_tests or [test["selector"] for test in self.testplan]
