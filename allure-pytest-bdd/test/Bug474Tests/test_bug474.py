@@ -1,31 +1,17 @@
-from pytest_bdd import scenario, given, when, then, parsers
-import pytest
-import allure
-
-a = 0
-b = 0
+from pytest_bdd import scenario, then
 
 
-@given(parsers.parse("two numbers: {first}, {second}"))
-def step_impl(first, second):
-    global a, b
-    a = first
-    b = second
-
-
-@pytest.fixture()
-@when("addition it")
-def addition():
-    allure.attach('A text attachment in module scope fixture', 'blah blah blah', allure.attachment_type.TEXT)
-    sum_ = a+b
-    return sum_
-
-
-@then("must be sum of it")
-def check_sum(addition):
-    assert a+b == addition
-
-
-@scenario("bug474.feature", "My Scenario Test")
+@scenario("bug474.feature", "allure.attach calling in method decorated with When and Pytest.fixture")
 def test_my_scenario():
     pass
+
+
+@then("attachment must be only in when-step attachments")
+def attachment_only_in_when(allure_report):
+    test_case_report = allure_report.test_cases[0]
+    when_step_report = next(step for step in test_case_report["steps"]
+                            if step["name"].startswith("When"))
+
+    assert "attachments" not in test_case_report.keys()
+    assert len(when_step_report["attachments"]) == 1
+    assert when_step_report["attachments"][0]["name"] == "blah blah blah"
