@@ -16,8 +16,7 @@ class AttachmentWorker:
         if len(splitted_param) == 1:
             return project_dir
 
-        allure_dir = os.path.normpath(
-            splitted_param[1].lstrip())
+        allure_dir = os.path.normpath(splitted_param[1])
         if os.path.isabs(allure_dir):
             return allure_dir
         else:
