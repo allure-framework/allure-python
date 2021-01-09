@@ -115,7 +115,7 @@ class PytestBDDListener(object):
                     test_result.status = status
                     test_result.statusDetails = status_details
 
-            if test_result is not None and test_result.status is not None:
+            if test_result and test_result.status:
                 AttachmentWorker(test_result, item).delete_duplicates()
 
         if report.when == 'teardown':
