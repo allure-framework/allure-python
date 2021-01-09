@@ -10,13 +10,24 @@ class AttachmentWorker:
 
     @staticmethod
     def get_path_to_attachments(item):
+        splitted_param = AttachmentWorker._get_allurdir_param(item).split('=')
+
+        project_dir = str(item.config.invocation_params.dir)
+        if len(splitted_param) == 1:
+            return project_dir
+
         allure_dir = os.path.normpath(
-            item.config.invocation_params.args[0].split('=')[1])
+            splitted_param[1].lstrip())
         if os.path.isabs(allure_dir):
             return allure_dir
         else:
-            project_dir = str(item.config.invocation_params.dir)
             return os.path.join(project_dir, allure_dir.lstrip("\\"))
+
+    @staticmethod
+    def _get_allurdir_param(item):
+        for param in item.config.invocation_params.args:
+            if param.startswith("--alluredir"):
+                return param
 
     def delete_duplicates(self):
         if len(self.test_result.attachments) == 0:
