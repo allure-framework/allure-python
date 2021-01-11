@@ -18,6 +18,9 @@ class PyFileBuilder:
         self._file_funcs.append(str_func)
 
     def get_content(self):
+        if len(self._file_funcs) == 0:
+            raise Exception("There are no functions in this file")
+
         content = "\n\n\n".join(self._file_funcs)
 
         if self._import_line is not None:
