@@ -1,16 +1,26 @@
-
 class PyFileBuilder:
 
-    def __init__(self):
+    def __init__(self, name):
         self._import_line = None
         self._file_funcs = []
+        self.name = name
 
     def add_imports(self, *modules_names):
-        """ Ex: module_names = ("pytest", ...)"""
-        pass
+        import_list = []
+
+        for module in modules_names:
+            import_list.append("import " + module)
+
+        if len(import_list) != 0:
+            self._import_line = "\n".join(import_list)
 
     def add_func(self, str_func):
-        pass
+        self._file_funcs.append(str_func)
 
-    def create_file_content(self):
-        pass
+    def get_content(self):
+        content = "\n\n\n".join(self._file_funcs)
+
+        if self._import_line is not None:
+            content = self._import_line + "\n\n\n" + content
+
+        return content
