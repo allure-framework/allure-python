@@ -28,10 +28,10 @@ class AttachmentWorker:
             return project_dir
 
         allure_dir = os.path.normpath(splitted_param[1])
-        if os.path.isabs(allure_dir):
-            return allure_dir
-        else:
-            return os.path.join(project_dir, allure_dir.lstrip("\\"))
+        if not os.path.isabs(allure_dir):
+            allure_dir = os.path.join(project_dir, allure_dir.lstrip("\\"))
+
+        return allure_dir
 
     def _find_duplicate(self, attachment_from_step):
         for attachment in self.test_result.attachments:
