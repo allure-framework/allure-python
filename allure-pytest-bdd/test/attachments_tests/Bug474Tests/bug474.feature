@@ -1,46 +1,37 @@
 Feature: Bug #474
-  Scenario: allure.attach calling in method decorated with When and Pytest.fixture
+  Scenario: allure.attach calling in function decorated with When and Pytest.fixture
     Given example.feature with content:
       """
       Feature: Feature Test
         Scenario: My Scenario Test
-          Given two numbers: 2, 3
-          When addition it
-          Then must be sum of it
+          Given passed step
+          When when-step is fixture with attachment
+          Then passed step using fixture
       """
-    And example_test.py with content:
+    And py file with name: example_test
+    And with imports: pytest, pytest_bdd, allure
+    And with passed steps
+    And with func:
       """
-      from pytest_bdd import scenario, given, when, then, parsers
-      import pytest
-      import allure
-
-      a = 0
-      b = 0
-
-
-      @given(parsers.parse("two numbers: {first}, {second}"))
-      def step_impl(first, second):
-          global a, b
-          a = first
-          b = second
-
-
       @pytest.fixture()
-      @when("addition it")
-      def addition():
-          allure.attach('A text attachment in module scope fixture', 'blah blah blah', allure.attachment_type.TEXT)
-          sum_ = a+b
-          return sum_
-
-
-      @then("must be sum of it")
-      def check_sum(addition):
-          assert a+b == addition
-
-
-      @scenario("example.feature", "My Scenario Test")
-      def test_my_scenario():
+      @pytest_bdd.when("when-step is fixture with attachment")
+      def step_with_attachment():
+          allure.attach('Attachment content', 'allure attachment', allure.attachment_type.TEXT)
+      """
+    And with func:
+      """
+      @pytest_bdd.then("passed step using fixture")
+      def then_step(step_with_attachment):
           pass
       """
+    And test for My Scenario Test from example.feature
+    And py file saved
+
     When run pytest-bdd with allure
-    Then attachment must be only in when-step attachments
+
+    Then attachment allure attachment must be in When when-step is fixture with attachment
+    And this attachment with content:
+      """
+      Attachment content
+      """
+    And attachments must not be in attachments
