@@ -29,3 +29,8 @@ def test_attachment_in_many_steps():
 @scenario("attachments_features\\attachment_in_failed_step.feature", "Attachment in failed step")
 def test_failed_step_with_attachment():
     pass
+
+
+@scenario("attachments_features\\attachment_in_called_fixture.feature", "Attachment in called fixture")
+def test_attachment_in_called_fixture():
+    pass
