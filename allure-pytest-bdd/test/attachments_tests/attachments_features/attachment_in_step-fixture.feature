@@ -1,5 +1,6 @@
-Feature: Bug #474
-  Scenario: allure.attach calling in function decorated with When and Pytest.fixture
+Feature: Attachment
+
+  Scenario: attachment in a step, that is also a fixture
     Given example.feature with content:
       """
       Feature: Feature Test
