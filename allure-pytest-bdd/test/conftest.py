@@ -90,22 +90,22 @@ def add_passed_steps(current_py_file_builder):
     passed_steps = '@pytest_bdd.given("passed step")\n' \
                    '@pytest_bdd.when("passed step")\n' \
                    '@pytest_bdd.then("passed step")\n' \
-                   'def step_impl():\n' \
+                   'def passed_step():\n' \
                    '    pass'
 
     current_py_file_builder.add_func(passed_steps)
 
 
-@given("with failed given step")
-def add_steps_status(current_py_file_builder):
+@given("with failed steps")
+def add_failed_steps(current_py_file_builder):
 
-    passed_steps = '@pytest_bdd.given("failed step")\n' \
-                   '@pytest_bdd.when("passed step")\n' \
-                   '@pytest_bdd.then("passed step")\n' \
-                   'def step_impl():\n' \
-                   '    pass'
+    failed_steps = '@pytest_bdd.given("failed step")\n' \
+                   '@pytest_bdd.when("failed step")\n' \
+                   '@pytest_bdd.then("failed step")\n' \
+                   'def failed_step():\n' \
+                   '    assert False'
 
-    current_py_file_builder.add_func(passed_steps)
+    current_py_file_builder.add_func(failed_steps)
 
 
 @given(parsers.parse("test for {scenario_name} from {feature_file}"))
