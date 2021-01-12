@@ -1,4 +1,4 @@
-Feature: Attachments tests
+Feature: Attachments
 
   Scenario: Attachment in Given
     Given example.feature with content:

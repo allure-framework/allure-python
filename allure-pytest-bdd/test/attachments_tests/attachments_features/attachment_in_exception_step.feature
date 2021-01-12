@@ -1,6 +1,6 @@
-Feature: Attachments tests
+Feature: Attachments
 
-  Scenario: Attachment and Exception in Given
+  Scenario: Attachment and exception in step
     Given example.feature with content:
       """
       Feature: Feature Test

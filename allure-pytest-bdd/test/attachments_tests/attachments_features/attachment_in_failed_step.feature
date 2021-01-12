@@ -1,6 +1,6 @@
-Feature: Attachments tests
+Feature: Attachments
 
-  Scenario: Attachment in Failed step
+  Scenario: Attachment in failed step
     Given example.feature with content:
       """
       Feature: Feature Test
@@ -11,12 +11,13 @@ Feature: Attachments tests
       """
     And py file with name: example_test
     And with imports: pytest_bdd, allure
-    And with failed given step
+    And with passed steps
     And with func:
       """
       @pytest_bdd.given("failed step with attach")
       def step_with_attachment():
           allure.attach('Attachment content', 'allure attachment', allure.attachment_type.TEXT)
+          assert False
       """
     And test for My Scenario Test from example.feature
     And py file saved

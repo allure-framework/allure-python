@@ -1,6 +1,6 @@
-Feature: Attachments tests
+Feature: Attachments
 
-  Scenario: Attachment in Many Steps
+  Scenario: Attachment in many steps
     Given example.feature with content:
       """
       Feature: Feature Test

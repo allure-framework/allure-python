@@ -16,16 +16,16 @@ def test_then_with_attachments():
     pass
 
 
-@scenario("attachments_features\\attachment_in_exception_step.feature", "Attachment and Exception in Given")
-def test_given_with_attachments_and_Exception():
+@scenario("attachments_features\\attachment_in_exception_step.feature", "Attachment and exception in step")
+def test_step_with_attachments_and_exception():
     pass
 
 
-@scenario("attachments_features\\attachment_in_many_steps.feature", "Attachment in Many Steps")
+@scenario("attachments_features\\attachment_in_many_steps.feature", "Attachment in many steps")
 def test_attachment_in_many_steps():
     pass
 
 
-@scenario("attachments_features\\attachment_in_failed_step.feature", "Attachment in Failed step")
+@scenario("attachments_features\\attachment_in_failed_step.feature", "Attachment in failed step")
 def test_failed_step_with_attachment():
     pass
