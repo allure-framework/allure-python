@@ -96,6 +96,18 @@ def add_passed_steps(current_py_file_builder):
     current_py_file_builder.add_func(passed_steps)
 
 
+@given("with failed given step")
+def add_steps_status(current_py_file_builder):
+
+    passed_steps = '@pytest_bdd.given("failed step")\n' \
+                   '@pytest_bdd.when("passed step")\n' \
+                   '@pytest_bdd.then("passed step")\n' \
+                   'def step_impl():\n' \
+                   '    pass'
+
+    current_py_file_builder.add_func(passed_steps)
+
+
 @given(parsers.parse("test for {scenario_name} from {feature_file}"))
 def add_scenario_step(scenario_name, feature_file, current_py_file_builder):
 
