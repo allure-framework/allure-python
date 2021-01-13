@@ -12,10 +12,12 @@ class allure_testplan(SuiteVisitor):
     def start_suite(self, suite):
         if self.testplan:
             # included_tests = [test["selector"] for test in self.testplan]
-            suite.filter(included_tests=self.included_tests(suite))
+            included_tests = self.included_tests(suite)
+            if included_tests:
+                suite.filter(included_tests=self.included_tests(suite))
 
     def included_tests(self, suite):
-        included_tests = [""]
+        included_tests = []
         for test in suite.tests:
             allure_id = None
             for label in allure_labels(test.tags):
