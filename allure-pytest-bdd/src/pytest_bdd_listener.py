@@ -45,7 +45,7 @@ class PytestBDDListener(object):
             test_result.name = name
             test_result.start = now()
             test_result.labels.extend([Label(name=LabelType.TAG, value=value)
-                                       for value in pytest_markers(request.keywords.node)])
+                                       for value in pytest_markers(request.node)])
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
