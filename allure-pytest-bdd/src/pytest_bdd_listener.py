@@ -12,10 +12,11 @@ from .utils import get_uuid
 from .utils import get_step_name
 from .utils import get_status_details
 from .utils import get_pytest_report_status
+from .utils import get_full_name, get_name, get_params
+from .utils import pytest_markers
 from allure_commons.model2 import StatusDetails
 from functools import partial
 from allure_commons.lifecycle import AllureLifecycle
-from .utils import get_full_name, get_name, get_params
 
 from .attachment_worker import AttachmentWorker
 
@@ -43,6 +44,8 @@ class PytestBDDListener(object):
             test_result.fullName = full_name
             test_result.name = name
             test_result.start = now()
+            test_result.labels.extend([Label(name=LabelType.TAG, value=value)
+                                       for value in pytest_markers(request.keywords.node)])
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
