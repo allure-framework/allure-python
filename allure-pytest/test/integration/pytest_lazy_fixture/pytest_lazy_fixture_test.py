@@ -2,7 +2,7 @@ import allure
 from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.container import has_container
-from allure_commons_test.container import has_before, has_after
+from allure_commons_test.container import has_before
 
 
 @allure.feature("Integration")
