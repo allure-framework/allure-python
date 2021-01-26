@@ -279,8 +279,8 @@ def _test_fixtures(item):
     fixturemanager = item.session._fixturemanager
     fixturedefs = []
 
-    if hasattr(item, "fixturenames"):
-        for name in item.fixturenames:
+    if hasattr(item._request, "fixturenames"):
+        for name in item._request.fixturenames:
             fixturedef = fixturemanager.getfixturedefs(name, item.nodeid)
             if fixturedef:
                 fixturedefs.append(fixturedef[-1])
