@@ -62,7 +62,7 @@ def test_call_pytest_fail(executed_docstring_source):
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_call_pytest_fail_example",
                               with_status("failed"),
-                              has_status_details(with_message_contains("Failed: <Failed instance>"),
+                              has_status_details(with_message_contains("Failed"),
                                                  with_trace_contains("def test_call_pytest_fail_example():")
                                                  )
                               )

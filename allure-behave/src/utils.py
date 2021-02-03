@@ -95,7 +95,7 @@ def get_status(exception):
 def get_fullname(scenario):
     name_with_param = scenario_name(scenario)
     name = name_with_param.rsplit(" -- ")[0]
-    return "{filename}:{name}".format(filename=scenario.filename, name=name)
+    return "{filename}: {name}".format(filename=scenario.feature.name, name=name)
 
 
 def step_status_details(result):
