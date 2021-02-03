@@ -45,12 +45,12 @@ def test_pytest_fail_in_step(executed_docstring_source):
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_pytest_fail_in_step_example",
                               with_status("failed"),
-                              has_status_details(with_message_contains("Failed: <Failed instance>"),
+                              has_status_details(with_message_contains("Failed"),
                                                  with_trace_contains("def test_pytest_fail_in_step_example():")
                                                  ),
                               has_step("Step",
                                        with_status("failed"),
-                                       has_status_details(with_message_contains("Failed: <Failed instance>"),
+                                       has_status_details(with_message_contains("Failed"),
                                                           with_trace_contains("test_pytest_fail_in_step_example")
                                                           )
                                        )

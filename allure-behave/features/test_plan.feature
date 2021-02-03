@@ -26,10 +26,10 @@ Feature: Test plan
         "version":"1.0",
         "tests": [
           {
-            "selector": "<string>:Scenario with passed step"
+            "selector": "Test plan example: Scenario with passed step"
           },
           {
-            "selector": "<string>:Another scenario with passed step"
+            "selector": "Another Test plan example: Another scenario with passed step"
           }
         ]
       }
