@@ -1,11 +1,11 @@
-import threading
+import multiprocessing
 from six import with_metaclass
 from pluggy import PluginManager
 from allure_commons import _hooks
 
 
 class MetaPluginManager(type):
-    _storage = threading.local()
+    _storage = multiprocessing.Process
 
     @staticmethod
     def get_plugin_manager():

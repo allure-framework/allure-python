@@ -1,17 +1,17 @@
 from collections import OrderedDict
 
-from allure_commons.types import AttachmentType
-from allure_commons.model2 import ExecutableItem
-from allure_commons.model2 import TestResult
-from allure_commons.model2 import Attachment, ATTACHMENT_PATTERN
-from allure_commons.utils import now
 from allure_commons._core import plugin_manager
+from allure_commons.model2 import (ATTACHMENT_PATTERN, Attachment,
+                                   ExecutableItem, TestResult)
+from allure_commons.types import AttachmentType
+from allure_commons.utils import now, thread_tag_detail
 
 
 class AllureReporter(object):
     def __init__(self):
         self._items = OrderedDict()
         self._orphan_items = []
+        self._thread = thread_tag_detail()
 
     def _update_item(self, uuid, **kwargs):
         item = self._items[uuid] if uuid else self._items[next(reversed(self._items))]
@@ -23,7 +23,21 @@ class AllureReporter(object):
                 setattr(item, name, value)
 
     def _last_executable(self):
-        for _uuid in reversed(self._items):
+        copy_items = self._items.copy()
+        for _uuid in reversed(copy_items):
+            if (
+                hasattr(self._items[_uuid], "thrd")
+                and self._items[_uuid].thrd != thread_tag_detail()
+            ):
+                continue
+            if isinstance(self._items[_uuid], ExecutableItem):
+                return _uuid
+        for _uuid in reversed(copy_items):
+            if hasattr(self._items[_uuid], "thrd") and self._items[_uuid].thrd != self._thread:
+                continue
+            if isinstance(self._items[_uuid], ExecutableItem):
+                return _uuid
+        for _uuid in reversed(copy_items):
             if isinstance(self._items[_uuid], ExecutableItem):
                 return _uuid
 

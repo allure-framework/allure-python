@@ -12,6 +12,18 @@ from allure_commons import hookimpl
 INDENT = 4
 
 
+def delete_step_thrd(data):
+    if isinstance(data, list):
+        for field in data:
+            field = delete_step_thrd(field)
+    elif isinstance(data, dict):
+        for field in data.keys():
+            if field == 'thrd':
+                data.pop('thrd')
+                break
+            field = delete_step_thrd(data[field])
+    return data
+
 class AllureFileLogger(object):
 
     def __init__(self, report_dir, clean=False):
@@ -32,6 +44,8 @@ class AllureFileLogger(object):
         indent = INDENT if os.environ.get("ALLURE_INDENT_OUTPUT") else None
         filename = item.file_pattern.format(prefix=uuid.uuid4())
         data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        data = delete_step_thrd(data)
+
         with io.open(os.path.join(self._report_dir, filename), 'w', encoding='utf8') as json_file:
             if sys.version_info.major < 3:
                 json_file.write(

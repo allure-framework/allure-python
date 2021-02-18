@@ -5,7 +5,7 @@ from allure_commons.utils import now
 from allure_commons.utils import uuid4
 from allure_commons.utils import represent
 from allure_commons.utils import platform_label
-from allure_commons.utils import host_tag, thread_tag
+from allure_commons.utils import host_tag, thread_tag, thread_tag_detail
 from allure_commons.reporter import AllureReporter
 from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
@@ -36,7 +36,7 @@ class AllureListener(object):
     @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
         parameters = [Parameter(name=name, value=value) for name, value in params.items()]
-        step = TestStepResult(name=title, start=now(), parameters=parameters)
+        step = TestStepResult(name=title, start=now(), parameters=parameters, thrd=thread_tag_detail())
         self.allure_logger.start_step(None, uuid, step)
 
     @allure_commons.hookimpl
@@ -48,7 +48,7 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def start_fixture(self, parent_uuid, uuid, name):
-        after_fixture = TestAfterResult(name=name, start=now())
+        after_fixture = TestAfterResult(name=name, start=now(), thrd=thread_tag_detail())
         self.allure_logger.start_after_fixture(parent_uuid, uuid, after_fixture)
 
     @allure_commons.hookimpl
@@ -61,7 +61,7 @@ class AllureListener(object):
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
     def pytest_runtest_protocol(self, item, nextitem):
         uuid = self._cache.push(item.nodeid)
-        test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
+        test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now(), thrd=thread_tag_detail())
         self.allure_logger.schedule_test(uuid, test_result)
         yield
 
@@ -69,7 +69,7 @@ class AllureListener(object):
     def pytest_runtest_setup(self, item):
         if not self._cache.get(item.nodeid):
             uuid = self._cache.push(item.nodeid)
-            test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
+            test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now(), thrd=thread_tag_detail())
             self.allure_logger.schedule_test(uuid, test_result)
 
         yield
@@ -80,7 +80,7 @@ class AllureListener(object):
             group_uuid = self._cache.get(fixturedef)
             if not group_uuid:
                 group_uuid = self._cache.push(fixturedef)
-                group = TestResultContainer(uuid=group_uuid)
+                group = TestResultContainer(uuid=group_uuid, thrd=thread_tag_detail())
                 self.allure_logger.start_group(group_uuid, group)
             self.allure_logger.update_group(group_uuid, children=uuid)
         params = item.callspec.params if hasattr(item, 'callspec') else {}
@@ -128,13 +128,13 @@ class AllureListener(object):
 
         if not container_uuid:
             container_uuid = self._cache.push(fixturedef)
-            container = TestResultContainer(uuid=container_uuid)
+            container = TestResultContainer(uuid=container_uuid, thrd=thread_tag_detail())
             self.allure_logger.start_group(container_uuid, container)
 
         self.allure_logger.update_group(container_uuid, start=now())
 
         before_fixture_uuid = uuid4()
-        before_fixture = TestBeforeResult(name=fixture_name, start=now())
+        before_fixture = TestBeforeResult(name=fixture_name, start=now(), thrd=thread_tag_detail())
         self.allure_logger.start_before_fixture(container_uuid, before_fixture_uuid, before_fixture)
 
         outcome = yield

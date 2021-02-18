@@ -11,6 +11,7 @@ from allure_commons.model2 import TestAfterResult
 from allure_commons.utils import uuid4
 from allure_commons.utils import now
 from allure_commons.types import AttachmentType
+import threading
 
 
 class AllureLifecycle(object):
@@ -52,7 +53,7 @@ class AllureLifecycle(object):
     @contextmanager
     def start_step(self, parent_uuid=None, uuid=None):
         parent = self._get_item(uuid=parent_uuid, item_type=ExecutableItem)
-        step = TestStepResult()
+        step = TestStepResult(thrd=threading.current_thread().name)
         step.start = now()
         parent.steps.append(step)
         self._items[uuid or uuid4()] = step

@@ -1,5 +1,6 @@
 from attr import attrs, attrib
 from attr import Factory
+import threading
 
 
 TEST_GROUP_PATTERN = "{prefix}-container.json"
@@ -22,6 +23,7 @@ class TestResultContainer(object):
     links = attrib(default=Factory(list))
     start = attrib(default=None)
     stop = attrib(default=None)
+    thrd = attrib(default=None)
 
 
 @attrs
@@ -37,6 +39,7 @@ class ExecutableItem(object):
     parameters = attrib(default=Factory(list))
     start = attrib(default=None)
     stop = attrib(default=None)
+    thrd = attrib(default=None)
 
 
 @attrs
