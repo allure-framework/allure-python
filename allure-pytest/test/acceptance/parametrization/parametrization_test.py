@@ -92,3 +92,54 @@ def test_parametrization_many_decorators_with_partial_ids(executed_docstring_sou
 
                               )
                 )
+
+
+def test_dynamic_parameter_add(executed_docstring_source):
+    """
+    >>> import allure
+
+    >>> def test_parameter_add():
+    ...     allure.dynamic.parameter("param1", "param-value")
+    """
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_parameter_add",
+                              has_parameter("param1", "'param-value'")
+                              )
+                )
+
+
+def test_dynamic_parameter_override(executed_docstring_source):
+    """
+    >>> import pytest
+    ... import allure
+
+    >>> @pytest.mark.parametrize("param1", [object()], ids=["param-id"])
+    ... def test_parameter_override(param1):
+    ...     allure.dynamic.parameter("param1", "readable-value")
+    """
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_parameter_override[param-id]",
+                              has_parameter("param1", "'readable-value'")
+                              )
+                )
+
+
+def test_dynamic_parameter_override_from_fixture(executed_docstring_source):
+    """
+    >>> import pytest
+    ... import allure
+
+
+    >>> @pytest.fixture()
+    ... def fixt():
+    ...     allure.dynamic.parameter("param1", "readable-value")
+
+    >>> @pytest.mark.parametrize("param1", [object()], ids=["param-id"])
+    ... def test_parameter_override_from_fixture(fixt, param1):
+    ...     pass
+    """
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_parameter_override_from_fixture[param-id]",
+                              has_parameter("param1", "'readable-value'")
+                              )
+                )
