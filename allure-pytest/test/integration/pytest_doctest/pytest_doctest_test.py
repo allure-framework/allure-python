@@ -6,15 +6,15 @@ from allure_commons_test.result import with_status
 
 @allure.feature("Integration")
 def test_pytest_docktest(allured_testdir):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile('''
         def some_func():
-            \"\"\"
+            """
             >>> some_func()
             True
-            \"\"\"
+            """
             return True
 
-    """)
+    ''')
 
     allured_testdir.run_with_allure("--doctest-modules")
 
