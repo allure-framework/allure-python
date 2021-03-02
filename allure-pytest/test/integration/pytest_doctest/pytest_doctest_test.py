@@ -7,7 +7,6 @@ from allure_commons_test.result import with_status
 @allure.feature("Integration")
 def test_pytest_flakes(allured_testdir):
     allured_testdir.testdir.makepyfile("""
-        
         def some_func():
             \"\"\"
             >>> some_func()
