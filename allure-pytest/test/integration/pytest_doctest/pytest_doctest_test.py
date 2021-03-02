@@ -5,11 +5,12 @@ from allure_commons_test.result import with_status
 
 
 @allure.feature("Integration")
-def test_pytest_flakes(allured_testdir):
+def test_pytest_docktest(allured_testdir):
     allured_testdir.testdir.makepyfile("""
         def some_func():
             \"\"\"
             >>> some_func()
+            True
             \"\"\"
             return True
 
@@ -18,6 +19,6 @@ def test_pytest_flakes(allured_testdir):
     allured_testdir.run_with_allure("--doctest-modules")
 
     assert_that(allured_testdir.allure_report,
-                has_test_case("some_func",
+                has_test_case("test_pytest_docktest.some_func",
                               with_status("passed"))
                 )
