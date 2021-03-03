@@ -224,6 +224,9 @@ def func_parameters(func, *args, **kwargs):
     >>> args_kwargs(1, 2, 5, 6)
     [('a', '1'), ('b', '2'), ('c', '5'), ('d', '6')]
 
+    >>> args_kwargs(1, b=2)
+    [('a', '1'), ('b', '2'), ('c', '3'), ('d', '4')]
+
     >>> @helper
     ... def varargs(*a):
     ...     pass
@@ -307,7 +310,7 @@ def func_parameters(func, *args, **kwargs):
     args_dict = dict(zip(arg_spec.args, args))
 
     if arg_spec.defaults:
-        kwargs_defaults_dict = dict(zip(arg_spec.args[len(args):], arg_spec.defaults))
+        kwargs_defaults_dict = dict(zip(arg_spec.args[-len(arg_spec.defaults):], arg_spec.defaults))
         parameters.update(kwargs_defaults_dict)
 
     if arg_spec.varargs:
@@ -319,13 +322,17 @@ def func_parameters(func, *args, **kwargs):
         args_dict.pop(arg_spec.args[0], None)
 
     if kwargs:
+        keys = list(kwargs.keys())
+        for key in tuple(keys):
+            if key in arg_order:
+                keys.remove(key)
         if sys.version_info < (3, 6):
             # Sort alphabetically as old python versions does
             # not preserve call order for kwargs
-            arg_order.extend(sorted(list(kwargs.keys())))
+            arg_order.extend(sorted(keys))
         else:
             # Keep py3.6 behaviour to preserve kwargs order
-            arg_order.extend(list(kwargs.keys()))
+            arg_order.extend(keys)
         parameters.update(kwargs)
 
     parameters.update(args_dict)
