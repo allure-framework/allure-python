@@ -209,6 +209,7 @@ class AllureListener(object):
 
             test_result.links.append(new_link)
 
+
 class Context(list):
     def __init__(self, _list=list()):
         super(Context, self).__init__(_list)
