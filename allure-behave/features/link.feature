@@ -1,6 +1,6 @@
 Feature: Link
 
-    Scenario: Scenario issue link
+  Scenario: Scenario issue link
     Given feature definition
         """
         Feature: Step status
@@ -26,7 +26,6 @@ Feature: Link
      Then allure report has a scenario with name "Scenario with passed step"
       And scenario has "http://qameta.io" link
 
-
   Scenario: Feature and scenario user link
     Given feature definition
         """
@@ -36,6 +35,29 @@ Feature: Link
           @allure.issue:http://example.com
           Scenario: Scenario with passed step
               Given simple passed step
+        """
+     When I run behave with allure formatter
+     Then allure report has a scenario with name "Scenario with passed step"
+      And scenario has "http://qameta.io" link
+      And scenario has "http://example.com" link with type "issue"
+
+  Scenario: Dynamic link
+    Given feature definition
+        """
+        Feature: Step status
+
+          Scenario: Scenario with passed step
+              Given simple passed step
+        """
+      And hooks implementation
+        """
+        import allure
+        import allure_commons
+
+        @allure_commons.fixture
+        def before_scenario(context, scenario):
+            allure.dynamic.link("http://qameta.io")
+            allure.dynamic.issue("http://example.com")
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with passed step"
