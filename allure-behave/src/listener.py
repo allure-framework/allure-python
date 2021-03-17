@@ -102,7 +102,8 @@ class AllureListener(object):
         test_case.description = '\n'.join(scenario.description)
         test_case.parameters = scenario_parameters(scenario)
 
-        test_case.links.extend(scenario_links(scenario,
+        test_case.links.extend(scenario_links(
+            scenario,
             issue_pattern=self.issue_pattern,
             link_pattern=self.link_pattern))
         test_case.labels.extend(scenario_labels(scenario))
