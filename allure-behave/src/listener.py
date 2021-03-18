@@ -195,6 +195,18 @@ class AllureListener(object):
         self.logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
 
     @allure_commons.hookimpl
+    def add_description(self, test_description):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            test_result.description = test_description
+
+    @allure_commons.hookimpl
+    def add_description_html(self, test_description_html):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            test_result.descriptionHtml = test_description_html
+
+    @allure_commons.hookimpl
     def add_link(self, url, link_type, name):
         test_result = self.logger.get_test(None)
         if test_result:
