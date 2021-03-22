@@ -100,6 +100,8 @@ class AllureListener(object):
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         if test_result:
+            self.allure_logger.drop_test(uuid)
+            self.allure_logger.schedule_test(uuid, test_result)
             test_result.start = now()
         yield
         if test_result:
