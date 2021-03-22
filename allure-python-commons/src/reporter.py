@@ -93,7 +93,7 @@ class AllureReporter(object):
             self._update_item(uuid, **kwargs)
             self._items.pop(uuid)
 
-    def _attach(self, uuid, name=None, attachment_type=None, extension=None):
+    def _attach(self, uuid, name=None, attachment_type=None, extension=None, parent_uuid=None):
         mime_type = attachment_type
         extension = extension if extension else 'attach'
 
@@ -103,15 +103,17 @@ class AllureReporter(object):
 
         file_name = ATTACHMENT_PATTERN.format(prefix=uuid, ext=extension)
         attachment = Attachment(source=file_name, name=name, type=mime_type)
-        last_uuid = self._last_executable()
+        last_uuid = parent_uuid if parent_uuid else self._last_executable()
         self._items[last_uuid].attachments.append(attachment)
 
         return file_name
 
-    def attach_file(self, uuid, source, name=None, attachment_type=None, extension=None):
-        file_name = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+    def attach_file(self, uuid, source, name=None, attachment_type=None, extension=None, parent_uuid=None):
+        file_name = self._attach(uuid, name=name, attachment_type=attachment_type,
+                                 extension=extension, parent_uuid=parent_uuid)
         plugin_manager.hook.report_attached_file(source=source, file_name=file_name)
 
-    def attach_data(self, uuid, body, name=None, attachment_type=None, extension=None):
-        file_name = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+    def attach_data(self, uuid, body, name=None, attachment_type=None, extension=None, parent_uuid=None):
+        file_name = self._attach(uuid, name=name, attachment_type=attachment_type,
+                                 extension=extension, parent_uuid=parent_uuid)
         plugin_manager.hook.report_attached_data(body=body, file_name=file_name)
