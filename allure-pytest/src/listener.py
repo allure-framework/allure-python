@@ -100,6 +100,8 @@ class AllureListener(object):
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         if test_result:
+            self.allure_logger.drop_test(uuid)
+            self.allure_logger.schedule_test(uuid, test_result)
             test_result.start = now()
         yield
         if test_result:
@@ -279,7 +281,7 @@ def _test_fixtures(item):
     fixturemanager = item.session._fixturemanager
     fixturedefs = []
 
-    if hasattr(item._request, "fixturenames"):
+    if hasattr(item, "_request") and hasattr(item._request, "fixturenames"):
         for name in item._request.fixturenames:
             fixturedef = fixturemanager.getfixturedefs(name, item.nodeid)
             if fixturedef:
