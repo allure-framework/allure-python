@@ -47,9 +47,9 @@ class allure_robotframework(object):
         keyword_type = attributes.get('type')
         # Todo fix value assign
         keyword_name = '{} = {}'.format(attributes.get('assign')[0], name) if attributes.get('assign') else name
-        if keyword_type == RobotKeywordType.SETUP:
+        if keyword_type.upper() == RobotKeywordType.SETUP:
             self.listener.start_before_fixture(keyword_name)
-        elif keyword_type == RobotKeywordType.TEARDOWN:
+        elif keyword_type.upper() == RobotKeywordType.TEARDOWN:
             self.listener.start_after_fixture(keyword_name)
         else:
             self.listener.start_keyword(name)
@@ -57,9 +57,9 @@ class allure_robotframework(object):
     def end_keyword(self, _, attributes):
         messages = self.messages.stop_context()
         keyword_type = attributes.get('type')
-        if keyword_type == RobotKeywordType.SETUP:
+        if keyword_type.upper() == RobotKeywordType.SETUP:
             self.listener.stop_before_fixture(attributes, messages)
-        elif keyword_type == RobotKeywordType.TEARDOWN:
+        elif keyword_type.upper() == RobotKeywordType.TEARDOWN:
             self.listener.stop_after_fixture(attributes, messages)
         else:
             self.listener.stop_keyword(attributes, messages)
