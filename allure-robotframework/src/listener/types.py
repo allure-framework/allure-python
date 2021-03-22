@@ -5,9 +5,9 @@ class RobotStatus(object):
 
 
 class RobotKeywordType(object):
-    SETUP = 'Setup'
-    TEARDOWN = 'Teardown'
-    KEYWORD = 'Keyword'
+    SETUP = 'SETUP'
+    TEARDOWN = 'TEARDOWN'
+    KEYWORD = 'KEYWORD'
     LOOP = 'FOR'
     LOOP_ITEM = 'FOR ITEM'
     FIXTURES = [SETUP, TEARDOWN]
