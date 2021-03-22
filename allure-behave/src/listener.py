@@ -6,12 +6,12 @@ from allure_commons.reporter import AllureReporter
 from allure_commons.utils import uuid4
 from allure_commons.utils import now
 from allure_commons.utils import platform_label
-from allure_commons.types import LabelType, AttachmentType
+from allure_commons.types import LabelType, AttachmentType, LinkType
 from allure_commons.model2 import TestResult
 from allure_commons.model2 import TestStepResult
 from allure_commons.model2 import TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
-from allure_commons.model2 import Parameter, Label
+from allure_commons.model2 import Parameter, Label, Link
 from allure_behave.utils import scenario_parameters
 from allure_behave.utils import scenario_name
 from allure_behave.utils import scenario_history_id
@@ -33,6 +33,8 @@ FIXTURES = BEFORE_FIXTURES + AFTER_FIXTURES
 class AllureListener(object):
     def __init__(self, behave_config):
         self.behave_config = behave_config
+        self.issue_pattern = behave_config.userdata.get('AllureFormatter.issue_pattern', None)
+        self.link_pattern = behave_config.userdata.get('AllureFormatter.link_pattern', None)
         self.logger = AllureReporter()
         self.current_step_uuid = None
         self.current_scenario_uuid = None
@@ -100,9 +102,10 @@ class AllureListener(object):
         test_case.description = '\n'.join(scenario.description)
         test_case.parameters = scenario_parameters(scenario)
 
-        issue_pattern = self.behave_config.userdata.get('AllureFormatter.issue_pattern', None)
-        link_pattern = self.behave_config.userdata.get('AllureFormatter.link_pattern', None)
-        test_case.links.extend(scenario_links(scenario, issue_pattern=issue_pattern, link_pattern=link_pattern))
+        test_case.links.extend(scenario_links(
+            scenario,
+            issue_pattern=self.issue_pattern,
+            link_pattern=self.link_pattern))
         test_case.labels.extend(scenario_labels(scenario))
         test_case.labels.append(Label(name=LabelType.FEATURE, value=scenario.feature.name))
         test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))
@@ -190,6 +193,36 @@ class AllureListener(object):
     @allure_commons.hookimpl
     def attach_file(self, source, name, attachment_type, extension):
         self.logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def add_description(self, test_description):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            test_result.description = test_description
+
+    @allure_commons.hookimpl
+    def add_description_html(self, test_description_html):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            test_result.descriptionHtml = test_description_html
+
+    @allure_commons.hookimpl
+    def add_link(self, url, link_type, name):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            pattern = u'{}'
+            if link_type == LinkType.ISSUE and self.issue_pattern:
+                pattern = self.issue_pattern
+            elif link_type == LinkType.LINK and self.link_pattern:
+                pattern = self.link_pattern
+
+            link_url = pattern.format(url)
+            new_link = Link(link_type, link_url, link_url if name is None else name)
+            for link in test_result.links:
+                if link.url == new_link.url:
+                    return
+
+            test_result.links.append(new_link)
 
 
 class Context(list):
