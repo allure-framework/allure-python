@@ -44,7 +44,7 @@ def item_status(allure_report, context, item, status):
 
 
 @then(parsers.parse("this {item:w} has a history id"))
-def item_status(allure_report, context, item):
+def item_history_id(allure_report, context, item):
     context_matcher = context[item]
     matcher = partial(context_matcher, has_history_id)
     assert_that(allure_report, matcher())
