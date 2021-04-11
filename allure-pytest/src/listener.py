@@ -13,8 +13,8 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
-from allure_commons.types import LabelType, AttachmentType
-from allure_pytest.utils import allure_description, allure_description_html
+from allure_commons.types import LabelType, AttachmentType, LinkType
+from allure_pytest.utils import allure_description, allure_description_html, ALLURE_LINK_MARK
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
 from allure_pytest.utils import allure_suite_labels
@@ -188,8 +188,9 @@ class AllureListener(object):
             message = 'XPASS {reason}'.format(reason=reason) if reason else 'XPASS'
             status_details = StatusDetails(message=message)
 
-        if item.get_closest_marker(name="bug"):
-            status = Status.UNKNOWN
+        for mark in item.iter_markers(name='skip'):
+            if mark.kwargs["reason"] == 'unknown':
+                status = Status.UNKNOWN
 
         if report.when == 'setup':
             test_result.status = status
