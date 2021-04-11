@@ -188,7 +188,7 @@ class AllureListener(object):
             message = 'XPASS {reason}'.format(reason=reason) if reason else 'XPASS'
             status_details = StatusDetails(message=message)
 
-        if item.get_closest_marker(name="allure.issue"):
+        if item.get_closest_marker(name="bug"):
             status = Status.UNKNOWN
 
         if report.when == 'setup':
