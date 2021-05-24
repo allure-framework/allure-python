@@ -237,7 +237,7 @@ def test_fixture_override(allured_testdir):
     allured_testdir.testdir.makepyfile("""
         import pytest
         import allure
-        
+
         @pytest.fixture
         def my_fixture(my_fixture):
             with allure.step('Step in before in redefined fixture'):
@@ -245,7 +245,7 @@ def test_fixture_override(allured_testdir):
             yield
             with allure.step('Step in after in redefined fixture'):
                 pass
-        
+
         def test_with_redefined_fixture(my_fixture):
             pass
     """)
