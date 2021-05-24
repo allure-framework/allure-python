@@ -2,8 +2,8 @@ import pytest
 import allure
 from hamcrest import assert_that, not_
 from allure_commons_test.report import has_test_case
-from allure_commons_test.container import has_container
-from allure_commons_test.container import has_before
+from allure_commons_test.container import has_container, has_before, has_after
+from allure_commons_test.result import has_step
 from itertools import combinations_with_replacement
 
 fixture_scopes = ["session", "module", "class", "function"]
@@ -215,5 +215,60 @@ def test_titled_fixture_from_conftest(allured_testdir):
                               has_container(allured_testdir.allure_report,
                                             has_before("Titled fixture after pytest.fixture")
                                             )
+                              )
+                )
+
+
+def test_fixture_override(allured_testdir):
+    allured_testdir.testdir.makeconftest("""
+        import pytest
+        import allure
+
+        @pytest.fixture
+        def my_fixture():
+            with allure.step('Step in before in original fixture'):
+                pass
+            yield
+            with allure.step('Step in after in original fixture'):
+                pass
+
+    """)
+
+    allured_testdir.testdir.makepyfile("""
+        import pytest
+        import allure
+        
+        @pytest.fixture
+        def my_fixture(my_fixture):
+            with allure.step('Step in before in redefined fixture'):
+                pass
+            yield
+            with allure.step('Step in after in redefined fixture'):
+                pass
+        
+        def test_with_redefined_fixture(my_fixture):
+            pass
+    """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_with_redefined_fixture",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("my_fixture",
+                                                       has_step("Step in before in original fixture")
+                                                       ),
+                                            has_after("my_fixture::0",
+                                                      has_step("Step in after in original fixture")
+                                                      )
+                                            ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("my_fixture",
+                                                       has_step("Step in before in redefined fixture")
+                                                       ),
+                                            has_after("my_fixture::0",
+                                                      has_step("Step in after in redefined fixture")
+                                                      )
+                                            ),
                               )
                 )
