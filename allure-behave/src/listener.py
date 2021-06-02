@@ -35,6 +35,7 @@ class AllureListener(object):
         self.behave_config = behave_config
         self.issue_pattern = behave_config.userdata.get('AllureFormatter.issue_pattern', None)
         self.link_pattern = behave_config.userdata.get('AllureFormatter.link_pattern', None)
+        self.hide_excluded = behave_config.userdata.get('AllureFormatter.hide_excluded', False)
         self.logger = AllureReporter()
         self.current_step_uuid = None
         self.current_scenario_uuid = None
@@ -118,8 +119,12 @@ class AllureListener(object):
         self.stop_scenario(context['scenario'])
 
     def stop_scenario(self, scenario):
-        if scenario.status == 'skipped' \
-                and not self.behave_config.show_skipped or scenario.skip_reason == TEST_PLAN_SKIP_REASON:
+        should_run = (scenario.should_run_with_tags(self.behave_config.tags) and
+                      scenario.should_run_with_name_select(self.behave_config))
+        should_drop_skipped_by_option = scenario.status == 'skipped' and not self.behave_config.show_skipped
+        should_drop_excluded = self.hide_excluded and (scenario.skip_reason == TEST_PLAN_SKIP_REASON or not should_run)
+
+        if should_drop_skipped_by_option or should_drop_excluded:
             self.logger.drop_test(self.current_scenario_uuid)
         else:
             status = scenario_status(scenario)
