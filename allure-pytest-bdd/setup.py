@@ -10,6 +10,8 @@ classifiers = [
     'License :: OSI Approved :: Apache Software License',
     'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
 ]
 
 setup_requires = [
