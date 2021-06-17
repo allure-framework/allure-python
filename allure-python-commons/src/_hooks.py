@@ -39,6 +39,10 @@ class AllureUserHooks(object):
         """ label """
 
     @hookspec
+    def remove_label(self, label_type, labels):
+        """ label """
+    
+    @hookspec
     def decorate_as_link(self, url, link_type, name):
         """ url """
 

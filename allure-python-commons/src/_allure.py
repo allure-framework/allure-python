@@ -101,12 +101,20 @@ class Dynamic(object):
         plugin_manager.hook.add_label(label_type=label_type, labels=labels)
 
     @staticmethod
+    def del_label(*label_types):
+        plugin_manager.hook.remove_label(label_types=label_types)
+
+    @staticmethod
     def severity(severity_level):
         Dynamic.label(LabelType.SEVERITY, severity_level)
 
     @staticmethod
     def feature(*features):
         Dynamic.label(LabelType.FEATURE, *features)
+
+    @staticmethod
+    def remove_feature():
+        Dynamic.del_label(LabelType.FEATURE)
 
     @staticmethod
     def story(*stories):
