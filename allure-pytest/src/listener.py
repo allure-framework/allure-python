@@ -100,6 +100,8 @@ class AllureListener(object):
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         if test_result:
+            self.allure_logger.drop_test(uuid)
+            self.allure_logger.schedule_test(uuid, test_result)
             test_result.start = now()
         yield
         if test_result:
@@ -266,23 +268,23 @@ class ItemCache(object):
         self._items = dict()
 
     def get(self, _id):
-        return self._items.get(str(_id))
+        return self._items.get(id(_id))
 
     def push(self, _id):
-        return self._items.setdefault(str(_id), uuid4())
+        return self._items.setdefault(id(_id), uuid4())
 
     def pop(self, _id):
-        return self._items.pop(str(_id), None)
+        return self._items.pop(id(_id), None)
 
 
 def _test_fixtures(item):
     fixturemanager = item.session._fixturemanager
     fixturedefs = []
 
-    if hasattr(item._request, "fixturenames"):
+    if hasattr(item, "_request") and hasattr(item._request, "fixturenames"):
         for name in item._request.fixturenames:
-            fixturedef = fixturemanager.getfixturedefs(name, item.nodeid)
-            if fixturedef:
-                fixturedefs.append(fixturedef[-1])
+            fixturedefs_pytest = fixturemanager.getfixturedefs(name, item.nodeid)
+            if fixturedefs_pytest:
+                fixturedefs.extend(fixturedefs_pytest)
 
     return fixturedefs

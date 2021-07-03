@@ -1,5 +1,5 @@
 from functools import partial
-from hamcrest import assert_that
+from hamcrest import assert_that, contains_string
 from hamcrest import not_
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
@@ -9,6 +9,7 @@ from allure_commons_test.result import has_parameter
 from allure_commons_test.result import has_status_details
 from allure_commons_test.result import with_message_contains
 from allure_commons_test.result import has_link
+from allure_commons_test.result import has_description
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before, has_after
 from allure_commons_test.label import has_severity
@@ -148,4 +149,11 @@ def step_parameter(context, item, name, value):
 def step_attachment(context, item):
     context_matcher = getattr(context, item)
     matcher = partial(context_matcher, has_attachment)
+    assert_that(context.allure_report, matcher())
+
+
+@then(u'scenario has description "{description}"')
+def step_description(context, description):
+    context_matcher = context.scenario
+    matcher = partial(context_matcher, has_description, contains_string(description))
     assert_that(context.allure_report, matcher())

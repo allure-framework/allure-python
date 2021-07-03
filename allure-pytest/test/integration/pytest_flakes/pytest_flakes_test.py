@@ -16,7 +16,7 @@ def test_pytest_flakes(allured_testdir):
     allured_testdir.run_with_allure("--flakes")
 
     assert_that(allured_testdir.allure_report,
-                has_test_case("test_pytest_flakes.py",
+                has_test_case("flake-8",
                               with_status("broken")
                               ),
 

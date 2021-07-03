@@ -227,6 +227,9 @@ def func_parameters(func, *args, **kwargs):
     >>> args_kwargs(1, 2, 5, 6)
     [('a', '1'), ('b', '2'), ('c', '5'), ('d', '6')]
 
+    >>> args_kwargs(1, b=2)
+    [('a', '1'), ('b', '2'), ('c', '3'), ('d', '4')]
+
     >>> @helper
     ... def varargs(*a):
     ...     pass
@@ -310,7 +313,7 @@ def func_parameters(func, *args, **kwargs):
     args_dict = dict(zip(arg_spec.args, args))
 
     if arg_spec.defaults:
-        kwargs_defaults_dict = dict(zip(arg_spec.args[len(args):], arg_spec.defaults))
+        kwargs_defaults_dict = dict(zip(arg_spec.args[-len(arg_spec.defaults):], arg_spec.defaults))
         parameters.update(kwargs_defaults_dict)
 
     if arg_spec.varargs:
@@ -398,7 +401,7 @@ def get_testplan():
     planned_tests = []
     file_path = os.environ.get("ALLURE_TESTPLAN_PATH")
 
-    if file_path:
+    if file_path and os.path.exists(file_path):
         with open(file_path, 'r') as plan_file:
             plan = json.load(plan_file)
             planned_tests = plan.get("tests", [])
