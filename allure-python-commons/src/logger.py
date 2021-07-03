@@ -24,6 +24,7 @@ def delete_step_thrd(data):
             field = delete_step_thrd(data[field])
     return data
 
+
 class AllureFileLogger(object):
 
     def __init__(self, report_dir, clean=False):

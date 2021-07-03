@@ -1,6 +1,5 @@
 from attr import attrs, attrib
 from attr import Factory
-import threading
 
 
 TEST_GROUP_PATTERN = "{prefix}-container.json"

@@ -1,6 +1,5 @@
 from functools import wraps
 from typing import Any, Callable, TypeVar
-import threading
 
 from allure_commons._core import plugin_manager
 from allure_commons.types import LabelType, LinkType

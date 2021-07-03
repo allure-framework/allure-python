@@ -99,6 +99,7 @@ def thread_tag():
 def thread_tag_detail():
     return '{0}-{1}'.format(threading.get_native_id(), threading.current_thread().name)
 
+
 def host_tag():
     return socket.gethostname()
 
