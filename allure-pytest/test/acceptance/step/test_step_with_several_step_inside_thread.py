@@ -1,6 +1,6 @@
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_step
-from hamcrest import assert_that, not_
+from hamcrest import assert_that
 
 
 def test_step_with_thread(allured_testdir):
