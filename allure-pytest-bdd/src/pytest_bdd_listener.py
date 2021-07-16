@@ -38,6 +38,7 @@ class PytestBDDListener(object):
         full_name = get_full_name(feature, scenario)
         name = get_name(request.node, scenario)
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
+            test_result.historyId = uuid
             test_result.fullName = full_name
             test_result.name = name
             test_result.start = now()
