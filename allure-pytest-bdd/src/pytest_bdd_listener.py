@@ -47,6 +47,7 @@ class PytestBDDListener(object):
             test_result.fullName = full_name
             test_result.start = now()
             test_result.historyId = md5(request.node.nodeid)
+            test_result.historyId = md5(request.node.nodeid)
             test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(request.node)])
             test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in get_tags_from_environment_vars(self.config.option.env_vars_to_tag)])
             test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(request.node)])
