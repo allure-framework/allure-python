@@ -114,12 +114,16 @@ class AllureListener(object):
         test_result = self.allure_logger.get_test(uuid)
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
-        default_suite = [Label(name=name, value=value) for name, value in allure_suite_labels(item)]
-        for default in default_suite[::-1]:
-            for label in test_result.labels:
-                if label.name == default.name:
-                    default_suite.remove(default)
-        test_result.labels.extend(default_suite)
+        default_suites = [Label(name=name, value=value) for name, value in allure_suite_labels(item)]
+        final_default_suites = []
+        label_names = []
+        for label in test_result.labels:
+            label_names.append(label.name)
+
+        for suite in default_suites:
+            if suite.name not in label_names:
+                final_default_suites.append(suite)
+        test_result.labels.extend(final_default_suites)
         test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
         test_result.labels.append(Label(name=LabelType.THREAD, value=self._thread))
         test_result.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
