@@ -51,8 +51,8 @@ def test_default_dynamic_suite(executed_docstring_source):
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_default_dynamic_suite_example",
-                              has_parent_suite("parentSuite"),  # path to testdir
-                              has_suite("dynamic_suite"),  # created file name
+                              has_parent_suite("parentSuite"),
+                              has_suite("dynamic_suite"),
                               not_(has_sub_suite(anything()))
                               )
                 )
