@@ -40,6 +40,7 @@ def test_default_class_suite(executed_docstring_source):
                               )
                 )
 
+
 @allure.parent_suite('parentSuite')
 @pytest.mark.skip
 def test_default_dynamic_suite(executed_docstring_source):
@@ -56,4 +57,4 @@ def test_default_dynamic_suite(executed_docstring_source):
                               not_(has_sub_suite(anything()))
                               )
                 )
-    
+
