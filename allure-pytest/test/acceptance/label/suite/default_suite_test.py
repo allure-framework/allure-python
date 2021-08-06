@@ -1,4 +1,5 @@
 import pytest
+import allure
 from hamcrest import assert_that, anything, not_
 from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_parent_suite
@@ -38,3 +39,21 @@ def test_default_class_suite(executed_docstring_source):
                               has_sub_suite("TestSuiteClass")
                               )
                 )
+
+@allure.parent_suite('parentSuite')
+@pytest.mark.skip
+def test_default_dynamic_suite(executed_docstring_source):
+    allure.dynamic.suite('dynamic_suite')
+    """
+    >>> def test_default_dynamic_suite_example():
+    ...     pass
+    """
+
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_default_dynamic_suite_example",
+                              has_parent_suite("parentSuite"),  # path to testdir
+                              has_suite("dynamic_suite"),  # created file name
+                              not_(has_sub_suite(anything()))
+                              )
+                )
+    
