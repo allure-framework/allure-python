@@ -57,4 +57,3 @@ def test_default_dynamic_suite(executed_docstring_source):
                               not_(has_sub_suite(anything()))
                               )
                 )
-
