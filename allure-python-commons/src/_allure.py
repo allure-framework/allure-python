@@ -40,7 +40,7 @@ def epic(*epics):
 
 
 def feature(*features):
-    return label(LabelType.FEATURE, *features)
+    return label(LabelType.FEATURE, *[str(feature) for feature in features])
 
 
 def story(*stories):
@@ -103,7 +103,7 @@ class Dynamic(object):
 
     @staticmethod
     def feature(*features):
-        Dynamic.label(LabelType.FEATURE, *features)
+        Dynamic.label(LabelType.FEATURE, *[str(feature) for feature in features])
 
     @staticmethod
     def story(*stories):

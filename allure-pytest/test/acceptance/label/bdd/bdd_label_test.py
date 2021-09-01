@@ -39,10 +39,9 @@ def test_set_bdd_label_as_object(executed_docstring_source):
     >>> class SomeClass:
     ...     pass
 
-
     >>> @allure.feature(SomeClass())
     ... def test_set_label_as_object_example():
-    ...     pass
+    ...     allure.dynamic.feature(SomeClass)
     """
 
     assert_that(
