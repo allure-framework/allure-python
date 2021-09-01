@@ -1,6 +1,7 @@
 """ ./examples/label/bdd/bdd_label.rst """
+import json
 
-from hamcrest import assert_that
+from hamcrest import assert_that, calling, is_not, raises
 from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_epic
 from allure_commons_test.label import has_feature
@@ -29,3 +30,22 @@ def test_multiple_bdd_label(executed_docstring_path):
                               has_story("Alternative story")
                               )
                 )
+
+
+def test_set_bdd_label_as_object(executed_docstring_source):
+    """
+    >>> import allure
+
+    >>> class SomeClass:
+    ...     pass
+
+
+    >>> @allure.feature(SomeClass())
+    ... def test_set_label_as_object_example():
+    ...     pass
+    """
+
+    assert_that(
+        calling(json.dumps).with_args(executed_docstring_source.allure_report.test_cases),
+        is_not(raises(TypeError, 'not JSON serializable'))
+    )
