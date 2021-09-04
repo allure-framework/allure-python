@@ -37,7 +37,7 @@ class PytestBDDListener:
                     self.lifecycle.stop_step(uuid=step_uuid)
 
     @pytest.hookimpl
-    def pytest_bdd_before_scenario(self, request, feature, scenario):
+    def pytest_bdd_after_scenario(self, request, feature, scenario):
         uuid = get_uuid(request.node.nodeid)
         full_name = get_full_name(feature, scenario)
         name = get_name(request.node, scenario)
