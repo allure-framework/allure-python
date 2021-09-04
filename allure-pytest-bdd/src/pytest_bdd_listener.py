@@ -36,11 +36,18 @@ class PytestBDDListener:
                     step_result.status = Status.SKIPPED
                     self.lifecycle.stop_step(uuid=step_uuid)
 
+
+    @pytest.hookimpl
+    def pytest_bdd_before_scenario(self, request, feature, scenario):
+        print("allure_before")
+
     @pytest.hookimpl
     def pytest_bdd_after_scenario(self, request, feature, scenario):
+        print("allure_after")
         uuid = get_uuid(request.node.nodeid)
         full_name = get_full_name(feature, scenario)
         name = get_name(request.node, scenario)
+
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
             test_result.fullName = full_name
             test_result.name = name
