@@ -40,6 +40,29 @@ class PytestBDDListener:
     @pytest.hookimpl
     def pytest_bdd_before_scenario(self, request, feature, scenario):
         print("allure_before")
+        uuid = get_uuid(request.node.nodeid)
+        full_name = get_full_name(feature, scenario)
+        name = get_name(request.node, scenario)
+
+        with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
+            test_result.fullName = full_name
+            test_result.name = name
+            test_result.start = now()
+            test_result.historyId = md5(request.node.nodeid)
+            test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(request.node)])
+            test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in get_tags_from_environment_vars(self.config.option.env_vars_to_tag)])
+            test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(request.node)])
+            test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
+            test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
+            test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
+            test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
+            test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))
+            test_result.description = allure_description(request.node)
+            test_result.links.extend([Link(link_type, url, name) for link_type, url, name in allure_links(request.node)])
+            test_result.parameters = get_params(request.node)
+
+        finalizer = partial(self._scenario_finalizer, scenario)
+        request.node.addfinalizer(finalizer)
 
     @pytest.hookimpl
     def pytest_bdd_after_scenario(self, request, feature, scenario):
