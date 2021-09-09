@@ -39,7 +39,7 @@ class PytestBDDListener:
 
     @pytest.hookimpl
     def pytest_bdd_before_scenario(self, request, feature, scenario):
-        print("allure_before")
+        print("allure_before!")
         uuid = get_uuid(request.node.nodeid)
         full_name = get_full_name(feature, scenario)
         name = get_name(request.node, scenario)
