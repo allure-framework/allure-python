@@ -27,9 +27,11 @@ class AllureFormatter(Formatter):
                 scenario.run = allure_commons.test(scenario.run, context={'scenario': scenario})
             is_planned_scenario(scenario, self.testplan)
 
+    def uri(self, uri):
+        self.listener.start_file()
+
     def feature(self, feature):
         self._wrap_scenario(feature.scenarios)
-        self.listener.start_feature()
 
     def step(self, step):
         self.listener.schedule_step(step)
@@ -42,3 +44,6 @@ class AllureFormatter(Formatter):
 
     def eof(self):
         self.listener.stop_feature()
+
+    def close_stream(self):
+        self.listener.stop_session()
