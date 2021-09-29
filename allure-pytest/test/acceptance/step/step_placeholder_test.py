@@ -1,5 +1,5 @@
 """ ./examples/step/step_placeholder.rst """
-
+import pytest
 from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_step
@@ -31,6 +31,7 @@ def test_class_method_as_step(executed_docstring_path):
                 )
 
 
+@pytest.mark.skip()
 def test_args_less_than_placeholders(executed_docstring_source):
     """
     >>> import allure
