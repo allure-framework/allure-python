@@ -49,10 +49,8 @@ def run_behave_with_allure(context, **kwargs):
         stream_opener = StreamOpener(filename=result_tmp_dir)
         model_runner = ModelRunner(config, context.feature_definition)
         model_runner.formatters = make_formatters(config, [stream_opener])
-        model_runner.formatters[0].listener.fixture_context.enter()
         model_runner.hooks = getattr(context, 'globals', dict())
         model_runner.run()
-        model_runner.formatters[0].listener.__del__()
         context.allure_report = AllureReport(result_tmp_dir)
 
     os.environ.pop("ALLURE_TESTPLAN_PATH", None)

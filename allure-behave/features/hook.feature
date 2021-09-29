@@ -21,10 +21,10 @@ Feature: Hook
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where>"
 
      Then allure report has a scenario with name "Another scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where>"
 
     Examples: fixtures
             | when   | where    |
@@ -55,10 +55,10 @@ Feature: Hook
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where> @tag_for_hook"
 
      Then allure report has a scenario with name "Another scenario without "<when> <where>" hook"
-      And this scenario has not <when> fixture "<when>_<where>"
+      And this scenario has not <when> fixture "<when> <where> @tag_for_hook"
 
     Examples: fixtures
             | when   | where |
@@ -89,10 +89,10 @@ Feature: Hook
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where> @tag_for_hook"
 
      Then allure report has a scenario with name "Another scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where> @tag_for_hook"
 
     Examples: fixtures
             | when   | where |
@@ -121,10 +121,10 @@ Feature: Hook
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where>"
 
      Then allure report has a scenario with name "Another scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where>"
 
     Examples: fixtures
             | when   | where   |
@@ -153,10 +153,10 @@ Feature: Hook
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where>"
 
      Then allure report has a scenario with name "Another scenario with "<when> <where>" hook"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where>"
 
     Examples: fixtures
             | when   | where |
@@ -183,7 +183,7 @@ Feature: Hook
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with "before_feature" hook and attachment"
-      And this scenario has before fixture "before_feature"
+      And this scenario has before fixture "before feature"
       And this before has attachment
 
 
@@ -207,7 +207,7 @@ Feature: Hook
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with "<when> <where>" hook and step inside"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where>"
       And this <when> contains step "Step inside fixture"
 
     Examples: fixtures
@@ -238,7 +238,7 @@ Feature: Hook
         """
      When I run behave with allure formatter
      Then allure report has a scenario with name "Scenario with "<when> <where>" hook and step as function inside"
-      And this scenario has <when> fixture "<when>_<where>"
+      And this scenario has <when> fixture "<when> <where>"
       And this <when> contains step "Step function"
 
     Examples: fixtures
