@@ -8,6 +8,7 @@ from allure_commons.model2 import Status
 from allure_commons.types import LabelType
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
+from allure_commons.utils import md5
 from .utils import get_uuid
 from .utils import get_step_name
 from .utils import get_status_details
@@ -41,6 +42,7 @@ class PytestBDDListener(object):
             test_result.fullName = full_name
             test_result.name = name
             test_result.start = now()
+            test_result.historyId = md5(request.node.nodeid)
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
@@ -58,7 +60,7 @@ class PytestBDDListener(object):
             test_result.stop = now()
 
     @pytest.hookimpl
-    def pytest_bdd_before_step_call(self, request, feature, scenario, step, step_func, step_func_args):
+    def pytest_bdd_before_step(self, request, feature, scenario, step, step_func):
         parent_uuid = get_uuid(request.node.nodeid)
         uuid = get_uuid(str(id(step)))
         with self.lifecycle.start_step(parent_uuid=parent_uuid, uuid=uuid) as step_result:
