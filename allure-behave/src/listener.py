@@ -44,7 +44,7 @@ class AllureListener(object):
 
     @allure_commons.hookimpl
     def start_fixture(self, parent_uuid, uuid, name, parameters):
-        #parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters.items()]
+        # parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters.items()]
 
         if name.startswith("before_"):
             name = get_hook_name(name, parameters)
