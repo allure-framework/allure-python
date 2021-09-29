@@ -60,7 +60,7 @@ class PytestBDDListener(object):
             test_result.stop = now()
 
     @pytest.hookimpl
-    def pytest_bdd_before_step_call(self, request, feature, scenario, step, step_func, step_func_args):
+    def pytest_bdd_before_step(self, request, feature, scenario, step, step_func):
         parent_uuid = get_uuid(request.node.nodeid)
         uuid = get_uuid(str(id(step)))
         with self.lifecycle.start_step(parent_uuid=parent_uuid, uuid=uuid) as step_result:
