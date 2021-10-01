@@ -7,6 +7,7 @@ import allure_commons
 from contextlib import contextmanager
 from allure_commons.logger import AllureMemoryLogger
 
+pytest_plugins = ["pytester"]
 
 def pytest_configure(config):
     config.addinivalue_line(

@@ -275,56 +275,64 @@ def test_fixture_override(allured_testdir):
 
 
 def test_fixture_in_skipped_test(allured_testdir):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makeconftest("""
             import pytest
             import allure
 
             @pytest.fixture
-            def my_fixture(my_fixture):
-                with allure.step('Step in before in redefined fixture'):
+            def skipped_test_fixture():
+                with allure.step('Step in before fixture'):
                     pass
                 yield
-                with allure.step('Step in after in redefined fixture'):
+                with allure.step('Step in after fixture'):
                     pass
 
+        """)
+
+    allured_testdir.testdir.makepyfile("""
+            import pytest
+
             @pytest.mark.skip
-            def skipped_test(my_fixture):
+            def test_skipped_test(skipped_test_fixture):
                 pass
 
-            def passed_test(my_fixture):
+            def test_passed_test(skipped_test_fixture):
                 pass
         """)
 
     allured_testdir.run_with_allure()
+    assert_that(allured_testdir.allure_report, has_test_case('test_skipped_test'))
 
     assert_that(allured_testdir.allure_report,
-                has_test_case('skipped_test',
+                has_test_case('test_skipped_test',
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before('skipped_test_fixture')
+                                                 )
+                                   )
+                              )
+                )
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case('test_skipped_test',
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_after('skipped_test_fixture::0')
+                                                 )
+                                   )
+                              )
+                )
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case('test_passed_test',
                               has_container(allured_testdir.allure_report,
-                                            not_(has_before('my_fixture'))
+                                            has_before('skipped_test_fixture')
                                             )
                               )
                 )
 
     assert_that(allured_testdir.allure_report,
-                has_test_case('skipped_test',
+                has_test_case('test_passed_test',
                               has_container(allured_testdir.allure_report,
-                                            not_(has_after('my_fixture'))
-                                            )
-                              )
-                )
-
-    assert_that(allured_testdir.allure_report,
-                has_test_case('passed_test',
-                              has_container(allured_testdir.allure_report,
-                                            has_before('my_fixture')
-                                            )
-                              )
-                )
-
-    assert_that(allured_testdir.allure_report,
-                has_test_case('passed_test',
-                              has_container(allured_testdir.allure_report,
-                                            has_after('my_fixture')
+                                            has_after('skipped_test_fixture::0')
                                             )
                               )
                 )
