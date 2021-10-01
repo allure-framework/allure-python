@@ -301,7 +301,6 @@ def test_fixture_in_skipped_test(allured_testdir):
         """)
 
     allured_testdir.run_with_allure()
-    assert_that(allured_testdir.allure_report, has_test_case('test_skipped_test'))
 
     assert_that(allured_testdir.allure_report,
                 has_test_case('test_skipped_test',
