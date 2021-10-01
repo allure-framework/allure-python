@@ -286,11 +286,11 @@ def test_fixture_in_skipped_test(allured_testdir):
                 yield
                 with allure.step('Step in after in redefined fixture'):
                     pass
-            
+
             @pytest.mark.skip
             def skipped_test(my_fixture):
                 pass
-            
+
             def passed_test(my_fixture):
                 pass
         """)
