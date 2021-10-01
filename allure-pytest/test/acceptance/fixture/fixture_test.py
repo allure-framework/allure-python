@@ -272,3 +272,59 @@ def test_fixture_override(allured_testdir):
                                             ),
                               )
                 )
+
+
+def test_fixture_in_skipped_test(allured_testdir):
+    allured_testdir.testdir.makepyfile("""
+            import pytest
+            import allure
+
+            @pytest.fixture
+            def my_fixture(my_fixture):
+                with allure.step('Step in before in redefined fixture'):
+                    pass
+                yield
+                with allure.step('Step in after in redefined fixture'):
+                    pass
+            
+            @pytest.mark.skip
+            def skipped_test(my_fixture):
+                pass
+            
+            def passed_test(my_fixture):
+                pass
+        """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case('skipped_test',
+                              has_container(allured_testdir.allure_report,
+                                            not_(has_before('my_fixture'))
+                                            )
+                              )
+                )
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case('skipped_test',
+                              has_container(allured_testdir.allure_report,
+                                            not_(has_after('my_fixture'))
+                                            )
+                              )
+                )
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case('passed_test',
+                              has_container(allured_testdir.allure_report,
+                                            has_before('my_fixture')
+                                            )
+                              )
+                )
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case('passed_test',
+                              has_container(allured_testdir.allure_report,
+                                            has_after('my_fixture')
+                                            )
+                              )
+                )
