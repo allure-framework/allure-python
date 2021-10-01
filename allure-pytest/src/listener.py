@@ -79,9 +79,7 @@ class AllureListener(object):
         for fixturedef in _test_fixtures(item):
             group_uuid = self._cache.get(fixturedef)
             if not group_uuid:
-                group_uuid = self._cache.push(fixturedef)
-                group = TestResultContainer(uuid=group_uuid)
-                self.allure_logger.start_group(group_uuid, group)
+                continue
             self.allure_logger.update_group(group_uuid, children=uuid)
         params = item.callspec.params if hasattr(item, 'callspec') else {}
 
