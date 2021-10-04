@@ -156,7 +156,13 @@ def select_by_labels(items, config):
                              config.option.allure_stories,
                              config.option.allure_ids,
                              config.option.allure_severities)
-    return filter(lambda item: arg_labels & set(allure_labels(item)) if arg_labels else True, items)
+    if arg_labels:
+        selected, deselected = [], []
+        for item in items:
+            selected.append(item) if arg_labels & set(allure_labels(item)) else deselected.append(item)
+        return selected, deselected
+    else:
+        return items, []
 
 
 def select_by_testcase(items):
@@ -177,11 +183,19 @@ def select_by_testcase(items):
                     return True
             return False
 
-        return [item for item in items if is_planed(item)]
+        selected, deselected = [], []
+        for item in items:
+            selected.append(item) if is_planed(item) else deselected.append(item)
+        return selected, deselected
     else:
-        return items
+        return items, []
 
 
 def pytest_collection_modifyitems(items, config):
-    items[:] = select_by_testcase(items)
-    items[:] = select_by_labels(items, config)
+    selected, deselected_by_testcase = select_by_testcase(items)
+    selected, deselected_by_labels = select_by_labels(selected, config)
+
+    items[:] = selected
+
+    if deselected_by_testcase or deselected_by_labels:
+        config.hook.pytest_deselected(items=[*deselected_by_testcase, *deselected_by_labels])
