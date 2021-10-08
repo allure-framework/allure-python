@@ -1,7 +1,7 @@
 Allure Python Integrations
 ==========================
 The repository contains adaptors for python-based test frameworks.
-Documentation is available `online <https://docs.qameta.io/allure/2.0/)>`_, also you can get help at
+Documentation is available `online <https://docs.qameta.io/allure/>`_, also you can get help at
 `gitter chanel <https://gitter.im/allure-framework/allure-core>`_
 
 
