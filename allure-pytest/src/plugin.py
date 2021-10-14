@@ -92,6 +92,24 @@ def pytest_addoption(parser):
                                          help="""Comma-separated list of IDs.
                                          Run tests that have at least one of the specified id labels.""")
 
+    parser.getgroup("general").addoption('--allure-parent-suites',
+                                         action="store",
+                                         dest="allure_parent_suites",
+                                         metavar="PARENT_SUITES_SET",
+                                         default={},
+                                         type=label_type(LabelType.PARENT_SUITE),
+                                         help="""Comma-separated list of parent suites.
+                                         Run tests that have at least one of the specified parent suite labels.""")
+
+    parser.getgroup("general").addoption('--allure-suites',
+                                         action="store",
+                                         dest="allure_suites",
+                                         metavar="SUITES_SET",
+                                         default={},
+                                         type=label_type(LabelType.SUITE),
+                                         help="""Comma-separated list of suites.
+                                         Run tests that have at least one of the specified suite labels.""")
+
     def link_pattern(string):
         pattern = string.split(':', 1)
         if not pattern[0]:
@@ -155,6 +173,8 @@ def select_by_labels(items, config):
                              config.option.allure_features,
                              config.option.allure_stories,
                              config.option.allure_ids,
+                             config.option.allure_suites,
+                             config.option.allure_parent_suites,
                              config.option.allure_severities)
     if arg_labels:
         selected, deselected = [], []
