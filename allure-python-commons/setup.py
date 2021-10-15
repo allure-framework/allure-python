@@ -8,6 +8,8 @@ classifiers = [
     'License :: OSI Approved :: Apache Software License',
     'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
 ]
 
 install_requires = [
@@ -33,7 +35,8 @@ def main():
         packages=["allure_commons"],
         package_dir={"allure_commons": 'src'},
         install_requires=install_requires,
-        py_modules=['allure', 'allure_commons']
+        py_modules=['allure', 'allure_commons'],
+        python_requires='>=3.5'
     )
 
 

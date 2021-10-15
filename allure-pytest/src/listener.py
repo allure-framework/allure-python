@@ -268,13 +268,13 @@ class ItemCache(object):
         self._items = dict()
 
     def get(self, _id):
-        return self._items.get(str(_id))
+        return self._items.get(id(_id))
 
     def push(self, _id):
-        return self._items.setdefault(str(_id), uuid4())
+        return self._items.setdefault(id(_id), uuid4())
 
     def pop(self, _id):
-        return self._items.pop(str(_id), None)
+        return self._items.pop(id(_id), None)
 
 
 def _test_fixtures(item):
@@ -283,8 +283,8 @@ def _test_fixtures(item):
 
     if hasattr(item, "_request") and hasattr(item._request, "fixturenames"):
         for name in item._request.fixturenames:
-            fixturedef = fixturemanager.getfixturedefs(name, item.nodeid)
-            if fixturedef:
-                fixturedefs.append(fixturedef[-1])
+            fixturedefs_pytest = fixturemanager.getfixturedefs(name, item.nodeid)
+            if fixturedefs_pytest:
+                fixturedefs.extend(fixturedefs_pytest)
 
     return fixturedefs

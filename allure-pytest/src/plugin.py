@@ -34,6 +34,12 @@ def pytest_addoption(parser):
                                            dest="attach_capture",
                                            help="Do not attach pytest captured logging/stdout/stderr to report")
 
+    parser.getgroup("reporting").addoption('--inversion',
+                                           action="store",
+                                           dest="inversion",
+                                           default=False,
+                                           help="Run tests not in testplan")
+
     def label_type(type_name, legal_values=set()):
         def a_label_type(string):
             atoms = set(string.split(','))
@@ -156,11 +162,18 @@ def select_by_labels(items, config):
                              config.option.allure_stories,
                              config.option.allure_ids,
                              config.option.allure_severities)
-    return filter(lambda item: arg_labels & set(allure_labels(item)) if arg_labels else True, items)
+    if arg_labels:
+        selected, deselected = [], []
+        for item in items:
+            selected.append(item) if arg_labels & set(allure_labels(item)) else deselected.append(item)
+        return selected, deselected
+    else:
+        return items, []
 
 
-def select_by_testcase(items):
+def select_by_testcase(items, config):
     planned_tests = get_testplan()
+    is_inversion = config.option.inversion
 
     if planned_tests:
 
@@ -174,14 +187,22 @@ def select_by_testcase(items):
                     planed_item_string_id in allure_string_ids
                     or planed_item_selector == allure_full_name(item)
                 ):
-                    return True
-            return False
+                    return True if not is_inversion else False
+            return False if not is_inversion else True
 
-        return [item for item in items if is_planed(item)]
+        selected, deselected = [], []
+        for item in items:
+            selected.append(item) if is_planed(item) else deselected.append(item)
+        return selected, deselected
     else:
-        return items
+        return items, []
 
 
 def pytest_collection_modifyitems(items, config):
-    items[:] = select_by_testcase(items)
-    items[:] = select_by_labels(items, config)
+    selected, deselected_by_testcase = select_by_testcase(items, config)
+    selected, deselected_by_labels = select_by_labels(selected, config)
+
+    items[:] = selected
+
+    if deselected_by_testcase or deselected_by_labels:
+        config.hook.pytest_deselected(items=[*deselected_by_testcase, *deselected_by_labels])
