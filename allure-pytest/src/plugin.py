@@ -34,6 +34,12 @@ def pytest_addoption(parser):
                                            dest="attach_capture",
                                            help="Do not attach pytest captured logging/stdout/stderr to report")
 
+    parser.getgroup("reporting").addoption('--inversion',
+                                           action="store",
+                                           dest="inversion",
+                                           default=False,
+                                           help="Run tests not in testplan")
+
     def label_type(type_name, legal_values=set()):
         def a_label_type(string):
             atoms = set(string.split(','))
@@ -165,8 +171,9 @@ def select_by_labels(items, config):
         return items, []
 
 
-def select_by_testcase(items):
+def select_by_testcase(items, config):
     planned_tests = get_testplan()
+    is_inversion = config.option.inversion
 
     if planned_tests:
 
@@ -180,8 +187,8 @@ def select_by_testcase(items):
                     planed_item_string_id in allure_string_ids
                     or planed_item_selector == allure_full_name(item)
                 ):
-                    return True
-            return False
+                    return True if not is_inversion else False
+            return False if not is_inversion else True
 
         selected, deselected = [], []
         for item in items:
@@ -192,7 +199,7 @@ def select_by_testcase(items):
 
 
 def pytest_collection_modifyitems(items, config):
-    selected, deselected_by_testcase = select_by_testcase(items)
+    selected, deselected_by_testcase = select_by_testcase(items, config)
     selected, deselected_by_labels = select_by_labels(selected, config)
 
     items[:] = selected
