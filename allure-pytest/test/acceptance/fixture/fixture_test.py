@@ -272,3 +272,27 @@ def test_fixture_override(allured_testdir):
                                             ),
                               )
                 )
+
+
+def test_dynamically_called_fixture(allured_testdir):
+    allured_testdir.testdir.makepyfile("""
+        import pytest
+
+        @pytest.fixture
+        def my_fixture():
+            yield
+
+        def test_fixture_example(request):
+            request.getfixturevalue('my_fixture')
+    """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_fixture_example",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("my_fixture"),
+                                            has_after("my_fixture::0"),
+                                            ),
+                              )
+                )

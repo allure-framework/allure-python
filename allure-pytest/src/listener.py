@@ -132,6 +132,7 @@ class AllureListener(object):
             container_uuid = self._cache.push(fixturedef)
             container = TestResultContainer(uuid=container_uuid)
             self.allure_logger.start_group(container_uuid, container)
+            self.allure_logger.update_group(container_uuid, children=self._cache.get(request._pyfuncitem.nodeid))
 
         self.allure_logger.update_group(container_uuid, start=now())
 
