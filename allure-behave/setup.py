@@ -10,11 +10,12 @@ classifiers = [
     'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
     'Topic :: Software Development :: Testing :: BDD',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
 ]
 
 setup_requires = [

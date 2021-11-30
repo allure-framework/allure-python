@@ -23,11 +23,7 @@ from allure_behave.utils import scenario_links
 from allure_behave.utils import scenario_labels
 from allure_behave.utils import get_fullname
 from allure_behave.utils import TEST_PLAN_SKIP_REASON
-
-
-BEFORE_FIXTURES = ['before_all', 'before_tag', 'before_feature', 'before_scenario']
-AFTER_FIXTURES = ['after_all', 'after_tag', 'after_feature', 'after_scenario']
-FIXTURES = BEFORE_FIXTURES + AFTER_FIXTURES
+from allure_behave.utils import get_hook_name
 
 
 class AllureListener(object):
@@ -35,55 +31,42 @@ class AllureListener(object):
         self.behave_config = behave_config
         self.issue_pattern = behave_config.userdata.get('AllureFormatter.issue_pattern', None)
         self.link_pattern = behave_config.userdata.get('AllureFormatter.link_pattern', None)
+        self.hide_excluded = behave_config.userdata.get('AllureFormatter.hide_excluded', False)
         self.logger = AllureReporter()
         self.current_step_uuid = None
         self.current_scenario_uuid = None
-        self.execution_context = Context()
-        self.fixture_context = Context()
+        self.group_context = GroupContext(self.logger)
+        self.group_context.enter()
         self.steps = deque()
 
-    def __del__(self):
-        for group in self.fixture_context.exit():
-            group.children.extend(self.execution_context)
-            self.logger.stop_group(group.uuid)
+    def start_file(self):
+        self.group_context.enter()
 
     @allure_commons.hookimpl
     def start_fixture(self, parent_uuid, uuid, name, parameters):
-        parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters.items()]
+        # parameters = [Parameter(name=param_name, value=param_value) for param_name, param_value in parameters.items()]
 
-        if name in FIXTURES and not self.fixture_context:
-            group = TestResultContainer(uuid=uuid4())
-            self.logger.start_group(group.uuid, group)
-            self.fixture_context.append(group)
+        if name.startswith("before_"):
+            name = get_hook_name(name, parameters)
+            fixture = TestBeforeResult(name=name, start=now(), parameters=None)
+            group = self.group_context.current_group()
+            self.logger.start_before_fixture(group.uuid, uuid, fixture)
 
-        if name in BEFORE_FIXTURES:
-            fixture = TestBeforeResult(name=name, start=now(), parameters=parameters)
-            for group in self.fixture_context:
-                self.logger.start_before_fixture(group.uuid, uuid, fixture)
-
-        elif name in AFTER_FIXTURES:
-            fixture = TestAfterResult(name=name, start=now(), parameters=parameters)
-            for group in self.fixture_context:
-                self.logger.start_after_fixture(group.uuid, uuid, fixture)
+        elif name.startswith("after_"):
+            name = get_hook_name(name, parameters)
+            fixture = TestAfterResult(name=name, start=now(), parameters=None)
+            group = self.group_context.current_group()
+            self.logger.start_after_fixture(group.uuid, uuid, fixture)
 
     @allure_commons.hookimpl
     def stop_fixture(self, parent_uuid, uuid, name, exc_type, exc_val, exc_tb):
-        if name in FIXTURES:
-            self.logger.stop_before_fixture(uuid=uuid,
-                                            stop=now(),
-                                            status=get_status(exc_val),
-                                            statusDetails=get_status_details(exc_type, exc_val, exc_tb))
-
-    def start_feature(self):
-        self.execution_context.enter()
-        self.fixture_context.enter()
+        self.logger.stop_before_fixture(uuid=uuid,
+                                        stop=now(),
+                                        status=get_status(exc_val),
+                                        statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
     def stop_feature(self):
-        uuids = self.execution_context.exit()
-        for group in self.fixture_context.exit():
-            group.children.extend(uuids)
-            self.logger.stop_group(group.uuid)
-        self.execution_context.extend(uuids)
+        self.group_context.exit()
 
     @allure_commons.hookimpl
     def start_test(self, parent_uuid, uuid, name, parameters, context):
@@ -91,9 +74,7 @@ class AllureListener(object):
 
     def start_scenario(self, scenario):
         self.current_scenario_uuid = uuid4()
-        self.fixture_context.enter()
-        self.execution_context.enter()
-        self.execution_context.append(self.current_scenario_uuid)
+        self.group_context.enter()
 
         test_case = TestResult(uuid=self.current_scenario_uuid, start=now())
         test_case.name = scenario_name(scenario)
@@ -118,8 +99,12 @@ class AllureListener(object):
         self.stop_scenario(context['scenario'])
 
     def stop_scenario(self, scenario):
-        if scenario.status == 'skipped' \
-                and not self.behave_config.show_skipped or scenario.skip_reason == TEST_PLAN_SKIP_REASON:
+        should_run = (scenario.should_run_with_tags(self.behave_config.tags) and
+                      scenario.should_run_with_name_select(self.behave_config))
+        should_drop_skipped_by_option = scenario.status == 'skipped' and not self.behave_config.show_skipped
+        should_drop_excluded = self.hide_excluded and (scenario.skip_reason == TEST_PLAN_SKIP_REASON or not should_run)
+
+        if should_drop_skipped_by_option or should_drop_excluded:
             self.logger.drop_test(self.current_scenario_uuid)
         else:
             status = scenario_status(scenario)
@@ -132,13 +117,9 @@ class AllureListener(object):
             test_result.statusDetails = status_details
             self.logger.close_test(self.current_scenario_uuid)
             self.current_step_uuid = None
+            self.group_context.append_test(self.current_scenario_uuid)
+            self.group_context.exit()
 
-            for group in self.fixture_context.exit():
-                group.children.append(self.current_scenario_uuid)
-                self.logger.stop_group(group.uuid)
-
-        self.execution_context.exit()
-        self.execution_context.append(self.current_scenario_uuid)
         self.current_scenario_uuid = None
 
     def schedule_step(self, step):
@@ -224,17 +205,30 @@ class AllureListener(object):
 
             test_result.links.append(new_link)
 
+    def stop_session(self):
+        self.group_context.exit()
 
-class Context(list):
-    def __init__(self, _list=list()):
-        super(Context, self).__init__(_list)
-        self._stack = [_list]
 
-    def enter(self, _list=list()):
-        self._stack.append(self[:])
-        self[:] = _list
-        return self
+class GroupContext(object):
+    def __init__(self, logger):
+        self._logger = logger
+        self._groups = []
+
+    def enter(self):
+        group = TestResultContainer(uuid=uuid4())
+        self._logger.start_group(group.uuid, group)
+        self._groups.append(group)
 
     def exit(self):
-        gone, self[:] = self[:], self._stack.pop()
-        return gone
+        group = self._groups.pop()
+        if group.befores or group.afters:
+            self._logger.stop_group(group.uuid)
+        else:
+            self._logger._items.pop(group.uuid)
+
+    def current_group(self):
+        return self._groups[-1]
+
+    def append_test(self, uuid):
+        for group in self._groups:
+            group.children.append(uuid)

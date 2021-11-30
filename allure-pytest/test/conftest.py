@@ -8,6 +8,12 @@ from contextlib import contextmanager
 from allure_commons.logger import AllureMemoryLogger
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "real_logger: mark test to run with a real allure logger"
+    )
+
+
 @contextmanager
 def fake_logger(path, logger):
     blocked_plugins = []

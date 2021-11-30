@@ -98,6 +98,21 @@ def get_fullname(scenario):
     return "{filename}: {name}".format(filename=scenario.feature.name, name=name)
 
 
+def get_hook_name(name, parameters):
+    tag = None
+    if name in ["before_tag", "after_tag"]:
+        param_list = list(parameters.items())
+        if len(param_list) > 1:
+            tag = param_list[1][1]
+        else:
+            tag = param_list[0][1][1]
+    name = name.replace("_", " ")
+    if tag:
+        tag = tag.replace("'", "")
+        name = f"{name} @{tag}"
+    return name
+
+
 def step_status_details(result):
     if result.exception:
         # workaround for https://github.com/behave/behave/pull/616
