@@ -12,16 +12,18 @@ from allure_commons._core import plugin_manager
 class ThreadContextItems:
 
     _thread_context = defaultdict(OrderedDict)
+    _init_thread: threading.Thread
 
     @property
     def thread_context(self):
         context = self._thread_context[threading.current_thread()]
-        if not context and threading.current_thread() is not threading.main_thread():
-            uuid, last_item = next(reversed(self._thread_context[threading.main_thread()].items()))
+        if not context and threading.current_thread() is not self._init_thread:
+            uuid, last_item = next(reversed(self._thread_context[self._init_thread].items()))
             context[uuid] = last_item
         return context
 
     def __init__(self, *args, **kwargs):
+        self._init_thread = threading.current_thread()
         super().__init__(*args, **kwargs)
 
     def __setitem__(self, key, value):
