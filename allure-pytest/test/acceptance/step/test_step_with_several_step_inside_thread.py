@@ -62,13 +62,13 @@ def test_step_with_reused_threads(allured_testdir):
 
     assert_that(allured_testdir.allure_report,
                 has_test_case("test_thread",
-                              has_step(f"thread 1"),
-                              has_step(f"thread 2"),
-                              has_step(f"thread 3"),
+                              has_step("thread 1"),
+                              has_step("thread 2"),
+                              has_step("thread 3"),
                               has_step("Reuse previous threads",
-                                       has_step(f"thread 1"),
-                                       has_step(f"thread 2"),
-                                       has_step(f"thread 3"),
+                                       has_step("thread 1"),
+                                       has_step("thread 2"),
+                                       has_step("thread 3"),
                                        ),
                               )
                 )
