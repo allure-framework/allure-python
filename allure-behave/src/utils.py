@@ -64,7 +64,7 @@ def scenario_status(scenario):
 
 def scenario_status_details(scenario):
     for step in scenario.all_steps:
-        if step.exception or step.error_message or step.status == 'undefined':
+        if step.exception or step.error_message or step_status(step) == 'undefined':
             return step_status_details(step)
 
 
