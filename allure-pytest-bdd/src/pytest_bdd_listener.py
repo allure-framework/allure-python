@@ -117,7 +117,7 @@ class PytestBDDListener(object):
 
                 if test_result.status != Status.PASSED and report.caplog:
                     self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
-                    
+
         if report.when == 'teardown':
             self.lifecycle.write_test_case(uuid=uuid)
 
