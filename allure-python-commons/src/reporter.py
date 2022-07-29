@@ -1,4 +1,5 @@
-from collections import OrderedDict
+import threading
+from collections import OrderedDict, defaultdict
 
 from allure_commons.types import AttachmentType
 from allure_commons.model2 import ExecutableItem
@@ -8,9 +9,53 @@ from allure_commons.utils import now
 from allure_commons._core import plugin_manager
 
 
+class ThreadContextItems:
+
+    _thread_context = defaultdict(OrderedDict)
+    _init_thread: threading.Thread
+
+    @property
+    def thread_context(self):
+        context = self._thread_context[threading.current_thread()]
+        if not context and threading.current_thread() is not self._init_thread:
+            uuid, last_item = next(reversed(self._thread_context[self._init_thread].items()))
+            context[uuid] = last_item
+        return context
+
+    def __init__(self, *args, **kwargs):
+        self._init_thread = threading.current_thread()
+        super().__init__(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        self.thread_context.__setitem__(key, value)
+
+    def __getitem__(self, item):
+        return self.thread_context.__getitem__(item)
+
+    def __iter__(self):
+        return self.thread_context.__iter__()
+
+    def __reversed__(self):
+        return self.thread_context.__reversed__()
+
+    def get(self, key):
+        return self.thread_context.get(key)
+
+    def pop(self, key):
+        return self.thread_context.pop(key)
+
+    def cleanup(self):
+        stopped_threads = []
+        for thread in self._thread_context.keys():
+            if not thread.is_alive():
+                stopped_threads.append(thread)
+        for thread in stopped_threads:
+            del self._thread_context[thread]
+
+
 class AllureReporter(object):
     def __init__(self):
-        self._items = OrderedDict()
+        self._items = ThreadContextItems()
         self._orphan_items = []
 
     def _update_item(self, uuid, **kwargs):
@@ -73,6 +118,7 @@ class AllureReporter(object):
 
     def close_test(self, uuid):
         test_case = self._items.pop(uuid)
+        self._items.cleanup()
         plugin_manager.hook.report_result(result=test_case)
 
     def drop_test(self, uuid):
