@@ -4,10 +4,35 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - "allure-pytest/**"
+      - "allure-python-commons/**"
+      - "allure-python-commons-test/**"
 
 jobs:
-  linters:
+  commons:
+    name: Build commons
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache commons
+        id: commons
+        uses: actions/cache@v3
+        with:
+          path: dist/
+          key: commons-${{ hashFiles('allure-python-commons/**', 'allure-python-commons-test/**') }}
+
+      - name: Build python commons
+        if: steps.commons.outputs.cache-hit != 'true'
+        run: pip install build &&
+             python -m build allure-python-commons --outdir dist/ &&
+             python -m build allure-python-commons-test --outdir dist/
+
+  linters:
+    name: Static check
+    runs-on: ubuntu-latest
+    needs: [commons]
     steps:
       - uses: actions/checkout@v3
 
@@ -16,11 +41,15 @@ jobs:
         with:
           python-version: "3.10"
 
+      - name: Get commons from cache
+        id: commons
+        uses: actions/cache@v3
+        with:
+          path: dist/
+          key: commons-${{ hashFiles('allure-python-commons/**', 'allure-python-commons-test/**') }}
+
       - name: Install packages
-        run: pip install build &&
-             python -m build allure-python-commons &&
-             python -m build allure-python-commons-test &&
-             pip install allure-python-commons*/dist/allure-python-commons*.tar.gz &&
+        run: pip install dist/allure-python-commons*.tar.gz &&
              pip install ./allure-pytest &&
              pip install -r allure-pytest/requirements.txt
 
@@ -29,8 +58,9 @@ jobs:
         run: flake8 src/ test/
 
   build:
+    name: Test allure-pytest
     runs-on: ubuntu-latest
-    needs: [linters]
+    needs: [linters, commons]
     strategy:
       matrix:
         python-version: ["3.10", 3.9, 3.8, 3.7]
@@ -44,11 +74,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Get commons from cache
+        id: commons
+        uses: actions/cache@v3
+        with:
+          path: dist/
+          key: commons-${{ hashFiles('allure-python-commons/**', 'allure-python-commons-test/**') }}
+
       - name: Install packages
-        run: pip install build &&
-             python -m build allure-python-commons &&
-             python -m build allure-python-commons-test &&
-             pip install allure-python-commons*/dist/allure-python-commons*.tar.gz &&
+        run: pip install dist/allure-python-commons*.tar.gz &&
              pip install ./allure-pytest &&
              pip install -r allure-pytest/requirements.txt
 
