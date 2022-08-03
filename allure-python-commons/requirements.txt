@@ -1,0 +1,6 @@
+# test requrements
+attr
+pyhamcrest
+pluggy
+# linters
+flake8==4.*

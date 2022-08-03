@@ -65,7 +65,7 @@ Expected: ...
 from hamcrest import all_of, anything, not_
 from hamcrest import equal_to, not_none
 from hamcrest import has_entry, has_item
-from hamcrest import contains_string, starts_with
+from hamcrest import contains_string
 
 
 def has_title(title):
@@ -105,7 +105,8 @@ def doesnt_have_parameter(name):
                      not_(
                          has_item(
                              has_entry('name', equal_to(name)),
-                     )))
+                         )
+                     ))
 
 
 def has_link(url, link_type=None, name=None):

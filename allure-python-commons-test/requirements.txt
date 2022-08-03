@@ -1,0 +1,6 @@
+# test requrements
+pyhamcrest
+six
+# linters
+flake8==4.*
+flake8-builtins

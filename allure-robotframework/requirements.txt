@@ -1,0 +1,8 @@
+# test requrements
+robotframework-pabot
+docutils
+pyhamcrest
+six
+# linters
+flake8==4.*
+flake8-builtins

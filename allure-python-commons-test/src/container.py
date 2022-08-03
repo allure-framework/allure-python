@@ -1,6 +1,6 @@
 from six import string_types
 from hamcrest.core.base_matcher import BaseMatcher
-from hamcrest import all_of, anything, any_of
+from hamcrest import all_of
 from hamcrest import has_entry, has_item, has_property, equal_to
 
 
@@ -97,9 +97,9 @@ class HasSameContainer(BaseMatcher):
                                                                for name in self.test_case_names]
                                                       )),
                                             *self.matchers
-                                     )
-                            )
-               ).matches(report)
+                                            )
+                                    )
+                            ).matches(report)
 
     # TODO better describe
     def describe_to(self, description):
