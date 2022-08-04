@@ -17,8 +17,9 @@ Feature: Scenario outline
       """
       from pytest_bdd import scenario
       from pytest_bdd import given, then, when
+      from pytest_bdd.parsers import cfparse
 
-      @given("<first> step")
+      @given(cfparse("{first} step"))
       def given_step(first):
           pass
 
@@ -26,7 +27,7 @@ Feature: Scenario outline
       def nope_step():
           pass
 
-      @then("step with <second> param")
+      @then(cfparse("step with {second} param"))
       def then_step(second):
           pass
 
@@ -37,15 +38,11 @@ Feature: Scenario outline
     When run pytest-bdd with allure
 
     Then allure report has result for "Outline example" scenario
-    Then this scenario has parameter "first" with value "Alpha"
-    Then this scenario has parameter "second" with value "1"
-    Then this scenario contains "Given <Alpha> step" step
-    Then this scenario contains "Then step with <1> param" step
+    Then this scenario contains "Given Alpha step" step
+    Then this scenario contains "Then step with 1 param" step
 
     Then allure report has result for "Outline example" scenario
-    Then this scenario has parameter "first" with value "Bravo"
-    Then this scenario has parameter "second" with value "2"
-    Then this scenario contains "Given <Bravo> step" step
-    Then this scenario contains "Then step with <2> param" step
+    Then this scenario contains "Given Bravo step" step
+    Then this scenario contains "Then step with 2 param" step
 
 

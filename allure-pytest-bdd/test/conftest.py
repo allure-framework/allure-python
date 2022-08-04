@@ -7,6 +7,8 @@ from allure_commons.logger import AllureFileLogger
 from .steps import * # noqa F401 F403
 from pytest_bdd import given, when, parsers
 
+pytest_plugins = ["pytester"]
+
 
 @contextmanager
 def fake_logger(path, logger):
