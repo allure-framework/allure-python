@@ -1,13 +1,16 @@
 import errno
 import io
-import os
-import sys
 import json
-import uuid
+import os
 import shutil
-from six import text_type
-from attr import asdict
+import sys
+import uuid
+from functools import partial
+
 from allure_commons import hookimpl
+from allure_commons.model2 import Parameter
+from attr import asdict
+from six import text_type
 
 INDENT = 4
 
@@ -31,7 +34,18 @@ class AllureFileLogger(object):
     def _report_item(self, item):
         indent = INDENT if os.environ.get("ALLURE_INDENT_OUTPUT") else None
         filename = item.file_pattern.format(prefix=uuid.uuid4())
-        data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+
+        def serializer(instance, attr, value):
+            if isinstance(instance, Parameter) and attr.name == 'value':
+                return (partial(json.dumps, indent=indent) if isinstance(value, dict) else str)(value)
+            else:
+                return value
+        data = asdict(
+            item,
+            filter=lambda attr, value: not (type(value) != bool and not bool(value)),
+            value_serializer=serializer
+        )
+
         with io.open(os.path.join(self._report_dir, filename), 'w', encoding='utf8') as json_file:
             if sys.version_info.major < 3:
                 json_file.write(
