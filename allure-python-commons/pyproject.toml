@@ -1,0 +1,5 @@
+[build-system]
+requires = [
+    'setuptools_scm<7>;python_version<"3.7"',
+    'setuptools_scm;python_version>="3.7"'
+]

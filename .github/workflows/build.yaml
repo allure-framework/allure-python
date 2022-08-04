@@ -30,7 +30,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install tox
-      run: pip install tox
+      run: pip install 'setuptools_scm<7>;python_version<"3.7"' 'setuptools_scm;python_version>="3.7"' tox
       
     - name: Static check ${{ matrix.package }}
       if: matrix.static-check

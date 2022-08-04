@@ -15,13 +15,12 @@ classifiers = [
 ]
 
 setup_requires = [
-    "setuptools_scm"
+    'setuptools_scm<7>;python_version<"3.7"',
+    'setuptools_scm;python_version>="3.7"',
 ]
 
 install_requires = [
-    "pytest>=4.5.0",
-    "pytest-bdd>=5.0.0",
-    "six>=1.9.0",
+    "pytest-bdd>=6.0.0",
 ]
 
 
