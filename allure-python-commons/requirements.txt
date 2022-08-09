@@ -2,5 +2,6 @@
 attr
 pyhamcrest
 pluggy
+poethepoet
 # linters
 flake8==4.*

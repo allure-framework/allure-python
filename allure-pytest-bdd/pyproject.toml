@@ -1,0 +1,3 @@
+[tool.poe.tasks]
+linter = "flake8 ./src ./test"
+tests = "pytest --alluredir=allure-results --basetemp=tmp test"

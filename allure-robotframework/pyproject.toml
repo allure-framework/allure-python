@@ -1,0 +1,8 @@
+[tool.poe.tasks]
+linter = "flake8 ./src ./test"
+tests = { shell = """python -m doctest ./src/listener/utils.py &&
+             robot --log NONE --report NONE --output NONE \
+              --extension robot --loglevel DEBUG \
+              --listener allure_robotframework:allure-results \
+              --outputdir allure-results ./test
+""" }

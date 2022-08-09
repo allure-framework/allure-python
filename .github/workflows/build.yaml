@@ -1,15 +1,9 @@
-name: build and test allure-python-commons-test
+name: build allure python
 
 on:
   pull_request:
     branches:
       - master
-    paths:
-      - "allure-python-commons/**"
-      - "allure-python-commons-test/**"
-
-env:
-  PROJECT_NAME: allure-python-commons-test
 
 jobs:
   commons:
@@ -35,6 +29,17 @@ jobs:
     name: Static check
     runs-on: ubuntu-latest
     needs: [commons]
+    strategy:
+      matrix:
+        package: [
+          allure-python-commons-test,
+          allure-python-commons,
+          allure-nose2,
+          allure-behave,
+          allure-pytest,
+          allure-pytest-bdd,
+          allure-robotframework
+        ]
     steps:
       - uses: actions/checkout@v3
 
@@ -52,11 +57,12 @@ jobs:
 
       - name: Install packages
         run: pip install dist/allure-python-commons*.tar.gz &&
-             pip install ./${{ env.PROJECT_NAME }} &&
-             pip install -r ${{ env.PROJECT_NAME }}/requirements.txt
+             pip install ./${{ matrix.package }} &&
+             pip install -r ${{ matrix.package }}/requirements.txt
 
-      - name: Static check ${{ env.PROJECT_NAME }}
-        run: flake8 ${{ env.PROJECT_NAME }}/src/
+      - name: Static check ${{ matrix.package }}
+        working-directory: ${{ matrix.package }}
+        run: poe linter
 
   build:
     name: Build and test package
@@ -64,8 +70,18 @@ jobs:
     needs: [linters, commons]
     strategy:
       matrix:
-        python-version: ["3.10", 3.9, 3.8, 3.7]
+        package: [
+          allure-python-commons-test,
+          allure-python-commons,
+          allure-nose2,
+          allure-behave,
+          allure-pytest,
+          allure-pytest-bdd,
+          allure-robotframework
+        ]
+        python-version: [3.7, 3.8, 3.9, "3.10"]
     env:
+      TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
     steps:
       - uses: actions/checkout@v3
@@ -84,9 +100,9 @@ jobs:
 
       - name: Install packages
         run: pip install dist/allure-python-commons*.tar.gz &&
-             pip install ./${{ env.PROJECT_NAME }} &&
-             pip install -r ${{ env.PROJECT_NAME }}/requirements.txt
+             pip install ./${{ matrix.package }} &&
+             pip install -r ${{ matrix.package }}/requirements.txt
 
-      - name: Test ${{ env.PROJECT_NAME }}
-        working-directory: ${{ env.PROJECT_NAME }}
-        run: python -m doctest ./src/*.py
+      - name: Test ${{ matrix.package }}
+        working-directory: ${{ matrix.package }}
+        run: poe tests
