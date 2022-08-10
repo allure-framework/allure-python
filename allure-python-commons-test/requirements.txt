@@ -1,0 +1,7 @@
+# test requrements
+pyhamcrest
+six
+poethepoet
+# linters
+flake8==4.*
+flake8-builtins

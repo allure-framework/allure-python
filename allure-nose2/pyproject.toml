@@ -1,0 +1,4 @@
+[tool.poe.tasks]
+linter = "flake8 ./src ./test"
+tests = """nose2 --plugin=test.example_loader --plugin=allure_nose2.plugin --allure
+                --current-example -t . -s ./test"""
