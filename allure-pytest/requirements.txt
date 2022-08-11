@@ -8,5 +8,5 @@ pytest-xdist
 pytest-lazy-fixture
 poethepoet
 # linters
-flake8==4.*
+flake8==5.*
 flake8-builtins
