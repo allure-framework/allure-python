@@ -4,4 +4,4 @@ pyhamcrest
 pluggy
 poethepoet
 # linters
-flake8==4.*
+flake8==5.*
