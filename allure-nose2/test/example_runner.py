@@ -57,7 +57,6 @@ def run_docstring_example(**kwargs):
         with redirect_stdout(stdout):
             test_nose2_instance = test_nose2(**kwargs)
 
-    #test_nose2_instance = test_nose2(**kwargs)
+    # test_nose2_instance = test_nose2(**kwargs)
 
     return get_plugin(test_nose2_instance, _Allure).logger
-

@@ -1,0 +1,3 @@
+[tool.poe.tasks]
+linter = "flake8 ./src"
+tests = "python -m doctest ./src/*.py"

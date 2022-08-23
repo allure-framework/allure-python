@@ -1,0 +1,4 @@
+[tool.poe.tasks]
+linter = "flake8 ./src"
+tests = """behave -f allure_behave.formatter:AllureFormatter -o allure-results
+              -f pretty ./features"""

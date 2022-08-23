@@ -1,0 +1,7 @@
+# test requrements
+attr
+pyhamcrest
+pluggy
+poethepoet
+# linters
+flake8==5.*

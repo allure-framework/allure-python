@@ -1,0 +1,12 @@
+# test requirements
+pyhamcrest
+mock
+pytest-check
+pytest-flakes
+pytest-rerunfailures
+pytest-xdist
+pytest-lazy-fixture
+poethepoet
+# linters
+flake8==5.*
+flake8-builtins
