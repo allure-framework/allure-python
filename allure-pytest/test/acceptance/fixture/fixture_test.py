@@ -321,15 +321,15 @@ def test_dynamically_called_fixture(allured_testdir, parent_scope, child_scope):
                                             has_after("child_manual_call_fixture::0"),
                                             ),
                               not_(has_container(allured_testdir.allure_report,
-                                            has_before("parent_dyn_call_fixture"),
-                                            has_after("parent_dyn_call_fixture::0"),
-                                            ),
-                                  ),
+                                                 has_before("parent_dyn_call_fixture"),
+                                                 has_after("parent_dyn_call_fixture::0"),
+                                                 ),
+                                   ),
                               not_(has_container(allured_testdir.allure_report,
-                                            has_before("child_dyn_call_fixture"),
-                                            ),
-                                  )
-                             )
+                                                 has_before("child_dyn_call_fixture"),
+                                                 ),
+                                   )
+                              )
                 )
     assert_that(allured_testdir.allure_report,
                 has_test_case("test_two",
@@ -338,10 +338,10 @@ def test_dynamically_called_fixture(allured_testdir, parent_scope, child_scope):
                                             has_after("parent_auto_call_fixture::0"),
                                             ),
                               not_(has_container(allured_testdir.allure_report,
-                                            has_before("child_manual_call_fixture"),
-                                            has_after("child_manual_call_fixture::0"),
-                                            ),
-                                  ),
+                                                 has_before("child_manual_call_fixture"),
+                                                 has_after("child_manual_call_fixture::0"),
+                                                 ),
+                                   ),
                               has_container(allured_testdir.allure_report,
                                             has_before("parent_dyn_call_fixture"),
                                             has_after("parent_dyn_call_fixture::0"),
@@ -358,17 +358,17 @@ def test_dynamically_called_fixture(allured_testdir, parent_scope, child_scope):
                                             has_after("parent_auto_call_fixture::0"),
                                             ),
                               not_(has_container(allured_testdir.allure_report,
-                                            has_before("child_manual_call_fixture"),
-                                            has_after("child_manual_call_fixture::0"),
-                                            ),
-                                  ),
+                                                 has_before("child_manual_call_fixture"),
+                                                 has_after("child_manual_call_fixture::0"),
+                                                 ),
+                                   ),
                               has_container(allured_testdir.allure_report,
                                             has_before("parent_dyn_call_fixture"),
                                             has_after("parent_dyn_call_fixture::0"),
                                             ),
                               not_(has_container(allured_testdir.allure_report,
-                                            has_before("child_dyn_call_fixture"),
-                                            ),
-                                  )
-                             )
+                                                 has_before("child_dyn_call_fixture"),
+                                                 ),
+                                   )
+                              )
                 )
