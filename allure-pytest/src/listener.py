@@ -58,6 +58,19 @@ class AllureListener(object):
                                               status=get_status(exc_val),
                                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
+    def _update_fixtures_children(self, item):
+        uuid = self._cache.get(item.nodeid)
+        for fixturedef in _test_fixtures(item):
+            group_uuid = self._cache.get(fixturedef)
+            if group_uuid:
+                group = self.allure_logger.get_item(group_uuid)
+            else:
+                group_uuid = self._cache.push(fixturedef)
+                group = TestResultContainer(uuid=group_uuid)
+                self.allure_logger.start_group(group_uuid, group)
+            if uuid not in group.children:
+                self.allure_logger.update_group(group_uuid, children=uuid)
+
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
     def pytest_runtest_protocol(self, item, nextitem):
         uuid = self._cache.push(item.nodeid)
@@ -71,20 +84,11 @@ class AllureListener(object):
             uuid = self._cache.push(item.nodeid)
             test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
             self.allure_logger.schedule_test(uuid, test_result)
-
         yield
-
+        self._update_fixtures_children(item)
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
-        for fixturedef in _test_fixtures(item):
-            group_uuid = self._cache.get(fixturedef)
-            if not group_uuid:
-                group_uuid = self._cache.push(fixturedef)
-                group = TestResultContainer(uuid=group_uuid)
-                self.allure_logger.start_group(group_uuid, group)
-            self.allure_logger.update_group(group_uuid, children=uuid)
         params = item.callspec.params if hasattr(item, 'callspec') else {}
-
         test_result.name = allure_name(item, params)
         full_name = allure_full_name(item)
         test_result.fullName = full_name
@@ -104,12 +108,14 @@ class AllureListener(object):
             self.allure_logger.schedule_test(uuid, test_result)
             test_result.start = now()
         yield
+        self._update_fixtures_children(item)
         if test_result:
             test_result.stop = now()
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_teardown(self, item):
         yield
+        self._update_fixtures_children(item)
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])

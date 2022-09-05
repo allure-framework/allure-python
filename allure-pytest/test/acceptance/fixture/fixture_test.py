@@ -272,3 +272,103 @@ def test_fixture_override(allured_testdir):
                                             ),
                               )
                 )
+
+
+@pytest.mark.parametrize(
+    ["parent_scope", "child_scope"],
+    list(combinations_with_replacement(fixture_scopes, 2))
+)
+def test_dynamically_called_fixture(allured_testdir, parent_scope, child_scope):
+    allured_testdir.testdir.makepyfile("""
+        import pytest
+
+        @pytest.fixture(scope="{parent_scope}", autouse=True)
+        def parent_auto_call_fixture():
+            yield
+
+        @pytest.fixture(scope="{child_scope}")
+        def child_manual_call_fixture():
+            yield
+
+        @pytest.fixture(scope="{parent_scope}")
+        def parent_dyn_call_fixture():
+            yield
+
+        @pytest.fixture(scope="{child_scope}")
+        def child_dyn_call_fixture(request):
+            request.getfixturevalue('parent_dyn_call_fixture')
+
+        def test_one(child_manual_call_fixture):
+            pass
+
+        def test_two(request):
+            request.getfixturevalue('child_dyn_call_fixture')
+
+        def test_three(request):
+            request.getfixturevalue('parent_dyn_call_fixture')
+    """.format(parent_scope=parent_scope, child_scope=child_scope))
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_one",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_auto_call_fixture"),
+                                            has_after("parent_auto_call_fixture::0"),
+                                            ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("child_manual_call_fixture"),
+                                            has_after("child_manual_call_fixture::0"),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("parent_dyn_call_fixture"),
+                                                 has_after("parent_dyn_call_fixture::0"),
+                                                 ),
+                                   ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("child_dyn_call_fixture"),
+                                                 ),
+                                   )
+                              )
+                )
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_two",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_auto_call_fixture"),
+                                            has_after("parent_auto_call_fixture::0"),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("child_manual_call_fixture"),
+                                                 has_after("child_manual_call_fixture::0"),
+                                                 ),
+                                   ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_dyn_call_fixture"),
+                                            has_after("parent_dyn_call_fixture::0"),
+                                            ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("child_dyn_call_fixture"),
+                                            ),
+                              ),
+                )
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_three",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_auto_call_fixture"),
+                                            has_after("parent_auto_call_fixture::0"),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("child_manual_call_fixture"),
+                                                 has_after("child_manual_call_fixture::0"),
+                                                 ),
+                                   ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_dyn_call_fixture"),
+                                            has_after("parent_dyn_call_fixture::0"),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("child_dyn_call_fixture"),
+                                                 ),
+                                   )
+                              )
+                )
