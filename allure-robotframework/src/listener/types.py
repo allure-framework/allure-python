@@ -2,6 +2,8 @@ class RobotStatus(object):
     FAILED = 'FAIL'
     PASSED = 'PASS'
     SKIPPED = 'SKIP'
+    NOT_RUN = 'NOT RUN'
+    NOT_SET = 'NOT SET'
 
 
 class RobotKeywordType(object):
