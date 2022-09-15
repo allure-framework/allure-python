@@ -28,3 +28,10 @@ Failed Test Case With Python Traceback
     Should Has Status Detail With Traceback    ${test_case}   fail_with_traceback\n${SPACE * 4}BuiltIn().fail(traceback_message)
     ${step}    Should Has Step    ${test_case}   status_library.Fail With Traceback
     Should Has Status    ${step}    failed
+
+Failed Test Case With Not Executed Step
+    ${allure_report}    Run Robot With Allure   examples/status/status.rst
+    ${test_case}    Should Has Test Case   ${allure_report}   Failed Test Case With Not Executed Step
+    Should Has Status    ${test_case}    failed
+    ${step}    Should Has Step    ${test_case}   BuiltIn.Log
+    Should Has Status    ${step}    skipped

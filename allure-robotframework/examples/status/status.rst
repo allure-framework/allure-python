@@ -15,3 +15,7 @@
     Failed Test Case With Python Traceback
         Set Log Level    DEBUG
         Fail With Traceback      Fail message
+
+    Failed Test Case With Not Executed Step
+        Fail
+        Log    This step should be skipped

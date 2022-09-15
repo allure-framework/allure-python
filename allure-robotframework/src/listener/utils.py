@@ -9,7 +9,7 @@ from allure_commons.mapping import parse_tag, labels_set, allure_tag_sep
 def get_allure_status(status):
     if status == RobotStatus.PASSED:
         return Status.PASSED
-    elif status == RobotStatus.SKIPPED:
+    elif status in (RobotStatus.SKIPPED, RobotStatus.NOT_RUN, RobotStatus.NOT_SET):
         return Status.SKIPPED
     else:
         return Status.FAILED
