@@ -69,6 +69,9 @@ def tag(*tags):
 def id(id):
     return label(LabelType.ID, id)
 
+def manual(is_manual=True):
+    return label(LabelType.MANUAL, is_manual)
+
 
 def link(url, link_type=LinkType.LINK, name=None):
     return safely(plugin_manager.hook.decorate_as_link(url=url, link_type=link_type, name=name))

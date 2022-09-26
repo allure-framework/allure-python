@@ -31,6 +31,7 @@ class LabelType(str):
     ID = 'as_id'
     FRAMEWORK = 'framework'
     LANGUAGE = 'language'
+    MANUAL = 'ALLURE_MANUAL'
 
 
 class AttachmentType(Enum):
