@@ -69,6 +69,7 @@ def tag(*tags):
 def id(id):
     return label(LabelType.ID, id)
 
+
 def manual(is_manual=True):
     return label(LabelType.MANUAL, is_manual)
 
