@@ -70,8 +70,11 @@ def id(id):
     return label(LabelType.ID, id)
 
 
-def manual():
-    return label(LabelType.MANUAL, True)
+def manual(fn):
+    def inner():
+        return Dynamic.label(LabelType.MANUAL, True)
+
+    return inner
 
 
 def link(url, link_type=LinkType.LINK, name=None):
@@ -174,6 +177,7 @@ class StepContext:
             args = list(map(lambda x: represent(x), a))
             with StepContext(self.title.format(*args, **params), params):
                 return func(*a, **kw)
+
         return impl
 
 
