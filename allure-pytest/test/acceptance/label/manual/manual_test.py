@@ -11,11 +11,3 @@ def test_allure_manual_label(executed_docstring_path):
                               has_label("ALLURE_MANUAL", True)
                               )
                 )
-
-
-def test_allure_manual_false_label(executed_docstring_path):
-    assert_that(executed_docstring_path.allure_report,
-                has_test_case("test_manual_false",
-                              has_label("ALLURE_MANUAL", False)
-                              )
-                )

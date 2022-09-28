@@ -70,8 +70,8 @@ def id(id):
     return label(LabelType.ID, id)
 
 
-def manual(is_manual=True):
-    return label(LabelType.MANUAL, is_manual)
+def manual():
+    return label(LabelType.MANUAL, True)
 
 
 def link(url, link_type=LinkType.LINK, name=None):
