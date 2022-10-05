@@ -144,6 +144,10 @@ class Dynamic(object):
     def sub_suite(sub_suite_name):
         Dynamic.label(LabelType.SUB_SUITE, sub_suite_name)
 
+    @staticmethod
+    def manual():
+        return Dynamic.label(LabelType.MANUAL, True)
+
 
 def step(title):
     if callable(title):

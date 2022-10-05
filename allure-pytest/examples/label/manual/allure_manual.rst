@@ -11,3 +11,6 @@ Usage of ``allure.manual`` decorator.
     >>> @allure.manual
     ... def test_manual():
     ...     pass
+
+    >>> def test_manual_dynamic():
+    ...     allure.dynamic.manual()

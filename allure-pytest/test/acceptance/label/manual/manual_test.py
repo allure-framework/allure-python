@@ -10,3 +10,12 @@ def test_allure_manual_label(executed_docstring_path):
                               has_label("ALLURE_MANUAL", True)
                               )
                 )
+
+
+def test_allure_manual_label_dynamic(executed_docstring_path):
+    """ ./examples/label/manual/allure_manual.rst """
+    assert_that(executed_docstring_path.allure_report,
+                has_test_case("test_manual_dynamic",
+                              has_label("ALLURE_MANUAL", True)
+                              ),
+                )
