@@ -71,10 +71,7 @@ def id(id):
 
 
 def manual(fn):
-    def inner():
-        return Dynamic.label(LabelType.MANUAL, True)
-
-    return inner
+    return label(LabelType.MANUAL, True)(fn)
 
 
 def link(url, link_type=LinkType.LINK, name=None):
