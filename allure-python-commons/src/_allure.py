@@ -70,6 +70,10 @@ def id(id):
     return label(LabelType.ID, id)
 
 
+def manual(fn):
+    return label(LabelType.MANUAL, True)(fn)
+
+
 def link(url, link_type=LinkType.LINK, name=None):
     return safely(plugin_manager.hook.decorate_as_link(url=url, link_type=link_type, name=name))
 
@@ -140,6 +144,10 @@ class Dynamic(object):
     def sub_suite(sub_suite_name):
         Dynamic.label(LabelType.SUB_SUITE, sub_suite_name)
 
+    @staticmethod
+    def manual():
+        return Dynamic.label(LabelType.MANUAL, True)
+
 
 def step(title):
     if callable(title):
@@ -170,6 +178,7 @@ class StepContext:
             args = list(map(lambda x: represent(x), a))
             with StepContext(self.title.format(*args, **params), params):
                 return func(*a, **kw)
+
         return impl
 
 
