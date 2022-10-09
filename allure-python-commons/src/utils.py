@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import string
 import sys
 import six
 import time
@@ -404,3 +405,53 @@ def get_testplan():
             planned_tests = plan.get("tests", [])
 
     return planned_tests
+
+
+class SafeFormatter(string.Formatter):
+    """
+    Format string safely - skip any non-passed keys
+    >>> f = SafeFormatter().format
+
+    Make sure we don't broke default formatting behaviour
+    >>> f("literal string")
+    'literal string'
+    >>> f("{expected.format}", expected=str)
+    "<method 'format' of 'str' objects>"
+    >>> f("{expected[0]}", expected=["value"])
+    'value'
+    >>> f("{expected[0]}", expected=123)
+    Traceback (most recent call last):
+    ...
+    TypeError: 'int' object is not subscriptable
+    >>> f("{expected[0]}", expected=[])
+    Traceback (most recent call last):
+    ...
+    IndexError: list index out of range
+    >>> f("{expected.format}", expected=int)
+    Traceback (most recent call last):
+    ...
+    AttributeError: type object 'int' has no attribute 'format'
+
+    Check that unexpected keys do not cause some errors
+    >>> f("{expected} {unexpected}", expected="value")
+    'value {unexpected}'
+    >>> f("{unexpected[0]}", expected=["value"])
+    '{unexpected[0]}'
+    >>> f("{unexpected.format}", expected=str)
+    '{unexpected.format}'
+    """
+
+    class SafeKeyOrIndexError(Exception):
+        pass
+
+    def get_field(self, field_name, args, kwargs):
+        try:
+            return super().get_field(field_name, args, kwargs)
+        except self.SafeKeyOrIndexError:
+            return "{" + field_name + "}", field_name
+
+    def get_value(self, key, args, kwargs):
+        try:
+            return super().get_value(key, args, kwargs)
+        except (KeyError, IndexError):
+            raise self.SafeKeyOrIndexError()

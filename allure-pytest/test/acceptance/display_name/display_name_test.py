@@ -97,3 +97,24 @@ def test_display_name_with_features(allured_testdir):
                               has_title("Titled test with features")
                               )
                 )
+
+
+def test_failed_fixture_value_in_display_name(executed_docstring_source):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.fixture
+    ... def fix():
+    ...     raise AssertionError("Fixture failed for some reason")
+
+    >>> @allure.title('title with {fix}')
+    ... def test_fixture_value_name(fix):
+    ...     pass
+    """
+
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_fixture_value_name",
+                              has_title("title with {fix}")
+                              )
+                )

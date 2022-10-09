@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import six
 import pytest
 from itertools import chain, islice
-from allure_commons.utils import represent
+from allure_commons.utils import represent, SafeFormatter
 from allure_commons.utils import format_exception, format_traceback, escape_non_unicode_symbols
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
@@ -111,7 +111,7 @@ def allure_package(item):
 def allure_name(item, parameters):
     name = escape_name(item.name)
     title = allure_title(item)
-    return title.format(**{**parameters, **item.funcargs}) if title else name
+    return SafeFormatter().format(title, **{**parameters, **item.funcargs}) if title else name
 
 
 def allure_full_name(item):
