@@ -115,7 +115,6 @@ class AllureListener(object):
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_teardown(self, item):
         yield
-        self._update_fixtures_children(item)
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])

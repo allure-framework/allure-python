@@ -372,3 +372,42 @@ def test_dynamically_called_fixture(allured_testdir, parent_scope, child_scope):
                                    )
                               )
                 )
+
+
+def test_one_fixture_on_two_tests(allured_testdir):
+    allured_testdir.testdir.makepyfile("""
+    import pytest
+    import allure
+
+    @pytest.fixture
+    def fixture(request):
+        with allure.step(request.node.name):
+            pass
+
+    class TestClass:
+        def test_first(self, fixture):
+            pass
+
+        def test_second(self, fixture):
+            pass
+    """)
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_first",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("fixture", has_step("test_first")),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("fixture", has_step("test_second")),
+                                                 ))
+                              ),
+                has_test_case("test_second",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("fixture", has_step("test_second")),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("fixture", has_step("test_first")),
+                                                 ))
+                              )
+                )
