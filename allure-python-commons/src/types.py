@@ -63,3 +63,9 @@ class AttachmentType(Enum):
     WEBM = ("video/webm", "webm")
 
     PDF = ("application/pdf", "pdf")
+
+
+class ParameterMode(Enum):
+    HIDDEN = 'hidden'
+    MASKED = 'masked'
+    DEFAULT = None

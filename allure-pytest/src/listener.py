@@ -13,7 +13,7 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
-from allure_commons.types import LabelType, AttachmentType
+from allure_commons.types import LabelType, AttachmentType, ParameterMode
 from allure_pytest.utils import allure_description, allure_description_html
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
@@ -269,13 +269,14 @@ class AllureListener(object):
             test_result.labels.append(Label(label_type, label))
 
     @allure_commons.hookimpl
-    def add_parameter(self, name, value):
+    def add_parameter(self, name, value, excluded, mode: ParameterMode):
         test_result: TestResult = self.allure_logger.get_test(None)
         existing_param = next(filter(lambda x: x.name == name, test_result.parameters), None)
         if existing_param:
             existing_param.value = represent(value)
         else:
-            test_result.parameters.append(Parameter(name=name, value=represent(value)))
+            test_result.parameters.append(Parameter(name=name, value=represent(value),
+                                                    excluded=excluded or None, mode=mode.value if mode else None))
 
 
 class ItemCache(object):
