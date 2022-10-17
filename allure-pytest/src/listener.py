@@ -266,6 +266,15 @@ class AllureListener(object):
         for label in labels if test_result else ():
             test_result.labels.append(Label(label_type, label))
 
+    @allure_commons.hookimpl
+    def remove_label(self, label_types):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            labels_to_keep = list()
+            for labels_in_test in test_result.labels:
+                if labels_in_test.name not in label_types:
+                    labels_to_keep.append(labels_in_test)
+            test_result.labels = labels_to_keep
 
 class ItemCache(object):
 
