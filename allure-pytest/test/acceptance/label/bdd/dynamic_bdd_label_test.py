@@ -27,6 +27,8 @@ def test_parametrized_dynamic_labels(executed_docstring_path, feature, epic, sto
                                                                                                   epic=epic,
                                                                                                   story=story),
                               has_feature(feature),
+                              has_epic(epic),
+                              has_story(story),
                               )
                 )
 

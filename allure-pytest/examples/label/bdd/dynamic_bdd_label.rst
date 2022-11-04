@@ -16,7 +16,7 @@ Dynamic BDD labels
     ...                                                   ('second feature', 'second epic', 'second story')])
     ... def test_parametrized_dynamic_labels(feature, epic, story):
     ...     allure.dynamic.feature(feature)
-    ...     allure.dynamic.epic(feature)
+    ...     allure.dynamic.epic(epic)
     ...     allure.dynamic.story(story)
 
     >>> def test_multiple_dynamic_labels():
