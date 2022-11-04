@@ -1,7 +1,7 @@
 import pytest
 from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
-from allure_commons_test.result import has_parameter
+from allure_commons_test.result import has_parameter, with_excluded, with_mode
 
 
 def params_name(request):
@@ -104,6 +104,36 @@ def test_dynamic_parameter_add(executed_docstring_source):
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_parameter_add",
                               has_parameter("param1", "'param-value'")
+                              )
+                )
+
+
+def test_dynamic_parameter_excluded(executed_docstring_source):
+    """
+    >>> import allure
+
+    >>> def test_parameter_excluded():
+    ...     allure.dynamic.parameter("param1", "param-value", excluded=True)
+    """
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_parameter_excluded",
+                              has_parameter("param1", "'param-value'",
+                                            with_excluded())
+                              )
+                )
+
+
+def test_dynamic_parameter_mode(executed_docstring_source):
+    """
+    >>> import allure
+
+    >>> def test_parameter_mode():
+    ...     allure.dynamic.parameter("param1", "param-value", mode=allure.parameter_mode.MASKED)
+    """
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_parameter_mode",
+                              has_parameter("param1", "'param-value'",
+                                            with_mode('masked'))
                               )
                 )
 
