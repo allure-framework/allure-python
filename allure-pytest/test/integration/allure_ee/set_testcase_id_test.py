@@ -16,3 +16,17 @@ def test_set_testcase_id_label(executed_docstring_source):
                               has_label("as_id", 123),
                               )
                 )
+
+
+def test_set_dynamic_testcase_id_label(executed_docstring_source):
+    """
+    >>> import allure
+
+    >>> def test_allure_ee_id_dynamic_label_example():
+    ...     allure.dynamic.id(345)
+    """
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_allure_ee_id_dynamic_label_example",
+                              has_label("as_id", 345),
+                              )
+                )
