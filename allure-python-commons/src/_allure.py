@@ -109,6 +109,10 @@ class Dynamic(object):
         Dynamic.label(LabelType.SEVERITY, severity_level)
 
     @staticmethod
+    def epic(*epics):
+        Dynamic.label(LabelType.EPIC, *epics)
+
+    @staticmethod
     def feature(*features):
         Dynamic.label(LabelType.FEATURE, *features)
 
@@ -119,6 +123,10 @@ class Dynamic(object):
     @staticmethod
     def tag(*tags):
         Dynamic.label(LabelType.TAG, *tags)
+
+    @staticmethod
+    def id(id):
+        Dynamic.label(LabelType.ID, id)
 
     @staticmethod
     def link(url, link_type=LinkType.LINK, name=None):
