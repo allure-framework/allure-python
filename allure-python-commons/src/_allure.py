@@ -2,7 +2,7 @@ from functools import wraps
 from typing import Any, Callable, TypeVar
 
 from allure_commons._core import plugin_manager
-from allure_commons.types import LabelType, LinkType
+from allure_commons.types import LabelType, LinkType, ParameterMode
 from allure_commons.utils import uuid4
 from allure_commons.utils import func_parameters, represent
 
@@ -131,6 +131,10 @@ class Dynamic(object):
     @staticmethod
     def link(url, link_type=LinkType.LINK, name=None):
         plugin_manager.hook.add_link(url=url, link_type=link_type, name=name)
+
+    @staticmethod
+    def parameter(name, value, excluded=None, mode: ParameterMode = None):
+        plugin_manager.hook.add_parameter(name=name, value=value, excluded=excluded, mode=mode)
 
     @staticmethod
     def issue(url, name=None):

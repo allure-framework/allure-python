@@ -90,12 +90,13 @@ def has_step(name, *matchers):
                      ))
 
 
-def has_parameter(name, value):
+def has_parameter(name, value, *matchers):
     return has_entry('parameters',
                      has_item(
                          all_of(
                              has_entry('name', equal_to(name)),
-                             has_entry('value', equal_to(value))
+                             has_entry('value', equal_to(value)),
+                             *matchers
                          )
                      ))
 
@@ -156,6 +157,14 @@ def with_message_contains(string):
 
 def with_trace_contains(string):
     return has_entry('trace', contains_string(string))
+
+
+def with_excluded():
+    return has_entry('excluded', True)
+
+
+def with_mode(mode):
+    return has_entry('mode', mode)
 
 
 def has_history_id():

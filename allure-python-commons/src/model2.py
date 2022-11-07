@@ -70,6 +70,8 @@ class TestAfterResult(ExecutableItem):
 class Parameter(object):
     name = attrib(default=None)
     value = attrib(default=None)
+    excluded = attrib(default=None)
+    mode = attrib(default=None)
 
 
 @attrs
