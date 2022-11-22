@@ -1,5 +1,5 @@
 import pytest
-from hamcrest import assert_that
+from hamcrest import assert_that, has_entry, ends_with
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_parameter, with_excluded, with_mode
 
@@ -171,5 +171,23 @@ def test_dynamic_parameter_override_from_fixture(executed_docstring_source):
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_parameter_override_from_fixture[param-id]",
                               has_parameter("param1", "'readable-value'")
+                              )
+                )
+
+
+def test_fullname_with_braces(executed_docstring_source):
+    """
+    >>> import pytest
+    ... import allure
+
+    >>> class TestClass:
+    ...     @pytest.mark.parametrize("param1", ["qwe]["])
+    ...     def test_with_braces(self, param1):
+    ...         pass
+    """
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_with_braces[qwe][]",
+                              has_entry('fullName', ends_with(".TestClass#test_with_braces")),
+                              has_parameter("param1", "'qwe]['")
                               )
                 )
