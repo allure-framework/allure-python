@@ -23,6 +23,7 @@ def test_pytest_doctest(allured_testdir):
                               with_status("passed"))
                 )
 
+
 @allure.feature("Integration")
 def test_pytest_doctest_failed(allured_testdir):
     allured_testdir.testdir.makepyfile('''
@@ -44,6 +45,7 @@ def test_pytest_doctest_failed(allured_testdir):
             with_status("failed")
         )
     )
+
 
 @allure.feature("Integration")
 def test_pytest_doctest_broken(allured_testdir):

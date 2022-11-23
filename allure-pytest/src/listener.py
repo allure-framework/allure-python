@@ -307,6 +307,7 @@ def _test_fixtures(item):
 
     return fixturedefs
 
+
 def _exception_brokes_test(exception):
     return not isinstance(exception, (
         AssertionError,
