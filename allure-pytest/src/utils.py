@@ -114,13 +114,11 @@ def allure_name(item, parameters):
     return SafeFormatter().format(title, **{**parameters, **item.funcargs}) if title else name
 
 
-def allure_full_name(item):
-    parts = item.nodeid.split('::')
+def allure_full_name(item: pytest.Item):
     package = allure_package(item)
-    clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
-    test_with_params = parts[-1]
-    test = test_with_params.rsplit("[", 1)[0]
-    full_name = '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+    class_name = f".{item.parent.name}" if isinstance(item.parent, pytest.Class) else ''
+    test = item.originalname if isinstance(item, pytest.Function) else item.name.split("[")[0]
+    full_name = f'{package}{class_name}#{test}'
     return escape_name(full_name)
 
 
