@@ -1,4 +1,5 @@
 import pytest
+import doctest
 import allure_commons
 from allure_commons.utils import escape_non_unicode_symbols
 from allure_commons.utils import now
@@ -185,9 +186,9 @@ class AllureListener(object):
             status_details = StatusDetails(
                 message=message,
                 trace=trace)
-            if (status != Status.SKIPPED
-                    and not (call.excinfo.errisinstance(AssertionError)
-                             or call.excinfo.errisinstance(pytest.fail.Exception))):
+
+            exception = call.excinfo.value
+            if (status != Status.SKIPPED and _exception_brokes_test(exception)):
                 status = Status.BROKEN
 
         if status == Status.PASSED and hasattr(report, 'wasxfail'):
@@ -305,3 +306,11 @@ def _test_fixtures(item):
                 fixturedefs.extend(fixturedefs_pytest)
 
     return fixturedefs
+
+
+def _exception_brokes_test(exception):
+    return not isinstance(exception, (
+        AssertionError,
+        pytest.fail.Exception,
+        doctest.DocTestFailure
+    ))
