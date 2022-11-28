@@ -18,10 +18,10 @@ snippets = [
 
 @pytest.mark.parametrize("snipped", snippets)
 def test_duration(allured_testdir, snipped):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         def test_duration_example():
             {snipped}
-    """.format(snipped=snipped))
+    """)
 
     timestamp = now()
     allured_testdir.run_with_allure()
@@ -38,7 +38,7 @@ def test_duration(allured_testdir, snipped):
 @allure.issue("244")
 @pytest.mark.parametrize("snipped", snippets)
 def test_with_fixture_duration(allured_testdir, snipped):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         import pytest
 
         @pytest.fixture
@@ -47,7 +47,7 @@ def test_with_fixture_duration(allured_testdir, snipped):
 
         def test_with_fixture_duration_example(fixture):
             pass
-    """.format(snipped=snipped))
+    """)
 
     timestamp = now()
     allured_testdir.run_with_allure()
@@ -64,7 +64,7 @@ def test_with_fixture_duration(allured_testdir, snipped):
 @allure.issue("244")
 @pytest.mark.parametrize("snipped", snippets)
 def test_with_fixture_finalizer_duration(allured_testdir, snipped):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         import pytest
 
         @pytest.fixture
@@ -75,7 +75,7 @@ def test_with_fixture_finalizer_duration(allured_testdir, snipped):
 
         def test_with_fixture_finalizer_duration(fixture):
             pass
-    """.format(snipped=snipped))
+    """)
 
     timestamp = now()
     allured_testdir.run_with_allure()

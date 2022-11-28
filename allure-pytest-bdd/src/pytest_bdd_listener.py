@@ -19,7 +19,7 @@ from allure_commons.lifecycle import AllureLifecycle
 from .utils import get_full_name, get_name, get_params
 
 
-class PytestBDDListener(object):
+class PytestBDDListener:
     def __init__(self):
         self.lifecycle = AllureLifecycle()
         self.host = host_tag()

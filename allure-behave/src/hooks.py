@@ -39,7 +39,7 @@ def allure_report(result_dir="allure_results"):
         del frame
 
 
-class AllureHooks(object):
+class AllureHooks:
     def __init__(self, result_dir):
         self.listener = AllureListener(Configuration())
 

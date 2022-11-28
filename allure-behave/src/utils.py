@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from enum import Enum
 from behave.runner_util import make_undefined_step_snippet
 from allure_commons.types import Severity, LabelType
@@ -30,7 +27,7 @@ def scenario_history_id(scenario):
     parts = [scenario.feature.name, scenario.name]
     if scenario._row:
         row = scenario._row
-        parts.extend(['{name}={value}'.format(name=name, value=value) for name, value in zip(row.headings, row.cells)])
+        parts.extend([f'{name}={value}' for name, value in zip(row.headings, row.cells)])
     return md5(*parts)
 
 
@@ -95,7 +92,7 @@ def get_status(exception):
 def get_fullname(scenario):
     name_with_param = scenario_name(scenario)
     name = name_with_param.rsplit(" -- ")[0]
-    return "{filename}: {name}".format(filename=scenario.feature.name, name=name)
+    return f"{scenario.feature.name}: {name}"
 
 
 def get_hook_name(name, parameters):
@@ -128,7 +125,8 @@ def step_status_details(result):
 
 def step_table(step):
     table = [','.join(step.table.headings)]
-    [table.append(','.join(list(row))) for row in step.table.rows]
+    for row in step.table.rows:
+        table.append(','.join(list(row)))
     return '\n'.join(table)
 
 

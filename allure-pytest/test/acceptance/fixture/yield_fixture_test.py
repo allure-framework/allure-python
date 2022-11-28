@@ -13,7 +13,7 @@ def test_yield_fixture(executed_docstring_source):
 
     >>> @pytest.fixture
     ... def yield_fixture():
-    ...     pass
+    ...     yield
 
     >>> def test_yield_fixture_example(yield_fixture):
     ...     pass
@@ -23,7 +23,7 @@ def test_yield_fixture(executed_docstring_source):
                 has_test_case("test_yield_fixture_example",
                               has_container(executed_docstring_source.allure_report,
                                             has_before("yield_fixture")
-                                            ),
+                                            )
                               )
                 )
 
@@ -58,7 +58,7 @@ def test_opened_step_function(executed_docstring_source):
                             not_(has_step("Body step"))
                         )
                     )
-                ),
+                )
             )
         )
     )

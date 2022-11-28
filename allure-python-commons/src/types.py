@@ -11,7 +11,7 @@ class Severity(str, Enum):
     TRIVIAL = 'trivial'
 
 
-class LinkType(object):
+class LinkType:
     LINK = 'link'
     ISSUE = 'issue'
     TEST_CASE = 'test_case'

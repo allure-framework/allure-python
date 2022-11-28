@@ -2,7 +2,6 @@
 robotframework-pabot
 docutils
 pyhamcrest
-six
 poethepoet
 # linters
 flake8==5.*

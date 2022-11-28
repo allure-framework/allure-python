@@ -1,4 +1,3 @@
-from six import with_metaclass
 from pluggy import PluginManager
 from allure_commons import _hooks
 
@@ -20,5 +19,5 @@ class MetaPluginManager(type):
         return getattr(pm, attr)
 
 
-class plugin_manager(with_metaclass(MetaPluginManager)):
+class plugin_manager(metaclass=MetaPluginManager):
     pass

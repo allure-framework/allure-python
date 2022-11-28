@@ -25,7 +25,7 @@ def test_function_scope_parametrized_fixture(param, executed_docstring_source):
     ...     pass
     """
     assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_function_scope_parametrized_fixture_example[{param}]".format(param=param),
+                has_test_case(f"test_function_scope_parametrized_fixture_example[{param}]",
                               has_parameter("parametrized_fixture", str(param)),
                               has_container(executed_docstring_source.allure_report,
                                             has_before("parametrized_fixture")
@@ -47,8 +47,7 @@ def test_function_scope_parametrized_fixture_with_ids(param, executed_docstring_
     ...     pass
     """
 
-    test_name = "test_function_scope_parametrized_fixture_with_ids_example[{params_name}]".format(
-        params_name=params_name(request))
+    test_name = f"test_function_scope_parametrized_fixture_with_ids_example[{params_name(request)}]"
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(test_name,

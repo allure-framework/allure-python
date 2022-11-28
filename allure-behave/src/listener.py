@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from collections import deque
 import allure_commons
 from allure_commons.reporter import AllureReporter
@@ -26,7 +24,7 @@ from allure_behave.utils import TEST_PLAN_SKIP_REASON
 from allure_behave.utils import get_hook_name
 
 
-class AllureListener(object):
+class AllureListener:
     def __init__(self, behave_config):
         self.behave_config = behave_config
         self.issue_pattern = behave_config.userdata.get('AllureFormatter.issue_pattern', None)
@@ -132,7 +130,7 @@ class AllureListener(object):
     def start_behave_step(self, step):
 
         self.current_step_uuid = uuid4()
-        name = u'{keyword} {title}'.format(keyword=step.keyword, title=step.name)
+        name = f'{step.keyword} {step.name}'
 
         allure_step = TestStepResult(name=name, start=now())
         self.logger.start_step(None, self.current_step_uuid, allure_step)
@@ -191,7 +189,7 @@ class AllureListener(object):
     def add_link(self, url, link_type, name):
         test_result = self.logger.get_test(None)
         if test_result:
-            pattern = u'{}'
+            pattern = '{}'
             if link_type == LinkType.ISSUE and self.issue_pattern:
                 pattern = self.issue_pattern
             elif link_type == LinkType.LINK and self.link_pattern:
@@ -209,7 +207,7 @@ class AllureListener(object):
         self.group_context.exit()
 
 
-class GroupContext(object):
+class GroupContext:
     def __init__(self, logger):
         self._logger = logger
         self._groups = []

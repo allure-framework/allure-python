@@ -21,7 +21,7 @@ def test_parametrization(executed_docstring_source, param):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_parametrization_example[{param}]".format(param=param),
+                has_test_case(f"test_parametrization_example[{param}]",
                               has_parameter("param", str(param))
                               )
                 )
@@ -38,10 +38,11 @@ def test_parametrization_with_ids(executed_docstring_source, param):
     ...     assert param
     """
 
+    param_name = "pass" if param else "fail"
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(
-                    "test_parametrization_with_ids_example[{param}]".format(param="pass" if param else "fail"),
-                    has_parameter("pass" if param else "fail", str(param))
+                    f"test_parametrization_with_ids_example[{param_name}]",
+                    has_parameter(param_name, str(param))
                 )
                 )
 
@@ -58,7 +59,7 @@ def test_parametrization_many_decorators(executed_docstring_source, request, par
     ...     pass
     """
 
-    test_name = "test_parametrization_many_decorators_example[{params_name}]".format(params_name=params_name(request))
+    test_name = f"test_parametrization_many_decorators_example[{params_name(request)}]"
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(test_name,
@@ -82,8 +83,7 @@ def test_parametrization_many_decorators_with_partial_ids(executed_docstring_sou
     ...     pass
     """
 
-    test_name = "test_parametrization_many_decorators_with_partial_ids_example[{params_name}]".format(
-        params_name=params_name(request))
+    test_name = f"test_parametrization_many_decorators_with_partial_ids_example[{params_name(request)}]"
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(test_name,

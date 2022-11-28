@@ -1,7 +1,7 @@
 """
 >>> from hamcrest import assert_that
 
->>> class Report(object):
+>>> class Report:
 ...     def __init__(self):
 ...         self.test_cases = [
 ...             {
@@ -66,7 +66,6 @@ Expected: ...
 
 """
 
-import sys
 import os
 import json
 import fnmatch
@@ -78,11 +77,8 @@ from hamcrest import ends_with, starts_with
 from hamcrest import only_contains
 from hamcrest.core.base_matcher import BaseMatcher
 
-if sys.version_info[0] < 3:
-    from io import open
 
-
-class AllureReport(object):
+class AllureReport:
     def __init__(self, result):
         self.result_dir = result
         self.test_cases = [json.load(item) for item in self._report_items(result, '*result.json')]
@@ -146,7 +142,7 @@ class ContainsExactly(BaseMatcher):
             return False
 
     def describe_to(self, description):
-        description.append_text('exactly {} item(s) matching '.format(self.num)).append_text(self.matcher)
+        description.append_text(f'exactly {self.num} item(s) matching ').append_text(self.matcher)
 
 
 def has_only_n_test_cases(name, num, *matchers):

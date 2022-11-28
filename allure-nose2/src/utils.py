@@ -68,7 +68,7 @@ def name(event):
     allure_name = full_name.split(".")[-1]
     if test_params:
         params_str = "-".join([p.value for p in test_params])
-        return "{name}[{params_str}]".format(name=allure_name, params_str=params_str)
+        return f"{allure_name}[{params_str}]"
     return allure_name
 
 
@@ -76,7 +76,7 @@ def fullname(event):
     if hasattr(event.test, "_testFunc"):
         test_module = event.test._testFunc.__module__
         test_name = event.test._testFunc.__name__
-        return "{module}.{name}".format(module=test_module, name=test_name)
+        return f"{test_module}.{test_name}"
     test_id = event.test.id()
     return test_id.split(":")[0]
 

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from allure_commons.utils import represent
 from hamcrest import assert_that, not_
 from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_tag
@@ -107,7 +104,7 @@ def test_pytest_marker_with_kwargs_native_encoding(executed_docstring_source):
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_pytest_marker_with_kwargs_native_encoding_example",
-                              has_tag("marker(stuff=%s)" % represent('я'))
+                              has_tag("marker(stuff='я')")
                               )
                 )
 
@@ -116,13 +113,13 @@ def test_pytest_marker_with_kwargs_utf_encoding(executed_docstring_source):
     """
     >>> import pytest
 
-    >>> @pytest.mark.marker(stuff=u'я')
+    >>> @pytest.mark.marker(stuff='я')
     ... def test_pytest_marker_with_kwargs_utf_encoding_example():
     ...     pass
     """
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_pytest_marker_with_kwargs_utf_encoding_example",
-                              has_tag("marker(stuff=%s)" % represent('я'))
+                              has_tag("marker(stuff='я')")
                               )
                 )
