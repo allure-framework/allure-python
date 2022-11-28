@@ -53,7 +53,7 @@ class ThreadContextItems:
             del self._thread_context[thread]
 
 
-class AllureReporter(object):
+class AllureReporter:
     def __init__(self):
         self._items = ThreadContextItems()
         self._orphan_items = []

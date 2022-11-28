@@ -16,23 +16,23 @@ jobs:
         id: filter
         with:
           filters: |
-            allure-behave: 
+            allure-behave:
               - allure-behave/**
               - allure-python-commons/**
               - allure-python-commons-test/**
-            allure-nose2: 
+            allure-nose2:
               - allure-nose2/**
               - allure-python-commons/**
               - allure-python-commons-test/**
-            allure-pytest: 
+            allure-pytest:
               - allure-pytest/**
               - allure-python-commons/**
               - allure-python-commons-test/**
-            allure-pytest-bdd: 
+            allure-pytest-bdd:
               - allure-pytest-bdd/**
               - allure-python-commons/**
               - allure-python-commons-test/**
-            allure-robotframework: 
+            allure-robotframework:
               - allure-robotframework/**
               - allure-python-commons/**
               - allure-python-commons-test/**
@@ -72,7 +72,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Get commons from cache
         id: commons
@@ -98,7 +98,7 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJSON(needs.changes.outputs.packages) }}
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     env:
       TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep

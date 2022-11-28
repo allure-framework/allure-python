@@ -18,7 +18,7 @@ def test_dynamic_link(executed_docstring_path):
 @pytest.mark.parametrize("link", ["issues/24", "issues/132"])
 def test_parametrize_dynamic_link(executed_docstring_path, link):
     assert_that(executed_docstring_path.allure_report,
-                has_test_case("test_parametrize_dynamic_link[{link}]".format(link=link),
+                has_test_case(f"test_parametrize_dynamic_link[{link}]",
                               has_issue_link(link),
                               )
                 )
@@ -43,4 +43,4 @@ def test_unique_dynamic_links(executed_docstring_source):
     ...     allure.dynamic.link("some/unique/dynamic/link")
     """
     assert_that(executed_docstring_source.allure_report.test_cases[0]['links'],
-                equal_to([{'url': u'some/unique/dynamic/link', 'type': 'link', 'name': u'some/unique/dynamic/link'}]))
+                equal_to([{'url': 'some/unique/dynamic/link', 'type': 'link', 'name': 'some/unique/dynamic/link'}]))

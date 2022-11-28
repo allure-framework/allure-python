@@ -28,9 +28,7 @@ def test_xfail_failed_finalizer_fixture(executed_docstring_source):
                               with_status("passed"),
                               has_status_details(with_message_contains("XPASS")),
                               has_container(executed_docstring_source.allure_report,
-                                            has_after("{fixture}::{finalizer}".format(
-                                                fixture="failed_finalizer_fixture",
-                                                finalizer="fixture_finalizer"),
+                                            has_after("failed_finalizer_fixture::fixture_finalizer",
                                                 with_status("failed"),
                                                 has_status_details(with_message_contains("AssertionError"),
                                                                    with_trace_contains("fixture_finalizer")

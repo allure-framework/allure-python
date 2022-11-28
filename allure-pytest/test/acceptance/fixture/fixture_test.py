@@ -13,7 +13,7 @@ fixture_scopes = ["session", "module", "class", "function"]
 @pytest.mark.parametrize("first_scope", fixture_scopes)
 @pytest.mark.parametrize("second_scope", fixture_scopes)
 def test_fixture(allured_testdir, first_scope, second_scope):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         import pytest
 
         @pytest.fixture(scope="{first_scope}")
@@ -26,7 +26,7 @@ def test_fixture(allured_testdir, first_scope, second_scope):
 
         def test_fixture_example(first_fixture, second_fixture):
             pass
-    """.format(first_scope=first_scope, second_scope=second_scope))
+    """)
 
     allured_testdir.run_with_allure()
 
@@ -47,7 +47,7 @@ def test_fixture(allured_testdir, first_scope, second_scope):
     list(combinations_with_replacement(fixture_scopes, 2))
 )
 def test_nested_fixture(allured_testdir, parent_scope, child_scope):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         import pytest
 
         @pytest.fixture(scope="{parent_scope}")
@@ -64,7 +64,7 @@ def test_nested_fixture(allured_testdir, parent_scope, child_scope):
         def test_fixture_used_in_other_fixtures_example(parent_fixture):
             pass
 
-    """.format(parent_scope=parent_scope, child_scope=child_scope))
+    """)
 
     allured_testdir.run_with_allure()
 
@@ -279,7 +279,7 @@ def test_fixture_override(allured_testdir):
     list(combinations_with_replacement(fixture_scopes, 2))
 )
 def test_dynamically_called_fixture(allured_testdir, parent_scope, child_scope):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         import pytest
 
         @pytest.fixture(scope="{parent_scope}", autouse=True)
@@ -306,7 +306,7 @@ def test_dynamically_called_fixture(allured_testdir, parent_scope, child_scope):
 
         def test_three(request):
             request.getfixturevalue('parent_dyn_call_fixture')
-    """.format(parent_scope=parent_scope, child_scope=child_scope))
+    """)
 
     allured_testdir.run_with_allure()
 

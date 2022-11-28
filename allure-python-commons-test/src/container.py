@@ -1,4 +1,3 @@
-from six import string_types
 from hamcrest.core.base_matcher import BaseMatcher
 from hamcrest import all_of
 from hamcrest import has_entry, has_item, has_property, equal_to
@@ -32,7 +31,7 @@ def has_container(report, *matchers):
 
     >>> from allure_commons_test.report import has_test_case
 
-    >>> class Report(object):
+    >>> class Report:
     ...     test_cases = [
     ...         {
     ...              'fullName': 'test_case',
@@ -78,7 +77,7 @@ def has_container(report, *matchers):
 class HasSameContainer(BaseMatcher):
 
     def __init__(self, *args):
-        self.test_case_names = [test_case_name for test_case_name in args if isinstance(test_case_name, string_types)]
+        self.test_case_names = [test_case_name for test_case_name in args if isinstance(test_case_name, str)]
         self.matchers = args[len(self.test_case_names):]
 
     @staticmethod
@@ -110,7 +109,7 @@ def has_same_container(*args):
     """
     >>> from hamcrest import assert_that
 
-    >>> class Report(object):
+    >>> class Report:
     ...     test_cases = [
     ...         {
     ...              'fullName': 'first_test_case',

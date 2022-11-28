@@ -21,13 +21,9 @@ def run_robot_with_allure(*args, **kwargs):
     def run_robot(path, **kw):
 
         # ToDo: fix it (_core not works correctly with multiprocessing)
-        # import six
         # import allure_commons
-        # if six.PY2:
-        #     reload(allure_commons._core)
-        # else:
-        #     import importlib
-        #     importlib.reload(allure_commons._core)
+        # import importlib
+        # importlib.reload(allure_commons._core)
         #
         #
 

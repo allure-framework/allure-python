@@ -41,8 +41,10 @@ DEFAULT_POOL_ID = "default-" + uuid4()
 def pool_id():
     pabot_pool_id = BuiltIn().get_variable_value('${PABOTEXECUTIONPOOLID}')
     pabot_caller_id = BuiltIn().get_variable_value('${CALLER_ID}')
-    return "{}-{}".format(pabot_pool_id, pabot_caller_id) \
-        if all([pabot_pool_id, pabot_caller_id]) else DEFAULT_POOL_ID
+    return f"{pabot_pool_id}-{pabot_caller_id}" if all([
+        pabot_pool_id,
+        pabot_caller_id
+    ]) else DEFAULT_POOL_ID
 
 
 def get_message_time(timestamp):
@@ -55,7 +57,7 @@ FAIL_MESSAGE_FORMAT = '<p style="color: red"><b>[{level}]</b>&nbsp;{message}</p>
 MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 0))
 
 
-class AllureListener(object):
+class AllureListener:
     def __init__(self, lifecycle):
         self.lifecycle = lifecycle
         self._platform = platform_label()

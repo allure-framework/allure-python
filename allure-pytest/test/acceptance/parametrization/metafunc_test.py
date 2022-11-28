@@ -17,7 +17,7 @@ def test_metafunc_param(executed_docstring_source, param):
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_metafunc_param_example[{param}]".format(param=param),
+                has_test_case(f"test_metafunc_param_example[{param}]",
                               has_parameter("metafunc_param", str(param))
                               )
                 )
@@ -35,8 +35,9 @@ def test_metafunc_param_with_ids(executed_docstring_source, param):
     ...     assert metafunc_param_with_ids
     """
 
+    param_name = "pass" if param else "fail"
     assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_metafunc_param_with_ids_example[{param}]".format(param="pass" if param else "fail"),
+                has_test_case(f"test_metafunc_param_with_ids_example[{param_name}]",
                               has_parameter("metafunc_param_with_ids", str(param))
                               )
                 )

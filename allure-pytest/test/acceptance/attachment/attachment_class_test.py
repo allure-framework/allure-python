@@ -7,7 +7,7 @@ def test_class_method_attachment(executed_docstring_source):
     """
     >>> import allure
 
-    >>> class TestClass(object):
+    >>> class TestClass:
     ...     def test_class_method_attachment(self):
     ...         allure.attach("text", "failed", allure.attachment_type.TEXT)
     """

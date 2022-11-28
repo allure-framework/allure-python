@@ -23,9 +23,7 @@ def test_dynamic_labels(executed_docstring_path):
                                                   ("second feature", "second epic", "second story")])
 def test_parametrized_dynamic_labels(executed_docstring_path, feature, epic, story):
     assert_that(executed_docstring_path.allure_report,
-                has_test_case("test_parametrized_dynamic_labels[{feature}-{epic}-{story}]".format(feature=feature,
-                                                                                                  epic=epic,
-                                                                                                  story=story),
+                has_test_case(f"test_parametrized_dynamic_labels[{feature}-{epic}-{story}]",
                               has_feature(feature),
                               has_epic(epic),
                               has_story(story),

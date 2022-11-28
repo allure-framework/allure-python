@@ -1,5 +1,4 @@
 import pytest
-import six
 from allure_commons_test.report import AllureReport
 from doctest import script_from_examples
 import mock
@@ -31,7 +30,7 @@ def fake_logger(path, logger):
         allure_commons.plugin_manager.register(plugin)
 
 
-class AlluredTestdir(object):
+class AlluredTestdir:
     def __init__(self, testdir, request):
         self.testdir = testdir
         self.request = request
@@ -40,26 +39,15 @@ class AlluredTestdir(object):
     def parse_docstring_source(self):
         docstring = self.request.node.function.__doc__ or self.request.node.module.__doc__
         source = script_from_examples(docstring).replace("#\n", "\n")
-        if six.PY2:
-            self.testdir.makepyfile("# -*- coding: utf-8 -*-\n%s" % source)
-        else:
-            self.testdir.makepyfile(source)
+        self.testdir.makepyfile(source)
 
     def parse_docstring_path(self):
         doc_file = self.request.node.function.__doc__ or self.request.node.module.__doc__
         example_dir = self.request.config.rootdir.join(doc_file.strip())
-
-        if six.PY2:
-            with open(str(example_dir)) as f:
-                content = "# -*- coding: utf-8 -*-\n%s" % f.read()
-                source = script_from_examples(content)
-                self.testdir.makepyfile(source)
-        else:
-            with open(example_dir, encoding="utf-8") as f:
-
-                content = f.read()
-                source = script_from_examples(content)
-                self.testdir.makepyfile(source)
+        with open(example_dir, encoding="utf-8") as f:
+            content = f.read()
+            source = script_from_examples(content)
+            self.testdir.makepyfile(source)
 
     def run_with_allure(self, *args, **kwargs):
         if self.request.node.get_closest_marker("real_logger"):

@@ -1,4 +1,4 @@
-class RobotStatus(object):
+class RobotStatus:
     FAILED = 'FAIL'
     PASSED = 'PASS'
     SKIPPED = 'SKIP'
@@ -6,7 +6,7 @@ class RobotStatus(object):
     NOT_SET = 'NOT SET'
 
 
-class RobotKeywordType(object):
+class RobotKeywordType:
     SETUP = 'SETUP'
     TEARDOWN = 'TEARDOWN'
     KEYWORD = 'KEYWORD'
@@ -15,7 +15,7 @@ class RobotKeywordType(object):
     FIXTURES = [SETUP, TEARDOWN]
 
 
-class RobotLogLevel(object):
+class RobotLogLevel:
     FAIL = 'FAIL'
     ERROR = 'ERROR'
     WARNING = 'WARN'
