@@ -78,6 +78,7 @@ def format_allure_link(config, url, link_type):
     pattern = dict(config.option.allure_link_pattern).get(link_type, '{}')
     return pattern.format(url)
 
+
 def pytest_markers(item):
     for keyword in item.keywords.keys():
         if any([keyword.startswith('allure_'), keyword == 'parametrize']):

@@ -1,4 +1,3 @@
-from allure_commons.utils import represent
 from hamcrest import assert_that, not_
 from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_tag
