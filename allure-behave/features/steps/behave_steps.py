@@ -11,8 +11,8 @@ import tempfile
 from contextlib import contextmanager
 
 
-@given(u'feature definition')
-@given(u'feature definition {lang}')
+@given('feature definition')
+@given('feature definition {lang}')
 def feature_definition(context, **kwargs):
     parser = Parser(language=kwargs.get('lang', None))
     feature = parser.parse(context.text)
@@ -22,13 +22,13 @@ def feature_definition(context, **kwargs):
         context.feature_definition = [feature]
 
 
-@given(u'hooks implementation')
+@given('hooks implementation')
 def hooks_implementations(context):
     context.globals = {}
     exec(context.text, context.globals)
 
 
-@given(u'test plan')
+@given('test plan')
 def test_plan_helper(context):
     tmp_dir = os.environ.get("TEST_TMP")
     file, filename = tempfile.mkstemp(suffix=".json", dir=tmp_dir)
@@ -38,12 +38,13 @@ def test_plan_helper(context):
     context.test_plan = filename
 
 
-@when(u'I run behave with allure formatter')
-@when(u'I run behave with allure formatter with options "{args}"')
+@when('I run behave with allure formatter')
+@when('I run behave with allure formatter with options "{args}"')
 def run_behave_with_allure(context, **kwargs):
     with test_context():
         cmd_args = '-f allure_behave.formatter:AllureFormatter'
-        cmd = '{options} {cmd}'.format(cmd=cmd_args, options=kwargs.get('args', ''))
+        cmd_options = kwargs.get('args', '')
+        cmd = f'{cmd_options} {cmd_args}'
         config = Configuration(command_args=cmd)
         result_tmp_dir = mkdtemp(dir=os.environ.get('TEST_TMP', None))
         stream_opener = StreamOpener(filename=result_tmp_dir)

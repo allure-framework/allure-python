@@ -41,24 +41,26 @@ from allure_commons.utils import format_exception
 
 
 def get_step_name(node, step):
-    name = "{step_keyword} {step_name}".format(step_keyword=step.keyword, step_name=step.name)
+    name = f"{step.keyword} {step.name}"
     if hasattr(node, 'callspec'):
-        for key, value in node.callspec.params.items():
-            name = name.replace("<{key}>".format(key=key), "<{{{key}}}>".format(key=key))
-            name = name.format(**node.callspec.params)
+        params = node.callspec.params
+        for key in params:
+            name = name.replace(f"<{key}>", f"<{{{key}}}>")
+            name = name.format(**params)
     return name
 
 
 def get_name(node, scenario):
     if hasattr(node, 'callspec'):
         parts = node.nodeid.rsplit("[")
-        return "{name} [{params}".format(name=scenario.name, params=parts[-1])
+        params = parts[-1]
+        return f"{scenario.name} [{params}"
     return scenario.name
 
 
 def get_full_name(feature, scenario):
     feature_path = os.path.normpath(feature.rel_filename)
-    return "{feature}:{scenario}".format(feature=feature_path, scenario=scenario.name)
+    return f"{feature_path}:{scenario.name}"
 
 
 def get_uuid(*args):

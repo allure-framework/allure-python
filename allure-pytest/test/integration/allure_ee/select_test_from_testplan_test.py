@@ -79,13 +79,14 @@ def test_select_by_testcase_id_test(planned_tests, expected_tests, allured_testd
 
     root_dir = request.config.rootdir.strpath
     test_dir = allured_testdir.testdir.tmpdir.strpath.replace(root_dir, "")
-    full_name_base_template = "{base}.test_select_by_testcase_id_test".format(
-        base=test_dir.strip(os.sep).replace(os.sep, "."))
+    base_path = test_dir.strip(os.sep).replace(os.sep, ".")
+    full_name_base_template = f"{base_path}.test_select_by_testcase_id_test"
 
     if planned_tests:
         for item in planned_tests:
             if "selector" in item:
-                item["selector"] = "{base}#{name}".format(base=full_name_base_template, name=item["selector"])
+                selector = item['selector']
+                item["selector"] = f"{full_name_base_template}#{selector}"
 
         testplan = {"tests": planned_tests}
         py_path = allured_testdir.testdir.makefile(".json", json.dumps(testplan))

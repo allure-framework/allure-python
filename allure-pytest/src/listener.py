@@ -1,8 +1,7 @@
 import pytest
+import doctest
 import allure_commons
-from allure_commons.utils import escape_non_unicode_symbols
 from allure_commons.utils import now
-from allure_commons.utils import md5
 from allure_commons.utils import uuid4
 from allure_commons.utils import represent
 from allure_commons.utils import platform_label
@@ -14,7 +13,7 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
-from allure_commons.types import LabelType, AttachmentType
+from allure_commons.types import LabelType, AttachmentType, ParameterMode
 from allure_pytest.utils import allure_description, allure_description_html
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
@@ -22,9 +21,11 @@ from allure_pytest.utils import allure_suite_labels
 from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 from allure_pytest.utils import get_pytest_report_status
+from allure_pytest.utils import format_allure_link
+from allure_commons.utils import md5
 
 
-class AllureListener(object):
+class AllureListener:
 
     def __init__(self, config):
         self.config = config
@@ -58,6 +59,19 @@ class AllureListener(object):
                                               status=get_status(exc_val),
                                               statusDetails=get_status_details(exc_type, exc_val, exc_tb))
 
+    def _update_fixtures_children(self, item):
+        uuid = self._cache.get(item.nodeid)
+        for fixturedef in _test_fixtures(item):
+            group_uuid = self._cache.get(fixturedef)
+            if group_uuid:
+                group = self.allure_logger.get_item(group_uuid)
+            else:
+                group_uuid = self._cache.push(fixturedef)
+                group = TestResultContainer(uuid=group_uuid)
+                self.allure_logger.start_group(group_uuid, group)
+            if uuid not in group.children:
+                self.allure_logger.update_group(group_uuid, children=uuid)
+
     @pytest.hookimpl(hookwrapper=True, tryfirst=True)
     def pytest_runtest_protocol(self, item, nextitem):
         uuid = self._cache.push(item.nodeid)
@@ -71,35 +85,33 @@ class AllureListener(object):
             uuid = self._cache.push(item.nodeid)
             test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
             self.allure_logger.schedule_test(uuid, test_result)
-
         yield
-
+        self._update_fixtures_children(item)
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
-        for fixturedef in _test_fixtures(item):
-            group_uuid = self._cache.get(fixturedef)
-            if not group_uuid:
-                group_uuid = self._cache.push(fixturedef)
-                group = TestResultContainer(uuid=group_uuid)
-                self.allure_logger.start_group(group_uuid, group)
-            self.allure_logger.update_group(group_uuid, children=uuid)
         params = item.callspec.params if hasattr(item, 'callspec') else {}
-
         test_result.name = allure_name(item, params)
+        full_name = allure_full_name(item)
+        test_result.fullName = full_name
+        test_result.historyId = md5(item.nodeid)
+        test_result.testCaseId = md5(full_name)
         test_result.description = allure_description(item)
         test_result.descriptionHtml = allure_description_html(item)
-        test_result.fullName = allure_full_name(item)
-        test_result.historyId = md5(test_result.fullName)
+        current_param_names = [param.name for param in test_result.parameters]
         test_result.parameters.extend(
-            [Parameter(name=name, value=represent(value)) for name, value in params.items()])
+            [Parameter(name=name, value=represent(value)) for name, value in params.items()
+             if name not in current_param_names])
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         if test_result:
+            self.allure_logger.drop_test(uuid)
+            self.allure_logger.schedule_test(uuid, test_result)
             test_result.start = now()
         yield
+        self._update_fixtures_children(item)
         if test_result:
             test_result.stop = now()
 
@@ -144,8 +156,8 @@ class AllureListener(object):
 
         finalizers = getattr(fixturedef, '_finalizers', [])
         for index, finalizer in enumerate(finalizers):
-            name = '{fixture}::{finalizer}'.format(fixture=fixture_name,
-                                                   finalizer=getattr(finalizer, "__name__", index))
+            finalizer_name = getattr(finalizer, "__name__", index)
+            name = f'{fixture_name}::{finalizer_name}'
             finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
     @pytest.hookimpl(hookwrapper=True)
@@ -166,17 +178,22 @@ class AllureListener(object):
         status_details = None
 
         if call.excinfo:
+            message = call.excinfo.exconly()
+            if hasattr(report, 'wasxfail'):
+                reason = report.wasxfail
+                message = (f'XFAIL {reason}' if reason else 'XFAIL') + '\n\n' + message
+            trace = report.longreprtext
             status_details = StatusDetails(
-                message=escape_non_unicode_symbols(call.excinfo.exconly()),
-                trace=escape_non_unicode_symbols(report.longreprtext))
-            if (status != Status.SKIPPED
-                    and not (call.excinfo.errisinstance(AssertionError)
-                             or call.excinfo.errisinstance(pytest.fail.Exception))):
+                message=message,
+                trace=trace)
+
+            exception = call.excinfo.value
+            if (status != Status.SKIPPED and _exception_brokes_test(exception)):
                 status = Status.BROKEN
 
         if status == Status.PASSED and hasattr(report, 'wasxfail'):
             reason = report.wasxfail
-            message = 'XPASS {reason}'.format(reason=reason) if reason else 'XPASS'
+            message = f'XPASS {reason}' if reason else 'XPASS'
             status_details = StatusDetails(message=message)
 
         if report.when == 'setup':
@@ -194,10 +211,12 @@ class AllureListener(object):
                 test_result.statusDetails = status_details
 
             if self.config.option.attach_capture:
-                # Capture at teardown contains data from whole test (setup, call, teardown)
-                self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
-                self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
-                self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
+                if report.caplog:
+                    self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
+                if report.capstdout:
+                    self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
+                if report.capstderr:
+                    self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_logfinish(self, nodeid, location):
@@ -236,9 +255,12 @@ class AllureListener(object):
     def add_link(self, url, link_type, name):
         test_result = self.allure_logger.get_test(None)
         if test_result:
-            pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
-            url = pattern.format(url)
-            test_result.links.append(Link(link_type, url, name))
+            link_url = format_allure_link(self.config, url, link_type)
+            new_link = Link(link_type, link_url, link_url if name is None else name)
+            for link in test_result.links:
+                if link.url == new_link.url:
+                    return
+            test_result.links.append(new_link)
 
     @allure_commons.hookimpl
     def add_label(self, label_type, labels):
@@ -246,20 +268,30 @@ class AllureListener(object):
         for label in labels if test_result else ():
             test_result.labels.append(Label(label_type, label))
 
+    @allure_commons.hookimpl
+    def add_parameter(self, name, value, excluded, mode: ParameterMode):
+        test_result: TestResult = self.allure_logger.get_test(None)
+        existing_param = next(filter(lambda x: x.name == name, test_result.parameters), None)
+        if existing_param:
+            existing_param.value = represent(value)
+        else:
+            test_result.parameters.append(Parameter(name=name, value=represent(value),
+                                                    excluded=excluded or None, mode=mode.value if mode else None))
 
-class ItemCache(object):
+
+class ItemCache:
 
     def __init__(self):
         self._items = dict()
 
     def get(self, _id):
-        return self._items.get(str(_id))
+        return self._items.get(id(_id))
 
     def push(self, _id):
-        return self._items.setdefault(str(_id), uuid4())
+        return self._items.setdefault(id(_id), uuid4())
 
     def pop(self, _id):
-        return self._items.pop(str(_id), None)
+        return self._items.pop(id(_id), None)
 
 
 def _test_fixtures(item):
@@ -268,8 +300,16 @@ def _test_fixtures(item):
 
     if hasattr(item, "_request") and hasattr(item._request, "fixturenames"):
         for name in item._request.fixturenames:
-            fixturedef = fixturemanager.getfixturedefs(name, item.nodeid)
-            if fixturedef:
-                fixturedefs.append(fixturedef[-1])
+            fixturedefs_pytest = fixturemanager.getfixturedefs(name, item.nodeid)
+            if fixturedefs_pytest:
+                fixturedefs.extend(fixturedefs_pytest)
 
     return fixturedefs
+
+
+def _exception_brokes_test(exception):
+    return not isinstance(exception, (
+        AssertionError,
+        pytest.fail.Exception,
+        doctest.DocTestFailure
+    ))

@@ -4,8 +4,7 @@ PACKAGE = "allure-python-commons-test"
 VERSION = "2.0.0b2"
 
 install_requires = [
-    "pyhamcrest>=1.9.0",
-    "six>=1.9.0"
+    "pyhamcrest>=1.9.0"
 ]
 
 

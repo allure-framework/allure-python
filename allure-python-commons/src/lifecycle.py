@@ -8,7 +8,7 @@ from .utils import uuid4
 from .utils import now
 
 
-class AllureLifecycle(object):
+class AllureLifecycle:
     def __init__(self):
         self._items = OrderedDict()
 

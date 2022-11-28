@@ -1,4 +1,5 @@
-from collections import OrderedDict
+import threading
+from collections import OrderedDict, defaultdict
 
 from allure_commons.types import AttachmentType
 from allure_commons.model2 import ExecutableItem
@@ -8,9 +9,53 @@ from allure_commons.utils import now
 from allure_commons._core import plugin_manager
 
 
-class AllureReporter(object):
+class ThreadContextItems:
+
+    _thread_context = defaultdict(OrderedDict)
+    _init_thread: threading.Thread
+
+    @property
+    def thread_context(self):
+        context = self._thread_context[threading.current_thread()]
+        if not context and threading.current_thread() is not self._init_thread:
+            uuid, last_item = next(reversed(self._thread_context[self._init_thread].items()))
+            context[uuid] = last_item
+        return context
+
+    def __init__(self, *args, **kwargs):
+        self._init_thread = threading.current_thread()
+        super().__init__(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        self.thread_context.__setitem__(key, value)
+
+    def __getitem__(self, item):
+        return self.thread_context.__getitem__(item)
+
+    def __iter__(self):
+        return self.thread_context.__iter__()
+
+    def __reversed__(self):
+        return self.thread_context.__reversed__()
+
+    def get(self, key):
+        return self.thread_context.get(key)
+
+    def pop(self, key):
+        return self.thread_context.pop(key)
+
+    def cleanup(self):
+        stopped_threads = []
+        for thread in self._thread_context.keys():
+            if not thread.is_alive():
+                stopped_threads.append(thread)
+        for thread in stopped_threads:
+            del self._thread_context[thread]
+
+
+class AllureReporter:
     def __init__(self):
-        self._items = OrderedDict()
+        self._items = ThreadContextItems()
         self._orphan_items = []
 
     def _update_item(self, uuid, **kwargs):
@@ -73,6 +118,7 @@ class AllureReporter(object):
 
     def close_test(self, uuid):
         test_case = self._items.pop(uuid)
+        self._items.cleanup()
         plugin_manager.hook.report_result(result=test_case)
 
     def drop_test(self, uuid):
@@ -93,7 +139,7 @@ class AllureReporter(object):
             self._update_item(uuid, **kwargs)
             self._items.pop(uuid)
 
-    def _attach(self, uuid, name=None, attachment_type=None, extension=None):
+    def _attach(self, uuid, name=None, attachment_type=None, extension=None, parent_uuid=None):
         mime_type = attachment_type
         extension = extension if extension else 'attach'
 
@@ -103,15 +149,17 @@ class AllureReporter(object):
 
         file_name = ATTACHMENT_PATTERN.format(prefix=uuid, ext=extension)
         attachment = Attachment(source=file_name, name=name, type=mime_type)
-        last_uuid = self._last_executable()
+        last_uuid = parent_uuid if parent_uuid else self._last_executable()
         self._items[last_uuid].attachments.append(attachment)
 
         return file_name
 
-    def attach_file(self, uuid, source, name=None, attachment_type=None, extension=None):
-        file_name = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+    def attach_file(self, uuid, source, name=None, attachment_type=None, extension=None, parent_uuid=None):
+        file_name = self._attach(uuid, name=name, attachment_type=attachment_type,
+                                 extension=extension, parent_uuid=parent_uuid)
         plugin_manager.hook.report_attached_file(source=source, file_name=file_name)
 
-    def attach_data(self, uuid, body, name=None, attachment_type=None, extension=None):
-        file_name = self._attach(uuid, name=name, attachment_type=attachment_type, extension=extension)
+    def attach_data(self, uuid, body, name=None, attachment_type=None, extension=None, parent_uuid=None):
+        file_name = self._attach(uuid, name=name, attachment_type=attachment_type,
+                                 extension=extension, parent_uuid=parent_uuid)
         plugin_manager.hook.report_attached_data(body=body, file_name=file_name)

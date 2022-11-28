@@ -2,7 +2,7 @@ import os
 from tempfile import mkdtemp
 
 
-class ForeignLibrary(object):
+class ForeignLibrary:
 
     def capture_page_screenshot(self):
         tmp = mkdtemp()

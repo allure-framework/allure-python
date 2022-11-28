@@ -43,8 +43,7 @@ def test_step_parameters(executed_docstring_source, request, args, kwargs):
     ...     step(*args, **kwargs)
     """
 
-    test_name = "test_args_less_than_placeholders_example[{params_name}]".format(
-        params_name=params_name(request))
+    test_name = f"test_args_less_than_placeholders_example[{params_name(request)}]"
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case(test_name,

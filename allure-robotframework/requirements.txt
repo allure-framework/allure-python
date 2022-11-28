@@ -1,3 +1,8 @@
--r ../requirements/testing.txt
--r ../requirements/linting.txt
--r ../requirements/testing/allure-robotframework.txt
+# test requrements
+robotframework-pabot
+docutils
+pyhamcrest
+poethepoet
+# linters
+flake8==5.*
+flake8-builtins

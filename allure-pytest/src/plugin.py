@@ -40,21 +40,25 @@ def pytest_addoption(parser):
             if type_name is LabelType.SEVERITY:
                 if not atoms < legal_values:
                     raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
-                        type_name, ', '.join(atoms - legal_values), ', '.join(legal_values)))
+                        type_name,
+                        ', '.join(atoms - legal_values),
+                        ', '.join(legal_values)
+                    ))
                 return set((type_name, allure.severity_level(atom)) for atom in atoms)
             return set((type_name, atom) for atom in atoms)
         return a_label_type
 
     severities = [x.value for x in list(allure.severity_level)]
+    formatted_severities = ', '.join(severities)
     parser.getgroup("general").addoption('--allure-severities',
                                          action="store",
                                          dest="allure_severities",
                                          metavar="SEVERITIES_SET",
                                          default={},
                                          type=label_type(LabelType.SEVERITY, legal_values=set(severities)),
-                                         help="""Comma-separated list of severity names.
+                                         help=f"""Comma-separated list of severity names.
                                          Tests only with these severities will be run.
-                                         Possible values are: %s.""" % ', '.join(severities))
+                                         Possible values are: {formatted_severities}.""")
 
     parser.getgroup("general").addoption('--allure-epics',
                                          action="store",
@@ -135,10 +139,10 @@ def pytest_configure(config):
         allure_commons.plugin_manager.register(file_logger)
         config.add_cleanup(cleanup_factory(file_logger))
 
-    config.addinivalue_line("markers", "{mark}: allure label marker".format(mark=ALLURE_LABEL_MARK))
-    config.addinivalue_line("markers", "{mark}: allure link marker".format(mark=ALLURE_LINK_MARK))
-    config.addinivalue_line("markers", "{mark}: allure description".format(mark=ALLURE_DESCRIPTION_MARK))
-    config.addinivalue_line("markers", "{mark}: allure description html".format(mark=ALLURE_DESCRIPTION_HTML_MARK))
+    config.addinivalue_line("markers", f"{ALLURE_LABEL_MARK}: allure label marker")
+    config.addinivalue_line("markers", f"{ALLURE_LINK_MARK}: allure link marker")
+    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_MARK}: allure description")
+    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_HTML_MARK}: allure description html")
 
 
 def select_by_labels(items, config):

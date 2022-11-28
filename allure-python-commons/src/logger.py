@@ -1,17 +1,15 @@
 import io
 import os
-import sys
 import json
 import uuid
 import shutil
-from six import text_type
 from attr import asdict
 from allure_commons import hookimpl
 
 INDENT = 4
 
 
-class AllureFileLogger(object):
+class AllureFileLogger:
 
     def __init__(self, report_dir):
         self._report_dir = report_dir
@@ -24,11 +22,7 @@ class AllureFileLogger(object):
         filename = item.file_pattern.format(prefix=uuid.uuid4())
         data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
         with io.open(os.path.join(self._report_dir, filename), 'w', encoding='utf8') as json_file:
-            if sys.version_info.major < 3:
-                json_file.write(
-                    unicode(json.dumps(data, indent=indent, ensure_ascii=False, encoding='utf8')))  # noqa: F821
-            else:
-                json.dump(data, json_file, indent=indent, ensure_ascii=False)
+            json.dump(data, json_file, indent=indent, ensure_ascii=False)
 
     @hookimpl
     def report_result(self, result):
@@ -47,13 +41,13 @@ class AllureFileLogger(object):
     def report_attached_data(self, body, file_name):
         destination = os.path.join(self._report_dir, file_name)
         with open(destination, 'wb') as attached_file:
-            if isinstance(body, text_type):
+            if isinstance(body, str):
                 attached_file.write(body.encode('utf-8'))
             else:
                 attached_file.write(body)
 
 
-class AllureMemoryLogger(object):
+class AllureMemoryLogger:
 
     def __init__(self):
         self.test_cases = []

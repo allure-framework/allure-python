@@ -17,7 +17,7 @@ from .utils import timestamp_millis, status_details, update_attrs, labels, name,
 import allure_commons
 
 
-class DecoratorsHelper(object):
+class DecoratorsHelper:
     @classmethod
     @allure_commons.hookimpl
     def decorate_as_label(cls, label_type, labels):

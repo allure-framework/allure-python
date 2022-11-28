@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from enum import Enum
 from behave.runner_util import make_undefined_step_snippet
 from allure_commons.types import Severity, LabelType
@@ -30,7 +27,7 @@ def scenario_history_id(scenario):
     parts = [scenario.feature.name, scenario.name]
     if scenario._row:
         row = scenario._row
-        parts.extend(['{name}={value}'.format(name=name, value=value) for name, value in zip(row.headings, row.cells)])
+        parts.extend([f'{name}={value}' for name, value in zip(row.headings, row.cells)])
     return md5(*parts)
 
 
@@ -39,9 +36,12 @@ def scenario_parameters(scenario):
     return [Parameter(name=name, value=value) for name, value in zip(row.headings, row.cells)] if row else None
 
 
-def scenario_links(scenario):
+def scenario_links(scenario, issue_pattern, link_pattern):
     tags = scenario.feature.tags + scenario.tags
-    parsed = [parse_tag(item) for item in tags]
+    parsed = [
+        parse_tag(item, issue_pattern=issue_pattern, link_pattern=link_pattern)
+        for item in tags
+    ]
     return filter(lambda x: isinstance(x, Link), parsed)
 
 
@@ -89,6 +89,27 @@ def get_status(exception):
     return Status.PASSED
 
 
+def get_fullname(scenario):
+    name_with_param = scenario_name(scenario)
+    name = name_with_param.rsplit(" -- ")[0]
+    return f"{scenario.feature.name}: {name}"
+
+
+def get_hook_name(name, parameters):
+    tag = None
+    if name in ["before_tag", "after_tag"]:
+        param_list = list(parameters.items())
+        if len(param_list) > 1:
+            tag = param_list[1][1]
+        else:
+            tag = param_list[0][1][1]
+    name = name.replace("_", " ")
+    if tag:
+        tag = tag.replace("'", "")
+        name = f"{name} @{tag}"
+    return name
+
+
 def step_status_details(result):
     if result.exception:
         # workaround for https://github.com/behave/behave/pull/616
@@ -104,7 +125,8 @@ def step_status_details(result):
 
 def step_table(step):
     table = [','.join(step.table.headings)]
-    [table.append(','.join(list(row))) for row in step.table.rows]
+    for row in step.table.rows:
+        table.append(','.join(list(row)))
     return '\n'.join(table)
 
 

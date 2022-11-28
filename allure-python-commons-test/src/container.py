@@ -1,6 +1,5 @@
-from six import string_types
 from hamcrest.core.base_matcher import BaseMatcher
-from hamcrest import all_of, anything, any_of
+from hamcrest import all_of
 from hamcrest import has_entry, has_item, has_property, equal_to
 
 
@@ -28,7 +27,11 @@ class HasContainer(BaseMatcher):
 
 def has_container(report, *matchers):
     """
-    >>> class Report(object):
+    >>> from hamcrest import assert_that
+
+    >>> from allure_commons_test.report import has_test_case
+
+    >>> class Report:
     ...     test_cases = [
     ...         {
     ...              'fullName': 'test_case',
@@ -60,7 +63,7 @@ def has_container(report, *matchers):
     ...                                        has_before('before_fixture')
     ...                           )
     ...             )
-    ... )
+    ... ) # doctest: +ELLIPSIS
     Traceback (most recent call last):
        ...
     AssertionError: ...
@@ -74,7 +77,7 @@ def has_container(report, *matchers):
 class HasSameContainer(BaseMatcher):
 
     def __init__(self, *args):
-        self.test_case_names = [test_case_name for test_case_name in args if isinstance(test_case_name, string_types)]
+        self.test_case_names = [test_case_name for test_case_name in args if isinstance(test_case_name, str)]
         self.matchers = args[len(self.test_case_names):]
 
     @staticmethod
@@ -93,9 +96,9 @@ class HasSameContainer(BaseMatcher):
                                                                for name in self.test_case_names]
                                                       )),
                                             *self.matchers
-                                     )
-                            )
-               ).matches(report)
+                                            )
+                                    )
+                            ).matches(report)
 
     # TODO better describe
     def describe_to(self, description):
@@ -104,7 +107,9 @@ class HasSameContainer(BaseMatcher):
 
 def has_same_container(*args):
     """
-    >>> class Report(object):
+    >>> from hamcrest import assert_that
+
+    >>> class Report:
     ...     test_cases = [
     ...         {
     ...              'fullName': 'first_test_case',
@@ -134,7 +139,7 @@ def has_same_container(*args):
 
     >>> assert_that(Report,
     ...             has_same_container('second_test_case', 'third_test_case')
-    ... )
+    ... ) # doctest: +ELLIPSIS
     Traceback (most recent call last):
        ...
     AssertionError: ...

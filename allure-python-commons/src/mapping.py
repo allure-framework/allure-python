@@ -95,7 +95,7 @@ def labels_set(labels):
     ... ])
     [Label(name='epic', value='Epic1'), Label(name='epic', value='Epic2')]
     """
-    class Wl(object):
+    class Wl:
         def __init__(self, label):
             self.label = label
 

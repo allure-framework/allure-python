@@ -64,14 +64,19 @@ def labels(test):
 
 def name(event):
     full_name = fullname(event)
-    return full_name.split(".")[-1]
+    test_params = params(event)
+    allure_name = full_name.split(".")[-1]
+    if test_params:
+        params_str = "-".join([p.value for p in test_params])
+        return f"{allure_name}[{params_str}]"
+    return allure_name
 
 
 def fullname(event):
     if hasattr(event.test, "_testFunc"):
         test_module = event.test._testFunc.__module__
         test_name = event.test._testFunc.__name__
-        return "{module}.{name}".format(module=test_module, name=test_name)
+        return f"{test_module}.{test_name}"
     test_id = event.test.id()
     return test_id.split(":")[0]
 

@@ -2,42 +2,48 @@ import allure
 from behave import given
 
 
-@given(u'passed step')
-@given(u'{what} passed step')
-@given(u'passed step {where}')
-@given(u'{what} passed step {where}')
+@given('passed step')
+@given('{what} passed step')
+@given('passed step {where}')
+@given('{what} passed step {where}')
 def step_impl(*args, **kwargs):
     if 'with attachment' in kwargs.values():
         allure.attach('Hi there!', name='user attachment', attachment_type=allure.attachment_type.TEXT)
     pass
 
 
-@given(u'failed step')
-@given(u'{what} failed step')
-@given(u'failed step {where}')
-@given(u'{what} failed step {where}')
+@given('failed step')
+@given('{what} failed step')
+@given('failed step {where}')
+@given('{what} failed step {where}')
 def step_impl(*args, **kwargs):
     assert False, 'Assert message'
 
 
-@given(u'провальный шаг')
-def step_impl(*args, **kwargs):
-    assert False, u'Фиаско!'
-
-
-@given(u'провальный шаг с ascii')
+@given('провальный шаг')
 def step_impl(*args, **kwargs):
     assert False, 'Фиаско!'
 
 
-@given(u'проходящий шаг')
+@given('провальный шаг с ascii')
+def step_impl(*args, **kwargs):
+    assert False, 'Фиаско!'
+
+
+@given('проходящий шаг')
 def step_impl(*args, **kwargs):
     pass
 
 
-@given(u'broken step')
-@given(u'{what} broken step')
-@given(u'broken step {where}')
-@given(u'{what} broken step {where}')
+@given('broken step')
+@given('{what} broken step')
+@given('broken step {where}')
+@given('{what} broken step {where}')
 def step_impl(*args, **kwargs):
     raise ZeroDivisionError()
+
+
+@given('всегда будет <это>')
+@given('всегда буду я')
+def step_impl(*args, **kwargs):
+    pass

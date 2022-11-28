@@ -38,7 +38,7 @@ def test_select_by_bdd_label(allured_testdir, options, expected_tests):
     params = []
 
     for key in options.keys():
-        params.append("--allure-{key}".format(key=key))
+        params.append(f"--allure-{key}")
         params.append(",".join(options[key]))
 
     allured_testdir.run_with_allure(*params)

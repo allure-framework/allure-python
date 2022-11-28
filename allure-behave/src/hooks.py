@@ -3,6 +3,7 @@ import threading
 import allure_commons
 from allure_commons.logger import AllureFileLogger
 from allure_behave.listener import AllureListener
+from behave.configuration import Configuration
 
 HOOKS = [
     "before_feature",
@@ -25,7 +26,7 @@ def wrapper(original, allured):
 
 
 def allure_report(result_dir="allure_results"):
-    allure_hooks = AllureHooks()
+    allure_hooks = AllureHooks(result_dir)
     frame = inspect.currentframe()
     try:
         for hook_name in HOOKS:
@@ -38,12 +39,12 @@ def allure_report(result_dir="allure_results"):
         del frame
 
 
-class AllureHooks(object):
-    def __init__(self):
-        self.listener = AllureListener({})
+class AllureHooks:
+    def __init__(self, result_dir):
+        self.listener = AllureListener(Configuration())
 
         if not hasattr(_storage, 'file_logger'):
-            _storage.file_logger = AllureFileLogger("./ter")
+            _storage.file_logger = AllureFileLogger(result_dir)
             allure_commons.plugin_manager.register(_storage.file_logger)
 
         allure_commons.plugin_manager.register(self.listener)

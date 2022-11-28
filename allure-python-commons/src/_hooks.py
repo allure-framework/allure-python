@@ -4,7 +4,7 @@ hookspec = HookspecMarker("allure")
 hookimpl = HookimplMarker("allure")
 
 
-class AllureUserHooks(object):
+class AllureUserHooks:
 
     @hookspec
     def decorate_as_label(self, label_type, labels):
@@ -39,7 +39,7 @@ class AllureUserHooks(object):
         """ attach file """
 
 
-class AllureDeveloperHooks(object):
+class AllureDeveloperHooks:
 
     @hookspec
     def start_fixture(self, parent_uuid, uuid, name, parameters):

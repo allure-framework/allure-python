@@ -2,8 +2,8 @@ import pytest
 import allure
 from hamcrest import assert_that, not_
 from allure_commons_test.report import has_test_case
-from allure_commons_test.container import has_container
-from allure_commons_test.container import has_before
+from allure_commons_test.container import has_container, has_before, has_after
+from allure_commons_test.result import has_step
 from itertools import combinations_with_replacement
 
 fixture_scopes = ["session", "module", "class", "function"]
@@ -13,7 +13,7 @@ fixture_scopes = ["session", "module", "class", "function"]
 @pytest.mark.parametrize("first_scope", fixture_scopes)
 @pytest.mark.parametrize("second_scope", fixture_scopes)
 def test_fixture(allured_testdir, first_scope, second_scope):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         import pytest
 
         @pytest.fixture(scope="{first_scope}")
@@ -26,7 +26,7 @@ def test_fixture(allured_testdir, first_scope, second_scope):
 
         def test_fixture_example(first_fixture, second_fixture):
             pass
-    """.format(first_scope=first_scope, second_scope=second_scope))
+    """)
 
     allured_testdir.run_with_allure()
 
@@ -47,7 +47,7 @@ def test_fixture(allured_testdir, first_scope, second_scope):
     list(combinations_with_replacement(fixture_scopes, 2))
 )
 def test_nested_fixture(allured_testdir, parent_scope, child_scope):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         import pytest
 
         @pytest.fixture(scope="{parent_scope}")
@@ -64,7 +64,7 @@ def test_nested_fixture(allured_testdir, parent_scope, child_scope):
         def test_fixture_used_in_other_fixtures_example(parent_fixture):
             pass
 
-    """.format(parent_scope=parent_scope, child_scope=child_scope))
+    """)
 
     allured_testdir.run_with_allure()
 
@@ -215,5 +215,199 @@ def test_titled_fixture_from_conftest(allured_testdir):
                               has_container(allured_testdir.allure_report,
                                             has_before("Titled fixture after pytest.fixture")
                                             )
+                              )
+                )
+
+
+def test_fixture_override(allured_testdir):
+    allured_testdir.testdir.makeconftest("""
+        import pytest
+        import allure
+
+        @pytest.fixture
+        def my_fixture():
+            with allure.step('Step in before in original fixture'):
+                pass
+            yield
+            with allure.step('Step in after in original fixture'):
+                pass
+
+    """)
+
+    allured_testdir.testdir.makepyfile("""
+        import pytest
+        import allure
+
+        @pytest.fixture
+        def my_fixture(my_fixture):
+            with allure.step('Step in before in redefined fixture'):
+                pass
+            yield
+            with allure.step('Step in after in redefined fixture'):
+                pass
+
+        def test_with_redefined_fixture(my_fixture):
+            pass
+    """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_with_redefined_fixture",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("my_fixture",
+                                                       has_step("Step in before in original fixture")
+                                                       ),
+                                            has_after("my_fixture::0",
+                                                      has_step("Step in after in original fixture")
+                                                      )
+                                            ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("my_fixture",
+                                                       has_step("Step in before in redefined fixture")
+                                                       ),
+                                            has_after("my_fixture::0",
+                                                      has_step("Step in after in redefined fixture")
+                                                      )
+                                            ),
+                              )
+                )
+
+
+@pytest.mark.parametrize(
+    ["parent_scope", "child_scope"],
+    list(combinations_with_replacement(fixture_scopes, 2))
+)
+def test_dynamically_called_fixture(allured_testdir, parent_scope, child_scope):
+    allured_testdir.testdir.makepyfile(f"""
+        import pytest
+
+        @pytest.fixture(scope="{parent_scope}", autouse=True)
+        def parent_auto_call_fixture():
+            yield
+
+        @pytest.fixture(scope="{child_scope}")
+        def child_manual_call_fixture():
+            yield
+
+        @pytest.fixture(scope="{parent_scope}")
+        def parent_dyn_call_fixture():
+            yield
+
+        @pytest.fixture(scope="{child_scope}")
+        def child_dyn_call_fixture(request):
+            request.getfixturevalue('parent_dyn_call_fixture')
+
+        def test_one(child_manual_call_fixture):
+            pass
+
+        def test_two(request):
+            request.getfixturevalue('child_dyn_call_fixture')
+
+        def test_three(request):
+            request.getfixturevalue('parent_dyn_call_fixture')
+    """)
+
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_one",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_auto_call_fixture"),
+                                            has_after("parent_auto_call_fixture::0"),
+                                            ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("child_manual_call_fixture"),
+                                            has_after("child_manual_call_fixture::0"),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("parent_dyn_call_fixture"),
+                                                 has_after("parent_dyn_call_fixture::0"),
+                                                 ),
+                                   ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("child_dyn_call_fixture"),
+                                                 ),
+                                   )
+                              )
+                )
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_two",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_auto_call_fixture"),
+                                            has_after("parent_auto_call_fixture::0"),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("child_manual_call_fixture"),
+                                                 has_after("child_manual_call_fixture::0"),
+                                                 ),
+                                   ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_dyn_call_fixture"),
+                                            has_after("parent_dyn_call_fixture::0"),
+                                            ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("child_dyn_call_fixture"),
+                                            ),
+                              ),
+                )
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_three",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_auto_call_fixture"),
+                                            has_after("parent_auto_call_fixture::0"),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("child_manual_call_fixture"),
+                                                 has_after("child_manual_call_fixture::0"),
+                                                 ),
+                                   ),
+                              has_container(allured_testdir.allure_report,
+                                            has_before("parent_dyn_call_fixture"),
+                                            has_after("parent_dyn_call_fixture::0"),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("child_dyn_call_fixture"),
+                                                 ),
+                                   )
+                              )
+                )
+
+
+def test_one_fixture_on_two_tests(allured_testdir):
+    allured_testdir.testdir.makepyfile("""
+    import pytest
+    import allure
+
+    @pytest.fixture
+    def fixture(request):
+        with allure.step(request.node.name):
+            pass
+
+    class TestClass:
+        def test_first(self, fixture):
+            pass
+
+        def test_second(self, fixture):
+            pass
+    """)
+    allured_testdir.run_with_allure()
+
+    assert_that(allured_testdir.allure_report,
+                has_test_case("test_first",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("fixture", has_step("test_first")),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("fixture", has_step("test_second")),
+                                                 ))
+                              ),
+                has_test_case("test_second",
+                              has_container(allured_testdir.allure_report,
+                                            has_before("fixture", has_step("test_second")),
+                                            ),
+                              not_(has_container(allured_testdir.allure_report,
+                                                 has_before("fixture", has_step("test_first")),
+                                                 ))
                               )
                 )

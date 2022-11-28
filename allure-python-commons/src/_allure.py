@@ -79,7 +79,7 @@ def testcase(url, name=None):
     return link(url, link_type=LinkType.TEST_CASE, name=name)
 
 
-class Dynamic(object):
+class Dynamic:
 
     @staticmethod
     def title(test_title):
@@ -158,7 +158,7 @@ class StepContext:
         return impl
 
 
-class Attach(object):
+class Attach:
 
     def __call__(self, body, name=None, attachment_type=None, extension=None):
         plugin_manager.hook.attach_data(body=body, name=name, attachment_type=attachment_type, extension=extension)
@@ -170,7 +170,7 @@ class Attach(object):
 attach = Attach()
 
 
-class fixture(object):
+class fixture:
     def __init__(self, fixture_function, parent_uuid=None, name=None):
         self._fixture_function = fixture_function
         self._parent_uuid = parent_uuid
@@ -199,7 +199,7 @@ class fixture(object):
                                          exc_tb=exc_tb)
 
 
-class test(object):
+class test:
     def __init__(self, _test, context):
         self._test = _test
         self._uuid = uuid4()
