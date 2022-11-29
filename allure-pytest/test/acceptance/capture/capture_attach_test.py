@@ -93,7 +93,12 @@ def test_capture_log(allured_testdir, logging):
     params = [] if logging else ["-p", "no:logging"]
     if_logging_ = is_ if logging else is_not
 
-    allured_testdir.run_with_allure("--log-cli-level=INFO", *params)
+    allured_testdir.run_with_allure(
+        "--log-cli-level=INFO",
+        "-p",
+        "no:asyncio-cooperative",
+        *params
+    )
 
     assert_that(allured_testdir.allure_report,
                 has_property("attachments",

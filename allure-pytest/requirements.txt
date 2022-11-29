@@ -6,6 +6,7 @@ pytest-flakes
 pytest-rerunfailures
 pytest-xdist
 pytest-lazy-fixture
+pytest-asyncio-cooperative
 poethepoet
 # linters
 flake8==5.*
