@@ -82,3 +82,20 @@ Feature: Step
       And scenario contains step "Given passed step with attachment"
       And this step has attachment
       And this step has "passed" status
+
+  Scenario: Step with table data containing comma
+    Given feature definition
+        """
+        Feature: Step with data
+
+          Scenario: Step with a table data containing comma
+            Given step with a table data
+              |Items A|Items B|
+              |Item 1, Item 2|Item 3, Item 4|
+        """
+    When I run behave with allure formatter
+    Then allure report has a scenario with name "Step with a table data containing comma"
+    And scenario contains step "Given step with a table data"
+    And this step has attachment ".table" with the following data
+      |Items A|Items B|
+      |Item 1, Item 2|Item 3, Item 4|

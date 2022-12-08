@@ -81,30 +81,47 @@ from hamcrest.core.base_matcher import BaseMatcher
 class AllureReport:
     def __init__(self, result):
         self.result_dir = result
-        self.test_cases = [json.load(item) for item in self._report_items(result, '*result.json')]
-        self.test_containers = [json.load(item) for item in self._report_items(result, '*container.json')]
-        self.attachments = [item.read() for item in self._report_items(result, '*attachment.*')]
+        self.test_cases = [
+            json.load(file) for _, file in self._report_items(
+                result,
+                '*result.json'
+            )
+        ]
+        self.test_containers = [
+            json.load(file) for _, file in self._report_items(
+                result,
+                '*container.json'
+            )
+        ]
+        self.attachments = {
+            name: file.read() for name, file in self._report_items(
+                result,
+                '*attachment.*'
+            )
+        }
 
     @staticmethod
     def _report_items(report_dir, glob):
         for _file in os.listdir(report_dir):
             if fnmatch.fnmatch(_file, glob):
-                with open(os.path.join(report_dir, _file), encoding="utf-8") as report_file:
-                    yield report_file
+                full_path = os.path.join(report_dir, _file)
+                with open(full_path, encoding="utf-8") as report_file:
+                    yield _file, report_file
 
 
 def has_test_case(name, *matchers):
-    return has_property('test_cases',
-                        has_item(
-                            all_of(
-                                any_of(
-                                    has_entry('fullName', ends_with(name)),
-                                    has_entry('name', starts_with(name))
-                                ),
-                                *matchers
-                            )
-                        )
-                        )
+    return has_property(
+        'test_cases',
+        has_item(
+            all_of(
+                any_of(
+                    has_entry('fullName', ends_with(name)),
+                    has_entry('name', starts_with(name))
+                ),
+                *matchers
+            )
+        )
+    )
 
 
 class HasOnlyTetcases(BaseMatcher):
@@ -142,18 +159,22 @@ class ContainsExactly(BaseMatcher):
             return False
 
     def describe_to(self, description):
-        description.append_text(f'exactly {self.num} item(s) matching ').append_text(self.matcher)
+        description.append_text(
+            f'exactly {self.num} item(s) matching '
+        ).append_text(self.matcher)
 
 
 def has_only_n_test_cases(name, num, *matchers):
-    return has_property('test_cases',
-                        ContainsExactly(num,
-                                        all_of(
-                                            any_of(
-                                                has_entry('fullName', ends_with(name)),
-                                                has_entry('name', ends_with(name))
-                                            ),
-                                            *matchers
-                                        )
-                                        )
-                        )
+    return has_property(
+        'test_cases',
+        ContainsExactly(
+            num,
+            all_of(
+                any_of(
+                    has_entry('fullName', ends_with(name)),
+                    has_entry('name', ends_with(name))
+                ),
+                *matchers
+            )
+        )
+    )
