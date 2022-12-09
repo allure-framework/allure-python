@@ -2,7 +2,7 @@ from functools import wraps
 from typing import Any, Callable, TypeVar
 
 from allure_commons._core import plugin_manager
-from allure_commons.types import LabelType, LinkType
+from allure_commons.types import LabelType, LinkType, ParameterMode
 from allure_commons.utils import uuid4
 from allure_commons.utils import func_parameters, represent
 
@@ -86,7 +86,7 @@ def testcase(url, name=None):
     return link(url, link_type=LinkType.TEST_CASE, name=name)
 
 
-class Dynamic(object):
+class Dynamic:
 
     @staticmethod
     def title(test_title):
@@ -109,6 +109,10 @@ class Dynamic(object):
         Dynamic.label(LabelType.SEVERITY, severity_level)
 
     @staticmethod
+    def epic(*epics):
+        Dynamic.label(LabelType.EPIC, *epics)
+
+    @staticmethod
     def feature(*features):
         Dynamic.label(LabelType.FEATURE, *features)
 
@@ -121,8 +125,16 @@ class Dynamic(object):
         Dynamic.label(LabelType.TAG, *tags)
 
     @staticmethod
+    def id(id):
+        Dynamic.label(LabelType.ID, id)
+
+    @staticmethod
     def link(url, link_type=LinkType.LINK, name=None):
         plugin_manager.hook.add_link(url=url, link_type=link_type, name=name)
+
+    @staticmethod
+    def parameter(name, value, excluded=None, mode: ParameterMode = None):
+        plugin_manager.hook.add_parameter(name=name, value=value, excluded=excluded, mode=mode)
 
     @staticmethod
     def issue(url, name=None):
@@ -182,7 +194,7 @@ class StepContext:
         return impl
 
 
-class Attach(object):
+class Attach:
 
     def __call__(self, body, name=None, attachment_type=None, extension=None):
         plugin_manager.hook.attach_data(body=body, name=name, attachment_type=attachment_type, extension=extension)
@@ -194,7 +206,7 @@ class Attach(object):
 attach = Attach()
 
 
-class fixture(object):
+class fixture:
     def __init__(self, fixture_function, parent_uuid=None, name=None):
         self._fixture_function = fixture_function
         self._parent_uuid = parent_uuid
@@ -223,7 +235,7 @@ class fixture(object):
                                          exc_tb=exc_tb)
 
 
-class test(object):
+class test:
     def __init__(self, _test, context):
         self._test = _test
         self._uuid = uuid4()

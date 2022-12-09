@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from re import search
 from allure_commons.model2 import Status, Label, Parameter, Link
 from allure_commons.types import LabelType
@@ -16,7 +15,12 @@ def get_allure_status(status):
 
 
 def get_allure_parameters(parameters):
-    return [Parameter(name="arg{}".format(i + 1), value=param) for i, param in enumerate(parameters)]
+    return [
+        Parameter(
+            name=f"arg{i}",
+            value=param
+        ) for i, param in enumerate(parameters, 1)
+    ]
 
 
 def get_allure_suites(longname):
@@ -53,19 +57,33 @@ def allure_links(attributes, prefix):
     tags = attributes.get('tags', ())
 
     def is_link(link):
-        return link.startswith("{link}:".format(link=prefix))
+        return link.startswith(f"{prefix}:")
 
-    def parse_link(link):
-        lnk_val = link.split(':', 1)[1] or 'unknown'
-        lnk_label = search(r'\[.+\]', lnk_val)
-        if lnk_label:
-            lnk_label = lnk_label.group(0)
-            lnk_val = lnk_val.strip(lnk_label)
-            lnk_label = lnk_label.strip('[]')
-        else:
-            lnk_label = lnk_val
+    return [
+        _create_link_from_tag(
+            prefix,
+            tag
+        ) for tag in tags if is_link(tag)
+    ]
 
-        return {'name': lnk_label, 'value': lnk_val}
 
-    return [Link(type=prefix, url=parse_link(tag).get('value'), name=parse_link(tag).get('name')) for tag in tags if
-            is_link(tag)]
+def _parse_link(link):
+    lnk_val = link.split(':', 1)[1] or 'unknown'
+    lnk_label = search(r'\[.+\]', lnk_val)
+    if lnk_label:
+        lnk_label = lnk_label.group(0)
+        lnk_val = lnk_val.strip(lnk_label)
+        lnk_label = lnk_label.strip('[]')
+    else:
+        lnk_label = lnk_val
+
+    return {'name': lnk_label, 'value': lnk_val}
+
+
+def _create_link_from_tag(prefix, link_tag):
+    parsed_link = _parse_link(link_tag)
+    return Link(
+        type=prefix,
+        url=parsed_link.get("value"),
+        name=parsed_link.get("name")
+    )

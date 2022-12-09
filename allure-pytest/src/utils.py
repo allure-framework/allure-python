@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-import six
 import pytest
 from itertools import chain, islice
-from allure_commons.utils import represent
-from allure_commons.utils import format_exception, format_traceback, escape_non_unicode_symbols
+from allure_commons.utils import represent, SafeFormatter
+from allure_commons.utils import format_exception, format_traceback
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType
@@ -78,6 +74,11 @@ def allure_links(item):
         yield (mark.kwargs["link_type"], mark.args[0], mark.kwargs["name"])
 
 
+def format_allure_link(config, url, link_type):
+    pattern = dict(config.option.allure_link_pattern).get(link_type, '{}')
+    return pattern.format(url)
+
+
 def pytest_markers(item):
     for keyword in item.keywords.keys():
         if any([keyword.startswith('allure_'), keyword == 'parametrize']):
@@ -91,14 +92,14 @@ def pytest_markers(item):
 
 def mark_to_str(marker):
     args = [represent(arg) for arg in marker.args]
-    kwargs = ['{name}={value}'.format(name=key, value=represent(marker.kwargs[key])) for key in marker.kwargs]
+    kwargs = [f'{key}={represent(value)}' for key, value in marker.kwargs.items()]
     if marker.name in ('filterwarnings', 'skip', 'skipif', 'xfail', 'usefixtures', 'tryfirst', 'trylast'):
-        markstr = '@pytest.mark.{name}'.format(name=marker.name)
+        markstr = f'@pytest.mark.{marker.name}'
     else:
-        markstr = '{name}'.format(name=marker.name)
+        markstr = str(marker.name)
     if args or kwargs:
         parameters = ', '.join(args + kwargs)
-        markstr = '{}({})'.format(markstr, parameters)
+        markstr = f'{markstr}({parameters})'
     return markstr
 
 
@@ -111,16 +112,14 @@ def allure_package(item):
 def allure_name(item, parameters):
     name = escape_name(item.name)
     title = allure_title(item)
-    return title.format(**{**parameters, **item.funcargs}) if title else name
+    return SafeFormatter().format(title, **{**parameters, **item.funcargs}) if title else name
 
 
-def allure_full_name(item):
-    parts = item.nodeid.split('::')
+def allure_full_name(item: pytest.Item):
     package = allure_package(item)
-    clazz = '.{clazz}'.format(clazz=parts[1]) if len(parts) > 2 else ''
-    test_with_params = parts[-1]
-    test = test_with_params.rsplit("[", 1)[0]
-    full_name = '{package}{clazz}#{test}'.format(package=package, clazz=clazz, test=test)
+    class_name = f".{item.parent.name}" if isinstance(item.parent, pytest.Class) else ''
+    test = item.originalname if isinstance(item, pytest.Function) else item.name.split("[")[0]
+    full_name = f'{package}{class_name}#{test}'
     return escape_name(full_name)
 
 
@@ -141,11 +140,6 @@ def allure_suite_labels(item):
 
 
 def escape_name(name):
-    if six.PY2:
-        try:
-            name.decode('string_escape').encode('unicode_escape')
-        except UnicodeDecodeError:
-            return name.decode('string_escape').decode('utf-8')
     return name.encode('ascii', 'backslashreplace').decode('unicode_escape')
 
 
@@ -171,8 +165,8 @@ def get_status(exception):
 
 
 def get_status_details(exception_type, exception, exception_traceback):
-    message = escape_non_unicode_symbols(format_exception(exception_type, exception))
-    trace = escape_non_unicode_symbols(format_traceback(exception_traceback))
+    message = format_exception(exception_type, exception)
+    trace = format_traceback(exception_traceback)
     return StatusDetails(message=message, trace=trace) if message or trace else None
 
 

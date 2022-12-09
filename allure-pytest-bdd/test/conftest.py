@@ -25,7 +25,7 @@ def fake_logger(path, logger):
         allure_commons.plugin_manager.register(plugin)
 
 
-class AlluredTestdir(object):
+class AlluredTestdir:
     def __init__(self, testdir, request):
         self.testdir = testdir
         self.request = request
@@ -35,8 +35,6 @@ class AlluredTestdir(object):
         logger = AllureFileLogger(self.testdir.tmpdir.strpath)
         with fake_logger("allure_pytest_bdd.plugin.AllureFileLogger", logger):
             self.testdir.runpytest("-s", "-v", "--alluredir", self.testdir.tmpdir)
-            # print(a.stdout.lines)
-            # print(a.stderr.lines)
             self.allure_report = AllureReport(self.testdir.tmpdir.strpath)
 
 

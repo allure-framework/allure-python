@@ -1,6 +1,6 @@
 import pytest
+import doctest
 import allure_commons
-from allure_commons.utils import escape_non_unicode_symbols
 from allure_commons.utils import now
 from allure_commons.utils import uuid4
 from allure_commons.utils import represent
@@ -13,7 +13,7 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
-from allure_commons.types import LabelType, AttachmentType
+from allure_commons.types import LabelType, AttachmentType, ParameterMode
 from allure_pytest.utils import allure_description, allure_description_html
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
@@ -21,10 +21,11 @@ from allure_pytest.utils import allure_suite_labels
 from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 from allure_pytest.utils import get_pytest_report_status
+from allure_pytest.utils import format_allure_link
 from allure_commons.utils import md5
 
 
-class AllureListener(object):
+class AllureListener:
 
     def __init__(self, config):
         self.config = config
@@ -96,8 +97,10 @@ class AllureListener(object):
         test_result.testCaseId = md5(full_name)
         test_result.description = allure_description(item)
         test_result.descriptionHtml = allure_description_html(item)
+        current_param_names = [param.name for param in test_result.parameters]
         test_result.parameters.extend(
-            [Parameter(name=name, value=represent(value)) for name, value in params.items()])
+            [Parameter(name=name, value=represent(value)) for name, value in params.items()
+             if name not in current_param_names])
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
@@ -115,7 +118,6 @@ class AllureListener(object):
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_teardown(self, item):
         yield
-        self._update_fixtures_children(item)
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
@@ -154,8 +156,8 @@ class AllureListener(object):
 
         finalizers = getattr(fixturedef, '_finalizers', [])
         for index, finalizer in enumerate(finalizers):
-            name = '{fixture}::{finalizer}'.format(fixture=fixture_name,
-                                                   finalizer=getattr(finalizer, "__name__", index))
+            finalizer_name = getattr(finalizer, "__name__", index)
+            name = f'{fixture_name}::{finalizer_name}'
             finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
     @pytest.hookimpl(hookwrapper=True)
@@ -176,22 +178,22 @@ class AllureListener(object):
         status_details = None
 
         if call.excinfo:
-            message = escape_non_unicode_symbols(call.excinfo.exconly())
+            message = call.excinfo.exconly()
             if hasattr(report, 'wasxfail'):
                 reason = report.wasxfail
-                message = ('XFAIL {}'.format(reason) if reason else 'XFAIL') + '\n\n' + message
-            trace = escape_non_unicode_symbols(report.longreprtext)
+                message = (f'XFAIL {reason}' if reason else 'XFAIL') + '\n\n' + message
+            trace = report.longreprtext
             status_details = StatusDetails(
                 message=message,
                 trace=trace)
-            if (status != Status.SKIPPED
-                    and not (call.excinfo.errisinstance(AssertionError)
-                             or call.excinfo.errisinstance(pytest.fail.Exception))):
+
+            exception = call.excinfo.value
+            if (status != Status.SKIPPED and _exception_brokes_test(exception)):
                 status = Status.BROKEN
 
         if status == Status.PASSED and hasattr(report, 'wasxfail'):
             reason = report.wasxfail
-            message = 'XPASS {reason}'.format(reason=reason) if reason else 'XPASS'
+            message = f'XPASS {reason}' if reason else 'XPASS'
             status_details = StatusDetails(message=message)
 
         if report.when == 'setup':
@@ -253,8 +255,7 @@ class AllureListener(object):
     def add_link(self, url, link_type, name):
         test_result = self.allure_logger.get_test(None)
         if test_result:
-            pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
-            link_url = pattern.format(url)
+            link_url = format_allure_link(self.config, url, link_type)
             new_link = Link(link_type, link_url, link_url if name is None else name)
             for link in test_result.links:
                 if link.url == new_link.url:
@@ -267,8 +268,18 @@ class AllureListener(object):
         for label in labels if test_result else ():
             test_result.labels.append(Label(label_type, label))
 
+    @allure_commons.hookimpl
+    def add_parameter(self, name, value, excluded, mode: ParameterMode):
+        test_result: TestResult = self.allure_logger.get_test(None)
+        existing_param = next(filter(lambda x: x.name == name, test_result.parameters), None)
+        if existing_param:
+            existing_param.value = represent(value)
+        else:
+            test_result.parameters.append(Parameter(name=name, value=represent(value),
+                                                    excluded=excluded or None, mode=mode.value if mode else None))
 
-class ItemCache(object):
+
+class ItemCache:
 
     def __init__(self):
         self._items = dict()
@@ -294,3 +305,11 @@ def _test_fixtures(item):
                 fixturedefs.extend(fixturedefs_pytest)
 
     return fixturedefs
+
+
+def _exception_brokes_test(exception):
+    return not isinstance(exception, (
+        AssertionError,
+        pytest.fail.Exception,
+        doctest.DocTestFailure
+    ))

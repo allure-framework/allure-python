@@ -10,13 +10,16 @@ classifiers = [
     'Topic :: Software Development :: Testing',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
 ]
 
 install_requires = [
     "attrs>=16.0.0",
-    "six>=1.9.0",
     "pluggy>=0.4.0",
-    "enum34;python_version<'3.4'",
 ]
 
 
@@ -36,7 +39,7 @@ def main():
         package_dir={"allure_commons": 'src'},
         install_requires=install_requires,
         py_modules=['allure', 'allure_commons'],
-        python_requires='>=3.5'
+        python_requires='>=3.6'
     )
 
 

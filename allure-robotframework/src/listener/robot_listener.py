@@ -11,7 +11,7 @@ DEFAULT_OUTPUT_PATH = os.path.join('output', 'allure')
 
 
 # noinspection PyPep8Naming
-class allure_robotframework(object):
+class allure_robotframework:
     ROBOT_LISTENER_API_VERSION = 2
 
     def __init__(self, logger_path=DEFAULT_OUTPUT_PATH):
@@ -73,7 +73,7 @@ class allure_robotframework(object):
             allure_commons.plugin_manager.unregister(name=name)
 
 
-class Messages(object):
+class Messages:
     def __init__(self):
         self._stack = []
 

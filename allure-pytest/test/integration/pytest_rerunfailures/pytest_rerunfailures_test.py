@@ -9,7 +9,7 @@ from allure_commons_test.result import with_status
 @allure.feature("Integration")
 @pytest.mark.parametrize("countdown", [2, 4])
 def test_pytest_rerunfailures(allured_testdir, countdown):
-    allured_testdir.testdir.makepyfile("""
+    allured_testdir.testdir.makepyfile(f"""
         import threading
         import pytest
 
@@ -21,7 +21,7 @@ def test_pytest_rerunfailures(allured_testdir, countdown):
             back_to_normal.countdown = countdown - 1
             assert not countdown > 0
 
-    """.format(countdown=countdown))
+    """)
 
     allured_testdir.run_with_allure()
 

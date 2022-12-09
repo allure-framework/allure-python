@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import pytest
 import allure_commons
 from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
 from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
+from allure_pytest.utils import format_allure_link
 
 
-class AllureTitleHelper(object):
+class AllureTitleHelper:
     @allure_commons.hookimpl
     def decorate_as_title(self, test_title):
         def decorator(func):
@@ -22,7 +20,7 @@ class AllureTitleHelper(object):
         return decorator
 
 
-class AllureTestHelper(object):
+class AllureTestHelper:
     def __init__(self, config):
         self.config = config
 
@@ -43,8 +41,7 @@ class AllureTestHelper(object):
 
     @allure_commons.hookimpl
     def decorate_as_link(self, url, link_type, name):
-        pattern = dict(self.config.option.allure_link_pattern).get(link_type, u'{}')
-        url = pattern.format(url)
+        url = format_allure_link(self.config, url, link_type)
         allure_link = getattr(pytest.mark, ALLURE_LINK_MARK)
         name = url if name is None else name
         return allure_link(url, name=name, link_type=link_type)

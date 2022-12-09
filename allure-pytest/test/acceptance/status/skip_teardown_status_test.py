@@ -22,18 +22,21 @@ def test_skip_finalizer_fixture(executed_docstring_source):
     ...     pass
     """
 
-    assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_skip_finalizer_fixture_example",
-                              with_status("passed"),
-                              has_container(executed_docstring_source.allure_report,
-                                            has_after("{fixture}::{finalizer}".format(
-                                                fixture="skip_finalizer_fixture",
-                                                finalizer="fixture_finalizer"),
-                                                with_status("skipped"),
-                                                has_status_details(with_message_contains("Skipped"),
-                                                                   with_trace_contains("fixture_finalizer")
-                                                                   ),
-                                            ),
-                                            )
-                              )
+    assert_that(
+        executed_docstring_source.allure_report,
+        has_test_case(
+            "test_skip_finalizer_fixture_example",
+            with_status("passed"),
+            has_container(
+                executed_docstring_source.allure_report,
+                has_after(
+                    "skip_finalizer_fixture::fixture_finalizer",
+                    with_status("skipped"),
+                    has_status_details(
+                        with_message_contains("Skipped"),
+                        with_trace_contains("fixture_finalizer")
+                    )
                 )
+            )
+        )
+    )

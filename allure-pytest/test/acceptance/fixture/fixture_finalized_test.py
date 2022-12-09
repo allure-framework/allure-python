@@ -27,9 +27,7 @@ def test_fixture_finalizer(executed_docstring_source):
                 has_test_case("test_fixture_with_finalizer_example",
                               has_container(executed_docstring_source.allure_report,
                                             has_before("fixture_with_finalizer"),
-                                            has_after("{fixture}::{finalizer}".format(fixture="fixture_with_finalizer",
-                                                                                      finalizer="finalizer")
-                                                      )
+                                            has_after("fixture_with_finalizer::finalizer")
                                             )
                               )
                 )
@@ -61,12 +59,8 @@ def test_fixture_finalizers(executed_docstring_source):
                 has_test_case("test_fixture_with_finalizers_example",
                               has_container(executed_docstring_source.allure_report,
                                             has_before("fixture_with_finalizers"),
-                                            has_after("{fixture}::{finalizer}".format(fixture="fixture_with_finalizers",
-                                                                                      finalizer="first_finalizer")
-                                                      ),
-                                            has_after("{fixture}::{finalizer}".format(fixture="fixture_with_finalizers",
-                                                                                      finalizer="second_finalizer"),
-                                                      )
+                                            has_after("fixture_with_finalizers::first_finalizer"),
+                                            has_after("fixture_with_finalizers::second_finalizer")
                                             )
                               )
                 )

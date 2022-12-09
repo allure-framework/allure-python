@@ -2,7 +2,7 @@ import allure
 from robot.libraries.BuiltIn import BuiltIn
 
 
-class ForeignLibraryHelper(object):
+class ForeignLibraryHelper:
     ROBOT_LIBRARY_SCOPE = "TEST SUITE"
     ROBOT_LISTENER_API_VERSION = 2
 

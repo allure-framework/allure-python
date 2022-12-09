@@ -19,7 +19,7 @@ def test_parametrized_attachment(executed_docstring_source, param):
 
     assert_that(executed_docstring_source.allure_report,
                 all_of(
-                    has_test_case("test_parametrized_attachment_example[{param}]".format(param=param)),
+                    has_test_case(f"test_parametrized_attachment_example[{param}]"),
                     has_property("attachments",
                                  has_value(contains_string(param))
                                  )

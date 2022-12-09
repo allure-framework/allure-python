@@ -2,21 +2,11 @@ from pytest_bdd import then
 from pytest_bdd import parsers
 from functools import partial
 from hamcrest import assert_that
-# from hamcrest import not_
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_step
-# from allure_commons_test.result import has_attachment
 from allure_commons_test.result import has_parameter
 from allure_commons_test.result import has_history_id
-# from allure_commons_test.result import has_status_details
-# from allure_commons_test.result import with_message_contains
-# from allure_commons_test.result import has_link
-# from allure_commons_test.container import has_container
-# from allure_commons_test.container import has_before, has_after
-# from allure_commons_test.label import has_severity
-# from allure_commons_test.label import has_tag
-# from allure_commons_test.label import has_label
 
 
 def match(matcher, *args):

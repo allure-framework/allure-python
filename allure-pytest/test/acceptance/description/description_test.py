@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ ./examples/description/description.rst """
 
 from hamcrest import assert_that, contains_string

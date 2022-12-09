@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ ./examples/display_name/display_name.rst"""
 
 from hamcrest import assert_that
@@ -27,13 +26,13 @@ def test_unicode_display_name(executed_docstring_source):
     """
     >>> import allure
 
-    >>> @allure.title(u"Лунтик")
+    >>> @allure.title("Лунтик")
     >>> def test_unicode_display_name_example():
     ...     pass
     """
 
     assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_unicode_display_name_example", has_title(u"Лунтик"))
+                has_test_case("test_unicode_display_name_example", has_title("Лунтик"))
                 )
 
 
@@ -42,7 +41,7 @@ def test_unicode_display_name_template(executed_docstring_source):
     >>> import allure
     >>> import pytest
 
-    >>> @allure.title(u"Тест с шаблоном и параметром: {param}")
+    >>> @allure.title("Тест с шаблоном и параметром: {param}")
     ... @pytest.mark.parametrize("param", [False])
     ... def test_unicode_display_name_template_example(param):
     ...     assert param
@@ -50,7 +49,7 @@ def test_unicode_display_name_template(executed_docstring_source):
 
     assert_that(executed_docstring_source.allure_report,
                 has_test_case("test_unicode_display_name_template_example",
-                              has_title(u"Тест с шаблоном и параметром: False")
+                              has_title("Тест с шаблоном и параметром: False")
                               )
                 )
 
@@ -95,5 +94,26 @@ def test_display_name_with_features(allured_testdir):
                               has_label("feature", "Feature 1"),
                               has_label("feature", "Feature 2"),
                               has_title("Titled test with features")
+                              )
+                )
+
+
+def test_failed_fixture_value_in_display_name(executed_docstring_source):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.fixture
+    ... def fix():
+    ...     raise AssertionError("Fixture failed for some reason")
+
+    >>> @allure.title('title with {fix}')
+    ... def test_fixture_value_name(fix):
+    ...     pass
+    """
+
+    assert_that(executed_docstring_source.allure_report,
+                has_test_case("test_fixture_value_name",
+                              has_title("title with {fix}")
                               )
                 )
