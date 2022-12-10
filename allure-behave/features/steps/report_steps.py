@@ -1,10 +1,13 @@
 from functools import partial
 from hamcrest import assert_that, contains_string
 from hamcrest import not_
+from hamcrest import equal_to
+from allure_commons.types import AttachmentType
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_step
 from allure_commons_test.result import has_attachment
+from allure_commons_test.result import has_attachment_with_content
 from allure_commons_test.result import has_parameter
 from allure_commons_test.result import has_status_details
 from allure_commons_test.result import with_message_contains
@@ -12,6 +15,7 @@ from allure_commons_test.result import has_link
 from allure_commons_test.result import has_description
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before, has_after
+from allure_commons_test.content import csv_equivalent
 from allure_commons_test.label import has_severity
 from allure_commons_test.label import has_tag
 from allure_commons_test.label import has_label
@@ -152,8 +156,38 @@ def step_attachment(context, item):
     assert_that(context.allure_report, matcher())
 
 
+@then('this {item} has attachment "{name}" with the following data')
+def step_attachment_data(context, item, name):
+    context_matcher = getattr(context, item)
+    attachment_type, content_matcher = _get_attachment_type_and_matcher(context)
+    matcher = partial(
+        context_matcher,
+        partial(
+            has_attachment_with_content,
+            context.allure_report.attachments,
+            content_matcher,
+            attachment_type.mime_type,
+            name
+        )
+    )
+    assert_that(context.allure_report, matcher())
+
+
 @then('scenario has description "{description}"')
 def step_description(context, description):
     context_matcher = context.scenario
     matcher = partial(context_matcher, has_description, contains_string(description))
     assert_that(context.allure_report, matcher())
+
+def _get_attachment_type_and_matcher(context):
+    return (
+        AttachmentType.CSV,
+        csv_equivalent(
+            [context.table.headings] + [
+                r.cells for r in context.table.rows
+            ]
+        )
+    ) if context.table is not None else (
+        AttachmentType.TEXT,
+        equal_to(context.text)
+    )
