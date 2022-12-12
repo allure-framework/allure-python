@@ -1,3 +1,4 @@
+from ast import literal_eval
 from pytest_bdd import then
 from pytest_bdd import parsers
 from functools import partial
@@ -17,6 +18,13 @@ def match(matcher, *args):
             matcher = partial(matcher, match(arg, *args[i+1:]))
             break
     return matcher()
+
+
+def to_array(string):
+    if string.startswith("[") and string.endswith("]"):
+        return literal_eval(string)
+    else:
+        return string
 
 
 @then(parsers.re("allure report has result for (?:\")(?P<scenario_name>[\\w|\\s|,]*)(?:\") scenario"))
@@ -42,14 +50,15 @@ def item_history_id(allure_report, context, item):
 
 @then(parsers.re("this (?P<item>\\w+) "
                  "has parameter (?:\")(?P<param_name>[\\w|\\s]*)(?:\") "
-                 "with value (?:\")(?P<param_value>[\\w|\\s]*)(?:\")"))
+                 "with value (?:\")(?P<param_value>[\\w|\\s|,|\\[|\\]|<|>|']*)(?:\")"),
+      converters={'param_value': to_array})
 def item_parameter(allure_report, context, item, param_name, param_value):
     context_matcher = context[item]
     matcher = partial(context_matcher, has_parameter, param_name, param_value)
     assert_that(allure_report, matcher())
 
 
-@then(parsers.re("this (?P<item>\\w+) contains (?:\")(?P<step>[\\w|\\s|>|<]+)(?:\") step"))
+@then(parsers.re("this (?P<item>\\w+) contains (?:\")(?P<step>[\\w|\\s|>|<|,|\\[|\\]|']+)(?:\") step"))
 def step_step(allure_report, context, item, step):
     context_matcher = context[item]
     matcher = partial(context_matcher, has_step, step)
