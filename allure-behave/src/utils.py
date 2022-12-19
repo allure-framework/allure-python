@@ -1,3 +1,5 @@
+import csv
+import io
 from enum import Enum
 from behave.runner_util import make_undefined_step_snippet
 from allure_commons.types import Severity, LabelType
@@ -124,10 +126,11 @@ def step_status_details(result):
 
 
 def step_table(step):
-    table = [','.join(step.table.headings)]
-    for row in step.table.rows:
-        table.append(','.join(list(row)))
-    return '\n'.join(table)
+    with io.StringIO() as buffer:
+        writer = csv.writer(buffer)
+        writer.writerow(step.table.headings)
+        writer.writerows(r.cells for r in step.table.rows)
+        return buffer.getvalue()
 
 
 def is_planned_scenario(scenario, test_plan):

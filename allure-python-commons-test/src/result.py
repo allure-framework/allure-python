@@ -66,6 +66,7 @@ from hamcrest import all_of, anything, not_
 from hamcrest import equal_to, not_none
 from hamcrest import has_entry, has_item
 from hamcrest import contains_string
+from allure_commons_test.lookup import maps_to
 
 
 def has_title(title):
@@ -137,6 +138,19 @@ def has_attachment(attach_type=None, name=None):
                              has_entry('name', name) if name else anything()
                          )
                      ))
+
+
+def has_attachment_with_content(attachments, content_matcher, attach_type=None, name=None):
+    return has_entry(
+        'attachments',
+        has_item(
+            all_of(
+                has_entry('name', name) if name else anything(),
+                has_entry('type', attach_type) if attach_type else anything(),
+                has_entry('source', maps_to(attachments, content_matcher))
+            )
+        )
+    )
 
 
 def with_id():

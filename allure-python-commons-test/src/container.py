@@ -21,8 +21,8 @@ class HasContainer(BaseMatcher):
     def describe_to(self, description):
         description.append_text('describe me later').append_list('[', ', ', ']', self.matchers)
 
-    def describe_mismatch(self, item, mismatch_descaription):
-        self.matches(item, mismatch_descaription)
+    def describe_mismatch(self, item, mismatch_description):
+        self.matches(item, mismatch_description)
 
 
 def has_container(report, *matchers):
