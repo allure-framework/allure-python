@@ -4,7 +4,6 @@ import argparse
 import allure
 import allure_commons
 import os
-import pytest
 
 from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
@@ -219,7 +218,7 @@ class AllureTagsMatcher:
     own_tags: AbstractSet[str]
 
     @classmethod
-    def from_item(cls, item: pytest.Item):
+    def from_item(cls, item):
         mark_names = {
             tag.replace(' ', '_')
             for mark in item.iter_markers('allure_label')
@@ -238,12 +237,11 @@ class AllureTagsMatcher:
         return name in self.own_tags
 
 
-def select_by_tags(items: list[pytest.Item], config: pytest.Config) -> None:
+def select_by_tags(items, config) -> None:
     if not config.option.allure_tags:
         return items, []
-    selected: list[pytest.Item] = []
-    deselected: list[pytest.Item] = []
     expr = _parse_expression(config.option.allure_tags, "Wrong expression passed to '--allure-tags'")
+    selected, deselected = [], []
     for item in items:
         if expr.evaluate(AllureTagsMatcher.from_item(item)):
             selected.append(item)
