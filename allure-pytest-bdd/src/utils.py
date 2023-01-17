@@ -44,5 +44,7 @@ def get_pytest_report_status(pytest_report):
 
 def get_params(node):
     if hasattr(node, 'callspec'):
-        params = node.callspec.params.pop('_pytest_bdd_example', {})
+        params = dict(node.callspec.params)
+        outline_params = params.pop('_pytest_bdd_example', {})
+        params.update(outline_params)
         return [Parameter(name=name, value=value) for name, value in params.items()]
