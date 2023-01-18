@@ -40,14 +40,8 @@ from allure_commons.model2 import Parameter
 from allure_commons.utils import format_exception
 
 
-def get_step_name(node, step):
-    name = f"{step.keyword} {step.name}"
-    if hasattr(node, 'callspec'):
-        params = node.callspec.params
-        for key in params:
-            name = name.replace(f"<{key}>", f"<{{{key}}}>")
-            name = name.format(**params)
-    return name
+def get_step_name(step):
+    return f"{step.keyword} {step.name}"
 
 
 def get_name(node, scenario):
@@ -83,7 +77,9 @@ def get_pytest_report_status(pytest_report):
 
 def get_params(node):
     if hasattr(node, 'callspec'):
-        params = node.callspec.params
+        params = dict(node.callspec.params)
+        outline_params = params.pop('_pytest_bdd_example', {})
+        params.update(outline_params)
         return [Parameter(name=name, value=value) for name, value in params.items()]
 
 
