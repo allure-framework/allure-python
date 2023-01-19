@@ -1,3 +1,4 @@
+import attr
 import argparse
 
 import allure
@@ -14,6 +15,9 @@ from allure_pytest.listener import AllureListener
 
 from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
 from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
+
+from typing import AbstractSet
+from _pytest.mark import _parse_expression
 
 
 def pytest_addoption(parser):
@@ -101,6 +105,13 @@ def pytest_addoption(parser):
                                          type=label_type(LabelType.ID),
                                          help="""Comma-separated list of IDs.
                                          Run tests that have at least one of the specified id labels.""")
+
+    parser.getgroup("general").addoption('--allure-tags',
+                                         dest="allure_tags",
+                                         metavar="TAGS_SET",
+                                         default='',
+                                         type=str,
+                                         help="An alternative for pytest -m key with support allure tags.")
 
     def link_pattern(string):
         pattern = string.split(':', 1)
@@ -202,11 +213,51 @@ def select_by_testcase(items, config):
         return items, []
 
 
+@attr.s(slots=True, auto_attribs=True)
+class AllureTagsMatcher:
+    own_tags: AbstractSet[str]
+
+    @classmethod
+    def from_item(cls, item):
+        mark_names = {
+            tag.replace(' ', '_')
+            for mark in item.iter_markers('allure_label')
+            for tag in mark.args
+            if mark.kwargs.get('label_type') == 'tag'
+        }
+        mark_names.update(
+            (
+                mark.name for mark in item.iter_markers()
+                if not mark.args and not mark.kwargs
+            )
+        )
+        return cls(mark_names)
+
+    def __call__(self, name: str) -> bool:
+        return name in self.own_tags
+
+
+def select_by_tags(items, config) -> None:
+    if not config.option.allure_tags:
+        return items, []
+    expr = _parse_expression(config.option.allure_tags, "Wrong expression passed to '--allure-tags'")
+    selected, deselected = [], []
+    for item in items:
+        if expr.evaluate(AllureTagsMatcher.from_item(item)):
+            selected.append(item)
+        else:
+            deselected.append(item)
+    return selected, deselected
+
+
 def pytest_collection_modifyitems(items, config):
     selected, deselected_by_testcase = select_by_testcase(items, config)
     selected, deselected_by_labels = select_by_labels(selected, config)
+    selected, deselected_by_tags = select_by_tags(selected, config)
 
     items[:] = selected
 
-    if deselected_by_testcase or deselected_by_labels:
-        config.hook.pytest_deselected(items=[*deselected_by_testcase, *deselected_by_labels])
+    if deselected_by_testcase or deselected_by_labels or deselected_by_tags:
+        config.hook.pytest_deselected(
+            items=[*deselected_by_testcase, *deselected_by_labels, *deselected_by_tags]
+        )
