@@ -34,6 +34,10 @@ def pytest_addoption(parser):
                                            dest="attach_capture",
                                            help="Do not attach pytest captured logging/stdout/stderr to report")
 
+    parser.getgroup("reporting").addoption('--allure-no-capture-passed',
+                                           action="store_false",
+                                           dest="attach_capture_passed",
+                                           help="Do not attach pytest captured logging/stdout/stderr to passed report")
     parser.getgroup("reporting").addoption('--inversion',
                                            action="store",
                                            dest="inversion",

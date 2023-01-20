@@ -211,6 +211,9 @@ class AllureListener:
                 test_result.statusDetails = status_details
 
             if self.config.option.attach_capture:
+                if test_result.status == Status.PASSED and not self.config.option.attach_capture_passed:
+                    return
+
                 if report.caplog:
                     self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
                 if report.capstdout:
