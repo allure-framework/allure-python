@@ -24,7 +24,7 @@ TMS links are supported via tags prefixed with :code:`test_case:` :
 
     *** Test Cases ***
     Test Case With TMS Link Without URL
-        [Tags]  test_case:TEST-1
+        [Tags]  tms:TEST-1
         No Operation
 
 
@@ -32,7 +32,7 @@ TMS links are supported via tags prefixed with :code:`test_case:` :
 
     *** Test Cases ***
     Test Case With TMS Link With URL
-        [Tags]  test_case:https://testrail.com/browse/TEST-1
+        [Tags]  tms:https://testrail.com/browse/TEST-1
         No Operation
 
 Ordinary links are supported via tags prefixed with :code:`link:` :
