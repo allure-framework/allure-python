@@ -4,7 +4,7 @@
 The repository contains adaptors for Python-based test frameworks.
 Documentation is available
 [online](https://docs.qameta.io/allure-report/), also you can get help at
-[gitter channel](https://gitter.im/allure-framework/allure-core)
+[gitter channel](https://gitter.im/allure-framework/allure-core).
 
 ## Pytest
 [![Release
@@ -13,7 +13,9 @@ Status](https://img.shields.io/pypi/v/allure-pytest)](https://pypi.python.org/py
 
 Allure [pytest](http://pytest.org) integration. It's developed as pytest
 plugin and distributed via
-[pypi](https://pypi.python.org/pypi/allure-pytest)
+[pypi](https://pypi.python.org/pypi/allure-pytest).
+
+Examples are available [here](allure-pytest/examples).
 
 ## Behave
 [![Release
