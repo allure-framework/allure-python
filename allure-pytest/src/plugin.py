@@ -44,7 +44,7 @@ def pytest_addoption(parser):
         def a_label_type(string):
             atoms = set(string.split(','))
             if type_name is LabelType.SEVERITY:
-                if not atoms < legal_values:
+                if not atoms <= legal_values:
                     raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
                         type_name,
                         ', '.join(atoms - legal_values),

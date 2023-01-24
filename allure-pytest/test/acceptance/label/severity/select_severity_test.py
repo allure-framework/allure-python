@@ -21,6 +21,15 @@ from hamcrest import assert_that, only_contains, any_of, ends_with
             ["normal"],
             ["test_with_default_severity"],
             id="normal"
+        ),
+        pytest.param(
+            ["trivial", "minor", "normal", "critical", "blocker"],
+            [
+                "test_vip",
+                "test_with_default_severity",
+                "test_minor"
+            ],
+            id="all"
         )
     ]
 )
