@@ -4,7 +4,7 @@ import allure
 import allure_commons
 import os
 
-from allure_commons.types import LabelType
+from allure_commons.types import LabelType, Severity
 from allure_commons.logger import AllureFileLogger
 from allure_commons.utils import get_testplan
 
@@ -161,15 +161,24 @@ def pytest_configure(config):
 
 
 def select_by_labels(items, config):
-    arg_labels = set().union(config.option.allure_epics,
-                             config.option.allure_features,
-                             config.option.allure_stories,
-                             config.option.allure_ids,
-                             config.option.allure_severities)
+    arg_labels = set().union(
+        config.option.allure_epics,
+        config.option.allure_features,
+        config.option.allure_stories,
+        config.option.allure_ids,
+        config.option.allure_severities
+    )
     if arg_labels:
         selected, deselected = [], []
         for item in items:
-            selected.append(item) if arg_labels & set(allure_labels(item)) else deselected.append(item)
+            test_labels = set(allure_labels(item))
+            test_severity = allure_label(item, LabelType.SEVERITY)
+            if not test_severity:
+                test_labels.add((LabelType.SEVERITY, Severity.NORMAL))
+            if arg_labels & test_labels:
+                selected.append(item)
+            else:
+                deselected.append(item)
         return selected, deselected
     else:
         return items, []
