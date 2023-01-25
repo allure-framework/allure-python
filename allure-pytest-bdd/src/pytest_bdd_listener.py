@@ -64,7 +64,7 @@ class PytestBDDListener:
         parent_uuid = get_uuid(request.node.nodeid)
         uuid = get_uuid(str(id(step)))
         with self.lifecycle.start_step(parent_uuid=parent_uuid, uuid=uuid) as step_result:
-            step_result.name = get_step_name(request.node, step)
+            step_result.name = get_step_name(step)
 
     @pytest.hookimpl
     def pytest_bdd_after_step(self, request, feature, scenario, step, step_func, step_func_args):
