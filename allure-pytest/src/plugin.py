@@ -103,12 +103,12 @@ def pytest_addoption(parser):
                                          Run tests that have at least one of the specified id labels.""")
 
     def cf_type(string):
-        type_name, *values = string.split("=")
-        atoms = set(values[0].split(","))
-        return set((type_name, atom) for atom in atoms)
+        type_name, values = string.split("=", 1)
+        atoms = set(values.split(","))
+        return [(type_name, atom) for atom in atoms]
 
-    parser.getgroup("general").addoption('--allure-labels',
-                                         action="append",
+    parser.getgroup("general").addoption('--allure-label',
+                                         action="extend",
                                          dest="allure_labels",
                                          metavar="LABELS_SET",
                                          default=[],
@@ -175,7 +175,6 @@ def pytest_configure(config):
 
 
 def select_by_labels(items, config):
-    config.option.allure_labels = set().union(*config.option.allure_labels)
     arg_labels = set().union(config.option.allure_epics,
                              config.option.allure_features,
                              config.option.allure_stories,
