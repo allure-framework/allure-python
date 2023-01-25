@@ -108,7 +108,7 @@ def pytest_addoption(parser):
         return [(type_name, atom) for atom in atoms]
 
     parser.getgroup("general").addoption('--allure-label',
-                                         action="extend",
+                                         action="append",
                                          dest="allure_labels",
                                          metavar="LABELS_SET",
                                          default=[],
@@ -180,7 +180,7 @@ def select_by_labels(items, config):
                              config.option.allure_stories,
                              config.option.allure_ids,
                              config.option.allure_severities,
-                             config.option.allure_labels)
+                             *config.option.allure_labels)
     if arg_labels:
         selected, deselected = [], []
         for item in items:
