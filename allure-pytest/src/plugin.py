@@ -102,6 +102,20 @@ def pytest_addoption(parser):
                                          help="""Comma-separated list of IDs.
                                          Run tests that have at least one of the specified id labels.""")
 
+    def cf_type(string):
+        type_name, values = string.split("=", 1)
+        atoms = set(values.split(","))
+        return [(type_name, atom) for atom in atoms]
+
+    parser.getgroup("general").addoption('--allure-label',
+                                         action="append",
+                                         dest="allure_labels",
+                                         metavar="LABELS_SET",
+                                         default=[],
+                                         type=cf_type,
+                                         help="""List of labels to run in format label_name=value1,value2.
+                                         "Run tests that have at least one of the specified labels.""")
+
     def link_pattern(string):
         pattern = string.split(':', 1)
         if not pattern[0]:
@@ -165,7 +179,8 @@ def select_by_labels(items, config):
                              config.option.allure_features,
                              config.option.allure_stories,
                              config.option.allure_ids,
-                             config.option.allure_severities)
+                             config.option.allure_severities,
+                             *config.option.allure_labels)
     if arg_labels:
         selected, deselected = [], []
         for item in items:
