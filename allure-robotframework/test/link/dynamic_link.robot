@@ -14,7 +14,7 @@ Run test case with dynamic link
 *** Test Case ***
 Test Case With Dynamic Links
     ${test case} Should Has issue To https://jira.com/browse/ISSUE-1 With Name ISSUE-1
-    ${test case} Should Has test_case To https://testrail.com/browse/TEST-1 With Name TEST-1
+    ${test case} Should Has tms To https://testrail.com/browse/TEST-1 With Name TEST-1
     ${test case} Should Has link To https://homepage.com/ With Name homepage
 
 *** Keywords ***

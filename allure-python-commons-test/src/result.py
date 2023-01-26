@@ -126,7 +126,7 @@ def has_issue_link(url, name=None):
 
 
 def has_test_case_link(url, name=None):
-    return has_link(url, link_type='test_case', name=name)
+    return has_link(url, link_type='tms', name=name)
 
 
 def has_attachment(attach_type=None, name=None):

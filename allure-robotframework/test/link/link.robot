@@ -21,11 +21,11 @@ Test Case With Issue Link With URL
 
 Test Case With TMS Link Without URL
     ${test_case}     Should Has Test Case   ${report}   Test Case With TMS Link Without URL
-    Should Has Link  ${test_case}  TEST-1  test_case
+    Should Has Link  ${test_case}  TEST-1  tms
 
 Test Case With TMS Link With URL
     ${test_case}     Should Has Test Case   ${report}   Test Case With TMS Link With URL
-    Should Has Link  ${test_case}  https://testrail.com/browse/TEST-1  test_case
+    Should Has Link  ${test_case}  https://testrail.com/browse/TEST-1  tms
 
 Test Case With Unlabeled Link
     ${test_case}     Should Has Test Case   ${report}   Test Case With Unlabeled Link
