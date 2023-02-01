@@ -34,6 +34,7 @@ def prepare_version():
     configuration = {"root": "..", "relative_to": __file__}
     version = get_version(**configuration)
     install_requires.append(f"allure-python-commons=={version}")
+    install_requires.append(f"allure-pytest=={version}")
     return configuration
 
 

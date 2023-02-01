@@ -1,0 +1,8 @@
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
+addopts = [
+    "-p", "no:allure_pytest",
+    "-p", "no:allure_pytest_bdd"
+]
