@@ -2,9 +2,16 @@ import pytest
 import mock
 import shutil
 import runpy
+import warnings
+import docutils.nodes
+import docutils.parsers.rst
+import docutils.utils
+import docutils.frontend
+from pathlib import Path
 from doctest import script_from_examples
 from contextlib import contextmanager
-from typing import Sequence
+from typing import Mapping, Tuple, TypeVar
+from pytest import FixtureRequest, Pytester
 
 import allure_commons
 from allure_commons_test.report import AllureReport
@@ -20,13 +27,15 @@ def pytest_configure(config: pytest.Config):
 
 
 @contextmanager
-def fake_logger():
+def fake_logger(path :str = None) -> None:
+    if path is None:
+        path = "allure_commons.logger.AllureFileLogger"
     blocked_plugins = []
     for name, plugin in allure_commons.plugin_manager.list_name_plugin():
         allure_commons.plugin_manager.unregister(plugin=plugin, name=name)
         blocked_plugins.append(plugin)
 
-    with mock.patch("allure_commons.logger.AllureFileLogger") as ReporterMock:
+    with mock.patch(path) as ReporterMock:
         ReporterMock.return_value = AllureMemoryLogger()
         yield ReporterMock.return_value
 
@@ -34,16 +43,151 @@ def fake_logger():
         allure_commons.plugin_manager.register(plugin)
 
 
-def get_path_from_docstring(request: pytest.FixtureRequest):
+def get_docstring(node: pytest.Item) -> str:
+    if isinstance(node, pytest.Function):
+        return node.function.__doc__
+    elif isinstance(node, pytest.Class):
+        return node.cls.__doc__
+    elif isinstance(node, pytest.Module):
+        return node.module.__doc__
+    elif isinstance(node, pytest.Package):
+        return node.obj.__doc__
+    return None
+
+
+def get_path_from_docstring(request: FixtureRequest) -> Path:
     return request.config.rootpath.joinpath(
-        (
-            request.node.function.__doc__ or
-                request.node.module.__doc__
-        ).strip()
+        get_docstring(request.node).strip()
     )
 
+RstExampleTableT = TypeVar("RstExampleTableT", bound="RstExampleTable")
+class RstExampleTable:
+
+    STASH_KEY = pytest.StashKey()
+
+    def __init__(self, filepath: str|Path) -> None:
+        self.source = filepath
+        self.examples = self.load_examples(filepath)
+
+    def __getitem__(self, name: str) -> str:
+        if name not in self.examples:
+            raise KeyError(f"Code block {name!r} not found in {self.source}")
+        return self.examples[name]
+
+    @staticmethod
+    def find_examples(request: FixtureRequest) -> RstExampleTableT:
+        """Loads code examples, associated with the test node or one of its
+        parents.
+
+        Arguments:
+            request (FixtureRequest): the request fixture
+
+        Returns (RstExampleTable): A table containing the examples, indexed by
+            their names from the .rst document
+
+        Notes:
+            It first finds a docstring defined on the function, class, module or
+            package associated with the node. If multiple docstrings exist,
+            the one defined on a lower level wins.
+
+            The docstring content is used then as the path to the
+            reStructuredText document. The document is parsed and all its code
+            blocks are combined in a dictionary mapping their names to the code
+            blocks themselves. The mapping can be accessed through the returned
+            instance of RstExampleTable class.
+
+            The table is then cached in a stash of the same node from which the
+            original docstring was loaded. This prevents from parsing the same
+            document several times if multiple tests from the same module/package
+            (or parametrizations of the same metafunc) are testing the examples
+            from the same document.
+        """
+
+        node, docstring = RstExampleTable.find_node_with_docstring_or_throw(
+            request
+        )
+        examples = RstExampleTable.__get_from_cache(node)
+        if examples is None:
+            examples = RstExampleTable.__create_and_cache(node, docstring)
+        return examples
+
+    @staticmethod
+    def find_node_with_docstring(
+        request: FixtureRequest
+    ) -> Tuple[pytest.Item, str]:
+        node = request.node
+        while node:
+            docstring = get_docstring(node)
+            if docstring:
+                break
+            node = node.parent
+        return node, docstring
+
+    @staticmethod
+    def find_node_with_docstring_or_throw(
+        request: FixtureRequest
+    ) -> Tuple[pytest.Item, str]:
+        node, docstring = RstExampleTable.find_node_with_docstring(request)
+        if node is None:
+            nodeid = request.node.nodeid
+            raise ValueError(f"Unable to get docstring for node {nodeid}")
+        return node, docstring
+
+    @staticmethod
+    def load_examples(filepath: str|Path) -> Mapping[str, str]:
+        document = RstExampleTable.parse_rst(filepath)
+        return {
+            name: code_block.astext()
+            for code_block in document.findall(
+                RstExampleTable.__filter
+            ) for name in code_block["names"]
+        }
+
+    @staticmethod
+    def parse_rst(filepath: str|Path) -> docutils.nodes.document:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            parser = docutils.parsers.rst.Parser()
+            components = (docutils.parsers.rst.Parser,)
+            settings = docutils.frontend.OptionParser(
+                components=components
+            ).get_default_values()
+            document = docutils.utils.new_document(
+                str(filepath),
+                settings=settings
+            )
+            with open(filepath, encoding="utf-8") as f:
+                content = f.read()
+            parser.parse(content, document)
+            return document
+
+    @staticmethod
+    def __get_from_cache(node):
+        if RstExampleTable.STASH_KEY in node.stash:
+            return node.stash[RstExampleTable.STASH_KEY]
+
+    @staticmethod
+    def __create_and_cache(node, path):
+        filepath = node.config.rootpath.joinpath(path.strip())
+        if not filepath.exists() or filepath.is_dir():
+            raise ValueError(
+                f"Document, referred by {node.nodeid}, "
+                f"doesn't exist at {filepath}"
+            )
+        examples = RstExampleTable.load_examples(filepath)
+        node.stash[RstExampleTable.STASH_KEY] = examples
+        return examples
+
+    @staticmethod
+    def __filter(node):
+        return isinstance(
+            node,
+            docutils.nodes.literal_block
+        ) and "code" in node["classes"] and node["names"]
+
+
 class AlluredTestdir:
-    def __init__(self, pytester: pytest.Pytester, request: pytest.FixtureRequest):
+    def __init__(self, pytester: Pytester, request: FixtureRequest):
         self.testdir = pytester
         self.request = request
         self.allure_report = None
@@ -122,28 +266,43 @@ class AllureIntegrationRunner:
                 "return-value": return_value
             }
 
+
 @pytest.fixture
-def allured_testdir(pytester: pytest.Pytester, request: pytest.FixtureRequest):
+def allured_testdir(
+    pytester: Pytester,
+    request: FixtureRequest
+) -> AlluredTestdir:
     fixture = AlluredTestdir(pytester, request)
     return fixture
 
 
 @pytest.fixture
-def executed_docstring_source(allured_testdir: AlluredTestdir):
+def executed_docstring_source(
+    allured_testdir: AlluredTestdir
+) -> AlluredTestdir:
     allured_testdir.parse_docstring_source()
     allured_testdir.run_with_allure()
     return allured_testdir
 
 
 @pytest.fixture
-def executed_docstring_path(allured_testdir: AlluredTestdir):
+def executed_docstring_path(
+    allured_testdir: AlluredTestdir
+) -> AlluredTestdir:
     allured_testdir.parse_docstring_path()
     allured_testdir.run_with_allure()
     return allured_testdir
 
 
 @pytest.fixture
-def executed_docstring_directory(allured_testdir: AlluredTestdir):
+def executed_docstring_directory(
+    allured_testdir: AlluredTestdir
+) -> AlluredTestdir:
     allured_testdir.copy_docstring_dir()
     allured_testdir.run_with_allure()
     return allured_testdir
+
+
+@pytest.fixture
+def rst_examples(request: FixtureRequest) -> RstExampleTable:
+    return RstExampleTable.find_examples(request)

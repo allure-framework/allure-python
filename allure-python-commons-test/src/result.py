@@ -82,13 +82,15 @@ def has_description_html(*matchers):
 
 
 def has_step(name, *matchers):
-    return has_entry('steps',
-                     has_item(
-                         all_of(
-                             has_entry('name', equal_to(name)),
-                             *matchers
-                         )
-                     ))
+    return has_entry(
+        'steps',
+        has_item(
+            all_of(
+                has_entry('name', equal_to(name)),
+                *matchers
+            )
+        )
+    )
 
 
 def has_parameter(name, value, *matchers):
@@ -130,17 +132,24 @@ def has_test_case_link(url, name=None):
 
 
 def has_attachment(attach_type=None, name=None):
-    return has_entry('attachments',
-                     has_item(
-                         all_of(
-                             has_entry('source', anything()),
-                             has_entry('type', attach_type) if attach_type else anything(),
-                             has_entry('name', name) if name else anything()
-                         )
-                     ))
+    return has_entry(
+        'attachments',
+        has_item(
+            all_of(
+                has_entry('source', anything()),
+                has_entry('type', attach_type) if attach_type else anything(),
+                has_entry('name', name) if name else anything()
+            )
+        )
+    )
 
 
-def has_attachment_with_content(attachments, content_matcher, attach_type=None, name=None):
+def has_attachment_with_content(
+    attachments,
+    content_matcher,
+    attach_type=None,
+    name=None
+):
     return has_entry(
         'attachments',
         has_item(

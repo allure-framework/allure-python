@@ -1,37 +1,106 @@
 import shutil
+import sys
+import behave.step_registry
+from itertools import chain
+from pathlib import Path
 from pytest import FixtureRequest, fixture, Pytester
 from tests.conftest import AllureIntegrationRunner
 from tests.conftest import get_path_from_docstring
+from tests.conftest import fake_logger
+from tests.conftest import RstExampleTable
 from behave.runner import Runner
-import behave.step_registry
 from behave.step_registry import StepRegistry
+from typing import Sequence
+from behave.configuration import Configuration
+from behave.formatter.base import StreamOpener
+from behave.runner import Context, Runner
+from behave import matchers
+from behave.step_registry import setup_step_decorators
+from behave.parser import parse_feature
+from behave.formatter.pretty import PrettyFormatter
+from allure_behave.formatter import AllureFormatter
 
-
-def __fix_behave_multirun():
-    # behave doesn't play nicely with consecutive programmatic runs, so we
-    # force it to do a proper reset here
-    original_run_model = Runner.run_model
-    def __fixed_run_model(self, *args, **kwargs):
-        # Originally, the runner caches the instance of step_registry on a
-        # module level and reuse that same registry on each run, resulting in
-        # disparity between step registration and step matching.
-        # Here we force the runner to use the newest instance of registry.
-        self.step_registry = behave.step_registry.registry
-        return original_run_model(self, *args, **kwargs)
-    Runner.run_model = __fixed_run_model
-
+def __fix_behave_in_memory_run():
+    # Behave has poor support for consecutive prigrammatic runs. This is due to
+    # how step decorators are cached.
+    # There are three ways to introduce behave step decorators (i.e., @given)
+    # into a step definition module:
+    #   1. from behave import given (most common use)
+    #   2. Without any import (just as if they are globally defined, less
+    #      common)
+    #   3. from behave.step_regostry import given (rarely)
+    # The decorators are associated with a StepRegistry instance. This
+    # association is first created when behave.step_registry module is imported.
+    # They are then introduced as the behave package attributes and basically
+    # are cached on a package level. Even if we replace the decorators from
+    # behave.step_registry with new ones associated with a new StepRegistry with
+    # the behave.step_registry.setup_step_decorators function, the decorators in
+    # the behave package remains the same and remains attached to the old step
+    # registry.
+    # We need to create a new StepRegistry before a run to prevent step
+    # duplication error, but if step definitions are created with the decorators
+    # introduced with (1), they will be added to the old registry and will be
+    # never matched.
+    # To fix that we force decorators to use the global instance of the
+    # StepRegistry.
     original_add_step_definition = StepRegistry.add_step_definition
     def __fixed_add_step_definition(self, *args, **kwargs):
-        # The same happens with step registration mechanism embedded into
-        # bdd declarators (given, then, etc).
-        # Here we redirect add_step_definition method to the newest instance of
-        # registry.
         return original_add_step_definition(
             behave.step_registry.registry,
             *args,
             **kwargs
         )
     StepRegistry.add_step_definition = __fixed_add_step_definition
+
+class InMemoryBehaveRunner(Runner):
+    def __init__(self, features, steps, environment):
+        config = Configuration(["--no-snippets"], load_config=False)
+        super().__init__(config)
+        self.__features = features
+        self.__steps = steps
+        self.__environment = environment
+
+    def load_hooks(self, filename=None):
+        if self.__environment:
+            exec(self.__environment, self.hooks)
+        if "before_all" not in self.hooks:
+            self.hooks["before_all"] = self.before_all_default_hook
+
+    def load_step_definitions(self, extra_step_paths=None):
+        behave.step_registry.registry = self.step_registry = StepRegistry()
+        step_globals = {
+            "use_step_matcher": matchers.use_step_matcher,
+            "step_matcher":     matchers.step_matcher,
+        }
+
+        # To support the decorators (i.e., @given) with no imports
+        setup_step_decorators(step_globals, self.step_registry)
+
+        default_matcher = matchers.current_matcher
+        for step in self.__steps:
+            step_module_globals = step_globals.copy()
+            exec(step, step_module_globals)
+            matchers.current_matcher = default_matcher
+
+    def load_features(self):
+        self.features.extend(
+            parse_feature(f) for f in self.__features
+        )
+
+    def load_formatter(self):
+        opener = StreamOpener(stream=sys.stdout)
+        allure_formatter = AllureFormatter(opener, self.config)
+        pretty_formatter = PrettyFormatter(opener, self.config)
+        self.formatters.append(allure_formatter)
+        self.formatters.append(pretty_formatter)
+
+    def run(self):
+        self.context = Context(self)
+        self.load_hooks()
+        self.load_step_definitions()
+        self.load_features()
+        self.load_formatter()
+        self.run_model()
 
 
 class AllureBehaveRunner:
@@ -42,46 +111,141 @@ class AllureBehaveRunner:
         self.exit_code = None
         self.allure_results = None
 
-    def run_allure_behave(self, *args: str):
-        result = self.runner.run_allure_integration((
-            "--no-snippets",
-            "-f", "allure_behave.formatter:AllureFormatter",
-            "-o", "allure-results",
-            *args
-        ))
-        self.exit_code = result["return-value"]
-        self.allure_results = result["allure-results"]
+    def run_behave(
+        self,
+        *,
+        features: Sequence[str] = None,
+        steps: Sequence[str] = None,
+        environment: str = None,
+        feature_paths: Sequence[str] = None,
+        step_paths: Sequence[str] = None,
+        environment_path: str = None,
+    ) -> None:
+        """Runs behave against specific set of features, steps and an
+        environment each specified either as a string literal or as a path to a
+        file.
 
-    def run_feature_by_docstring_path(self):
-        self.run_allure_behave(
-            get_path_from_docstring(self.request)
+        Arguments:
+            features (Sequence[str]): a sequence of strings each representing
+                a .feature file content.
+            steps (Sequence[str]): a sequence of strings each representing
+                content of a step definition file.
+            environment (str): a string representing content of the
+                environment.py file.
+            feature_paths (Sequence[str]): a sequence of feature files.
+            step_paths (Sequence[str]): a sequence of step definition files.
+            environment_path (str): a path to the environment.py file.
+
+        The results of the run could be accessed through the
+        :code:`allure_results` attribute.
+        """
+
+        path_to_fake = "allure_behave.formatter.AllureFileLogger"
+        testdir = self.request.path.parent
+        features = self.__extend_content_seq(testdir, features, feature_paths)
+        steps = self.__extend_content_seq(testdir, steps, step_paths)
+        environment = self.__resolve_content(
+            testdir,
+            environment,
+            environment_path
+        )
+        with fake_logger(path_to_fake) as allure_results:
+            InMemoryBehaveRunner(features, steps, environment).run()
+        self.allure_results = allure_results
+
+    def run_rst_example(
+        self,
+        *features: str,
+        steps: Sequence[str] = None,
+        feature_literals: Sequence[str] = None,
+        step_literals: Sequence[str] = None,
+        environment: str = None,
+        environment_literal: str = None
+    ) -> None:
+        """Loads code blocks from reStructuredText document and executes behave
+        against them.
+
+        Arguments:
+            *features (str): names of the feature code blocks
+
+        Keyword arguments:
+            feature_literals (Sequence[str]): a sequence of strings, each
+                representing a .feature file content.
+            steps (Sequence[str]): names of the code blocks defining steps.
+            step_literals (Sequence[str]): a sequence of strings, each
+                representing a step definition file content.
+            environment (str): an optional name of the environment.py code
+                block.
+            environment_literal (str): an optional string, representing the
+                environment.py file content.
+
+        Note:
+            See :class:`RstExampleTable` for more details.
+
+        Note:
+            Uses in-memory execution model. See :meth:`run_behave_in_memory` for
+            more details.
+
+        The results of the run could be accessed through the
+        :code:`allure_results` attribute.
+        """
+
+        examples_table = RstExampleTable.find_examples(self.request)
+        self.run_behave(
+            features=self.__resolve_code_blocks(
+                examples_table,
+                features,
+                feature_literals
+            ),
+            steps=self.__resolve_code_blocks(
+                examples_table,
+                steps,
+                step_literals
+            ),
+            environment=examples_table[environment] if environment else\
+                        environment_literal
         )
 
-    def run_feature_of_current_test(self, **fmt_kwargs):
-        test_folder = self.request.node.path.parent
-        self.__generate_test_features(test_folder, fmt_kwargs)
-        self.__copy_test_feature_steps(test_folder)
-        self.run_allure_behave(self.pytester.path)
+    @staticmethod
+    def __extend_content_seq(testdir, content_seq, paths):
+        if content_seq is None:
+            content_seq = []
+        if paths is None:
+            paths = []
+        return chain(
+            content_seq,
+            (AllureBehaveRunner.__read_test_file(testdir, p) for p in paths)
+        )
 
-    def __generate_test_features(self, test_folder, fmt_kwargs):
-        for feature_path in test_folder.glob("*.feature"):
-            dst_path = self.pytester.path.joinpath(feature_path.name)
-            with open(feature_path, "r", encoding="utf-8") as src:
-                with open(dst_path, "w+", encoding="utf-8") as dst:
-                    dst.writelines(
-                        line.format_map(fmt_kwargs) for line in src.readlines()
-                    )
+    @staticmethod
+    def __read_test_file(testdir, path):
+        fullpath = testdir.joinpath(path)
+        with open(fullpath, encoding="utf-8") as f:
+            return f.read()
 
-    def __copy_test_feature_steps(self, test_folder):
-        tmp_steps_folder = self.pytester.path.joinpath("steps")
-        tmp_steps_folder.mkdir(exist_ok=True)
-        for step_path in test_folder.glob("*_steps.py"):
-            if not step_path.name.startswith("test_"):
-                dst_path = tmp_steps_folder.joinpath(step_path.name)
-                shutil.copyfile(step_path, dst_path)
+    @staticmethod
+    def __resolve_content(testdir, content, path):
+        if content is None and path is not None:
+            content = AllureBehaveRunner.__read_test_file(testdir, path)
+        return content
+
+    @staticmethod
+    def __pick_examples(table, example_names): return (
+        table[n] for n in example_names
+    )
+
+    @staticmethod
+    def __resolve_code_blocks(table, code_block_names, literals):
+        code_block_names = code_block_names or []
+        literals = literals or []
+        return chain(
+            AllureBehaveRunner.__pick_examples(table, code_block_names),
+            literals
+        )
+
 
 @fixture
-def allure_behave_runner(pytester: Pytester, request: FixtureRequest):
+def behave_runner(pytester: Pytester, request: FixtureRequest):
     return AllureBehaveRunner(pytester, request)
 
 
@@ -90,4 +254,4 @@ def executed_docstring_path(allure_behave_runner):
     allure_behave_runner.run_feature_by_docstring_path()
     return allure_behave_runner
 
-__fix_behave_multirun()
+__fix_behave_in_memory_run()

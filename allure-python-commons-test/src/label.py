@@ -3,13 +3,15 @@ from hamcrest import has_entry, has_item
 
 
 def has_label(name, value):
-    return has_entry('labels',
-                     has_item(
-                         all_of(
-                             has_entry('name', name),
-                             has_entry('value', value)
-                         )
-                     ))
+    return has_entry(
+        'labels',
+        has_item(
+            all_of(
+                has_entry('name', name),
+                has_entry('value', value)
+            )
+        )
+    )
 
 
 def has_severity(level):
