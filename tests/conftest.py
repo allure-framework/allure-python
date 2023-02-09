@@ -55,9 +55,31 @@ def get_docstring(node: pytest.Item) -> str:
     return None
 
 
+def find_node_with_docstring(
+    request: FixtureRequest
+) -> Tuple[pytest.Item, str]:
+    node = request.node
+    while node:
+        docstring = get_docstring(node)
+        if docstring:
+            break
+        node = node.parent
+    return node, docstring
+
+
+def find_node_with_docstring_or_throw(
+    request: FixtureRequest
+) -> Tuple[pytest.Item, str]:
+    node, docstring = find_node_with_docstring(request)
+    if node is None:
+        nodeid = request.node.nodeid
+        raise ValueError(f"Unable to get docstring for node {nodeid}")
+    return node, docstring
+
+
 def get_path_from_docstring(request: FixtureRequest) -> Path:
     return request.config.rootpath.joinpath(
-        get_docstring(request.node).strip()
+        find_node_with_docstring_or_throw(request)[1].strip()
     )
 
 RstExampleTableT = TypeVar("RstExampleTableT", bound="RstExampleTable")
@@ -103,35 +125,13 @@ class RstExampleTable:
             from the same document.
         """
 
-        node, docstring = RstExampleTable.find_node_with_docstring_or_throw(
+        node, docstring = find_node_with_docstring_or_throw(
             request
         )
         examples = RstExampleTable.__get_from_cache(node)
         if examples is None:
             examples = RstExampleTable.__create_and_cache(node, docstring)
         return examples
-
-    @staticmethod
-    def find_node_with_docstring(
-        request: FixtureRequest
-    ) -> Tuple[pytest.Item, str]:
-        node = request.node
-        while node:
-            docstring = get_docstring(node)
-            if docstring:
-                break
-            node = node.parent
-        return node, docstring
-
-    @staticmethod
-    def find_node_with_docstring_or_throw(
-        request: FixtureRequest
-    ) -> Tuple[pytest.Item, str]:
-        node, docstring = RstExampleTable.find_node_with_docstring(request)
-        if node is None:
-            nodeid = request.node.nodeid
-            raise ValueError(f"Unable to get docstring for node {nodeid}")
-        return node, docstring
 
     @staticmethod
     def load_examples(filepath: str|Path) -> Mapping[str, str]:
@@ -206,12 +206,12 @@ class AlluredTestdir:
                 yield f"no:{plugin_package}"
 
     def parse_docstring_source(self):
-        docstring = self.request.node.function.__doc__ or self.request.node.module.__doc__
+        _, docstring = find_node_with_docstring_or_throw(self.request)
         source = script_from_examples(docstring).replace("#\n", "\n")
         return self.testdir.makepyfile(source)
 
     def parse_docstring_path(self):
-        example_file = self.__get_example_path()
+        example_file = get_path_from_docstring(self.request)
         with open(example_file, encoding="utf-8") as f:
             content = f.read()
             source = script_from_examples(content)
@@ -242,29 +242,6 @@ class AlluredTestdir:
                 self.testdir.runpytest(*pytest_args, **kwargs)
 
         return self.allure_report
-
-    def __get_example_path(self):
-        return self.request.config.rootdir.join(
-            (
-                self.request.node.function.__doc__ or
-                    self.request.node.module.__doc__
-            ).strip()
-        )
-
-
-class AllureIntegrationRunner:
-    def __init__(self, module: str, entry_point :str = "main") -> None:
-        self.__module_name = module
-        self.__entry_point = entry_point
-
-    def run_allure_integration(self, *args, **kwargs):
-        with fake_logger() as allure_results:
-            module = runpy.run_module(self.__module_name)
-            return_value = module[self.__entry_point](*args, **kwargs)
-            return {
-                "allure-results": allure_results,
-                "return-value": return_value
-            }
 
 
 @pytest.fixture
@@ -306,3 +283,8 @@ def executed_docstring_directory(
 @pytest.fixture
 def rst_examples(request: FixtureRequest) -> RstExampleTable:
     return RstExampleTable.find_examples(request)
+
+
+@pytest.fixture
+def docstring(request: FixtureRequest) -> str:
+    return find_node_with_docstring_or_throw(request)[1]

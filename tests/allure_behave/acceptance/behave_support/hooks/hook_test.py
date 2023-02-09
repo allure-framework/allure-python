@@ -164,30 +164,28 @@ def test_context_step_in_scenario_hooks(behave_runner: Runner):
     )
     assert_that(
         behave_runner.allure_results,
-        all_of(
-            has_test_case(
-                "Hook with steps",
-                with_status("passed"),
-                has_container(
-                    behave_runner.allure_results,
-                    has_before(
-                        "before scenario",
-                        with_status("passed"),
-                        has_step(
-                            "Step in before_scenario",
-                            with_status("passed")
-                        )
-                    ),
+        has_test_case(
+            "Hook with steps",
+            with_status("passed"),
+            has_container(
+                behave_runner.allure_results,
+                has_before(
+                    "before scenario",
+                    with_status("passed"),
+                    has_step(
+                        "Step in before_scenario",
+                        with_status("passed")
+                    )
                 ),
-                has_container(
-                    behave_runner.allure_results,
-                    has_after(
-                        "after scenario",
-                        with_status("passed"),
-                        has_step(
-                            "Step in after_scenario",
-                            with_status("passed")
-                        )
+            ),
+            has_container(
+                behave_runner.allure_results,
+                has_after(
+                    "after scenario",
+                    with_status("passed"),
+                    has_step(
+                        "Step in after_scenario",
+                        with_status("passed")
                     )
                 )
             )
@@ -203,30 +201,28 @@ def test_func_step_in_scenario_hooks(behave_runner: Runner):
     )
     assert_that(
         behave_runner.allure_results,
-        all_of(
-            has_test_case(
-                "Hook with steps",
-                with_status("passed"),
-                has_container(
-                    behave_runner.allure_results,
-                    has_before(
-                        "before all",
-                        with_status("passed"),
-                        has_step(
-                            "Step in 'before_all'",
-                            with_status("passed")
-                        )
-                    ),
+        has_test_case(
+            "Hook with steps",
+            with_status("passed"),
+            has_container(
+                behave_runner.allure_results,
+                has_before(
+                    "before all",
+                    with_status("passed"),
+                    has_step(
+                        "Step in 'before_all'",
+                        with_status("passed")
+                    )
                 ),
-                has_container(
-                    behave_runner.allure_results,
-                    has_after(
-                        "after all",
-                        with_status("passed"),
-                        has_step(
-                            "Step in 'after_all'",
-                            with_status("passed")
-                        )
+            ),
+            has_container(
+                behave_runner.allure_results,
+                has_after(
+                    "after all",
+                    with_status("passed"),
+                    has_step(
+                        "Step in 'after_all'",
+                        with_status("passed")
                     )
                 )
             )

@@ -1,7 +1,7 @@
 """ ./allure-behave/examples/label.rst """
 
 from tests.allure_behave.conftest import AllureBehaveRunner
-from hamcrest import assert_that, all_of
+from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons_test.label import has_label

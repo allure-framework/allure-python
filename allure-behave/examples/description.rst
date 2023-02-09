@@ -1,6 +1,6 @@
-====================================
-Provide a description for a scenario
-====================================
+=====================================
+Provide a description for a test case
+=====================================
 
 Scenario description can be added in various ways:
 

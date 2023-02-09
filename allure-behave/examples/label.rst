@@ -1,5 +1,5 @@
 =================================
-Add a custom label for a scenario
+Add a custom label to a test case
 =================================
 
 It's possible to add a custom label to a behave scenario. Simply apply

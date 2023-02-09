@@ -94,14 +94,16 @@ def has_step(name, *matchers):
 
 
 def has_parameter(name, value, *matchers):
-    return has_entry('parameters',
-                     has_item(
-                         all_of(
-                             has_entry('name', equal_to(name)),
-                             has_entry('value', equal_to(value)),
-                             *matchers
-                         )
-                     ))
+    return has_entry(
+        'parameters',
+        has_item(
+            all_of(
+                has_entry('name', equal_to(name)),
+                has_entry('value', equal_to(value)),
+                *matchers
+            )
+        )
+    )
 
 
 def doesnt_have_parameter(name):
@@ -114,13 +116,19 @@ def doesnt_have_parameter(name):
 
 
 def has_link(url, link_type=None, name=None):
-    return has_entry('links',
-                     has_item(
-                         all_of(
-                             *[has_entry(key, value) for key, value in
-                               zip(('url', 'type', 'name'), (url, link_type, name)) if value is not None]
-                         )
-                     ))
+    return has_entry(
+        'links',
+        has_item(
+            all_of(
+                *[
+                    has_entry(key, value) for key, value in zip(
+                        ('url', 'type', 'name'),
+                        (url, link_type, name)
+                    ) if value is not None
+                ]
+            )
+        )
+    )
 
 
 def has_issue_link(url, name=None):
@@ -128,7 +136,7 @@ def has_issue_link(url, name=None):
 
 
 def has_test_case_link(url, name=None):
-    return has_link(url, link_type='test_case', name=name)
+    return has_link(url, link_type='tms', name=name)
 
 
 def has_attachment(attach_type=None, name=None):

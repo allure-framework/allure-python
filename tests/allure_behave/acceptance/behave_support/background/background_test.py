@@ -1,5 +1,5 @@
 import pytest
-from hamcrest import assert_that
+from hamcrest import assert_that, all_of
 from tests.allure_behave.conftest import AllureBehaveRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
@@ -40,40 +40,42 @@ def test_background(
     )
     assert_that(
         behave_runner.allure_results,
-        has_test_case(
-            f"Scenario with background containing {step_outcome} step",
-            with_status(status),
-            has_step(
-                f"Given the first background step that is {step_outcome}",
-                with_status(status)
+        all_of(
+            has_test_case(
+                f"Scenario with background containing {step_outcome} step",
+                with_status(status),
+                has_step(
+                    f"Given the first background step that is {step_outcome}",
+                    with_status(status)
+                ),
+                has_step(
+                    "And the second background step with no failures",
+                    with_status(remained_steps_status)
+                ),
+                has_step(
+                    "Given the first step with no failures",
+                    with_status(remained_steps_status)
+                ),
+                has_step(
+                    "And the second step with no failures",
+                    with_status(remained_steps_status)
+                )
             ),
-            has_step(
-                "And the second background step with no failures",
-                with_status(remained_steps_status)
-            ),
-            has_step(
-                "Given the first step with no failures",
-                with_status(remained_steps_status)
-            ),
-            has_step(
-                "And the second step with no failures",
-                with_status(remained_steps_status)
-            )
-        ),
-        has_test_case(
-            f"Another scenario with background containing {step_outcome} step",
-            with_status(status),
-            has_step(
-                f"Given the first background step that is {step_outcome}",
-                with_status(status)
-            ),
-            has_step(
-                "And the second background step with no failures",
-                with_status(remained_steps_status)
-            ),
-            has_step(
-                "Given the step with no failures",
-                with_status(remained_steps_status)
+            has_test_case(
+                f"Another scenario with background containing {step_outcome} step",
+                with_status(status),
+                has_step(
+                    f"Given the first background step that is {step_outcome}",
+                    with_status(status)
+                ),
+                has_step(
+                    "And the second background step with no failures",
+                    with_status(remained_steps_status)
+                ),
+                has_step(
+                    "Given the step with no failures",
+                    with_status(remained_steps_status)
+                )
             )
         )
     )

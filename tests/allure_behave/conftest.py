@@ -1,11 +1,8 @@
-import shutil
 import sys
 import behave.step_registry
 from itertools import chain
 from pathlib import Path
 from pytest import FixtureRequest, fixture, Pytester
-from tests.conftest import AllureIntegrationRunner
-from tests.conftest import get_path_from_docstring
 from tests.conftest import fake_logger
 from tests.conftest import RstExampleTable
 from behave.runner import Runner
@@ -52,9 +49,14 @@ def __fix_behave_in_memory_run():
         )
     StepRegistry.add_step_definition = __fixed_add_step_definition
 
-class InMemoryBehaveRunner(Runner):
-    def __init__(self, features, steps, environment):
-        config = Configuration(["--no-snippets"], load_config=False)
+class _InMemoryBehaveRunner(Runner):
+    def __init__(self, features, steps, environment, args=None):
+        if args is None:
+            args = []
+        config = Configuration(
+            ["--no-snippets"] + list(args),
+            load_config=False
+        )
         super().__init__(config)
         self.__features = features
         self.__steps = steps
@@ -107,7 +109,6 @@ class AllureBehaveRunner:
     def __init__(self, pytester: Pytester, request: FixtureRequest):
         self.pytester = pytester
         self.request = request
-        self.runner = AllureIntegrationRunner("behave")
         self.exit_code = None
         self.allure_results = None
 
@@ -117,9 +118,10 @@ class AllureBehaveRunner:
         features: Sequence[str] = None,
         steps: Sequence[str] = None,
         environment: str = None,
-        feature_paths: Sequence[str] = None,
-        step_paths: Sequence[str] = None,
-        environment_path: str = None,
+        feature_paths: Sequence[str|Path] = None,
+        step_paths: Sequence[str|Path] = None,
+        environment_path: str|Path = None,
+        cli_args: Sequence[str] = None
     ) -> None:
         """Runs behave against specific set of features, steps and an
         environment each specified either as a string literal or as a path to a
@@ -132,9 +134,11 @@ class AllureBehaveRunner:
                 content of a step definition file.
             environment (str): a string representing content of the
                 environment.py file.
-            feature_paths (Sequence[str]): a sequence of feature files.
-            step_paths (Sequence[str]): a sequence of step definition files.
-            environment_path (str): a path to the environment.py file.
+            feature_paths (Sequence[str|Path]): a sequence of feature files.
+            step_paths (Sequence[str|Path]): a sequence of step definition
+                files.
+            environment_path (str|Path): a path to the environment.py file.
+            cli_args (Sequence[str]): a CLI arguments passed to behave.
 
         The results of the run could be accessed through the
         :code:`allure_results` attribute.
@@ -150,7 +154,7 @@ class AllureBehaveRunner:
             environment_path
         )
         with fake_logger(path_to_fake) as allure_results:
-            InMemoryBehaveRunner(features, steps, environment).run()
+            _InMemoryBehaveRunner(features, steps, environment, cli_args).run()
         self.allure_results = allure_results
 
     def run_rst_example(
@@ -160,7 +164,8 @@ class AllureBehaveRunner:
         feature_literals: Sequence[str] = None,
         step_literals: Sequence[str] = None,
         environment: str = None,
-        environment_literal: str = None
+        environment_literal: str = None,
+        cli_args: Sequence[str] = None
     ) -> None:
         """Loads code blocks from reStructuredText document and executes behave
         against them.
@@ -203,7 +208,8 @@ class AllureBehaveRunner:
                 step_literals
             ),
             environment=examples_table[environment] if environment else\
-                        environment_literal
+                        environment_literal,
+            cli_args=cli_args
         )
 
     @staticmethod
@@ -248,10 +254,5 @@ class AllureBehaveRunner:
 def behave_runner(pytester: Pytester, request: FixtureRequest):
     return AllureBehaveRunner(pytester, request)
 
-
-@fixture
-def executed_docstring_path(allure_behave_runner):
-    allure_behave_runner.run_feature_by_docstring_path()
-    return allure_behave_runner
 
 __fix_behave_in_memory_run()
