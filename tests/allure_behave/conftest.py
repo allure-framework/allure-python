@@ -140,8 +140,8 @@ class AllureBehaveRunner:
             environment_path (str|Path): a path to the environment.py file.
             cli_args (Sequence[str]): a CLI arguments passed to behave.
 
-        The results of the run could be accessed through the
-        :code:`allure_results` attribute.
+        The result of the run is accessible through the :code:`allure_results`
+        attribute.
         """
 
         path_to_fake = "allure_behave.formatter.AllureFileLogger"

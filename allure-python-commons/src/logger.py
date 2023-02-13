@@ -75,7 +75,7 @@ class AllureMemoryLogger:
 
     @hookimpl
     def report_attached_file(self, source, file_name):
-        pass
+        self.attachments[file_name] = source
 
     @hookimpl
     def report_attached_data(self, body, file_name):

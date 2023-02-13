@@ -4,6 +4,7 @@ from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_step
 from allure_commons_test.result import has_status_details
+from allure_commons_test.result import with_status
 from allure_commons_test.result import with_message_contains
 
 
@@ -37,7 +38,6 @@ def test_class_method_as_step(executed_docstring_path):
     )
 
 
-@pytest.mark.skip()
 def test_args_less_than_placeholders(executed_docstring_source):
     """
     >>> import allure
@@ -54,6 +54,9 @@ def test_args_less_than_placeholders(executed_docstring_source):
         executed_docstring_source.allure_report,
         has_test_case(
             "test_args_less_than_placeholders_example",
-            has_status_details(with_message_contains("IndexError: tuple index out of range"))
+            with_status("broken"),
+            has_status_details(
+                with_message_contains("IndexError")
+            )
         )
     )
