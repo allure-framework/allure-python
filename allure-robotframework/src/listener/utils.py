@@ -44,36 +44,47 @@ def get_allure_suites(longname):
     return labels
 
 
-def allure_tags(attributes):
-    return [Label(LabelType.TAG, tag) for tag in attributes.get('tags', ()) if not allure_tag_sep(tag)]
+def get_items_of_type_from_tags(tags, type):
+    return [
+        item for item in map(
+            parse_tag,
+            tags
+        ) if isinstance(item, type)
+    ]
+
 
 
 def allure_labels(tags):
-    parsed = [parse_tag(item) for item in tags]
-    return labels_set(list(filter(lambda x: isinstance(x, Label),  parsed)))
+    return labels_set(
+        get_items_of_type_from_tags(tags, Label)
+    )
 
 
 def allure_links(attributes, prefix):
     tags = attributes.get('tags', ())
 
-    def is_link(link):
-        return link.startswith(f"{prefix}:")
-
-    return [
+    general_syntax_links = [
+        link for link in get_items_of_type_from_tags(
+            tags,
+            Link
+        ) if link.type == prefix
+    ]
+    rf_specific_syntax_links = [
         _create_link_from_tag(
             prefix,
             tag
-        ) for tag in tags if is_link(tag)
+        ) for tag in tags if tag.startswith(f"{prefix}:")
     ]
+
+    return general_syntax_links + rf_specific_syntax_links
 
 
 def _parse_link(link):
     lnk_val = link.split(':', 1)[1] or 'unknown'
-    lnk_label = search(r'\[.+\]', lnk_val)
+    lnk_label = search(r'^\[(.+)\]', lnk_val)
     if lnk_label:
-        lnk_label = lnk_label.group(0)
-        lnk_val = lnk_val.strip(lnk_label)
-        lnk_label = lnk_label.strip('[]')
+        lnk_val = lnk_val[lnk_label.end():]
+        lnk_label = lnk_label.group(1)
     else:
         lnk_label = lnk_val
 

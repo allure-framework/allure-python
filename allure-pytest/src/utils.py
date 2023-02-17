@@ -110,9 +110,12 @@ def allure_package(item):
 
 
 def allure_name(item, parameters):
-    name = escape_name(item.name)
+    name = item.name
     title = allure_title(item)
-    return SafeFormatter().format(title, **{**parameters, **item.funcargs}) if title else name
+    return SafeFormatter().format(
+        title,
+        **{**parameters, **item.funcargs}
+    ) if title else name
 
 
 def allure_full_name(item: pytest.Item):
@@ -120,7 +123,7 @@ def allure_full_name(item: pytest.Item):
     class_name = f".{item.parent.name}" if isinstance(item.parent, pytest.Class) else ''
     test = item.originalname if isinstance(item, pytest.Function) else item.name.split("[")[0]
     full_name = f'{package}{class_name}#{test}'
-    return escape_name(full_name)
+    return full_name
 
 
 def allure_suite_labels(item):
@@ -137,10 +140,6 @@ def allure_suite_labels(item):
             default_suite_labels.append((label, value))
 
     return default_suite_labels
-
-
-def escape_name(name):
-    return name.encode('ascii', 'backslashreplace').decode('unicode_escape')
 
 
 def get_outcome_status(outcome):

@@ -73,16 +73,16 @@ It's possible to specify a name and a type of the attachment:
         ...             name=my-file  attachment_type=TEXT
 
 
---------------------------------------------------
-Attachment of files created by 3rd party libraries
---------------------------------------------------
+---------------------
+Automatic attachments
+---------------------
 
-If you want to automatically attach files, created by some other library, you
-can use the trick, described below.
+If you want to automatically attach files, created by some library, you can use
+the trick, described below.
 
 Lets say, we want to automatically attach screenshots, created by the
 `SeleniumLibrary's Capture Page Screenshot`_ keyword. To achieve that, lets
-create a wrapper over our library of interest:
+create a wrapper over the SeleniumLibrary:
 
 selenium_wrapper.py:
 ^^^^^^^^^^^^^^^^^^^^
@@ -118,7 +118,7 @@ The wrapper sets itself as the first library in the library resolution order of
 the Robot Framework. It uses the SeleniumLibrary under the hood, attaching the
 output file to the allure report.
 
-Declare both the library and the wrapper in your .robot file:
+Import both the library and the wrapper in your .robot file:
 
 ..  code:: robotframework
     :name: selenium-suite

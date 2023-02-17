@@ -17,7 +17,7 @@ from allure_commons.types import LabelType, AttachmentType, Severity, LinkType
 from allure_robotframework.utils import get_allure_status
 from allure_robotframework.utils import get_allure_suites
 from allure_robotframework.utils import get_allure_parameters
-from allure_robotframework.utils import allure_labels, allure_links, allure_tags
+from allure_robotframework.utils import allure_labels, allure_links
 from allure_robotframework.types import RobotStatus, RobotLogLevel
 
 
@@ -150,7 +150,6 @@ class AllureListener:
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=self._platform))
             test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=pool_id()))
-            test_result.labels.extend(allure_tags(attributes))
             tags = attributes.get('tags', ())
             test_result.labels.extend(allure_labels(tags))
             test_result.statusDetails = StatusDetails(message=attributes.get('message'),

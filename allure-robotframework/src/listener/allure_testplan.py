@@ -8,8 +8,12 @@ from allure_commons.types import LabelType
 class allure_testplan(SuiteVisitor):
     def __init__(self):
         self.testplan = get_testplan()
-        self.allure_ids = [test["id"] for test in self.testplan] if self.testplan else []
-        self.selectors = [test["selector"] for test in self.testplan] if self.testplan else []
+        self.allure_ids = self.__to_set_by_item_key(self.testplan, "id")
+        self.selectors = self.__to_set_by_item_key(self.testplan, "selector")
+
+    @staticmethod
+    def __to_set_by_item_key(items, key):
+        return {item[key] for item in items if key in item}
 
     def start_suite(self, suite):
         if self.testplan:

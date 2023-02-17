@@ -129,8 +129,8 @@ class AllureRobotRunner:
         return suites, testplan_path
 
     def __run_with_testplan(self, suites, testplan_path, options):
-        with self.monkeypatch.setenv("ALLURE_TESTPLAN_PATH", str(testplan_path)):
-            self.__run(suites, options)
+        self.monkeypatch.setenv("ALLURE_TESTPLAN_PATH", str(testplan_path))
+        self.__run(suites, options)
 
     def __run(self, suites, options):
         with fake_logger(AllureRobotRunner.LOGGER_PATH) as results:

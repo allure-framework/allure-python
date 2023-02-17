@@ -1,8 +1,11 @@
 from hamcrest import all_of
+from hamcrest import anything
 from hamcrest import has_entry, has_item
 
 
-def has_label(name, value):
+def has_label(name, value=None):
+    if value is None:
+        value = anything()
     return has_entry(
         'labels',
         has_item(

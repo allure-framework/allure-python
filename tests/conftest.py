@@ -174,9 +174,9 @@ class RstExampleTable:
                 f"Document, referred by {node.nodeid}, "
                 f"doesn't exist at {filepath}"
             )
-        examples = RstExampleTable.load_examples(filepath)
-        node.stash[RstExampleTable.STASH_KEY] = examples
-        return examples
+        table = RstExampleTable(filepath)
+        node.stash[RstExampleTable.STASH_KEY] = table
+        return table
 
     @staticmethod
     def __filter(node):

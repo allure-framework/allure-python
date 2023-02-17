@@ -122,7 +122,7 @@ Select test cases by allure id
 ------------------------------
 
 If you link you scenarios to corresponding test cases with the :code:`as_id`
-label, you can specify this ID instead to filter tests in the testplan:
+label, you can filter them by those IDs instead:
 
 **testplan-1.feature**:
 
