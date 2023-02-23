@@ -1,5 +1,4 @@
 import robot
-from pathlib import Path
 from pytest import FixtureRequest, Pytester
 from tests.e2e import AllureFrameworkRunner, PathlikeT
 from typing import Sequence, Mapping

@@ -9,7 +9,6 @@ from behave.parser import parse_feature
 from behave.runner import Context, Runner
 from behave.step_registry import setup_step_decorators
 from behave.step_registry import StepRegistry
-from pathlib import Path
 from pytest import FixtureRequest, Pytester
 from typing import Sequence
 from tests.e2e import AllureFrameworkRunner, PathlikeT
