@@ -1,9 +1,9 @@
 Allure Pytest Plugin
 ====================
-.. image:: https://pypip.in/v/allure-pytest/badge.png
+.. image:: https://img.shields.io/pypi/v/allure-pytest
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-pytest
-.. image:: https://pypip.in/d/allure-pytest/badge.png
+.. image:: https://img.shields.io/pypi/dm/allure-pytest
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-pytest
 
@@ -22,3 +22,8 @@ Installation and Usage
     $ pip install allure-pytest
     $ py.test --alluredir=%allure_result_folder% ./tests
     $ allure serve %allure_result_folder%
+
+Usage examples
+--------------
+
+See usage examples `here <examples>`_.

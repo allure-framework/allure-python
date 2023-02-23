@@ -4,7 +4,7 @@
 The repository contains adaptors for Python-based test frameworks.
 Documentation is available
 [online](https://docs.qameta.io/allure-report/), also you can get help at
-[gitter channel](https://gitter.im/allure-framework/allure-core)
+[gitter channel](https://gitter.im/allure-framework/allure-core).
 
 ## Pytest
 [![Release
@@ -13,7 +13,9 @@ Status](https://img.shields.io/pypi/v/allure-pytest)](https://pypi.python.org/py
 
 Allure [pytest](http://pytest.org) integration. It's developed as pytest
 plugin and distributed via
-[pypi](https://pypi.python.org/pypi/allure-pytest)
+[pypi](https://pypi.python.org/pypi/allure-pytest).
+
+[Usage examples](/allure-pytest/examples).
 
 ## Behave
 [![Release
@@ -23,7 +25,9 @@ Status](https://img.shields.io/pypi/v/allure-behave)](https://pypi.python.org/py
 Allure [behave](https://behave.readthedocs.io/en/latest/) integration.
 Just external formatter that produce test results in allure2 format.
 This package is available on
-[pypi](https://pypi.python.org/pypi/allure-behave)
+[pypi](https://pypi.python.org/pypi/allure-behave).
+
+[Usage examples](/allure-behave/examples).
 
 ## Robot Framework
 [![Release
@@ -33,9 +37,11 @@ Status](https://img.shields.io/pypi/v/allure-robotframework)](https://pypi.pytho
 Allure [RobotFramework](http://robotframework.org/) integration. This
 integration is a
 [Listener](http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#listener-interface\))
-and does not require changing autotests
+and does not require changing autotests.
 
-[Read more ...](/allure-robotframework/README.rst)
+[Read more ...](/allure-robotframework/README.rst).
+
+[Usage examples](/allure-robotframework/examples).
 
 ## Pytest-BDD
 
@@ -45,7 +51,7 @@ Status](https://img.shields.io/pypi/v/allure-pytest-bdd)](https://pypi.python.or
 
 Allure [pytest-bdd](http://pytest.org) integration. It's developed as
 pytest plugin and distributed via
-[pypi](https://pypi.python.org/pypi/allure-pytest-bdd)
+[pypi](https://pypi.python.org/pypi/allure-pytest-bdd).
 
 ## Nose2
 [![Release
