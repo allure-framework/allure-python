@@ -1,3 +1,7 @@
+[tool.poe.tasks]
+linter = "flake8 ./allure-*/src ./tests"
+tests = "pytest"
+
 [tool.pytest.ini_options]
 testpaths = [
     "tests"

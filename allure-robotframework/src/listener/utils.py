@@ -2,7 +2,7 @@ from re import search
 from allure_commons.model2 import Status, Label, Parameter, Link
 from allure_commons.types import LabelType
 from allure_robotframework.types import RobotStatus
-from allure_commons.mapping import parse_tag, labels_set, allure_tag_sep
+from allure_commons.mapping import parse_tag, labels_set
 
 
 def get_allure_status(status):
@@ -44,14 +44,13 @@ def get_allure_suites(longname):
     return labels
 
 
-def get_items_of_type_from_tags(tags, type):
+def get_items_of_type_from_tags(tags, item_type):
     return [
         item for item in map(
             parse_tag,
             tags
-        ) if isinstance(item, type)
+        ) if isinstance(item, item_type)
     ]
-
 
 
 def allure_labels(tags):

@@ -66,7 +66,7 @@ def tag(*tags):
     return label(LabelType.TAG, *tags)
 
 
-def id(id):
+def id(id):  # noqa: A001,A002
     return label(LabelType.ID, id)
 
 
@@ -125,7 +125,7 @@ class Dynamic:
         Dynamic.label(LabelType.TAG, *tags)
 
     @staticmethod
-    def id(id):
+    def id(id):  # noqa: A003,A002
         Dynamic.label(LabelType.ID, id)
 
     @staticmethod
