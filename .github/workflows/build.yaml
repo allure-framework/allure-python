@@ -117,7 +117,7 @@ jobs:
       - name: Install packages
         run: pip install dist/allure-python-commons*.tar.gz &&
              pip install ./${{ matrix.package }} &&
-             pip install ./requirements/testing.txt &&
+             pip install -r ./requirements/testing.txt &&
              pip install -r ./requirements/testing/${{ matrix.package }}.txt
 
       - name: Test ${{ matrix.package }}
