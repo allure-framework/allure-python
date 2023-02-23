@@ -1,6 +1,6 @@
 """ ./allure-behave/examples/link.rst """
 
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from hamcrest import assert_that, all_of
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
@@ -8,9 +8,10 @@ from allure_commons_test.result import has_link
 from allure_commons_test.result import has_issue_link
 from allure_commons_test.result import has_test_case_link
 
+
 def test_link_on_scenario_level(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "link-scenario-feature",
+    behave_runner.run_behave(
+        feature_rst_ids=["link-scenario-feature"],
         step_literals=["given('noop')(lambda c:None)"]
     )
     assert_that(
@@ -24,8 +25,8 @@ def test_link_on_scenario_level(behave_runner: AllureBehaveRunner):
 
 
 def test_link_on_feature_level(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "link-feature-feature",
+    behave_runner.run_behave(
+        feature_rst_ids=["link-feature-feature"],
         step_literals=["given('noop')(lambda c:None)"]
     )
     assert_that(
@@ -44,9 +45,10 @@ def test_link_on_feature_level(behave_runner: AllureBehaveRunner):
         )
     )
 
+
 def test_specialized_links(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "specialized-links-feature",
+    behave_runner.run_behave(
+        feature_rst_ids=["specialized-links-feature"],
         step_literals=["given('noop')(lambda c:None)"]
     )
     assert_that(
@@ -73,10 +75,10 @@ def test_specialized_links(behave_runner: AllureBehaveRunner):
 
 
 def test_dynamic_links(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "dynamic-links-feature",
-        steps=["dynamic-links-steps"],
-        environment="dynamic-links-hooks"
+    behave_runner.run_behave(
+        feature_rst_ids=["dynamic-links-feature"],
+        step_rst_ids=["dynamic-links-steps"],
+        environment_rst_id="dynamic-links-hooks"
     )
     assert_that(
         behave_runner.allure_results,
@@ -86,8 +88,7 @@ def test_dynamic_links(behave_runner: AllureBehaveRunner):
             has_issue_link(
                 "https://github.com/allure-framework/allure-python/issues/1",
                 "Skip None and empty values in json"
-            )
-            ,
+            ),
             has_link(
                 "https://qameta.io/allure-report/",
                 "link",

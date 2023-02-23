@@ -3,10 +3,11 @@ from hamcrest import assert_that
 from hamcrest import all_of, is_, is_not, empty
 from hamcrest import has_property, has_value
 from hamcrest import contains_string
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
 
 @pytest.mark.parametrize("capture", ["sys", "fd", "no"])
-def test_capture_stdout(allured_testdir, capture):
+def test_capture_stdout(allure_pytest_runner: AllurePytestRunner, capture):
     """
     >>> import pytest
     >>> import allure
@@ -24,25 +25,26 @@ def test_capture_stdout(allured_testdir, capture):
     ...         print ("Start step")
     """
 
-    allured_testdir.parse_docstring_source()
-    allured_testdir.run_with_allure(f"--capture={capture}")
+    allure_results = allure_pytest_runner.run_docstring(f"--capture={capture}")
 
     if_pytest_capture_ = is_not if capture == "no" else is_
 
-    assert_that(allured_testdir.allure_report,
-                has_property("attachments",
-                             all_of(
-                                 if_pytest_capture_(has_value(contains_string("Start fixture"))),
-                                 if_pytest_capture_(has_value(contains_string("Stop fixture"))),
-                                 if_pytest_capture_(has_value(contains_string("Start test"))),
-                                 if_pytest_capture_(has_value(contains_string("Start step")))
-                             )
-                             )
-                )
+    assert_that(
+        allure_results,
+        has_property(
+            "attachments",
+            all_of(
+                if_pytest_capture_(has_value(contains_string("Start fixture"))),
+                if_pytest_capture_(has_value(contains_string("Stop fixture"))),
+                if_pytest_capture_(has_value(contains_string("Start test"))),
+                if_pytest_capture_(has_value(contains_string("Start step")))
+            )
+        )
+    )
 
 
 @pytest.mark.parametrize("capture", ["sys", "fd"])
-def test_capture_empty_stdout(allured_testdir, capture):
+def test_capture_empty_stdout(allure_pytest_runner: AllurePytestRunner, capture):
     """
     >>> import pytest
     >>> import allure
@@ -58,16 +60,16 @@ def test_capture_empty_stdout(allured_testdir, capture):
     ...         pass
     """
 
-    allured_testdir.parse_docstring_source()
-    allured_testdir.run_with_allure(f"--capture={capture}")
+    allure_results = allure_pytest_runner.run_docstring(f"--capture={capture}")
 
-    assert_that(allured_testdir.allure_report,
-                has_property("attachments", empty())
-                )
+    assert_that(
+        allure_results,
+        has_property("attachments", empty())
+    )
 
 
 @pytest.mark.parametrize("logging", [True, False])
-def test_capture_log(allured_testdir, logging):
+def test_capture_log(allure_pytest_runner: AllurePytestRunner, logging):
     """
     >>> import logging
     >>> import pytest
@@ -88,39 +90,45 @@ def test_capture_log(allured_testdir, logging):
     ...         logger.info("Start step")
     """
 
-    allured_testdir.parse_docstring_source()
-
     params = [] if logging else ["-p", "no:logging"]
+    allure_results = allure_pytest_runner.run_docstring(
+        "--log-level=INFO",
+        *params
+    )
+
     if_logging_ = is_ if logging else is_not
 
-    allured_testdir.run_with_allure("--log-cli-level=INFO", *params)
+    assert_that(
+        allure_results,
+        has_property(
+            "attachments",
+            all_of(
+                if_logging_(has_value(contains_string("Start fixture"))),
+                if_logging_(has_value(contains_string("Stop fixture"))),
+                if_logging_(has_value(contains_string("Start test"))),
+                if_logging_(has_value(contains_string("Start step")))
+            )
+        )
+    )
 
-    assert_that(allured_testdir.allure_report,
-                has_property("attachments",
-                             all_of(
-                                 if_logging_(has_value(contains_string("Start fixture"))),
-                                 if_logging_(has_value(contains_string("Stop fixture"))),
-                                 if_logging_(has_value(contains_string("Start test"))),
-                                 if_logging_(has_value(contains_string("Start step")))
-                             )
-                             )
-                )
 
-
-def test_capture_disabled(allured_testdir):
+def test_capture_disabled(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import logging
     >>> logger = logging.getLogger(__name__)
 
     >>> def test_capture_disabled_example():
     ...     logger.info("Start logging")
-    ...     print ("Start printing")
+    ...     #print ("Start printing")
 
     """
 
-    allured_testdir.parse_docstring_source()
-    allured_testdir.run_with_allure("--log-cli-level=INFO", "--allure-no-capture")
+    allure_results = allure_pytest_runner.run_docstring(
+        "--log-level=INFO",
+        "--allure-no-capture"
+    )
 
-    assert_that(allured_testdir.allure_report,
-                has_property("attachments", empty())
-                )
+    assert_that(
+        allure_results,
+        has_property("attachments", empty())
+    )

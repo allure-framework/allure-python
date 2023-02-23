@@ -1,7 +1,8 @@
 from hamcrest import assert_that, all_of, not_
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
+
 
 def test_behave_tags_filter(docstring: str, behave_runner: AllureBehaveRunner):
     """Feature: Behave --tags CLI argument support
@@ -15,9 +16,9 @@ def test_behave_tags_filter(docstring: str, behave_runner: AllureBehaveRunner):
     """
 
     behave_runner.run_behave(
-        features=[docstring],
-        steps=["given('noop')(lambda c:None)"],
-        cli_args=["--tags=tag"]
+        feature_literals=[docstring],
+        step_literals=["given('noop')(lambda c:None)"],
+        options=["--tags=tag"]
     )
     assert_that(
         behave_runner.allure_results,
@@ -45,9 +46,9 @@ def test_behave_no_skipped_support(docstring: str, behave_runner: AllureBehaveRu
         Given noop
     """
     behave_runner.run_behave(
-        features=[docstring],
-        steps=["given('noop')(lambda c:None)"],
-        cli_args=["--tags=tag", "--no-skipped"]
+        feature_literals=[docstring],
+        step_literals=["given('noop')(lambda c:None)"],
+        options=["--tags=tag", "--no-skipped"]
     )
     assert_that(
         behave_runner.allure_results,

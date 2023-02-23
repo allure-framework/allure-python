@@ -1,5 +1,7 @@
 import allure
 from hamcrest import assert_that
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
+
 from allure_commons_test.report import has_test_case
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before, has_after
@@ -7,7 +9,7 @@ from allure_commons_test.container import has_before, has_after
 
 @allure.feature("Fixture")
 @allure.story("Fixture finalizer")
-def test_fixture_finalizer(executed_docstring_source):
+def test_fixture_finalizer(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
 
@@ -23,19 +25,24 @@ def test_fixture_finalizer(executed_docstring_source):
     ...     pass
     """
 
-    assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_fixture_with_finalizer_example",
-                              has_container(executed_docstring_source.allure_report,
-                                            has_before("fixture_with_finalizer"),
-                                            has_after("fixture_with_finalizer::finalizer")
-                                            )
-                              )
-                )
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_fixture_with_finalizer_example",
+            has_container(
+                allure_results,
+                has_before("fixture_with_finalizer"),
+                has_after("fixture_with_finalizer::finalizer")
+            )
+        )
+    )
 
 
 @allure.feature("Fixture")
 @allure.story("Fixture finalizer")
-def test_fixture_finalizers(executed_docstring_source):
+def test_fixture_finalizers(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
 
@@ -55,12 +62,17 @@ def test_fixture_finalizers(executed_docstring_source):
     ...     pass
     """
 
-    assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_fixture_with_finalizers_example",
-                              has_container(executed_docstring_source.allure_report,
-                                            has_before("fixture_with_finalizers"),
-                                            has_after("fixture_with_finalizers::first_finalizer"),
-                                            has_after("fixture_with_finalizers::second_finalizer")
-                                            )
-                              )
-                )
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_fixture_with_finalizers_example",
+            has_container(
+                allure_results,
+                has_before("fixture_with_finalizers"),
+                has_after("fixture_with_finalizers::first_finalizer"),
+                has_after("fixture_with_finalizers::second_finalizer")
+            )
+        )
+    )

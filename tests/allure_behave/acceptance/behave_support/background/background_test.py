@@ -1,6 +1,6 @@
 import pytest
 from hamcrest import assert_that, all_of
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_step
@@ -16,13 +16,14 @@ from allure_commons_test.result import has_step
     ]
 )
 def test_background(
+    docstring: str,
     behave_runner: AllureBehaveRunner,
     step_outcome: str,
     status: str,
     remained_steps_status: str
 ):
-    feature = \
-    F"""Feature: Allure-behave compatibility with feature backgrounds
+    """
+    Feature: Allure-behave compatibility with feature backgrounds
         Background: A background with {step_outcome} step
             Given the first background step that is {step_outcome}
             And the second background step with no failures
@@ -35,7 +36,9 @@ def test_background(
             Given the step with no failures
     """
     behave_runner.run_behave(
-        features=[feature],
+        feature_literals=[
+            docstring.format(step_outcome=step_outcome)
+        ],
         step_paths=["./background_steps.py"]
     )
     assert_that(

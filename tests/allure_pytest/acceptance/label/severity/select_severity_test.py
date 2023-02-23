@@ -2,6 +2,7 @@
 
 import pytest
 from hamcrest import assert_that, only_contains, any_of, ends_with
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
 
 @pytest.mark.parametrize(
@@ -33,11 +34,19 @@ from hamcrest import assert_that, only_contains, any_of, ends_with
         )
     ]
 )
-def test_select_by_severity_level(allured_testdir, severities, expected_tests):
-    allured_testdir.parse_docstring_path()
+def test_select_by_severity_level(
+    allure_pytest_runner: AllurePytestRunner,
+    severities,
+    expected_tests
+):
+    allure_results = allure_pytest_runner.run_docpath_examples(
+        "--allure-severities",
+        ",".join(severities)
+    )
 
-    allured_testdir.run_with_allure("--allure-severities", ",".join(severities))
-    test_cases = [test_case["fullName"] for test_case in allured_testdir.allure_report.test_cases]
+    test_cases = [
+        test_case["fullName"] for test_case in allure_results.test_cases
+    ]
 
     assert_that(test_cases, only_contains(
         any_of(

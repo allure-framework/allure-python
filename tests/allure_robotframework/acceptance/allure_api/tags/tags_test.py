@@ -1,10 +1,11 @@
 """ ./allure-robotframework/examples/tag.rst """
 
 from hamcrest import assert_that, all_of, not_
-from tests.allure_robotframework.conftest import AllureRobotRunner
+from tests.allure_robotframework.robot_runner import AllureRobotRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_tag
 from allure_commons_test.label import has_label
+
 
 def test_robot_tags(robot_runner: AllureRobotRunner):
     robot_runner.run_robotframework(

@@ -1,18 +1,13 @@
-import pytest
 from hamcrest import assert_that, has_entry, ends_with, all_of
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
+
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_parameter
 from allure_commons_test.result import with_excluded
 from allure_commons_test.result import with_mode
 
 
-def params_name(request):
-    node_id = request.node.nodeid
-    _, name = node_id.rstrip("]").split("[")
-    return name
-
-
-def test_parametrization(executed_docstring_source):
+def test_parametrization(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
 
@@ -21,8 +16,10 @@ def test_parametrization(executed_docstring_source):
     ...     assert param
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         all_of(
             has_test_case(
                 "test_parametrization_example[1]",
@@ -36,7 +33,7 @@ def test_parametrization(executed_docstring_source):
     )
 
 
-def test_parametrization_with_ids(executed_docstring_source):
+def test_parametrization_with_ids(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
 
@@ -45,22 +42,24 @@ def test_parametrization_with_ids(executed_docstring_source):
     ...     pass
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         all_of(
             has_test_case(
-                f"test_parametrization_with_ids_example[a]",
+                "test_parametrization_with_ids_example[a]",
                 has_parameter("v", "1")
             ),
             has_test_case(
-                f"test_parametrization_with_ids_example[b]",
+                "test_parametrization_with_ids_example[b]",
                 has_parameter("v", "2")
             )
         )
     )
 
 
-def test_parametrization_many_decorators(executed_docstring_source):
+def test_parametrization_many_decorators(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
 
@@ -70,8 +69,10 @@ def test_parametrization_many_decorators(executed_docstring_source):
     ...     pass
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         all_of(
             has_test_case(
                 "test_parametrization_many_decorators_example[1-a]",
@@ -97,7 +98,9 @@ def test_parametrization_many_decorators(executed_docstring_source):
     )
 
 
-def test_parametrization_decorators_with_partial_ids(executed_docstring_source):
+def test_parametrization_decorators_with_partial_ids(
+    allure_pytest_runner: AllurePytestRunner
+):
     """
     >>> import pytest
 
@@ -107,8 +110,10 @@ def test_parametrization_decorators_with_partial_ids(executed_docstring_source):
     ...     pass
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         all_of(
             has_test_case(
                 "test_two_marks_one_with_ids[1-A]",
@@ -134,15 +139,18 @@ def test_parametrization_decorators_with_partial_ids(executed_docstring_source):
     )
 
 
-def test_dynamic_parameter_add(executed_docstring_source):
+def test_dynamic_parameter_add(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
 
     >>> def test_parameter_add():
     ...     allure.dynamic.parameter("param1", "param-value")
     """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         has_test_case(
             "test_parameter_add",
             has_parameter("param1", "'param-value'")
@@ -150,7 +158,7 @@ def test_dynamic_parameter_add(executed_docstring_source):
     )
 
 
-def test_dynamic_parameter_excluded(executed_docstring_source):
+def test_dynamic_parameter_excluded(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
 
@@ -158,8 +166,10 @@ def test_dynamic_parameter_excluded(executed_docstring_source):
     ...     allure.dynamic.parameter("param1", "param-value", excluded=True)
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         has_test_case(
             "test_parameter_excluded",
             has_parameter(
@@ -171,7 +181,7 @@ def test_dynamic_parameter_excluded(executed_docstring_source):
     )
 
 
-def test_dynamic_parameter_mode(executed_docstring_source):
+def test_dynamic_parameter_mode(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
 
@@ -179,8 +189,10 @@ def test_dynamic_parameter_mode(executed_docstring_source):
     ...     allure.dynamic.parameter("param1", "param-value", mode=allure.parameter_mode.MASKED)
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         has_test_case(
             "test_parameter_mode",
             has_parameter(
@@ -192,7 +204,7 @@ def test_dynamic_parameter_mode(executed_docstring_source):
     )
 
 
-def test_dynamic_parameter_override(executed_docstring_source):
+def test_dynamic_parameter_override(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
     ... import allure
@@ -201,8 +213,11 @@ def test_dynamic_parameter_override(executed_docstring_source):
     ... def test_parameter_override(param1):
     ...     allure.dynamic.parameter("param1", "readable-value")
     """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         has_test_case(
             "test_parameter_override[param-id]",
             has_parameter("param1", "'readable-value'")
@@ -210,7 +225,9 @@ def test_dynamic_parameter_override(executed_docstring_source):
     )
 
 
-def test_dynamic_parameter_override_from_fixture(executed_docstring_source):
+def test_dynamic_parameter_override_from_fixture(
+    allure_pytest_runner: AllurePytestRunner
+):
     """
     >>> import pytest
     ... import allure
@@ -224,8 +241,11 @@ def test_dynamic_parameter_override_from_fixture(executed_docstring_source):
     ... def test_parameter_override_from_fixture(fixt, param1):
     ...     pass
     """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         has_test_case(
             "test_parameter_override_from_fixture[param-id]",
             has_parameter("param1", "'readable-value'")
@@ -233,7 +253,7 @@ def test_dynamic_parameter_override_from_fixture(executed_docstring_source):
     )
 
 
-def test_fullname_with_braces(executed_docstring_source):
+def test_fullname_with_braces(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
     ... import allure
@@ -244,8 +264,10 @@ def test_fullname_with_braces(executed_docstring_source):
     ...         pass
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         has_test_case(
             "test_with_braces[qwe][]",
             has_entry(

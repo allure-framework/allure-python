@@ -1,7 +1,6 @@
 import pytest
-from textwrap import dedent
 from hamcrest import assert_that
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_step
@@ -42,8 +41,8 @@ def test_scenario_with_one_step(
     """
 
     behave_runner.run_behave(
-        features=[docstring],
-        steps=[step]
+        feature_literals=[docstring],
+        step_literals=[step]
     )
     assert_that(
         behave_runner.allure_results,
@@ -91,8 +90,8 @@ def test_when_not_passed_remaining_steps_are_skipped(
     """
 
     behave_runner.run_behave(
-        features=[docstring],
-        steps=[
+        feature_literals=[docstring],
+        step_literals=[
             "given('step {n}')(lambda c,**_:None)",
             trigger_step
         ]
@@ -130,8 +129,8 @@ def test_nameless_scenario(docstring, behave_runner: AllureBehaveRunner):
     """
 
     behave_runner.run_behave(
-        features=[docstring],
-        steps=["given('noop')(lambda c:None)"]
+        feature_literals=[docstring],
+        step_literals=["given('noop')(lambda c:None)"]
     )
 
     assert_that(

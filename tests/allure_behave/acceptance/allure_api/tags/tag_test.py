@@ -1,7 +1,7 @@
 """ ./allure-behave/examples/tag.rst """
 
 import pytest
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_tag
@@ -33,8 +33,8 @@ def test_behave_tags_as_allure_tags(
     tags,
     behave_runner: AllureBehaveRunner
 ):
-    behave_runner.run_rst_example(
-        feature_id,
+    behave_runner.run_behave(
+        feature_rst_ids=[feature_id],
         step_literals=["given('noop')(lambda c:None)"]
     )
     assert_that(

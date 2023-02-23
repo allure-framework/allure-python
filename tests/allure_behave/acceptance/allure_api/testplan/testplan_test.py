@@ -3,29 +3,14 @@
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from hamcrest import assert_that, all_of, not_
-from pytest import MonkeyPatch
-from tests.allure_behave.conftest import AllureBehaveRunner
-from tests.conftest import RstExampleTable
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 
-def test_testplan_fullname_selection(
-    monkeypatch: MonkeyPatch,
-    rst_examples: RstExampleTable,
-    behave_runner: AllureBehaveRunner
-):
-    monkeypatch.setenv(
-        "ALLURE_TESTPLAN_PATH",
-        str(
-            behave_runner.pytester.makefile(
-                ".json",
-                rst_examples["fullname-testplan"]
-            )
-        )
-    )
 
-    behave_runner.run_rst_example(
-        "fullname-feature-1",
-        "fullname-feature-2",
-        steps=["steps"]
+def test_testplan_fullname_selection(behave_runner: AllureBehaveRunner):
+    behave_runner.run_behave(
+        feature_rst_ids=["fullname-feature-1", "fullname-feature-2"],
+        step_rst_ids=["steps"],
+        testplan_rst_id="fullname-testplan"
     )
 
     assert_that(
@@ -51,25 +36,11 @@ def test_testplan_fullname_selection(
     )
 
 
-def test_testplan_id_selection(
-    monkeypatch: MonkeyPatch,
-    rst_examples: RstExampleTable,
-    behave_runner: AllureBehaveRunner
-):
-    monkeypatch.setenv(
-        "ALLURE_TESTPLAN_PATH",
-        str(
-            behave_runner.pytester.makefile(
-                ".json",
-                rst_examples["id-testplan"]
-            )
-        )
-    )
-
-    behave_runner.run_rst_example(
-        "id-feature-1",
-        "id-feature-2",
-        steps=["steps"]
+def test_testplan_id_selection(behave_runner: AllureBehaveRunner):
+    behave_runner.run_behave(
+        feature_rst_ids=["id-feature-1", "id-feature-2"],
+        step_rst_ids=["steps"],
+        testplan_rst_id="id-testplan"
     )
 
     assert_that(
@@ -95,26 +66,12 @@ def test_testplan_id_selection(
     )
 
 
-def test_skipping_of_tests_missing_in_testplan(
-    monkeypatch: MonkeyPatch,
-    rst_examples: RstExampleTable,
-    behave_runner: AllureBehaveRunner
-):
-    monkeypatch.setenv(
-        "ALLURE_TESTPLAN_PATH",
-        str(
-            behave_runner.pytester.makefile(
-                ".json",
-                rst_examples["fullname-testplan"]
-            )
-        )
-    )
-
-    behave_runner.run_rst_example(
-        "fullname-feature-1",
-        "fullname-feature-2",
-        steps=["steps"],
-        cli_args=["-D", "AllureFormatter.hide_excluded=True"]
+def test_skipping_of_tests_missing_in_testplan(behave_runner: AllureBehaveRunner):
+    behave_runner.run_behave(
+        feature_rst_ids=["fullname-feature-1", "fullname-feature-2"],
+        step_rst_ids=["steps"],
+        testplan_rst_id="fullname-testplan",
+        options=["-D", "AllureFormatter.hide_excluded=True"]
     )
 
     assert_that(

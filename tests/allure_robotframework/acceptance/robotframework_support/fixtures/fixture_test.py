@@ -1,5 +1,5 @@
 from hamcrest import assert_that
-from tests.allure_robotframework.conftest import AllureRobotRunner
+from tests.allure_robotframework.robot_runner import AllureRobotRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before
@@ -7,6 +7,7 @@ from allure_commons_test.container import has_after
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_status_details
 from allure_commons_test.result import with_message_contains
+
 
 def test_setup(docstring, robot_runner: AllureRobotRunner):
     """
@@ -220,4 +221,3 @@ def test_failed_setup_teardown(docstring, robot_runner: AllureRobotRunner):
             )
         )
     )
-

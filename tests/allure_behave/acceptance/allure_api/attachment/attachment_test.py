@@ -1,16 +1,17 @@
 """ ./allure-behave/examples/attachment.rst """
 
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from hamcrest import assert_that, equal_to
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_attachment_with_content
 from allure_commons_test.result import has_attachment
 from allure_commons_test.result import has_step
 
+
 def test_data_attachment_from_step(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "data-attachment-feature",
-        steps=["data-attachment-steps"]
+    behave_runner.run_behave(
+        feature_rst_ids=["data-attachment-feature"],
+        step_rst_ids=["data-attachment-steps"]
     )
     assert_that(
         behave_runner.allure_results,
@@ -41,9 +42,9 @@ def test_data_attachment_from_step(behave_runner: AllureBehaveRunner):
 
 
 def test_file_attachment_from_step(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "file-attachment-feature",
-        steps=["file-attachment-steps"]
+    behave_runner.run_behave(
+        feature_rst_ids=["file-attachment-feature"],
+        step_rst_ids=["file-attachment-steps"]
     )
     assert_that(
         behave_runner.allure_results,
@@ -63,10 +64,10 @@ def test_data_attachment_from_hook(behave_runner: AllureBehaveRunner):
             Scenario: Attachment from after_scenario hook
                 Given noop
     """
-    behave_runner.run_rst_example(
+    behave_runner.run_behave(
         feature_literals=[feature],
         step_literals=["given('noop')(lambda _:0)"],
-        environment="attach-hook"
+        environment_rst_id="attach-hook"
     )
     assert_that(
         behave_runner.allure_results,

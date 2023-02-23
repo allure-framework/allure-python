@@ -1,7 +1,9 @@
 import pytest
-from tests.conftest import AlluredTestdir
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
+
 
 @pytest.fixture
-def allured_testdir(allured_testdir: AlluredTestdir):
-    allured_testdir.select_plugins("allure_pytest_bdd")
-    return allured_testdir
+def allure_pytest_bdd_runner(request, pytester):
+    runner = AllurePytestRunner(request, pytester)
+    runner.select_plugins("pytest-bdd", "allure_pytest_bdd")
+    yield runner

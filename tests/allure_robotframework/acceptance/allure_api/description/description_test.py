@@ -1,9 +1,10 @@
 """ ./allure-robotframework/examples/description.rst """
 
 from hamcrest import assert_that
-from tests.allure_robotframework.conftest import AllureRobotRunner
+from tests.allure_robotframework.robot_runner import AllureRobotRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_description
+
 
 def test_single_line_description_from_setting(
     robot_runner: AllureRobotRunner

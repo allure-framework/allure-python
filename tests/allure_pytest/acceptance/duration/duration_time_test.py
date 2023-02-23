@@ -1,6 +1,8 @@
 import allure
 import pytest
-from hamcrest import assert_that, has_entry, greater_than, all_of
+from hamcrest import assert_that, has_entry, greater_than, all_of, less_than
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
+
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons.utils import now
@@ -18,22 +20,28 @@ snippets = [
 
 
 @pytest.mark.parametrize("snippet", snippets)
-def test_duration(allured_testdir, snippet):
-    allured_testdir.testdir.makepyfile(f"""
+def test_duration(allure_pytest_runner: AllurePytestRunner, snippet):
+    testfile_content = (
+        f"""
         def test_duration_example():
             {snippet}
-    """)
+        """
+    )
 
-    timestamp = now()
-    allured_testdir.run_with_allure()
+    before = now()
+    allure_results = allure_pytest_runner.run_pytest(testfile_content)
+    after = now()
 
     assert_that(
-        allured_testdir.allure_report,
+        allure_results,
         has_test_case(
             "test_duration_example",
             all_of(
-                has_entry("start", greater_than(timestamp)),
-                has_entry("stop", greater_than(timestamp))
+                has_entry("start", greater_than(before)),
+                has_entry("stop", all_of(
+                    greater_than(before),
+                    less_than(after)
+                ))
             )
         )
     )
@@ -41,8 +49,9 @@ def test_duration(allured_testdir, snippet):
 
 @allure.issue("244")
 @pytest.mark.parametrize("snippet", snippets)
-def test_with_fixture_duration(allured_testdir, snippet):
-    allured_testdir.testdir.makepyfile(f"""
+def test_with_fixture_duration(allure_pytest_runner: AllurePytestRunner, snippet):
+    testfile_content = (
+        f"""
         import pytest
 
         @pytest.fixture
@@ -51,18 +60,23 @@ def test_with_fixture_duration(allured_testdir, snippet):
 
         def test_with_fixture_duration_example(fixture):
             pass
-    """)
+        """
+    )
 
-    timestamp = now()
-    allured_testdir.run_with_allure()
+    before = now()
+    allure_results = allure_pytest_runner.run_pytest(testfile_content)
+    after = now()
 
     assert_that(
-        allured_testdir.allure_report,
+        allure_results,
         has_test_case(
             "test_with_fixture_duration_example",
             all_of(
-                has_entry("start", greater_than(timestamp)),
-                has_entry("stop", greater_than(timestamp))
+                has_entry("start", greater_than(before)),
+                has_entry("stop", all_of(
+                    greater_than(before),
+                    less_than(after)
+                ))
             )
         )
     )
@@ -70,8 +84,12 @@ def test_with_fixture_duration(allured_testdir, snippet):
 
 @allure.issue("244")
 @pytest.mark.parametrize("snippet", snippets)
-def test_with_fixture_finalizer_duration(allured_testdir, snippet):
-    allured_testdir.testdir.makepyfile(f"""
+def test_with_fixture_finalizer_duration(
+    allure_pytest_runner: AllurePytestRunner,
+    snippet
+):
+    testfile_content = (
+        f"""
         import pytest
 
         @pytest.fixture
@@ -82,24 +100,33 @@ def test_with_fixture_finalizer_duration(allured_testdir, snippet):
 
         def test_with_fixture_finalizer_duration(fixture):
             pass
-    """)
+        """
+    )
 
-    timestamp = now()
-    allured_testdir.run_with_allure()
+    before = now()
+    allure_results = allure_pytest_runner.run_pytest(testfile_content)
+    after = now()
 
-    assert_that(allured_testdir.allure_report,
-                has_test_case("test_with_fixture_finalizer_duration",
-                              all_of(
-                                  has_entry("start", greater_than(timestamp)),
-                                  has_entry("stop", greater_than(timestamp))
-                              ))
-                )
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_with_fixture_finalizer_duration",
+            all_of(
+                has_entry("start", greater_than(before)),
+                has_entry("stop", all_of(
+                    greater_than(before),
+                    less_than(after)
+                ))
+            )
+        )
+    )
 
 
-def test_test_skipped_if_fixture_exits(allured_testdir):
+def test_test_skipped_if_fixture_exits(allure_pytest_runner: AllurePytestRunner):
     """Test should be market as skipped: pytest reports it as 'not run'"""
 
-    allured_testdir.testdir.makepyfile(f"""
+    testfile_content = (
+        """
         import pytest
 
         @pytest.fixture
@@ -108,13 +135,13 @@ def test_test_skipped_if_fixture_exits(allured_testdir):
 
         def test_with_fixture_duration_example(fixture):
             pass
-    """)
+        """
+    )
 
-    timestamp = now()
-    allured_testdir.run_with_allure()
+    allure_results = allure_pytest_runner.run_pytest(testfile_content)
 
     assert_that(
-        allured_testdir.allure_report,
+        allure_results,
         has_test_case(
             "test_with_fixture_duration_example",
             with_status("skipped")

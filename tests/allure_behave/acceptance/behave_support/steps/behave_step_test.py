@@ -1,6 +1,6 @@
-import allure
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from hamcrest import assert_that, equal_to
+
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_step
@@ -9,7 +9,8 @@ from allure_commons_test.result import with_message_contains
 from allure_commons_test.result import has_attachment_with_content
 from allure_commons_test.content import csv_equivalent
 
-def test_failed_behave_step(docstring:str, behave_runner: AllureBehaveRunner):
+
+def test_failed_behave_step(docstring: str, behave_runner: AllureBehaveRunner):
     """
     Feature: Bheave step support
         Scenario: Scenario with failed step
@@ -17,8 +18,8 @@ def test_failed_behave_step(docstring:str, behave_runner: AllureBehaveRunner):
     """
 
     behave_runner.run_behave(
-        features=[docstring],
-        steps=["@given('a step failed')\ndef _(_):assert False,'Fail message'"]
+        feature_literals=[docstring],
+        step_literals=["@given('a step failed')\ndef _(_):assert False,'Fail message'"]
     )
 
     assert_that(
@@ -36,7 +37,8 @@ def test_failed_behave_step(docstring:str, behave_runner: AllureBehaveRunner):
         )
     )
 
-def test_broken_behave_step(docstring:str, behave_runner: AllureBehaveRunner):
+
+def test_broken_behave_step(docstring, behave_runner: AllureBehaveRunner):
     """
     Feature: Bheave step support
         Scenario: Scenario with broken step
@@ -44,8 +46,8 @@ def test_broken_behave_step(docstring:str, behave_runner: AllureBehaveRunner):
     """
 
     behave_runner.run_behave(
-        features=[docstring],
-        steps=["@given('a broken step')\ndef _(_):raise ValueError('Reason')"]
+        feature_literals=[docstring],
+        step_literals=["@given('a broken step')\ndef _(_):raise ValueError('Reason')"]
     )
 
     assert_that(
@@ -64,7 +66,7 @@ def test_broken_behave_step(docstring:str, behave_runner: AllureBehaveRunner):
     )
 
 
-def test_step_text_data(docstring:str, behave_runner: AllureBehaveRunner):
+def test_step_text_data(docstring, behave_runner: AllureBehaveRunner):
     """
     Feature: Bheave step support
         Scenario: Scenario with step which contains text data
@@ -75,8 +77,8 @@ def test_step_text_data(docstring:str, behave_runner: AllureBehaveRunner):
     """
 
     behave_runner.run_behave(
-        features=[docstring],
-        steps=["given('a step with text data')(lambda _:0)"]
+        feature_literals=[docstring],
+        step_literals=["given('a step with text data')(lambda _:0)"]
     )
 
     assert_that(
@@ -97,7 +99,7 @@ def test_step_text_data(docstring:str, behave_runner: AllureBehaveRunner):
     )
 
 
-def test_step_table_data(docstring:str, behave_runner: AllureBehaveRunner):
+def test_step_table_data(docstring, behave_runner: AllureBehaveRunner):
     """
     Feature: Bheave step support
         Scenario: Scenario with step which contains a table
@@ -108,8 +110,8 @@ def test_step_table_data(docstring:str, behave_runner: AllureBehaveRunner):
     """
 
     behave_runner.run_behave(
-        features=[docstring],
-        steps=["given('a step with table data')(lambda _:0)"]
+        feature_literals=[docstring],
+        step_literals=["given('a step with table data')(lambda _:0)"]
     )
 
     assert_that(

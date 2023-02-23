@@ -1,5 +1,6 @@
-import pytest
-from hamcrest import assert_that
+from hamcrest import assert_that, all_of
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
+
 from allure_commons_test.report import has_test_case
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before
@@ -12,8 +13,7 @@ def params_name(request):
     return name
 
 
-@pytest.mark.parametrize("param", [True, False])
-def test_function_scope_parametrized_fixture(param, executed_docstring_source):
+def test_function_scope_parametrized_fixture(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
 
@@ -24,18 +24,41 @@ def test_function_scope_parametrized_fixture(param, executed_docstring_source):
     >>> def test_function_scope_parametrized_fixture_example(parametrized_fixture):
     ...     pass
     """
-    assert_that(executed_docstring_source.allure_report,
-                has_test_case(f"test_function_scope_parametrized_fixture_example[{param}]",
-                              has_parameter("parametrized_fixture", str(param)),
-                              has_container(executed_docstring_source.allure_report,
-                                            has_before("parametrized_fixture")
-                                            )
-                              )
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        all_of(
+            has_test_case(
+                "test_function_scope_parametrized_fixture_example[True]",
+                has_parameter(
+                    "parametrized_fixture",
+                    "True"
+                ),
+                has_container(
+                    allure_results,
+                    has_before("parametrized_fixture")
                 )
+            ),
+            has_test_case(
+                "test_function_scope_parametrized_fixture_example[False]",
+                has_parameter(
+                    "parametrized_fixture",
+                    "False"
+                ),
+                has_container(
+                    allure_results,
+                    has_before("parametrized_fixture")
+                )
+            )
+        )
+    )
 
 
-@pytest.mark.parametrize("param", [True, False], ids=["param_true", "param_false"])
-def test_function_scope_parametrized_fixture_with_ids(param, executed_docstring_source, request):
+def test_function_scope_parametrized_fixture_with_ids(
+    allure_pytest_runner: AllurePytestRunner
+):
     """
     >>> import pytest
 
@@ -43,17 +66,30 @@ def test_function_scope_parametrized_fixture_with_ids(param, executed_docstring_
     ... def parametrized_fixture(request):
     ...     pass
 
-    >>> def test_function_scope_parametrized_fixture_with_ids_example(parametrized_fixture):
+    >>> def test_function(parametrized_fixture):
     ...     pass
     """
 
-    test_name = f"test_function_scope_parametrized_fixture_with_ids_example[{params_name(request)}]"
+    allure_results = allure_pytest_runner.run_docstring()
 
-    assert_that(executed_docstring_source.allure_report,
-                has_test_case(test_name,
-                              has_parameter("parametrized_fixture", str(param)),
-                              has_container(executed_docstring_source.allure_report,
-                                            has_before("parametrized_fixture")
-                                            )
-                              )
+    assert_that(
+        allure_results,
+        all_of(
+            has_test_case(
+                "test_function[param_true]",
+                has_parameter("parametrized_fixture", "True"),
+                has_container(
+                    allure_results,
+                    has_before("parametrized_fixture")
                 )
+            ),
+            has_test_case(
+                "test_function[param_false]",
+                has_parameter("parametrized_fixture", "False"),
+                has_container(
+                    allure_results,
+                    has_before("parametrized_fixture")
+                )
+            )
+        )
+    )

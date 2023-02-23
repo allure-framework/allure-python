@@ -1,41 +1,45 @@
+from hamcrest import assert_that
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
+
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_step
-from hamcrest import assert_that
 
 
-def test_step_with_thread(allured_testdir):
-    allured_testdir.testdir.makepyfile(
-        """
-    from concurrent.futures import ThreadPoolExecutor
-
-    import allure
-
-    @allure.step("thread {x}")
-    def parallel_step(x=1):
-        with allure.step("Sub-step in thread"):
-            pass
-
-
-    def test_thread():
-        with allure.step("Start in thread"):
-            with ThreadPoolExecutor(max_workers=2) as executor:
-                executor.map(parallel_step, [1, 2])
+def test_step_with_thread(allure_pytest_runner: AllurePytestRunner):
     """
+    >>> from concurrent.futures import ThreadPoolExecutor
+    >>> import allure
+
+    >>> @allure.step("thread {x}")
+    ... def parallel_step(x=1):
+    ...     with allure.step("Sub-step in thread"):
+    ...         pass
+
+    >>> def test_thread():
+    ...     with allure.step("Start in thread"):
+    ...         with ThreadPoolExecutor(max_workers=2) as executor:
+    ...             executor.map(parallel_step, [1, 2])
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_thread",
+            has_step(
+                "Start in thread",
+                has_step(
+                    "thread 1",
+                    has_step("Sub-step in thread")
+                ),
+                has_step("thread 2")
+            )
+        )
     )
 
-    allured_testdir.run_with_allure()
 
-    assert_that(allured_testdir.allure_report,
-                has_test_case("test_thread",
-                              has_step("Start in thread",
-                                       has_step("thread 1", has_step("Sub-step in thread")),
-                                       has_step("thread 2")
-                                       )
-                              )
-                )
-
-
-def test_step_with_reused_threads(executed_docstring_source):
+def test_step_with_reused_threads(allure_pytest_runner: AllurePytestRunner):
     """
     >>> from concurrent.futures import ThreadPoolExecutor
     >>> from threading import Event
@@ -63,8 +67,10 @@ def test_step_with_reused_threads(executed_docstring_source):
     ...             __execute_randomly(executor)
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         has_test_case(
             "test_thread",
             has_step("thread 1"),

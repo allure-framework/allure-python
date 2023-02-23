@@ -1,15 +1,16 @@
 """ ./allure-behave/examples/description.rst """
 
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from hamcrest import assert_that
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_description
 from allure_commons_test.result import with_status
 
+
 def test_descriptions_from_feature_file(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "description-in-feature-feature",
-        steps=["description-in-feature-steps"]
+    behave_runner.run_behave(
+        feature_rst_ids=["description-in-feature-feature"],
+        step_rst_ids=["description-in-feature-steps"]
     )
     assert_that(
         behave_runner.allure_results,
@@ -25,9 +26,9 @@ def test_descriptions_from_feature_file(behave_runner: AllureBehaveRunner):
 
 
 def test_descriptions_from_step(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "description-in-step-feature",
-        steps=["description-in-step-steps"]
+    behave_runner.run_behave(
+        feature_rst_ids=["description-in-step-feature"],
+        step_rst_ids=["description-in-step-steps"]
     )
     assert_that(
         behave_runner.allure_results,
@@ -43,10 +44,10 @@ def test_descriptions_from_step(behave_runner: AllureBehaveRunner):
 
 
 def test_descriptions_before_scenario(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "description-in-hook-feature",
-        steps=["description-in-feature-steps"],
-        environment="description-in-hook-env"
+    behave_runner.run_behave(
+        feature_rst_ids=["description-in-hook-feature"],
+        step_rst_ids=["description-in-feature-steps"],
+        environment_rst_id="description-in-hook-env"
     )
     assert_that(
         behave_runner.allure_results,
@@ -61,10 +62,10 @@ def test_descriptions_before_scenario(behave_runner: AllureBehaveRunner):
 
 
 def test_descriptions_after_scenario(behave_runner: AllureBehaveRunner):
-    behave_runner.run_rst_example(
-        "description-in-hook-feature",
-        steps=["description-in-feature-steps"],
-        environment="description-in-hook-env"
+    behave_runner.run_behave(
+        feature_rst_ids=["description-in-hook-feature"],
+        step_rst_ids=["description-in-feature-steps"],
+        environment_rst_id="description-in-hook-env"
     )
     assert_that(
         behave_runner.allure_results,

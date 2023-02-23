@@ -93,16 +93,23 @@ def has_step(name, *matchers):
     )
 
 
-def has_parameter(name, value, *matchers):
+def get_parameter_matcher(name, *matchers):
     return has_entry(
         'parameters',
         has_item(
             all_of(
                 has_entry('name', equal_to(name)),
-                has_entry('value', equal_to(value)),
                 *matchers
             )
         )
+    )
+
+
+def has_parameter(name, value, *matchers):
+    return get_parameter_matcher(
+        name,
+        has_entry('value', equal_to(value)),
+        *matchers
     )
 
 

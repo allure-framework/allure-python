@@ -1,5 +1,5 @@
 [tool.poe.tasks]
-linter = "flake8 ./src ./test"
+linter = "flake8 ./src"
 tests = { shell = """python -m doctest ./src/listener/utils.py &&
              pytest ../tests/allure_robotframework
 """ }

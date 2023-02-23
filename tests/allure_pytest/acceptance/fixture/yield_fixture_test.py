@@ -1,13 +1,16 @@
+
+from hamcrest import assert_that, not_, all_of
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
+
 import allure
 from allure_commons_test.container import has_before
 from allure_commons_test.container import has_container
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_step
-from hamcrest import assert_that, not_, all_of
 
 
 @allure.feature("Fixture")
-def test_yield_fixture(executed_docstring_source):
+def test_yield_fixture(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
 
@@ -19,16 +22,21 @@ def test_yield_fixture(executed_docstring_source):
     ...     pass
     """
 
-    assert_that(executed_docstring_source.allure_report,
-                has_test_case("test_yield_fixture_example",
-                              has_container(executed_docstring_source.allure_report,
-                                            has_before("yield_fixture")
-                                            )
-                              )
-                )
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_yield_fixture_example",
+            has_container(
+                allure_results,
+                has_before("yield_fixture")
+            )
+        )
+    )
 
 
-def test_opened_step_function(executed_docstring_source):
+def test_opened_step_function(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
     >>> import pytest
@@ -43,14 +51,16 @@ def test_opened_step_function(executed_docstring_source):
     ...         pass
     """
 
+    allure_results = allure_pytest_runner.run_docstring()
+
     assert_that(
-        executed_docstring_source.allure_report,
+        allure_results,
         has_test_case(
             "test_opened_step",
             all_of(
                 has_step("Body step"),
                 has_container(
-                    executed_docstring_source.allure_report,
+                    allure_results,
                     has_before(
                         "yield_fixture",
                         has_step(

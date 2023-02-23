@@ -2,13 +2,14 @@
 
 from allure import severity_level
 from hamcrest import assert_that
-from tests.allure_robotframework.conftest import AllureRobotRunner
+from tests.allure_robotframework.robot_runner import AllureRobotRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.label import has_label
 from allure_commons_test.label import has_feature
 from allure_commons_test.label import has_story
 from allure_commons_test.label import has_severity
 from allure_commons_test.label import has_suite
+
 
 def test_custom_label_from_robot_tag(robot_runner: AllureRobotRunner):
     robot_runner.run_robotframework(

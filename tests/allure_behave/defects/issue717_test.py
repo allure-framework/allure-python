@@ -5,9 +5,11 @@ from allure_behave.utils import step_table
 from allure_commons_test.content import csv_equivalent
 from hamcrest import assert_that
 
+
 class RowStub:
     def __init__(self, cells):
         self.cells = cells
+
     def __iter__(self):
         return iter(self.cells)
 

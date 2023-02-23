@@ -1,14 +1,15 @@
 from hamcrest import assert_that, all_of, has_entry
-from tests.allure_behave.conftest import AllureBehaveRunner
+from tests.allure_behave.behave_runner import AllureBehaveRunner
 from allure_commons_test.report import has_only_testcases
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_parameter
+
 
 def test_outline_with_single_table(behave_runner: AllureBehaveRunner):
     behave_runner.run_behave(
         feature_paths=["./test-data/outline.feature"],
         step_paths=["./test-data/steps.py"],
-        cli_args=["--tags=1", "--no-skipped"]
+        options=["--tags=1", "--no-skipped"]
     )
 
     assert_that(
@@ -40,7 +41,7 @@ def test_outline_with_multiple_tables(behave_runner: AllureBehaveRunner):
     behave_runner.run_behave(
         feature_paths=["./test-data/outline.feature"],
         step_paths=["./test-data/steps.py"],
-        cli_args=["--tags=multiple-tables", "--no-skipped"]
+        options=["--tags=multiple-tables", "--no-skipped"]
     )
 
     assert_that(
@@ -90,7 +91,7 @@ def test_multiple_outlines_each_with_one_table(behave_runner: AllureBehaveRunner
     behave_runner.run_behave(
         feature_paths=["./test-data/outline.feature"],
         step_paths=["./test-data/steps.py"],
-        cli_args=["--tags=single-table", "--no-skipped"]
+        options=["--tags=single-table", "--no-skipped"]
     )
 
     assert_that(

@@ -1,11 +1,13 @@
 """ ./allure-robotframework/examples/attachment.rst """
 
+from pytest import MonkeyPatch
 from hamcrest import assert_that, equal_to
-from tests.allure_robotframework.conftest import AllureRobotRunner
+from tests.allure_robotframework.robot_runner import AllureRobotRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_attachment_with_content
 from allure_commons_test.result import has_step
 from allure_commons_test.result import with_status
+
 
 def test_data_attachment_with_default_name_and_type(
     robot_runner: AllureRobotRunner
@@ -105,8 +107,11 @@ def test_file_attachment_with_name_and_type(
     )
 
 
-def test_autoattach_wrapper(robot_runner: AllureRobotRunner):
-    robot_runner.monkeypatch.syspath_prepend(".")
+def test_autoattach_wrapper(
+    robot_runner: AllureRobotRunner,
+    monkeypatch: MonkeyPatch
+):
+    monkeypatch.syspath_prepend(".")
 
     robot_runner.run_robotframework(
         suite_rst_ids={"selenium-wrapper.robot": "selenium-suite"},

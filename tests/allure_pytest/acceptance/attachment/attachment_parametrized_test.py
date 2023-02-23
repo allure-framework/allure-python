@@ -1,13 +1,13 @@
-import pytest
 from hamcrest import assert_that
 from hamcrest import all_of
-from hamcrest import has_property, has_value
-from hamcrest import contains_string
+from hamcrest import equal_to
+from tests.allure_pytest.pytest_runner import AllurePytestRunner
+
 from allure_commons_test.report import has_test_case
+from allure_commons_test.result import has_attachment_with_content
 
 
-@pytest.mark.parametrize("param", ["first", "second"])
-def test_parametrized_attachment(executed_docstring_source, param):
+def test_parametrized_attachment(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
     >>> import allure
@@ -17,10 +17,24 @@ def test_parametrized_attachment(executed_docstring_source, param):
     ...     allure.attach(param)
     """
 
-    assert_that(executed_docstring_source.allure_report,
-                all_of(
-                    has_test_case(f"test_parametrized_attachment_example[{param}]"),
-                    has_property("attachments",
-                                 has_value(contains_string(param))
-                                 )
-                ))
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        all_of(
+            has_test_case(
+                "test_parametrized_attachment_example[first]",
+                has_attachment_with_content(
+                    allure_results.attachments,
+                    content_matcher=equal_to("first")
+                )
+            ),
+            has_test_case(
+                "test_parametrized_attachment_example[second]",
+                has_attachment_with_content(
+                    allure_results.attachments,
+                    content_matcher=equal_to("second")
+                )
+            )
+        )
+    )

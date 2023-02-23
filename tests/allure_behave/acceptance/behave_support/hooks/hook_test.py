@@ -1,5 +1,5 @@
 import allure
-from tests.allure_behave.conftest import AllureBehaveRunner as Runner
+from tests.allure_behave.behave_runner import AllureBehaveRunner as Runner
 from hamcrest import assert_that, all_of, not_, equal_to
 from allure_commons_test.container import has_container, has_before, has_after
 from allure_commons_test.report import has_test_case
@@ -53,6 +53,7 @@ def test_global_hooks(behave_runner: Runner):
             )
         )
     )
+
 
 def test_tag_hooks(behave_runner: Runner):
     behave_runner.run_behave(
@@ -108,6 +109,7 @@ def test_tag_hooks(behave_runner: Runner):
             )
         )
     )
+
 
 def test_attachment_before_feature(behave_runner: Runner):
     behave_runner.run_behave(

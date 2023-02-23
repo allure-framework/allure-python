@@ -2,7 +2,8 @@
 
 from allure_commons_test.report import has_test_case
 from hamcrest import assert_that, all_of, not_
-from tests.allure_robotframework.conftest import AllureRobotRunner
+from tests.allure_robotframework.robot_runner import AllureRobotRunner
+
 
 def test_testplan(robot_runner: AllureRobotRunner):
     robot_runner.run_robotframework(
