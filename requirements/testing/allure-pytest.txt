@@ -1,0 +1,6 @@
+# allure_pytest testing deps
+pytest-check
+pytest-flakes
+pytest-rerunfailures
+pytest-xdist
+pytest-lazy-fixture

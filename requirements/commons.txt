@@ -1,0 +1,2 @@
+-e allure-python-commons
+-e allure-python-commons-test
