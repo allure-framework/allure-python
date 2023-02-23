@@ -15,11 +15,14 @@ from abc import abstractmethod
 from contextlib import contextmanager
 from pathlib import Path
 from pytest import FixtureRequest, Pytester, MonkeyPatch
-from typing import Tuple, Mapping, TypeVar, Generator, Callable
+from typing import Tuple, Mapping, TypeVar, Generator, Callable, Union
 
 import allure_commons
 from allure_commons.logger import AllureMemoryLogger
 from allure_commons_test.report import AllureReport
+
+
+PathlikeT = Union[str, Path]
 
 
 @contextmanager
@@ -98,7 +101,7 @@ class AllureFileContextValue:
 
 @contextmanager
 def allure_file_context(
-    alluredir: str | Path
+    alluredir: PathlikeT
 ) -> Generator[AllureFileContextValue, None, None]:
     """Creates a context to test an allure integration.
 
@@ -128,7 +131,7 @@ def allure_file_context(
 
 def find_node_with_docstring(
     request: FixtureRequest
-) -> Tuple[pytest.Item, str] | Tuple[None, None]:
+) -> Union[Tuple[pytest.Item, str], Tuple[None, None]]:
     """Find a docstring associated with a test function.
 
     It first checks the function itself and then, if no docstring was found,
@@ -209,7 +212,7 @@ class RstExampleTable:
 
     STASH_KEY = pytest.StashKey()
 
-    def __init__(self, filepath: str | Path) -> None:
+    def __init__(self, filepath: PathlikeT) -> None:
         """Create a table of examples from a .rst document.
 
         Arguments:
@@ -277,7 +280,7 @@ class RstExampleTable:
         return examples
 
     @staticmethod
-    def __load_examples(filepath: str | Path) -> Mapping[str, str]:
+    def __load_examples(filepath: PathlikeT) -> Mapping[str, str]:
         document = RstExampleTable.parse_rst(filepath)
         return {
             name: code_block.astext()
@@ -287,7 +290,7 @@ class RstExampleTable:
         }
 
     @staticmethod
-    def parse_rst(filepath: str | Path) -> docutils.nodes.document:
+    def parse_rst(filepath: PathlikeT) -> docutils.nodes.document:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             parser = docutils.parsers.rst.Parser()
@@ -344,7 +347,7 @@ class AllureFrameworkRunner:
         self,
         *args,
         testplan_content: dict = None,
-        testplan_path: str | Path = None,
+        testplan_path: PathlikeT = None,
         testplan_rst_id: str = None,
         logger_path: str = None,
         **kwargs
@@ -521,7 +524,7 @@ class AllureFrameworkRunner:
             ) for name, rst_id in (rst_name_to_id or {}).items()
         ]
 
-    def _read_file(self, path: str | Path, basepath: str | Path = None):
+    def _read_file(self, path: PathlikeT, basepath: PathlikeT = None):
         """Read file content.
 
         Arguments:

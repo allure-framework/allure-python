@@ -12,7 +12,7 @@ from behave.step_registry import StepRegistry
 from pathlib import Path
 from pytest import FixtureRequest, Pytester
 from typing import Sequence
-from tests.e2e import AllureFrameworkRunner
+from tests.e2e import AllureFrameworkRunner, PathlikeT
 
 from allure_behave.formatter import AllureFormatter
 
@@ -118,17 +118,17 @@ class AllureBehaveRunner(AllureFrameworkRunner):
 
     def run_behave(
         self,
-        feature_paths: Sequence[str | Path] = None,
+        feature_paths: Sequence[PathlikeT] = None,
         feature_literals: Sequence[str] = None,
         feature_rst_ids: Sequence[str] = None,
-        step_paths: Sequence[str | Path] = None,
+        step_paths: Sequence[PathlikeT] = None,
         step_literals: Sequence[str] = None,
         step_rst_ids: Sequence[str] = None,
-        environment_path: str | Path = None,
+        environment_path: PathlikeT = None,
         environment_literal: str = None,
         environment_rst_id: str = None,
         testplan_content: dict = None,
-        testplan_path: str | Path = None,
+        testplan_path: PathlikeT = None,
         testplan_rst_id: str = None,
         options: Sequence[str] = None,
     ):

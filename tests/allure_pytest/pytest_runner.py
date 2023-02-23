@@ -1,8 +1,8 @@
 from doctest import script_from_examples
 from pathlib import Path
 from pytest import FixtureRequest, Pytester, StashKey
-from tests.e2e import AllureFrameworkRunner, altered_env
-from typing import Sequence, Tuple
+from tests.e2e import AllureFrameworkRunner, altered_env, PathlikeT
+from typing import Sequence, Tuple, Union
 
 from allure_commons.logger import AllureMemoryLogger
 
@@ -47,7 +47,7 @@ class AllurePytestRunner(AllureFrameworkRunner):
     def run_docstring(
         self,
         *cli_args: str,
-        filename: str | Path = None,
+        filename: PathlikeT = None,
         testplan: dict = None
     ) -> AllureMemoryLogger:
         """Runs a doctest from a docstring of the current test node (or one of its
@@ -76,7 +76,7 @@ class AllurePytestRunner(AllureFrameworkRunner):
     def run_docpath_examples(
         self,
         *cli_args: str,
-        filename: str | Path = None,
+        filename: PathlikeT = None,
         testplan: dict = None,
         cache: bool = False
     ) -> AllureMemoryLogger:
@@ -122,7 +122,7 @@ class AllurePytestRunner(AllureFrameworkRunner):
 
     def run_pytest(
         self,
-        *testfile_literals: str | Tuple[str | Path, str],
+        *testfile_literals: Union[str, Tuple[PathlikeT, str]],
         conftest_literal: str = None,
         cli_args: Sequence[str] = None,
         testplan: dict = None
