@@ -1,6 +1,9 @@
 [tool.poe.tasks]
 linter = "flake8 ./allure-*/src ./tests"
 tests = "pytest"
+allure-collect = "pytest -p allure_pytest --alluredir ./.allure-results --clean-alluredir --allure-link-pattern issue:https://github.com/allure-framework/allure-python/issues/{0}"
+allure-generate = "allure generate --clean --output ./.allure-report ./.allure-results"
+allure-open = "allure open ./.allure-report"
 
 [tool.pytest.ini_options]
 testpaths = [
