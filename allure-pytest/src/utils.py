@@ -27,10 +27,7 @@ def get_marker_value(item, keyword):
 
 
 def allure_title(item):
-    try:
-        return item._obj.__allure_display_name__
-    except AttributeError:
-        return None
+    return getattr(item.obj, "__allure_display_name__", None)
 
 
 def allure_description(item):

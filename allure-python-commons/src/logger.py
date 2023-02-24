@@ -1,6 +1,6 @@
-import errno
 import io
 import os
+from pathlib import Path
 import json
 import uuid
 import shutil
@@ -13,24 +13,21 @@ INDENT = 4
 class AllureFileLogger:
 
     def __init__(self, report_dir, clean=False):
-        self._report_dir = report_dir
-
-        try:
-            os.makedirs(report_dir)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-            elif clean:
-                for f in os.listdir(report_dir):
-                    f = os.path.join(report_dir, f)
-                    if os.path.isfile(f):
-                        os.unlink(f)
+        self._report_dir = Path(report_dir).absolute()
+        if self._report_dir.is_dir() and clean:
+            shutil.rmtree(self._report_dir)
+        self._report_dir.mkdir(parents=True, exist_ok=True)
 
     def _report_item(self, item):
         indent = INDENT if os.environ.get("ALLURE_INDENT_OUTPUT") else None
         filename = item.file_pattern.format(prefix=uuid.uuid4())
-        data = asdict(item, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
-        with io.open(os.path.join(self._report_dir, filename), 'w', encoding='utf8') as json_file:
+        data = asdict(
+            item,
+            filter=lambda attr, value: not (
+                type(value) != bool and not bool(value)
+            )
+        )
+        with io.open(self._report_dir / filename, 'w', encoding='utf8') as json_file:
             json.dump(data, json_file, indent=indent, ensure_ascii=False)
 
     @hookimpl
@@ -43,12 +40,12 @@ class AllureFileLogger:
 
     @hookimpl
     def report_attached_file(self, source, file_name):
-        destination = os.path.join(self._report_dir, file_name)
+        destination = self._report_dir / file_name
         shutil.copy2(source, destination)
 
     @hookimpl
     def report_attached_data(self, body, file_name):
-        destination = os.path.join(self._report_dir, file_name)
+        destination = self._report_dir / file_name
         with open(destination, 'wb') as attached_file:
             if isinstance(body, str):
                 attached_file.write(body.encode('utf-8'))
