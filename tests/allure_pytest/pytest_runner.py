@@ -18,9 +18,11 @@ class AllurePytestRunner(AllureFrameworkRunner):
 
     """
 
+    LOGGER_PATH = "allure_pytest.plugin.AllureFileLogger"
     DOCTEST_RESULT_KEY = StashKey()
 
     def __init__(self, request: FixtureRequest, pytester: Pytester):
+        self.logger_path = AllurePytestRunner.LOGGER_PATH
         super().__init__(request, pytester)
         self.select_plugins("allure_pytest")
 
@@ -159,7 +161,8 @@ class AllurePytestRunner(AllureFrameworkRunner):
         self.__generate_testfiles(testfile_literals)
         return self._run(
             pytest_args,
-            testplan_content=testplan
+            testplan_content=testplan,
+            logger_path=self.logger_path
         )
 
     def _run_framework(self, options):

@@ -614,5 +614,5 @@ def __pop_all_allure_plugins():
 
 
 def __restore_allure_plugins(name_plugin_tuples):
-    for plugin, name in name_plugin_tuples:
+    for name, plugin in name_plugin_tuples:
         allure_commons.plugin_manager.register(plugin, name)
