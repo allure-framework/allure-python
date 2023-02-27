@@ -13,5 +13,5 @@ It's possible to add a custom label to a behave scenario. Simply apply
         Scenario: Scenario marked with an author label
             Given noop
 
-Note, that neither the name nor the value of a label, added that way, cannot
-contain whitespaces.
+Note, that neither the name nor the value of a label, added that way, may
+contain a whitespace character.
