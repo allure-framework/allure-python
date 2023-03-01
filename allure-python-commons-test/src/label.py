@@ -1,15 +1,20 @@
 from hamcrest import all_of
+from hamcrest import anything
 from hamcrest import has_entry, has_item
 
 
-def has_label(name, value):
-    return has_entry('labels',
-                     has_item(
-                         all_of(
-                             has_entry('name', name),
-                             has_entry('value', value)
-                         )
-                     ))
+def has_label(name, value=None):
+    if value is None:
+        value = anything()
+    return has_entry(
+        'labels',
+        has_item(
+            all_of(
+                has_entry('name', name),
+                has_entry('value', value)
+            )
+        )
+    )
 
 
 def has_severity(level):

@@ -82,24 +82,35 @@ def has_description_html(*matchers):
 
 
 def has_step(name, *matchers):
-    return has_entry('steps',
-                     has_item(
-                         all_of(
-                             has_entry('name', equal_to(name)),
-                             *matchers
-                         )
-                     ))
+    return has_entry(
+        'steps',
+        has_item(
+            all_of(
+                has_entry('name', equal_to(name)),
+                *matchers
+            )
+        )
+    )
+
+
+def get_parameter_matcher(name, *matchers):
+    return has_entry(
+        'parameters',
+        has_item(
+            all_of(
+                has_entry('name', equal_to(name)),
+                *matchers
+            )
+        )
+    )
 
 
 def has_parameter(name, value, *matchers):
-    return has_entry('parameters',
-                     has_item(
-                         all_of(
-                             has_entry('name', equal_to(name)),
-                             has_entry('value', equal_to(value)),
-                             *matchers
-                         )
-                     ))
+    return get_parameter_matcher(
+        name,
+        has_entry('value', equal_to(value)),
+        *matchers
+    )
 
 
 def doesnt_have_parameter(name):
@@ -112,13 +123,19 @@ def doesnt_have_parameter(name):
 
 
 def has_link(url, link_type=None, name=None):
-    return has_entry('links',
-                     has_item(
-                         all_of(
-                             *[has_entry(key, value) for key, value in
-                               zip(('url', 'type', 'name'), (url, link_type, name)) if value is not None]
-                         )
-                     ))
+    return has_entry(
+        'links',
+        has_item(
+            all_of(
+                *[
+                    has_entry(key, value) for key, value in zip(
+                        ('url', 'type', 'name'),
+                        (url, link_type, name)
+                    ) if value is not None
+                ]
+            )
+        )
+    )
 
 
 def has_issue_link(url, name=None):
@@ -126,21 +143,28 @@ def has_issue_link(url, name=None):
 
 
 def has_test_case_link(url, name=None):
-    return has_link(url, link_type='test_case', name=name)
+    return has_link(url, link_type='tms', name=name)
 
 
 def has_attachment(attach_type=None, name=None):
-    return has_entry('attachments',
-                     has_item(
-                         all_of(
-                             has_entry('source', anything()),
-                             has_entry('type', attach_type) if attach_type else anything(),
-                             has_entry('name', name) if name else anything()
-                         )
-                     ))
+    return has_entry(
+        'attachments',
+        has_item(
+            all_of(
+                has_entry('source', anything()),
+                has_entry('type', attach_type) if attach_type else anything(),
+                has_entry('name', name) if name else anything()
+            )
+        )
+    )
 
 
-def has_attachment_with_content(attachments, content_matcher, attach_type=None, name=None):
+def has_attachment_with_content(
+    attachments,
+    content_matcher,
+    attach_type=None,
+    name=None
+):
     return has_entry(
         'attachments',
         has_item(

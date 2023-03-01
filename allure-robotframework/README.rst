@@ -1,9 +1,9 @@
 Allure Robot Framework Listener
 ===============================
-.. image:: https://pypip.in/v/allure-robotframework/badge.png
+.. image:: https://img.shields.io/pypi/v/allure-robotframework
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-robotframework
-.. image:: https://pypip.in/d/allure-robotframework/badge.png
+.. image:: https://img.shields.io/pypi/dm/allure-robotframework
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-robotframework
 
@@ -25,7 +25,7 @@ Optional argument sets output directory. Example:
 
 .. code:: bash
 
-    $ robot --listener allure_robotframework;/set/your/path/here ./my_robot_test
+    $ robot --listener allure_robotframework:/set/your/path/here ./my_robot_test
 
 Default output directory is `output/allure`.
 
@@ -38,6 +38,12 @@ Listener support `robotframework-pabot library <https://pypi.python.org/pypi/rob
 Advanced listener settings:
 
     - ALLURE_MAX_STEP_MESSAGE_COUNT=5. If robotframework step contains less messages than specified in this setting, each message shows as substep. This reduces the number of attachments in large projects. The default value is zero - all messages are displayed as attachments.
+
+Usage examples
+--------------
+
+See usage examples `here <examples>`_.
+
 
 Contributing to allure-robotframework
 =====================================

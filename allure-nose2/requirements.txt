@@ -1,4 +1,3 @@
-poethepoet
-# linters
-flake8
-flake8-builtins
+-r ../requirements/testing.txt
+-r ../requirements/linting.txt
+-r ../requirements/testing/allure-nose2.txt

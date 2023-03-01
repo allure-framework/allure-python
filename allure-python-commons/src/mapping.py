@@ -8,8 +8,8 @@ from allure_commons.model2 import Label, Link
 
 TAG_PREFIX = "allure"
 
-semi_sep = re.compile(r"allure[\.\w]+:")
-eq_sep = re.compile(r"allure[\.\w]+=")
+semi_sep = re.compile(r"allure[\.\w]+[^:=]*:")
+eq_sep = re.compile(r"allure[\.\w]+[^:=]*=")
 
 
 def allure_tag_sep(tag):

@@ -1,9 +1,9 @@
 Allure Behave Formatter
 =======================
-.. image:: https://pypip.in/v/allure-behave/badge.png
+.. image:: https://img.shields.io/pypi/v/allure-behave
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-behave
-.. image:: https://pypip.in/d/allure-behave/badge.png
+.. image:: https://img.shields.io/pypi/dm/allure-behave
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-behave
 
@@ -38,3 +38,8 @@ like in example below.
     ### your code
 
     allure_report("path/to/result/dir")
+
+Usage examples
+--------------
+
+See usage examples `here <examples>`_.

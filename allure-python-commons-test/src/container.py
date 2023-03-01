@@ -10,13 +10,14 @@ class HasContainer(BaseMatcher):
         self.matchers = matchers
 
     def _matches(self, item):
-        return has_property('test_containers',
-                            has_item(
-                                     all_of(
-                                            has_entry('children', has_item(item['uuid'])),
-                                            *self.matchers
-                                     )
-                            )).matches(self.report)
+        return has_property(
+            'test_containers',
+            has_item(
+                all_of(
+                    has_entry('children', has_item(item['uuid'])),
+                    *self.matchers
+                )
+            )).matches(self.report)
 
     def describe_to(self, description):
         description.append_text('describe me later').append_list('[', ', ', ']', self.matchers)
@@ -151,13 +152,15 @@ def has_same_container(*args):
 
 
 def has_fixture(section, name, *matchers):
-    return has_entry(section,
-                     has_item(
-                         all_of(
-                             has_entry('name', equal_to(name)),
-                             *matchers
-                         )
-                     ))
+    return has_entry(
+        section,
+        has_item(
+            all_of(
+                has_entry('name', equal_to(name)),
+                *matchers
+            )
+        )
+    )
 
 
 def has_before(name, *matchers):

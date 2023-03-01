@@ -1,0 +1,20 @@
+# Commons:
+-r ./commons.txt
+
+# Allure integrations
+-e allure-behave
+-e allure-nose2
+-e allure-pytest
+-e allure-pytest-bdd
+-e allure-robotframework
+
+# Testing & linting
+-r ./testing.txt
+-r ./linting.txt
+
+# Allure per-package testing deps
+-r ./testing/allure-behave.txt
+-r ./testing/allure-nose2.txt
+-r ./testing/allure-pytest.txt
+-r ./testing/allure-pytest-bdd.txt
+-r ./testing/allure-robotframework.txt

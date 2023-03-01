@@ -78,6 +78,12 @@ class AllureListener:
         test_result = TestResult(name=item.name, uuid=uuid, start=now(), stop=now())
         self.allure_logger.schedule_test(uuid, test_result)
         yield
+        uuid = self._cache.pop(item.nodeid)
+        if uuid:
+            test_result = self.allure_logger.get_test(uuid)
+            if test_result.status is None:
+                test_result.status = Status.SKIPPED
+            self.allure_logger.close_test(uuid)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_setup(self, item):
@@ -217,13 +223,6 @@ class AllureListener:
                     self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
                 if report.capstderr:
                     self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
-
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_logfinish(self, nodeid, location):
-        yield
-        uuid = self._cache.pop(nodeid)
-        if uuid:
-            self.allure_logger.close_test(uuid)
 
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):

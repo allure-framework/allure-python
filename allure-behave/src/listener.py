@@ -217,7 +217,7 @@ class GroupContext:
         self._logger.start_group(group.uuid, group)
         self._groups.append(group)
 
-    def exit(self):
+    def exit(self):  # noqa: A003
         group = self._groups.pop()
         if group.befores or group.afters:
             self._logger.stop_group(group.uuid)

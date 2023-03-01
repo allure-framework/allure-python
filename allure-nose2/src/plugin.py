@@ -47,7 +47,7 @@ class Allure(Plugin):
     commandLineSwitch = (None, "allure", "Generate an Allure report")
 
     def __init__(self, *args, **kwargs):
-        super(Allure, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._host = host_tag()
         self._thread = thread_tag()
         self.lifecycle = AllureLifecycle()

@@ -2,3 +2,8 @@
 max-line-length = 120
 import-order-style = google
 inline-quotes = "
+exclude =
+    ./tests/allure_behave/acceptance/**/test-data/**
+    ./tests/allure_behave/acceptance/behave_support/background/background_steps.py
+per-file-ignores =
+    ./allure-python-commons/src/model2.py:A003

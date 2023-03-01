@@ -14,7 +14,7 @@ class Severity(str, Enum):
 class LinkType:
     LINK = 'link'
     ISSUE = 'issue'
-    TEST_CASE = 'test_case'
+    TEST_CASE = 'tms'
 
 
 class LabelType(str):
