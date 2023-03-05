@@ -353,11 +353,11 @@ class AllureFrameworkRunner:
 
     """
     def __init__(
-            self,
-            request: FixtureRequest,
-            pytester: Pytester,
-            *imported_logger_paths
-        ):
+        self,
+        request: FixtureRequest,
+        pytester: Pytester,
+        *imported_logger_paths
+    ):
         self.request = request
         self.pytester = pytester
         self.allure_results = None
