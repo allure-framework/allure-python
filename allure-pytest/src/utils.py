@@ -27,7 +27,11 @@ def get_marker_value(item, keyword):
 
 
 def allure_title(item):
-    return getattr(item.obj, "__allure_display_name__", None)
+    return getattr(
+        getattr(item, "obj", None),
+        "__allure_display_name__",
+        None
+    )
 
 
 def allure_description(item):
