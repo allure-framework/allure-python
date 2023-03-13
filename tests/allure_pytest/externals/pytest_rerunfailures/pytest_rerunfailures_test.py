@@ -47,7 +47,7 @@ def test_pytest_rerunfailures(
 @allure.feature("Integration")
 def test_separate_result_for_each_rerun(rerunfailures_runner: AllurePytestRunner):
     testfile_content = (
-        f"""
+        """
         import pytest
 
         @pytest.mark.flaky(reruns=1)
@@ -57,7 +57,9 @@ def test_separate_result_for_each_rerun(rerunfailures_runner: AllurePytestRunner
     )
 
     def __count_labels(tc, name):
-        return len([l["value"] for l in tc["labels"] if l["name"] == name])
+        return len(
+            [label["value"] for label in tc["labels"] if label["name"] == name]
+        )
 
     output = rerunfailures_runner.run_pytest(testfile_content)
 
