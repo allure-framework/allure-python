@@ -22,8 +22,7 @@ class AllurePytestRunner(AllureFrameworkRunner):
     DOCTEST_RESULT_KEY = StashKey()
 
     def __init__(self, request: FixtureRequest, pytester: Pytester):
-        self.logger_path = AllurePytestRunner.LOGGER_PATH
-        super().__init__(request, pytester)
+        super().__init__(request, pytester, AllurePytestRunner.LOGGER_PATH)
         self.select_plugins("allure_pytest")
 
     def enable_plugins(self, *plugins: str) -> None:
@@ -159,11 +158,7 @@ class AllurePytestRunner(AllureFrameworkRunner):
             *cli_args
         ]
         self.__generate_testfiles(testfile_literals)
-        return self._run(
-            pytest_args,
-            testplan_content=testplan,
-            logger_path=self.logger_path
-        )
+        return self._run(pytest_args, testplan_content=testplan)
 
     def _run_framework(self, options):
         with altered_env(PYTEST_DISABLE_PLUGIN_AUTOLOAD="true"):

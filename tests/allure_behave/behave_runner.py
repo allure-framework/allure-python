@@ -77,7 +77,7 @@ class _InMemoryBehaveRunner(Runner):
             "step_matcher":     matchers.step_matcher,
         }
 
-        # To support the decorators (i.e., @given) with no imports
+        # To support the decorators (e.g., @given) with no imports
         setup_step_decorators(step_globals, self.step_registry)
 
         default_matcher = matchers.current_matcher
@@ -113,7 +113,7 @@ class AllureBehaveRunner(AllureFrameworkRunner):
     LOGGER_PATH = "allure_behave.formatter.AllureFileLogger"
 
     def __init__(self, request: FixtureRequest, pytester: Pytester):
-        super().__init__(request, pytester)
+        super().__init__(request, pytester, AllureBehaveRunner.LOGGER_PATH)
 
     def run_behave(
         self,
@@ -181,7 +181,6 @@ class AllureBehaveRunner(AllureFrameworkRunner):
             testplan_content=testplan_content,
             testplan_path=testplan_path,
             testplan_rst_id=testplan_rst_id,
-            logger_path=AllureBehaveRunner.LOGGER_PATH,
             options=options
         )
 
