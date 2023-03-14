@@ -224,6 +224,13 @@ class AllureListener:
                 if report.capstderr:
                     self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
 
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_logfinish(self, nodeid, location):
+        yield
+        uuid = self._cache.pop(nodeid)
+        if uuid:
+            self.allure_logger.close_test(uuid)
+
     @allure_commons.hookimpl
     def attach_data(self, body, name, attachment_type, extension):
         self.allure_logger.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)

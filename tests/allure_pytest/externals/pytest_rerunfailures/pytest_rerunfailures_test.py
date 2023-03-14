@@ -41,3 +41,30 @@ def test_pytest_rerunfailures(
             with_status(status)
         )
     )
+
+
+@allure.issue("735")
+@allure.feature("Integration")
+def test_separate_result_for_each_rerun(rerunfailures_runner: AllurePytestRunner):
+    testfile_content = (
+        """
+        import pytest
+
+        @pytest.mark.flaky(reruns=1)
+        def test_pytest_rerunfailures_example(request):
+            assert False
+        """
+    )
+
+    def __count_labels(tc, name):
+        return len(
+            [label["value"] for label in tc["labels"] if label["name"] == name]
+        )
+
+    output = rerunfailures_runner.run_pytest(testfile_content)
+
+    assert len(output.test_cases) == 2
+    assert __count_labels(output.test_cases[0], "suite") == 1
+    assert __count_labels(output.test_cases[0], "tag") == 1
+    assert __count_labels(output.test_cases[1], "suite") == 1
+    assert __count_labels(output.test_cases[1], "tag") == 1
