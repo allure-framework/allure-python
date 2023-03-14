@@ -12,7 +12,7 @@ import pytest
 import shutil
 import warnings
 from abc import abstractmethod
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from pathlib import Path
 from pytest import FixtureRequest, Pytester, MonkeyPatch
 from typing import Tuple, Mapping, TypeVar, Generator, Callable, Union
@@ -54,7 +54,7 @@ def allure_plugin_context():
 
 @contextmanager
 def allure_in_memory_context(
-    path: str = None
+    *paths: str
 ) -> Generator[AllureMemoryLogger, None, None]:
     """Creates a context to test an allure integration.
 
@@ -70,28 +70,30 @@ def allure_in_memory_context(
     restored.
 
     Arguments:
-        path (str): a path to a class to replace.
-            Defaults to :code:`"allure_commons.logger.AllureFileLogger"`.
-            Provide this argument if the integration under test imports the
-            logger using the
-            :code:`from allure_commons.logger import AllureFileLogger` syntax.
+        *paths (str): paths to classes to replace with the in-memory logger in
+            addition to :code:`"allure_commons.logger.AllureFileLogger"`.
+            Provide these if the integration under test imports the logger using
+            the :code:`from allure_commons.logger import AllureFileLogger`
+            syntax.
 
     Yields:
-        AllureMemoryLogger: an instance of the in-memory logger, where an output
-            will be collected.
+        AllureMemoryLogger: an instance of the in-memory logger, where the
+            output is collected.
 
     """
-
-    if path is None:
-        path = "allure_commons.logger.AllureFileLogger"
 
     # Plugin context must be set first, because mock patching may cause
     # module loading, thus, side effects, including allure decorators evaluation
     # (and that requires all plugins of nested allure to already be in place).
+    paths = ("allure_commons.logger.AllureFileLogger",) + paths
     with allure_plugin_context():
-        with mock.patch(path) as ReporterMock:
-            ReporterMock.return_value = AllureMemoryLogger()
-            yield ReporterMock.return_value
+        logger = AllureMemoryLogger()
+        with ExitStack() as stack:
+            for path in paths:
+                stack.enter_context(
+                    mock.patch(path)
+                ).return_value = logger
+            yield logger
 
 
 class AllureFileContextValue:
@@ -336,12 +338,31 @@ class AllureFrameworkRunner:
     """An abstract base class for framework test runners to test allure
     integrations.
 
+    Attributes:
+        request (FixtureRequest): an instance of the request fixture.
+        pytester (Pytester): an instance of the pytester fixture.
+        allure_results (AllureMemoryLogger | AllureReport): the latest collected
+            allure results.
+        in_memory (bool): if `True`, the next run collects the results in memory
+            (:attr:`AllureFrameworkRunner.allure_results` is AllureMemoryLogger).
+            Otherwise, the next run creates allure result files and collects the
+            report from them
+            (:attr:`AllureFrameworkRunner.allure_results` is AllureReport).
+        *imported_logger_paths: a sequence of paths to provide to
+            :func:`allure_in_memory_context`.
+
     """
-    def __init__(self, request: FixtureRequest, pytester: Pytester):
+    def __init__(
+        self,
+        request: FixtureRequest,
+        pytester: Pytester,
+        *imported_logger_paths
+    ):
         self.request = request
         self.pytester = pytester
         self.allure_results = None
         self.in_memory = True
+        self.imported_logger_paths = list(imported_logger_paths)
 
     def _run(
         self,
@@ -349,7 +370,6 @@ class AllureFrameworkRunner:
         testplan_content: dict = None,
         testplan_path: PathlikeT = None,
         testplan_rst_id: str = None,
-        logger_path: str = None,
         **kwargs
     ) -> AllureMemoryLogger:
         """Runs the framework and collect the allure results.
@@ -380,7 +400,6 @@ class AllureFrameworkRunner:
         )
         with altered_env(ALLURE_TESTPLAN_PATH=testplan_path):
             output = self.__run_and_collect_results_in_memory(
-                logger_path,
                 args,
                 kwargs
             ) if self.in_memory else self.__run_and_collect_results_from_fs(
@@ -572,8 +591,8 @@ class AllureFrameworkRunner:
         node.stash[cache_key] = result
         return result
 
-    def __run_and_collect_results_in_memory(self, logger_path, args, kwargs):
-        with allure_in_memory_context(logger_path) as output:
+    def __run_and_collect_results_in_memory(self, args, kwargs):
+        with allure_in_memory_context(*self.imported_logger_paths) as output:
             self._run_framework(*args, **kwargs)
             return output
 

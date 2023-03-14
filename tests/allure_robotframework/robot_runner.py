@@ -11,7 +11,7 @@ class AllureRobotRunner(AllureFrameworkRunner):
     LOGGER_PATH = "allure_robotframework.robot_listener.AllureFileLogger"
 
     def __init__(self, request: FixtureRequest, pytester: Pytester):
-        super().__init__(request, pytester)
+        super().__init__(request, pytester, AllureRobotRunner.LOGGER_PATH)
 
     def run_robotframework(
         self,
@@ -75,7 +75,6 @@ class AllureRobotRunner(AllureFrameworkRunner):
             testplan_content=testplan_content,
             testplan_path=testplan_path,
             testplan_rst_id=testplan_rst_id,
-            logger_path=AllureRobotRunner.LOGGER_PATH,
             options=self.__resolve_options(options)
         )
 

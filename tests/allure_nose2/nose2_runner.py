@@ -10,18 +10,14 @@ class AllureNose2Runner(AllureFrameworkRunner):
     LOGGER_PATH = "allure_nose2.plugin.AllureFileLogger"
 
     def __init__(self, request: FixtureRequest, pytester: Pytester):
-        super().__init__(request, pytester)
+        super().__init__(request, pytester, AllureNose2Runner.LOGGER_PATH)
 
     def run_docstring(self):
         docstring = self._find_docstring()
         example_code = script_from_examples(docstring)
         spec = importlib.machinery.ModuleSpec(self.request.node.name, None)
         module = importlib.util.module_from_spec(spec)
-        return self._run(
-            module,
-            example_code,
-            logger_path=AllureNose2Runner.LOGGER_PATH
-        )
+        return self._run(module, example_code)
 
     def _run_framework(self, module, example):
         # We execute the example here because the _run_framework runs in a
