@@ -1,15 +1,15 @@
 Allure Behave Formatter
 =======================
-.. image:: https://img.shields.io/pypi/v/allure-behave
+.. image:: https://pypip.in/v/allure-behave/badge.png
         :alt: Release Status
         :target: https://pypi.python.org/pypi/allure-behave
-.. image:: https://img.shields.io/pypi/dm/allure-behave
+.. image:: https://pypip.in/d/allure-behave/badge.png
         :alt: Downloads
         :target: https://pypi.python.org/pypi/allure-behave
 
 - `Source <https://github.com/allure-framework/allure-python>`_
 
-- `Documentation <https://docs.qameta.io/allure-report>`_
+- `Documentation <https://docs.qameta.io/allure/2.0/>`_
 
 - `Gitter <https://gitter.im/allure-framework/allure-core>`_
 
@@ -38,8 +38,3 @@ like in example below.
     ### your code
 
     allure_report("path/to/result/dir")
-
-Usage examples
---------------
-
-See usage examples `here <examples>`_.

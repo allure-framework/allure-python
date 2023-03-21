@@ -9,7 +9,7 @@ INDENT = 4
 
 
 @attrs
-class TestResultContainer:
+class TestResultContainer(object):
     file_pattern = TEST_GROUP_PATTERN
 
     uuid = attrib(default=None)
@@ -25,7 +25,7 @@ class TestResultContainer:
 
 
 @attrs
-class ExecutableItem:
+class ExecutableItem(object):
     name = attrib(default=None)
     status = attrib(default=None)
     statusDetails = attrib(default=None)
@@ -67,28 +67,26 @@ class TestAfterResult(ExecutableItem):
 
 
 @attrs
-class Parameter:
-    name = attrib(default=None)
-    value = attrib(default=None)
-    excluded = attrib(default=None)
-    mode = attrib(default=None)
-
-
-@attrs
-class Label:
+class Parameter(object):
     name = attrib(default=None)
     value = attrib(default=None)
 
 
 @attrs
-class Link:
+class Label(object):
+    name = attrib(default=None)
+    value = attrib(default=None)
+
+
+@attrs
+class Link(object):
     type = attrib(default=None)
     url = attrib(default=None)
     name = attrib(default=None)
 
 
 @attrs
-class StatusDetails:
+class StatusDetails(object):
     known = attrib(default=None)
     flaky = attrib(default=None)
     message = attrib(default=None)
@@ -96,13 +94,13 @@ class StatusDetails:
 
 
 @attrs
-class Attachment:
+class Attachment(object):
     name = attrib(default=None)
     source = attrib(default=None)
     type = attrib(default=None)
 
 
-class Status:
+class Status(object):
     FAILED = 'failed'
     BROKEN = 'broken'
     PASSED = 'passed'

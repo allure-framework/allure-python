@@ -4,7 +4,7 @@ hookspec = HookspecMarker("allure")
 hookimpl = HookimplMarker("allure")
 
 
-class AllureUserHooks:
+class AllureUserHooks(object):
 
     @hookspec
     def decorate_as_title(self, test_title):
@@ -47,10 +47,6 @@ class AllureUserHooks:
         """ url """
 
     @hookspec
-    def add_parameter(self, name, value, excluded, mode):
-        """ parameter """
-
-    @hookspec
     def start_step(self, uuid, title, params):
         """ step """
 
@@ -67,7 +63,7 @@ class AllureUserHooks:
         """ attach file """
 
 
-class AllureDeveloperHooks:
+class AllureDeveloperHooks(object):
 
     @hookspec
     def start_fixture(self, parent_uuid, uuid, name, parameters):

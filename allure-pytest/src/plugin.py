@@ -4,7 +4,7 @@ import allure
 import allure_commons
 import os
 
-from allure_commons.types import LabelType, Severity
+from allure_commons.types import LabelType
 from allure_commons.logger import AllureFileLogger
 from allure_commons.utils import get_testplan
 
@@ -34,37 +34,27 @@ def pytest_addoption(parser):
                                            dest="attach_capture",
                                            help="Do not attach pytest captured logging/stdout/stderr to report")
 
-    parser.getgroup("reporting").addoption('--inversion',
-                                           action="store",
-                                           dest="inversion",
-                                           default=False,
-                                           help="Run tests not in testplan")
-
     def label_type(type_name, legal_values=set()):
         def a_label_type(string):
             atoms = set(string.split(','))
             if type_name is LabelType.SEVERITY:
-                if not atoms <= legal_values:
+                if not atoms < legal_values:
                     raise argparse.ArgumentTypeError('Illegal {} values: {}, only [{}] are allowed'.format(
-                        type_name,
-                        ', '.join(atoms - legal_values),
-                        ', '.join(legal_values)
-                    ))
+                        type_name, ', '.join(atoms - legal_values), ', '.join(legal_values)))
                 return set((type_name, allure.severity_level(atom)) for atom in atoms)
             return set((type_name, atom) for atom in atoms)
         return a_label_type
 
     severities = [x.value for x in list(allure.severity_level)]
-    formatted_severities = ', '.join(severities)
     parser.getgroup("general").addoption('--allure-severities',
                                          action="store",
                                          dest="allure_severities",
                                          metavar="SEVERITIES_SET",
                                          default={},
                                          type=label_type(LabelType.SEVERITY, legal_values=set(severities)),
-                                         help=f"""Comma-separated list of severity names.
+                                         help="""Comma-separated list of severity names.
                                          Tests only with these severities will be run.
-                                         Possible values are: {formatted_severities}.""")
+                                         Possible values are: %s.""" % ', '.join(severities))
 
     parser.getgroup("general").addoption('--allure-epics',
                                          action="store",
@@ -101,20 +91,6 @@ def pytest_addoption(parser):
                                          type=label_type(LabelType.ID),
                                          help="""Comma-separated list of IDs.
                                          Run tests that have at least one of the specified id labels.""")
-
-    def cf_type(string):
-        type_name, values = string.split("=", 1)
-        atoms = set(values.split(","))
-        return [(type_name, atom) for atom in atoms]
-
-    parser.getgroup("general").addoption('--allure-label',
-                                         action="append",
-                                         dest="allure_labels",
-                                         metavar="LABELS_SET",
-                                         default=[],
-                                         type=cf_type,
-                                         help="""List of labels to run in format label_name=value1,value2.
-                                         "Run tests that have at least one of the specified labels.""")
 
     def link_pattern(string):
         pattern = string.split(':', 1)
@@ -160,7 +136,7 @@ def pytest_configure(config):
     if report_dir:
         report_dir = os.path.abspath(report_dir)
         test_listener = AllureListener(config)
-        config.pluginmanager.register(test_listener, 'allure_listener')
+        config.pluginmanager.register(test_listener)
         allure_commons.plugin_manager.register(test_listener)
         config.add_cleanup(cleanup_factory(test_listener))
 
@@ -168,40 +144,23 @@ def pytest_configure(config):
         allure_commons.plugin_manager.register(file_logger)
         config.add_cleanup(cleanup_factory(file_logger))
 
-    config.addinivalue_line("markers", f"{ALLURE_LABEL_MARK}: allure label marker")
-    config.addinivalue_line("markers", f"{ALLURE_LINK_MARK}: allure link marker")
-    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_MARK}: allure description")
-    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_HTML_MARK}: allure description html")
+    config.addinivalue_line("markers", "{mark}: allure label marker".format(mark=ALLURE_LABEL_MARK))
+    config.addinivalue_line("markers", "{mark}: allure link marker".format(mark=ALLURE_LINK_MARK))
+    config.addinivalue_line("markers", "{mark}: allure description".format(mark=ALLURE_DESCRIPTION_MARK))
+    config.addinivalue_line("markers", "{mark}: allure description html".format(mark=ALLURE_DESCRIPTION_HTML_MARK))
 
 
 def select_by_labels(items, config):
-    arg_labels = set().union(
-        config.option.allure_epics,
-        config.option.allure_features,
-        config.option.allure_stories,
-        config.option.allure_ids,
-        config.option.allure_severities,
-        *config.option.allure_labels
-    )
-    if arg_labels:
-        selected, deselected = [], []
-        for item in items:
-            test_labels = set(allure_labels(item))
-            test_severity = allure_label(item, LabelType.SEVERITY)
-            if not test_severity:
-                test_labels.add((LabelType.SEVERITY, Severity.NORMAL))
-            if arg_labels & test_labels:
-                selected.append(item)
-            else:
-                deselected.append(item)
-        return selected, deselected
-    else:
-        return items, []
+    arg_labels = set().union(config.option.allure_epics,
+                             config.option.allure_features,
+                             config.option.allure_stories,
+                             config.option.allure_ids,
+                             config.option.allure_severities)
+    return filter(lambda item: arg_labels & set(allure_labels(item)) if arg_labels else True, items)
 
 
-def select_by_testcase(items, config):
+def select_by_testcase(items):
     planned_tests = get_testplan()
-    is_inversion = config.option.inversion
 
     if planned_tests:
 
@@ -215,22 +174,14 @@ def select_by_testcase(items, config):
                     planed_item_string_id in allure_string_ids
                     or planed_item_selector == allure_full_name(item)
                 ):
-                    return True if not is_inversion else False
-            return False if not is_inversion else True
+                    return True
+            return False
 
-        selected, deselected = [], []
-        for item in items:
-            selected.append(item) if is_planed(item) else deselected.append(item)
-        return selected, deselected
+        return [item for item in items if is_planed(item)]
     else:
-        return items, []
+        return items
 
 
 def pytest_collection_modifyitems(items, config):
-    selected, deselected_by_testcase = select_by_testcase(items, config)
-    selected, deselected_by_labels = select_by_labels(selected, config)
-
-    items[:] = selected
-
-    if deselected_by_testcase or deselected_by_labels:
-        config.hook.pytest_deselected(items=[*deselected_by_testcase, *deselected_by_labels])
+    items[:] = select_by_testcase(items)
+    items[:] = select_by_labels(items, config)

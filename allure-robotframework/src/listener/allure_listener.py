@@ -17,7 +17,7 @@ from allure_commons.types import LabelType, AttachmentType, Severity, LinkType
 from allure_robotframework.utils import get_allure_status
 from allure_robotframework.utils import get_allure_suites
 from allure_robotframework.utils import get_allure_parameters
-from allure_robotframework.utils import allure_labels, allure_links
+from allure_robotframework.utils import allure_labels, allure_links, allure_tags
 from allure_robotframework.types import RobotStatus, RobotLogLevel
 
 
@@ -41,10 +41,8 @@ DEFAULT_POOL_ID = "default-" + uuid4()
 def pool_id():
     pabot_pool_id = BuiltIn().get_variable_value('${PABOTEXECUTIONPOOLID}')
     pabot_caller_id = BuiltIn().get_variable_value('${CALLER_ID}')
-    return f"{pabot_pool_id}-{pabot_caller_id}" if all([
-        pabot_pool_id,
-        pabot_caller_id
-    ]) else DEFAULT_POOL_ID
+    return "{}-{}".format(pabot_pool_id, pabot_caller_id) \
+        if all([pabot_pool_id, pabot_caller_id]) else DEFAULT_POOL_ID
 
 
 def get_message_time(timestamp):
@@ -57,7 +55,7 @@ FAIL_MESSAGE_FORMAT = '<p style="color: red"><b>[{level}]</b>&nbsp;{message}</p>
 MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 0))
 
 
-class AllureListener:
+class AllureListener(object):
     def __init__(self, lifecycle):
         self.lifecycle = lifecycle
         self._platform = platform_label()
@@ -150,6 +148,7 @@ class AllureListener:
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=self._platform))
             test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=pool_id()))
+            test_result.labels.extend(allure_tags(attributes))
             tags = attributes.get('tags', ())
             test_result.labels.extend(allure_labels(tags))
             test_result.statusDetails = StatusDetails(message=attributes.get('message'),

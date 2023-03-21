@@ -1,5 +1,6 @@
-import csv
-import io
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from enum import Enum
 from behave.runner_util import make_undefined_step_snippet
 from allure_commons.types import Severity, LabelType
@@ -29,7 +30,7 @@ def scenario_history_id(scenario):
     parts = [scenario.feature.name, scenario.name]
     if scenario._row:
         row = scenario._row
-        parts.extend([f'{name}={value}' for name, value in zip(row.headings, row.cells)])
+        parts.extend(['{name}={value}'.format(name=name, value=value) for name, value in zip(row.headings, row.cells)])
     return md5(*parts)
 
 
@@ -94,22 +95,7 @@ def get_status(exception):
 def get_fullname(scenario):
     name_with_param = scenario_name(scenario)
     name = name_with_param.rsplit(" -- ")[0]
-    return f"{scenario.feature.name}: {name}"
-
-
-def get_hook_name(name, parameters):
-    tag = None
-    if name in ["before_tag", "after_tag"]:
-        param_list = list(parameters.items())
-        if len(param_list) > 1:
-            tag = param_list[1][1]
-        else:
-            tag = param_list[0][1][1]
-    name = name.replace("_", " ")
-    if tag:
-        tag = tag.replace("'", "")
-        name = f"{name} @{tag}"
-    return name
+    return "{filename}: {name}".format(filename=scenario.feature.name, name=name)
 
 
 def step_status_details(result):
@@ -126,11 +112,9 @@ def step_status_details(result):
 
 
 def step_table(step):
-    with io.StringIO() as buffer:
-        writer = csv.writer(buffer)
-        writer.writerow(step.table.headings)
-        writer.writerows(r.cells for r in step.table.rows)
-        return buffer.getvalue()
+    table = [','.join(step.table.headings)]
+    [table.append(','.join(list(row))) for row in step.table.rows]
+    return '\n'.join(table)
 
 
 def is_planned_scenario(scenario, test_plan):

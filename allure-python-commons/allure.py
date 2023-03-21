@@ -10,10 +10,8 @@ from allure_commons._allure import link, issue, testcase
 from allure_commons._allure import Dynamic as dynamic
 from allure_commons._allure import step
 from allure_commons._allure import attach
-from allure_commons._allure import manual
 from allure_commons.types import Severity as severity_level
 from allure_commons.types import AttachmentType as attachment_type
-from allure_commons.types import ParameterMode as parameter_mode
 
 
 __all__ = [
@@ -33,11 +31,9 @@ __all__ = [
     'link',
     'issue',
     'testcase',
-    'manual',
     'step',
     'dynamic',
     'severity_level',
     'attach',
-    'attachment_type',
-    'parameter_mode'
+    'attachment_type'
 ]

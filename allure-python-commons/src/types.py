@@ -11,10 +11,10 @@ class Severity(str, Enum):
     TRIVIAL = 'trivial'
 
 
-class LinkType:
+class LinkType(object):
     LINK = 'link'
     ISSUE = 'issue'
-    TEST_CASE = 'tms'
+    TEST_CASE = 'test_case'
 
 
 class LabelType(str):
@@ -31,7 +31,6 @@ class LabelType(str):
     ID = 'as_id'
     FRAMEWORK = 'framework'
     LANGUAGE = 'language'
-    MANUAL = 'ALLURE_MANUAL'
 
 
 class AttachmentType(Enum):
@@ -63,9 +62,3 @@ class AttachmentType(Enum):
     WEBM = ("video/webm", "webm")
 
     PDF = ("application/pdf", "pdf")
-
-
-class ParameterMode(Enum):
-    HIDDEN = 'hidden'
-    MASKED = 'masked'
-    DEFAULT = None

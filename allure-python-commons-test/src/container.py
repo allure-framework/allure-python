@@ -1,5 +1,6 @@
+from six import string_types
 from hamcrest.core.base_matcher import BaseMatcher
-from hamcrest import all_of
+from hamcrest import all_of, anything, any_of
 from hamcrest import has_entry, has_item, has_property, equal_to
 
 
@@ -10,20 +11,19 @@ class HasContainer(BaseMatcher):
         self.matchers = matchers
 
     def _matches(self, item):
-        return has_property(
-            'test_containers',
-            has_item(
-                all_of(
-                    has_entry('children', has_item(item['uuid'])),
-                    *self.matchers
-                )
-            )).matches(self.report)
+        return has_property('test_containers',
+                            has_item(
+                                     all_of(
+                                            has_entry('children', has_item(item['uuid'])),
+                                            *self.matchers
+                                     )
+                            )).matches(self.report)
 
     def describe_to(self, description):
         description.append_text('describe me later').append_list('[', ', ', ']', self.matchers)
 
-    def describe_mismatch(self, item, mismatch_description):
-        self.matches(item, mismatch_description)
+    def describe_mismatch(self, item, mismatch_descaription):
+        self.matches(item, mismatch_descaription)
 
 
 def has_container(report, *matchers):
@@ -32,7 +32,7 @@ def has_container(report, *matchers):
 
     >>> from allure_commons_test.report import has_test_case
 
-    >>> class Report:
+    >>> class Report(object):
     ...     test_cases = [
     ...         {
     ...              'fullName': 'test_case',
@@ -78,7 +78,7 @@ def has_container(report, *matchers):
 class HasSameContainer(BaseMatcher):
 
     def __init__(self, *args):
-        self.test_case_names = [test_case_name for test_case_name in args if isinstance(test_case_name, str)]
+        self.test_case_names = [test_case_name for test_case_name in args if isinstance(test_case_name, string_types)]
         self.matchers = args[len(self.test_case_names):]
 
     @staticmethod
@@ -97,9 +97,9 @@ class HasSameContainer(BaseMatcher):
                                                                for name in self.test_case_names]
                                                       )),
                                             *self.matchers
-                                            )
-                                    )
-                            ).matches(report)
+                                     )
+                            )
+               ).matches(report)
 
     # TODO better describe
     def describe_to(self, description):
@@ -110,7 +110,7 @@ def has_same_container(*args):
     """
     >>> from hamcrest import assert_that
 
-    >>> class Report:
+    >>> class Report(object):
     ...     test_cases = [
     ...         {
     ...              'fullName': 'first_test_case',
@@ -152,15 +152,13 @@ def has_same_container(*args):
 
 
 def has_fixture(section, name, *matchers):
-    return has_entry(
-        section,
-        has_item(
-            all_of(
-                has_entry('name', equal_to(name)),
-                *matchers
-            )
-        )
-    )
+    return has_entry(section,
+                     has_item(
+                         all_of(
+                             has_entry('name', equal_to(name)),
+                             *matchers
+                         )
+                     ))
 
 
 def has_before(name, *matchers):

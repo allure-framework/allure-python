@@ -65,8 +65,7 @@ Expected: ...
 from hamcrest import all_of, anything, not_
 from hamcrest import equal_to, not_none
 from hamcrest import has_entry, has_item
-from hamcrest import contains_string
-from allure_commons_test.lookup import maps_to
+from hamcrest import contains_string, starts_with
 
 
 def has_title(title):
@@ -82,35 +81,23 @@ def has_description_html(*matchers):
 
 
 def has_step(name, *matchers):
-    return has_entry(
-        'steps',
-        has_item(
-            all_of(
-                has_entry('name', equal_to(name)),
-                *matchers
-            )
-        )
-    )
+    return has_entry('steps',
+                     has_item(
+                         all_of(
+                             has_entry('name', equal_to(name)),
+                             *matchers
+                         )
+                     ))
 
 
-def get_parameter_matcher(name, *matchers):
-    return has_entry(
-        'parameters',
-        has_item(
-            all_of(
-                has_entry('name', equal_to(name)),
-                *matchers
-            )
-        )
-    )
-
-
-def has_parameter(name, value, *matchers):
-    return get_parameter_matcher(
-        name,
-        has_entry('value', equal_to(value)),
-        *matchers
-    )
+def has_parameter(name, value):
+    return has_entry('parameters',
+                     has_item(
+                         all_of(
+                             has_entry('name', equal_to(name)),
+                             has_entry('value', equal_to(value))
+                         )
+                     ))
 
 
 def doesnt_have_parameter(name):
@@ -118,24 +105,17 @@ def doesnt_have_parameter(name):
                      not_(
                          has_item(
                              has_entry('name', equal_to(name)),
-                         )
-                     ))
+                     )))
 
 
 def has_link(url, link_type=None, name=None):
-    return has_entry(
-        'links',
-        has_item(
-            all_of(
-                *[
-                    has_entry(key, value) for key, value in zip(
-                        ('url', 'type', 'name'),
-                        (url, link_type, name)
-                    ) if value is not None
-                ]
-            )
-        )
-    )
+    return has_entry('links',
+                     has_item(
+                         all_of(
+                             *[has_entry(key, value) for key, value in
+                               zip(('url', 'type', 'name'), (url, link_type, name)) if value is not None]
+                         )
+                     ))
 
 
 def has_issue_link(url, name=None):
@@ -143,38 +123,18 @@ def has_issue_link(url, name=None):
 
 
 def has_test_case_link(url, name=None):
-    return has_link(url, link_type='tms', name=name)
+    return has_link(url, link_type='test_case', name=name)
 
 
 def has_attachment(attach_type=None, name=None):
-    return has_entry(
-        'attachments',
-        has_item(
-            all_of(
-                has_entry('source', anything()),
-                has_entry('type', attach_type) if attach_type else anything(),
-                has_entry('name', name) if name else anything()
-            )
-        )
-    )
-
-
-def has_attachment_with_content(
-    attachments,
-    content_matcher,
-    attach_type=None,
-    name=None
-):
-    return has_entry(
-        'attachments',
-        has_item(
-            all_of(
-                has_entry('name', name) if name else anything(),
-                has_entry('type', attach_type) if attach_type else anything(),
-                has_entry('source', maps_to(attachments, content_matcher))
-            )
-        )
-    )
+    return has_entry('attachments',
+                     has_item(
+                         all_of(
+                             has_entry('source', anything()),
+                             has_entry('type', attach_type) if attach_type else anything(),
+                             has_entry('name', name) if name else anything()
+                         )
+                     ))
 
 
 def with_id():
@@ -195,14 +155,6 @@ def with_message_contains(string):
 
 def with_trace_contains(string):
     return has_entry('trace', contains_string(string))
-
-
-def with_excluded():
-    return has_entry('excluded', True)
-
-
-def with_mode(mode):
-    return has_entry('mode', mode)
 
 
 def has_history_id():

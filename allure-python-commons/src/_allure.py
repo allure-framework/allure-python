@@ -2,7 +2,7 @@ from functools import wraps
 from typing import Any, Callable, TypeVar
 
 from allure_commons._core import plugin_manager
-from allure_commons.types import LabelType, LinkType, ParameterMode
+from allure_commons.types import LabelType, LinkType
 from allure_commons.utils import uuid4
 from allure_commons.utils import func_parameters, represent
 
@@ -66,12 +66,8 @@ def tag(*tags):
     return label(LabelType.TAG, *tags)
 
 
-def id(id):  # noqa: A001,A002
+def id(id):
     return label(LabelType.ID, id)
-
-
-def manual(fn):
-    return label(LabelType.MANUAL, True)(fn)
 
 
 def link(url, link_type=LinkType.LINK, name=None):
@@ -86,7 +82,7 @@ def testcase(url, name=None):
     return link(url, link_type=LinkType.TEST_CASE, name=name)
 
 
-class Dynamic:
+class Dynamic(object):
 
     @staticmethod
     def title(test_title):
@@ -109,10 +105,6 @@ class Dynamic:
         Dynamic.label(LabelType.SEVERITY, severity_level)
 
     @staticmethod
-    def epic(*epics):
-        Dynamic.label(LabelType.EPIC, *epics)
-
-    @staticmethod
     def feature(*features):
         Dynamic.label(LabelType.FEATURE, *features)
 
@@ -125,16 +117,8 @@ class Dynamic:
         Dynamic.label(LabelType.TAG, *tags)
 
     @staticmethod
-    def id(id):  # noqa: A003,A002
-        Dynamic.label(LabelType.ID, id)
-
-    @staticmethod
     def link(url, link_type=LinkType.LINK, name=None):
         plugin_manager.hook.add_link(url=url, link_type=link_type, name=name)
-
-    @staticmethod
-    def parameter(name, value, excluded=None, mode: ParameterMode = None):
-        plugin_manager.hook.add_parameter(name=name, value=value, excluded=excluded, mode=mode)
 
     @staticmethod
     def issue(url, name=None):
@@ -155,10 +139,6 @@ class Dynamic:
     @staticmethod
     def sub_suite(sub_suite_name):
         Dynamic.label(LabelType.SUB_SUITE, sub_suite_name)
-
-    @staticmethod
-    def manual():
-        return Dynamic.label(LabelType.MANUAL, True)
 
 
 def step(title):
@@ -190,11 +170,10 @@ class StepContext:
             args = list(map(lambda x: represent(x), a))
             with StepContext(self.title.format(*args, **params), params):
                 return func(*a, **kw)
-
         return impl
 
 
-class Attach:
+class Attach(object):
 
     def __call__(self, body, name=None, attachment_type=None, extension=None):
         plugin_manager.hook.attach_data(body=body, name=name, attachment_type=attachment_type, extension=extension)
@@ -206,7 +185,7 @@ class Attach:
 attach = Attach()
 
 
-class fixture:
+class fixture(object):
     def __init__(self, fixture_function, parent_uuid=None, name=None):
         self._fixture_function = fixture_function
         self._parent_uuid = parent_uuid
@@ -235,7 +214,7 @@ class fixture:
                                          exc_tb=exc_tb)
 
 
-class test:
+class test(object):
     def __init__(self, _test, context):
         self._test = _test
         self._uuid = uuid4()

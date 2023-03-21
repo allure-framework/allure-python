@@ -17,7 +17,7 @@ from .utils import timestamp_millis, status_details, update_attrs, labels, name,
 import allure_commons
 
 
-class DecoratorsHelper:
+class DecoratorsHelper(object):
     @classmethod
     @allure_commons.hookimpl
     def decorate_as_label(cls, label_type, labels):
@@ -47,7 +47,7 @@ class Allure(Plugin):
     commandLineSwitch = (None, "allure", "Generate an Allure report")
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(Allure, self).__init__(*args, **kwargs)
         self._host = host_tag()
         self._thread = thread_tag()
         self.lifecycle = AllureLifecycle()

@@ -11,13 +11,6 @@ classifiers = [
     'License :: OSI Approved :: Apache Software License',
     'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Programming Language :: Python :: 3.11',
 ]
 
 setup_requires = [
@@ -32,7 +25,7 @@ def prepare_version():
     from setuptools_scm import get_version
     configuration = {"root": "..", "relative_to": __file__}
     version = get_version(**configuration)
-    install_requires.append(f"allure-python-commons=={version}")
+    install_requires.append("allure-python-commons=={version}".format(version=version))
     return configuration
 
 

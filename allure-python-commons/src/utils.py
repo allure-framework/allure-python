@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import os
-import string
 import sys
+import six
 import time
 import uuid
 import json
@@ -12,7 +14,59 @@ import threading
 import traceback
 import collections
 
-from traceback import format_exception_only
+from functools import partial
+
+
+def getargspec(func):
+    """
+    Used because getargspec for python 2.7 does not accept functools.partial
+    which is the type for pytest fixtures.
+
+    getargspec excerpted from:
+
+    sphinx.util.inspect
+    ~~~~~~~~~~~~~~~~~~~
+    Helpers for inspecting Python modules.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+
+    Like inspect.getargspec but supports functools.partial as well.
+    """
+    # noqa: E731 type: (Any) -> Any
+    if inspect.ismethod(func):
+        func = func.__func__
+    parts = 0, ()  # noqa: E731 type: Tuple[int, Tuple[unicode, ...]]
+    if type(func) is partial:
+        keywords = func.keywords
+        if keywords is None:
+            keywords = {}
+        parts = len(func.args), keywords.keys()
+        func = func.func
+    if not inspect.isfunction(func):
+        raise TypeError('%r is not a Python function' % func)
+    args, varargs, varkw = inspect.getargs(func.__code__)
+    func_defaults = func.__defaults__
+    if func_defaults is None:
+        func_defaults = []
+    else:
+        func_defaults = list(func_defaults)
+    if parts[0]:
+        args = args[parts[0]:]
+    if parts[1]:
+        for arg in parts[1]:
+            i = args.index(arg) - len(args)  # type: ignore
+            del args[i]
+            try:
+                del func_defaults[i]
+            except IndexError:
+                pass
+    return inspect.ArgSpec(args, varargs, varkw, func_defaults)  # type: ignore
+
+
+if six.PY3:
+    from traceback import format_exception_only
+else:
+    from _compat import format_exception_only
 
 
 def md5(*args):
@@ -32,9 +86,10 @@ def now():
 
 
 def platform_label():
-    major_version, *_ = platform.python_version_tuple()
-    implementation = platform.python_implementation().lower()
-    return f'{implementation}{major_version}'
+    major_version, _, __ = platform.python_version_tuple()
+    implementation = platform.python_implementation()
+    return '{implementation}{major_version}'.format(implementation=implementation.lower(),
+                                                    major_version=major_version)
 
 
 def thread_tag():
@@ -45,6 +100,20 @@ def host_tag():
     return socket.gethostname()
 
 
+def escape_non_unicode_symbols(item):
+    if not (six.PY2 and isinstance(item, str)):
+        return item
+
+    def escape_symbol(s):
+        try:
+            s.decode(encoding='UTF-8')
+            return s
+        except UnicodeDecodeError:
+            return repr(s)[1:-1]
+
+    return ''.join(map(escape_symbol, item))
+
+
 def represent(item):
     """
     >>> represent(None)
@@ -53,21 +122,26 @@ def represent(item):
     >>> represent(123)
     '123'
 
-    >>> represent('hi')
-    "'hi'"
+    >>> import six
+    >>> expected = u"'hi'" if six.PY2 else "'hi'"
+    >>> represent('hi') == expected
+    True
 
-    >>> represent('привет')
-    "'привет'"
+    >>> expected = u"'привет'" if six.PY2 else "'привет'"
+    >>> represent(u'привет') == expected
+    True
 
     >>> represent(bytearray([0xd0, 0xbf]))  # doctest: +ELLIPSIS
     "<... 'bytearray'>"
 
     >>> from struct import pack
-    >>> represent(pack('h', 0x89))
-    "<class 'bytes'>"
+    >>> result = "<type 'str'>" if six.PY2 else "<class 'bytes'>"
+    >>> represent(pack('h', 0x89)) == result
+    True
 
-    >>> represent(int)
-    "<class 'int'>"
+    >>> result = "<type 'int'>" if six.PY2 else "<class 'int'>"
+    >>> represent(int) == result
+    True
 
     >>> represent(represent)  # doctest: +ELLIPSIS
     '<function represent at ...>'
@@ -75,15 +149,21 @@ def represent(item):
     >>> represent([represent])  # doctest: +ELLIPSIS
     '[<function represent at ...>]'
 
-    >>> class ClassWithName:
+    >>> class ClassWithName(object):
     ...     pass
 
     >>> represent(ClassWithName)
     "<class 'utils.ClassWithName'>"
     """
 
-    if isinstance(item, str):
-        return f"'{item}'"
+    if six.PY2 and isinstance(item, str):
+        try:
+            item = item.decode(encoding='UTF-8')
+        except UnicodeDecodeError:
+            pass
+
+    if isinstance(item, six.text_type):
+        return u'\'%s\'' % item
     elif isinstance(item, (bytes, bytearray)):
         return repr(type(item))
     else:
@@ -197,7 +277,7 @@ def func_parameters(func, *args, **kwargs):
     >>> args_kwargs_varargs_keywords(1, 2, 4, d=5, e=6)
     [('a', '1'), ('b', '2'), ('c', '(4,)'), ('d', '5'), ('e', '6')]
 
-    >>> class Class:
+    >>> class Class(object):
     ...     @staticmethod
     ...     @helper
     ...     def static_args(a, b):
@@ -225,7 +305,7 @@ def func_parameters(func, *args, **kwargs):
 
     """
     parameters = {}
-    arg_spec = inspect.getfullargspec(func)
+    arg_spec = getargspec(func) if six.PY2 else inspect.getfullargspec(func)
     arg_order = list(arg_spec.args)
     args_dict = dict(zip(arg_spec.args, args))
 
@@ -242,25 +322,19 @@ def func_parameters(func, *args, **kwargs):
         args_dict.pop(arg_spec.args[0], None)
 
     if kwargs:
-        if sys.version_info < (3, 7):
+        if sys.version_info < (3, 6):
             # Sort alphabetically as old python versions does
-            # not preserve call order for kwargs.
+            # not preserve call order for kwargs
             arg_order.extend(sorted(list(kwargs.keys())))
         else:
-            # Keep py3.7 behaviour to preserve kwargs order
+            # Keep py3.6 behaviour to preserve kwargs order
             arg_order.extend(list(kwargs.keys()))
         parameters.update(kwargs)
 
     parameters.update(args_dict)
 
-    items = parameters.items()
-    sorted_items = sorted(
-        map(
-            lambda kv: (kv[0], represent(kv[1])),
-            items
-        ),
-        key=lambda x: arg_order.index(x[0])
-    )
+    items = parameters.iteritems() if six.PY2 else parameters.items()
+    sorted_items = sorted(map(lambda kv: (kv[0], represent(kv[1])), items), key=lambda x: arg_order.index(x[0]))
 
     return collections.OrderedDict(sorted_items)
 
@@ -274,7 +348,7 @@ def format_exception(etype, value):
     >>> import sys
 
     >>> try:
-    ...     assert False, 'Привет'
+    ...     assert False, u'Привет'
     ... except AssertionError:
     ...     etype, e, _ = sys.exc_info()
     ...     format_exception(etype, e) # doctest: +ELLIPSIS
@@ -288,7 +362,7 @@ def format_exception(etype, value):
     'AssertionError: ...\\n'
 
     >>> try:
-    ...    compile("bla 'Привет'", "fake.py", "exec")
+    ...    compile("bla u'Привет'", "fake.py", "exec")
     ... except SyntaxError:
     ...    etype, e, _ = sys.exc_info()
     ...    format_exception(etype, e) # doctest: +ELLIPSIS
@@ -311,7 +385,7 @@ def format_exception(etype, value):
     "AssertionError: \\nExpected:...but:..."
 
     >>> try:
-    ...     assert_that('left', equal_to('right'))
+    ...     assert_that(u'left', equal_to(u'right'))
     ... except AssertionError:
     ...     etype, e, _ = sys.exc_info()
     ...     format_exception(etype, e) # doctest: +ELLIPSIS
@@ -330,53 +404,3 @@ def get_testplan():
             planned_tests = plan.get("tests", [])
 
     return planned_tests
-
-
-class SafeFormatter(string.Formatter):
-    """
-    Format string safely - skip any non-passed keys
-    >>> f = SafeFormatter().format
-
-    Make sure we don't broke default formatting behaviour
-    >>> f("literal string")
-    'literal string'
-    >>> f("{expected.format}", expected=str)
-    "<method 'format' of 'str' objects>"
-    >>> f("{expected[0]}", expected=["value"])
-    'value'
-    >>> f("{expected[0]}", expected=123)
-    Traceback (most recent call last):
-    ...
-    TypeError: 'int' object is not subscriptable
-    >>> f("{expected[0]}", expected=[])
-    Traceback (most recent call last):
-    ...
-    IndexError: list index out of range
-    >>> f("{expected.format}", expected=int)
-    Traceback (most recent call last):
-    ...
-    AttributeError: type object 'int' has no attribute 'format'
-
-    Check that unexpected keys do not cause some errors
-    >>> f("{expected} {unexpected}", expected="value")
-    'value {unexpected}'
-    >>> f("{unexpected[0]}", expected=["value"])
-    '{unexpected[0]}'
-    >>> f("{unexpected.format}", expected=str)
-    '{unexpected.format}'
-    """
-
-    class SafeKeyOrIndexError(Exception):
-        pass
-
-    def get_field(self, field_name, args, kwargs):
-        try:
-            return super().get_field(field_name, args, kwargs)
-        except self.SafeKeyOrIndexError:
-            return "{" + field_name + "}", field_name
-
-    def get_value(self, key, args, kwargs):
-        try:
-            return super().get_value(key, args, kwargs)
-        except (KeyError, IndexError):
-            raise self.SafeKeyOrIndexError()

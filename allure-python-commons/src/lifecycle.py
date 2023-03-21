@@ -13,7 +13,7 @@ from allure_commons.utils import now
 from allure_commons.types import AttachmentType
 
 
-class AllureLifecycle:
+class AllureLifecycle(object):
     def __init__(self):
         self._items = OrderedDict()
 
