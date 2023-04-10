@@ -9,6 +9,7 @@ from .utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 
 from .helper import AllureTestHelper, AllureTitleHelper
 
+
 def pytest_addoption(parser):
     parser.getgroup("reporting").addoption('--alluredir',
                                            action="store",
@@ -51,12 +52,15 @@ def cleanup_factory(plugin):
     def clean_up():
         name = allure_commons.plugin_manager.get_name(plugin)
         allure_commons.plugin_manager.unregister(name=name)
+
     return clean_up
+
 
 def pytest_addhooks(pluginmanager):
     # Need register title hooks before conftest init
     title_helper = AllureTitleHelper()
     allure_commons.plugin_manager.register(title_helper)
+
 
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir

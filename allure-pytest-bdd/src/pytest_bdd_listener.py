@@ -1,25 +1,26 @@
-import pytest
-import allure_commons
-from allure_commons.utils import now
-from allure_commons.utils import uuid4
-from allure_commons.model2 import Label
-from allure_commons.model2 import Status
-from allure_commons.model2 import Link
+from functools import partial
 
+import allure_commons
+import pytest
+from allure_commons.lifecycle import AllureLifecycle
+from allure_commons.model2 import Label
+from allure_commons.model2 import Link
+from allure_commons.model2 import Status
+from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType
-from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
-from .utils import get_uuid
-from .utils import get_step_name
-from .utils import get_status_details
-from .utils import get_pytest_report_status
-from allure_commons.model2 import StatusDetails
-from functools import partial
-from allure_commons.lifecycle import AllureLifecycle
-from .utils import get_full_name, get_name, get_params
+from allure_commons.utils import now
+from allure_commons.utils import platform_label
+from allure_commons.utils import uuid4
 
 from .utils import allure_description, pytest_markers, allure_labels, allure_links, get_tags_from_environment_vars
+from .utils import get_full_name, get_name, get_params
+from .utils import get_pytest_report_status
+from .utils import get_status_details
+from .utils import get_step_name
+from .utils import get_uuid
+
 
 class PytestBDDListener:
     def __init__(self, config):
@@ -36,7 +37,6 @@ class PytestBDDListener:
                     step_result.status = Status.SKIPPED
                     self.lifecycle.stop_step(uuid=step_uuid)
 
-
     @pytest.hookimpl
     def pytest_bdd_before_scenario(self, request, feature, scenario):
         uuid = get_uuid(request.node.nodeid)
@@ -49,15 +49,18 @@ class PytestBDDListener:
             test_result.start = now()
             test_result.historyId = md5(request.node.nodeid)
             test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(request.node)])
-            test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in get_tags_from_environment_vars(self.config.option.env_vars_to_tag)])
-            test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(request.node)])
+            test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in
+                                       get_tags_from_environment_vars(self.config.option.env_vars_to_tag)])
+            test_result.labels.extend(
+                [Label(name=LabelType.TAG, value=value) for value in pytest_markers(request.node)])
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
             test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))
             test_result.description = allure_description(request.node)
-            test_result.links.extend([Link(link_type, url, name) for link_type, url, name in allure_links(request.node)])
+            test_result.links.extend(
+                [Link(link_type, url, name) for link_type, url, name in allure_links(request.node)])
             test_result.parameters = get_params(request.node)
 
         finalizer = partial(self._scenario_finalizer, scenario)
@@ -68,7 +71,8 @@ class PytestBDDListener:
         uuid = get_uuid(request.node.nodeid)
         with self.lifecycle.update_test_case(uuid=uuid) as test_result:
             test_result.stop = now()
-            test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in get_tags_from_environment_vars(self.config.option.env_vars_to_tag)])
+            test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in
+                                       get_tags_from_environment_vars(self.config.option.env_vars_to_tag)])
 
     @pytest.hookimpl
     def pytest_bdd_before_step(self, request, feature, scenario, step, step_func):

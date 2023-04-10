@@ -1,12 +1,13 @@
 import os
 from uuid import UUID
+
+from allure_commons.model2 import Parameter
+from allure_commons.model2 import Status
+from allure_commons.model2 import StatusDetails
+from allure_commons.types import LabelType
+from allure_commons.utils import format_exception
 from allure_commons.utils import md5
 from allure_commons.utils import represent
-from allure_commons.model2 import StatusDetails
-from allure_commons.model2 import Status
-from allure_commons.model2 import Parameter
-from allure_commons.utils import format_exception
-from allure_commons.types import LabelType
 
 ALLURE_DESCRIPTION_MARK = 'allure_description'
 ALLURE_DESCRIPTION_HTML_MARK = 'allure_description_html'
@@ -20,6 +21,7 @@ ALLURE_UNIQUE_LABELS = [
     LabelType.PARENT_SUITE,
     LabelType.SUB_SUITE
 ]
+
 
 def get_step_name(node, step):
     name = "{step_keyword} {step_name}".format(step_keyword=step.keyword, step_name=step.name)
@@ -124,6 +126,7 @@ def mark_to_str(marker):
 def allure_links(item):
     for mark in item.iter_markers(name=ALLURE_LINK_MARK):
         yield (mark.kwargs["link_type"], mark.args[0], mark.kwargs["name"])
+
 
 def get_tags_from_environment_vars(env_vars_list):
     tags = set()
