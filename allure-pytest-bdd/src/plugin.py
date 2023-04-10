@@ -42,6 +42,8 @@ def pytest_addoption(parser):
                                          str.format().""")
 
 
+
+
 def cleanup_factory(plugin):
     def clean_up():
         name = allure_commons.plugin_manager.get_name(plugin)
