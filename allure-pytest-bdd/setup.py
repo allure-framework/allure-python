@@ -36,7 +36,7 @@ def prepare_version():
     configuration = {"root": "..", "relative_to": __file__}
     version = get_version(**configuration)
     install_requires.append(f"allure-python-commons=={version}")
-    install_requires.append("allure-python-commons==2.8.32")
+    install_requires.append("allure-python-commons==2.9.43")
     return configuration
 
 
