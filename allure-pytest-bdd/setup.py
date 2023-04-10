@@ -26,8 +26,7 @@ setup_requires = [
 install_requires = [
     "pytest>=4.5.0",
     "pytest-bdd>=3.0.0",
-    "six>=1.9.0",
-    "allure-python-commons==2.9.43",
+    "six>=1.9.0"
 ]
 
 
