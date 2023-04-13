@@ -5,7 +5,7 @@ import allure_commons
 import os
 
 from allure_commons.types import LabelType, Severity
-from allure_commons.logger import AllureFileLogger
+from allure_commons.logger import AllureFileLogger, AllureHTTPLogger
 from allure_commons.utils import get_testplan
 
 from allure_pytest.utils import allure_label, allure_labels, allure_full_name
@@ -23,6 +23,25 @@ def pytest_addoption(parser):
                                            metavar="DIR",
                                            default=None,
                                            help="Generate Allure report in the specified directory (may not exist)")
+
+    parser.getgroup("reporting").addoption('--allureserver',
+                                           action="store",
+                                           dest="allure_server",
+                                           metavar="URL",
+                                           default=None,
+                                           help="Generate Allure report to a remote allure server")
+
+    parser.getgroup("reporting").addoption('--projectid',
+                                           action="store",
+                                           dest="project_id",
+                                           metavar="STR",
+                                           default=None,
+                                           help="Project id for remote allure server")
+
+    parser.getgroup("reporting").addoption('--clean-allurehistory',
+                                           action="store_true",
+                                           dest="clean_allurehistory",
+                                           help="Clean allure history in remote server")
 
     parser.getgroup("reporting").addoption('--clean-alluredir',
                                            action="store_true",
@@ -152,11 +171,15 @@ def pytest_addhooks(pluginmanager):
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
     clean = config.option.clean_alluredir
+    clean_history = config.option.clean_allurehistory
+    allure_server = config.option.allure_server
+    project_id = config.option.project_id
 
     test_helper = AllureTestHelper(config)
     allure_commons.plugin_manager.register(test_helper)
     config.add_cleanup(cleanup_factory(test_helper))
 
+    test_listener = None
     if report_dir:
         report_dir = os.path.abspath(report_dir)
         test_listener = AllureListener(config)
@@ -167,6 +190,19 @@ def pytest_configure(config):
         file_logger = AllureFileLogger(report_dir, clean)
         allure_commons.plugin_manager.register(file_logger)
         config.add_cleanup(cleanup_factory(file_logger))
+
+    if allure_server:
+        if not test_listener:
+            test_listener = AllureListener(config)
+            config.pluginmanager.register(test_listener, 'allure_listener')
+            allure_commons.plugin_manager.register(test_listener)
+            config.add_cleanup(cleanup_factory(test_listener))
+
+        http_logger = AllureHTTPLogger(allure_server, project_id, clean_history)
+        allure_commons.plugin_manager.register(http_logger)
+        config.add_cleanup(cleanup_factory(http_logger))
+        config.add_cleanup(http_logger.create_report)
+        config.add_cleanup(http_logger.send_results)
 
     config.addinivalue_line("markers", f"{ALLURE_LABEL_MARK}: allure label marker")
     config.addinivalue_line("markers", f"{ALLURE_LINK_MARK}: allure link marker")
