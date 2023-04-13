@@ -5,3 +5,4 @@ poethepoet
 PyHamcrest
 Pygments
 pytest
+requests

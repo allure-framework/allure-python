@@ -1,2 +1,1 @@
 # allure_commons testing deps
-requests
