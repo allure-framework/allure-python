@@ -80,7 +80,9 @@ class AllureHTTPLogger:
 
     @hookimpl
     def send_results(self):
-        self._send_post_request('send-results', self._results)
+        if self._results:
+            self._send_post_request('send-results', self._results)
+            self._results = []
 
     @hookimpl
     def create_report(self, execution_name=None):
