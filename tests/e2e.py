@@ -148,7 +148,7 @@ def find_node_with_docstring(
 
     node = request.node
     while node:
-        docstring = node.obj.__doc__
+        docstring = getattr(node, "obj", None).__doc__
         if docstring:
             break
         node = node.parent

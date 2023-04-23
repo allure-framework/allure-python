@@ -18,8 +18,11 @@ from traceback import format_exception_only
 def md5(*args):
     m = hashlib.md5()
     for arg in args:
-        part = arg.encode('utf-8')
-        m.update(part)
+        if not isinstance(arg, bytes):
+            if not isinstance(arg, str):
+                arg = repr(arg)
+            arg = arg.encode('utf-8')
+        m.update(arg)
     return m.hexdigest()
 
 

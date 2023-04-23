@@ -1,6 +1,6 @@
 import pytest
 from itertools import chain, islice
-from allure_commons.utils import represent, SafeFormatter
+from allure_commons.utils import represent, SafeFormatter, md5
 from allure_commons.utils import format_exception, format_traceback
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
@@ -176,3 +176,16 @@ def get_pytest_report_status(pytest_report):
     for pytest_status, status in zip(pytest_statuses, statuses):
         if getattr(pytest_report, pytest_status):
             return status
+
+
+def get_history_id(full_name, parameters, original_values):
+    return md5(
+        full_name,
+        *(original_values.get(p.name, p.value) for p in sorted(
+            filter(
+                lambda p: not p.excluded,
+                parameters
+            ),
+            key=lambda p: p.name
+        ))
+    )
