@@ -28,6 +28,12 @@ from allure_commons.utils import md5
 
 class AllureListener:
 
+    SUITE_LABELS = {
+        LabelType.PARENT_SUITE,
+        LabelType.SUITE,
+        LabelType.SUB_SUITE,
+    }
+
     def __init__(self, config):
         self.config = config
         self.allure_logger = AllureReporter()
@@ -135,7 +141,7 @@ class AllureListener:
         )
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
-        test_result.labels.extend([Label(name=name, value=value) for name, value in allure_suite_labels(item)])
+        self.__apply_default_suites(item, test_result)
         test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
         test_result.labels.append(Label(name=LabelType.THREAD, value=self._thread))
         test_result.labels.append(Label(name=LabelType.FRAMEWORK, value='pytest'))
@@ -300,6 +306,19 @@ class AllureListener:
     @staticmethod
     def __get_pytest_params(item):
         return item.callspec.params if hasattr(item, 'callspec') else {}
+
+    def __apply_default_suites(self, item, test_result):
+        default_suites = allure_suite_labels(item)
+        existing_suites = {
+            label.name
+            for label in test_result.labels
+            if label.name in AllureListener.SUITE_LABELS
+        }
+        test_result.labels.extend(
+            Label(name=name, value=value)
+            for name, value in default_suites
+            if name not in existing_suites
+        )
 
 
 class ItemCache:
