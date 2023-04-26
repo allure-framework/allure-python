@@ -22,6 +22,7 @@ from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 from allure_pytest.utils import get_pytest_report_status
 from allure_pytest.utils import format_allure_link
+from allure_pytest.utils import get_history_id
 from allure_commons.utils import md5
 
 
@@ -101,18 +102,19 @@ class AllureListener:
         self._update_fixtures_children(item)
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
-        params = item.callspec.params if hasattr(item, 'callspec') else {}
+        params = self.__get_pytest_params(item)
         test_result.name = allure_name(item, params)
         full_name = allure_full_name(item)
         test_result.fullName = full_name
-        test_result.historyId = md5(item.nodeid)
         test_result.testCaseId = md5(full_name)
         test_result.description = allure_description(item)
         test_result.descriptionHtml = allure_description_html(item)
         current_param_names = [param.name for param in test_result.parameters]
-        test_result.parameters.extend(
-            [Parameter(name=name, value=represent(value)) for name, value in params.items()
-             if name not in current_param_names])
+        test_result.parameters.extend([
+            Parameter(name=name, value=represent(value))
+            for name, value in params.items()
+            if name not in current_param_names
+        ])
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
@@ -132,6 +134,11 @@ class AllureListener:
         yield
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
+        test_result.historyId = get_history_id(
+            test_result.fullName,
+            test_result.parameters,
+            original_values=self.__get_pytest_params(item)
+        )
         test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(item)])
         test_result.labels.extend([Label(name=LabelType.TAG, value=value) for value in pytest_markers(item)])
         self.__apply_default_suites(item, test_result)
@@ -287,8 +294,18 @@ class AllureListener:
         if existing_param:
             existing_param.value = represent(value)
         else:
-            test_result.parameters.append(Parameter(name=name, value=represent(value),
-                                                    excluded=excluded or None, mode=mode.value if mode else None))
+            test_result.parameters.append(
+                Parameter(
+                    name=name,
+                    value=represent(value),
+                    excluded=excluded or None,
+                    mode=mode.value if mode else None
+                )
+            )
+
+    @staticmethod
+    def __get_pytest_params(item):
+        return item.callspec.params if hasattr(item, 'callspec') else {}
 
     def __apply_default_suites(self, item, test_result):
         default_suites = allure_suite_labels(item)
