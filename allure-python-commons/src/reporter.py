@@ -79,7 +79,7 @@ class AllureReporter:
         for _uuid in reversed(self._items):
             if item_type is None:
                 return self._items.get(_uuid)
-            if type(self._items[_uuid]) == item_type:
+            if isinstance(self._items[_uuid], item_type):
                 return self._items.get(_uuid)
 
     def start_group(self, uuid, group):
