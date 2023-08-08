@@ -21,12 +21,7 @@ class AllureFileLogger:
     def _report_item(self, item):
         indent = INDENT if os.environ.get("ALLURE_INDENT_OUTPUT") else None
         filename = item.file_pattern.format(prefix=uuid.uuid4())
-        data = asdict(
-            item,
-            filter=lambda attr, value: not (
-                type(value) != bool and not bool(value)
-            )
-        )
+        data = asdict(item, filter=lambda _, v: v or v is False)
         with io.open(self._report_dir / filename, 'w', encoding='utf8') as json_file:
             json.dump(data, json_file, indent=indent, ensure_ascii=False)
 
@@ -62,12 +57,12 @@ class AllureMemoryLogger:
 
     @hookimpl
     def report_result(self, result):
-        data = asdict(result, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        data = asdict(result, filter=lambda _, v: v or v is False)
         self.test_cases.append(data)
 
     @hookimpl
     def report_container(self, container):
-        data = asdict(container, filter=lambda attr, value: not (type(value) != bool and not bool(value)))
+        data = asdict(container, filter=lambda _, v: v or v is False)
         self.test_containers.append(data)
 
     @hookimpl

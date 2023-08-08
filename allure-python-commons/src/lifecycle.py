@@ -30,7 +30,7 @@ class AllureLifecycle:
             item = self._items.get(uuid)
             if item_type is None:
                 return uuid
-            elif type(item) == item_type or isinstance(item, item_type):
+            elif isinstance(item, item_type):
                 return uuid
 
     @contextmanager
@@ -75,7 +75,7 @@ class AllureLifecycle:
 
     def containers(self):
         for item in self._items.values():
-            if type(item) == TestResultContainer:
+            if isinstance(item, TestResultContainer):
                 yield item
 
     @contextmanager

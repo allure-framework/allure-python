@@ -47,7 +47,7 @@ def labels(test):
         pairs = set()
         for key in keys:
             values = getattr(obj, key, ())
-            for value in (values,) if type(values) == str else values:
+            for value in (values,) if isinstance(values, str) else values:
                 pairs.add((key, value))
         return pairs
 
