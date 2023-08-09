@@ -38,6 +38,11 @@ class PytestBDDListener:
         uuid = get_uuid(request.node.nodeid)
         full_name = get_full_name(feature, scenario)
         name = get_name(request.node, scenario)
+        # Replace <field> with its value in scenario-name
+        if hasattr(request.node, "callspec"):
+            for key, value in request.node.callspec.params["_pytest_bdd_example"].items():
+                name = name.replace("<{key}>".format(key=key), "{{{key}}}".format(key=key))
+                name = name.format(**request.node.callspec.params["_pytest_bdd_example"])
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
             test_result.fullName = full_name
             test_result.name = name
