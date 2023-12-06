@@ -3,8 +3,7 @@
 
 The repository contains adaptors for Python-based test frameworks.
 Documentation is available
-[online](https://docs.qameta.io/allure-report/), also you can get help at
-[gitter channel](https://gitter.im/allure-framework/allure-core).
+[online](https://allurereport.org/docs/).
 
 ## Pytest
 [![Release
