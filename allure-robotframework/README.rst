@@ -9,9 +9,9 @@ Allure Robot Framework Listener
 
 -  `Source <https://github.com/allure-framework/allure-python>`_
 
--  `Documentation <https://docs.qameta.io/allure-report/>`_
+-  `Official Website <https://allurereport.org/>`_
 
--  `Gitter <https://gitter.im/allure-framework/allure-core>`_
+-  `Documentation <https://allurereport.org/docs/>`_
 
 Installation and Usage
 ======================
