@@ -151,7 +151,7 @@ def pytest_addhooks(pluginmanager):
 
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
-    clean = config.option.clean_alluredir
+    clean = False if config.option.collectonly else config.option.clean_alluredir
 
     test_helper = AllureTestHelper(config)
     allure_commons.plugin_manager.register(test_helper)

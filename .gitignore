@@ -3,6 +3,7 @@
 .tox
 .pytest_cache
 .python-version
+.venv
 
 *.pyc
 *.egg-info

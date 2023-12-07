@@ -27,7 +27,7 @@ def cleanup_factory(plugin):
 
 def pytest_configure(config):
     report_dir = config.option.allure_report_dir
-    clean = config.option.clean_alluredir
+    clean = False if config.option.collectonly else config.option.clean_alluredir
 
     if report_dir:
         report_dir = os.path.abspath(report_dir)
