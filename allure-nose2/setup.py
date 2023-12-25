@@ -44,7 +44,10 @@ def main():
         name=PACKAGE,
         use_scm_version=prepare_version,
         description="Allure nose2 integration",
-        url="https://github.com/allure-framework/allure-python",
+        url="https://allurereport.org/",
+        project_urls={
+            "Source": "https://github.com/allure-framework/allure-python",
+        },
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",

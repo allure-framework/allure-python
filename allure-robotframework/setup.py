@@ -52,7 +52,10 @@ if __name__ == '__main__':
         packages=['allure_robotframework', 'AllureLibrary'],
         package_dir={"allure_robotframework": "src/listener", 'AllureLibrary': 'src/library'},
         py_modules=['allure_robotframework'],
-        url="https://github.com/allure-framework/allure-python",
+        url="https://allurereport.org/",
+        project_urls={
+            "Source": "https://github.com/allure-framework/allure-python",
+        },
         author="Sergey Khomutinin",
         author_email="skhomuti@gmail.com",
         long_description=get_readme("README.md"),
