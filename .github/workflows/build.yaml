@@ -79,7 +79,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install linting packages
         run: pip install -r ./requirements/linting.txt
@@ -95,7 +95,7 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJSON(needs.changes.outputs.packages) }}
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
     env:
       TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
