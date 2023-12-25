@@ -55,6 +55,7 @@ if __name__ == '__main__':
         url="https://github.com/allure-framework/allure-python",
         author="Sergey Khomutinin",
         author_email="skhomuti@gmail.com",
-        long_description=get_readme('README.rst'),
+        long_description=get_readme("README.md"),
+        long_description_content_type="text/markdown",
         classifiers=classifiers,
     )
