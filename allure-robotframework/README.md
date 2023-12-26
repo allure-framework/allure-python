@@ -36,10 +36,10 @@ The listener supports [the robotframework-pabot library](https://pypi.python.org
 $ pabot --listener allure_robotframework ./my_robot_test
 ```
 
-Advanced listener settings:
+The advanced listener settings:
 
-  - ALLURE_MAX_STEP_MESSAGE_COUNT=5. If robotframework step contains less
-    messages than specified in this setting, each message is shown as a substep.
+  - ALLURE_MAX_STEP_MESSAGE_COUNT=5. If a robotframework step contains less
+    messages than has been specified by this setting, each message is shown as a substep.
     This reduces the number of attachments in large projects. The default value
     is zero - all messages are displayed as attachments.
 
@@ -49,7 +49,7 @@ See the usage examples [here](https://github.com/allure-framework/allure-python/
 
 ## Contributing to allure-robotframework
 
-This project exists thanks to all the people who contribute. Especially by
+This project exists thanks to all the people who contribute. Especially to
 [Megafon](https://corp.megafon.com) and [@skhomuti](https://github.com/skhomuti)
 who has initially started allure-robotframework and has been maintaining it
 since then.
