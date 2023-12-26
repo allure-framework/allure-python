@@ -3,7 +3,7 @@
 [![Release Status](https://img.shields.io/pypi/v/allure-behave)](https://pypi.python.org/pypi/allure-behave)
 [![Downloads](https://img.shields.io/pypi/dm/allure-behave)](https://pypi.python.org/pypi/allure-behave)
 
-> The Allure adapter for [Behave](https://behave.readthedocs.io/en/latest/).
+> An Allure adapter for [Behave](https://behave.readthedocs.io/en/latest/).
 
 [<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
 

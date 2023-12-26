@@ -3,7 +3,7 @@
 [![Release Status](https://img.shields.io/pypi/v/allure-pytest-bdd)](https://pypi.python.org/pypi/allure-pytest-bdd)
 [![Downloads](https://img.shields.io/pypi/dm/allure-pytest-bdd)](https://pypi.python.org/pypi/allure-pytest-bdd)
 
-> The Allure adapter for [Pytest-BDD](https://pytest-bdd.readthedocs.io/en/stable/).
+> An Allure adapter for [Pytest-BDD](https://pytest-bdd.readthedocs.io/en/stable/).
 
 [<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
 

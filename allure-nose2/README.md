@@ -3,7 +3,7 @@
 [![Release Status](https://img.shields.io/pypi/v/allure-nose2)](https://pypi.python.org/pypi/allure-nose2)
 [![Downloads](https://img.shields.io/pypi/dm/allure-nose2)](https://pypi.python.org/pypi/allure-nose2)
 
-> The Allure adapter for [nose2](https://docs.nose2.io/en/latest/).
+> An Allure adapter for [nose2](https://docs.nose2.io/en/latest/).
 
 [<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
 

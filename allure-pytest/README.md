@@ -3,7 +3,7 @@
 [![Release Status](https://img.shields.io/pypi/v/allure-pytest)](https://pypi.python.org/pypi/allure-pytest)
 [![Downloads](https://img.shields.io/pypi/dm/allure-pytest)](https://pypi.python.org/pypi/allure-pytest)
 
-> The Allure adapter for [pytest](https://docs.pytest.org/en/latest/).
+> An Allure adapter for [pytest](https://docs.pytest.org/en/latest/).
 
 [<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
 

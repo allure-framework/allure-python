@@ -3,7 +3,7 @@
 [![Release Status](https://img.shields.io/pypi/v/allure-robotframework)](https://pypi.python.org/pypi/allure-robotframework)
 [![Downloads](https://img.shields.io/pypi/dm/allure-robotframework)](https://pypi.python.org/pypi/allure-robotframework)
 
-> The Allure adapter for [Robot Framework](https://robotframework.org/).
+> An Allure adapter for [Robot Framework](https://robotframework.org/).
 
 [<img src="https://allurereport.org/public/img/allure-report.svg" height="85px" alt="Allure Report logo" align="right" />](https://allurereport.org "Allure Report")
 
