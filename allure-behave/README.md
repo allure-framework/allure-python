@@ -26,10 +26,9 @@ $ allure serve %allure_result_folder%
 
 ### Support behave parallel
 
-Current implementation of behave-parallel makes some allure features inaccessible.
-So in this case you need patch your environment.py files instead using formatter.
-If you don't use environment.py, just create empty one with calling allure like
-in example below.
+The current implementation of behave-parallel makes some allure features inaccessible.
+In this case you need to patch your environment.py files instead of using the formatter.
+If you don't use environment.py, just create a new one that calls Allure Behave like that:
 
 ```python
 from allure_behave.hooks import allure_report
