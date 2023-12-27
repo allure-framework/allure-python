@@ -15,6 +15,7 @@ classifiers = [
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
 ]
 
 install_requires = [
@@ -29,7 +30,10 @@ def main():
         use_scm_version={"root": "..", "relative_to": __file__},
         setup_requires=['setuptools_scm'],
         description="Common module for integrate allure with python-based frameworks",
-        url="https://github.com/allure-framework/allure-python",
+        url="https://allurereport.org/",
+        project_urls={
+            "Source": "https://github.com/allure-framework/allure-python",
+        },
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",

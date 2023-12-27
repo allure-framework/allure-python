@@ -29,6 +29,7 @@ classifiers = [
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
 ]
 
 setup_requires = [
@@ -58,13 +59,18 @@ def main():
         name=PACKAGE,
         use_scm_version=prepare_version,
         description="Allure pytest integration",
-        url="https://github.com/allure-framework/allure-python",
+        url="https://allurereport.org/",
+        project_urls={
+            "Documentation": "https://allurereport.org/docs/pytest/",
+            "Source": "https://github.com/allure-framework/allure-python",
+        },
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
         classifiers=classifiers,
         keywords="allure reporting pytest",
-        long_description=get_readme('README.rst'),
+        long_description=get_readme("README.md"),
+        long_description_content_type="text/markdown",
         packages=["allure_pytest"],
         package_dir={"allure_pytest": "src"},
         entry_points={"pytest11": ["allure_pytest = allure_pytest.plugin"]},

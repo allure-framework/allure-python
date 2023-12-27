@@ -17,6 +17,7 @@ classifiers = [
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
 ]
 
 setup_requires = [
@@ -45,13 +46,18 @@ def main():
         name=PACKAGE,
         use_scm_version=prepare_version,
         description="Allure behave integration",
-        url="https://github.com/allure-framework/allure-python",
+        url="https://allurereport.org/",
+        project_urls={
+            "Documentation": "https://allurereport.org/docs/behave/",
+            "Source": "https://github.com/allure-framework/allure-python",
+        },
         author="QAMetaSoftware, Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
         classifiers=classifiers,
         keywords="allure reporting behave",
-        long_description=get_readme('README.rst'),
+        long_description=get_readme("README.md"),
+        long_description_content_type="text/markdown",
         packages=["allure_behave"],
         package_dir={"allure_behave": "src"},
         setup_requires=setup_requires,
