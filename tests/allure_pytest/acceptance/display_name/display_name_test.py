@@ -128,6 +128,7 @@ def test_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
         )
     )
 
+
 def test_no_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
@@ -148,6 +149,7 @@ def test_no_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
             has_title("Title with id - value1-value2")
         )
     )
+
 
 def test_non_ascii_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
     """
