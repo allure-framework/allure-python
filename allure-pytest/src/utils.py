@@ -110,12 +110,18 @@ def allure_package(item):
     return path.replace('/', '.')
 
 
-def allure_name(item, parameters):
+def allure_name(item, parameters, param_id=None):
     name = item.name
     title = allure_title(item)
+    param_id_kwargs = {}
+    if param_id:
+        # if param_id is an ASCII string, it could have been encoded by pytest (_pytest.compat.ascii_escaped)
+        if param_id.isascii():
+            param_id = param_id.encode().decode("unicode-escape")
+        param_id_kwargs["param_id"] = param_id
     return SafeFormatter().format(
         title,
-        **{**parameters, **item.funcargs}
+        **{**parameters, **item.funcargs, **param_id_kwargs}
     ) if title else name
 
 

@@ -103,7 +103,8 @@ class AllureListener:
         uuid = self._cache.get(item.nodeid)
         test_result = self.allure_logger.get_test(uuid)
         params = self.__get_pytest_params(item)
-        test_result.name = allure_name(item, params)
+        param_id = self.__get_pytest_param_id(item)
+        test_result.name = allure_name(item, params, param_id)
         full_name = allure_full_name(item)
         test_result.fullName = full_name
         test_result.testCaseId = md5(full_name)
@@ -306,6 +307,10 @@ class AllureListener:
     @staticmethod
     def __get_pytest_params(item):
         return item.callspec.params if hasattr(item, 'callspec') else {}
+
+    @staticmethod
+    def __get_pytest_param_id(item):
+        return item.callspec.id if hasattr(item, 'callspec') else None
 
     def __apply_default_suites(self, item, test_result):
         default_suites = allure_suite_labels(item)
