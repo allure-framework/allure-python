@@ -172,6 +172,7 @@ def test_non_ascii_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
         )
     )
 
+
 def test_explicit_parameter_called_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
