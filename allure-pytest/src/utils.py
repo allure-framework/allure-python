@@ -121,7 +121,7 @@ def allure_name(item, parameters, param_id=None):
         param_id_kwargs["param_id"] = param_id
     return SafeFormatter().format(
         title,
-        **{**parameters, **item.funcargs, **param_id_kwargs}
+        **{**param_id_kwargs, **parameters, **item.funcargs}
     ) if title else name
 
 
