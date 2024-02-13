@@ -171,3 +171,24 @@ def test_non_ascii_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
             has_title("Title with non-ASCII id - Ид,本我,पहचान,بطاقة تعريف")
         )
     )
+
+def test_explicit_parameter_called_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.mark.parametrize("param_id", [pytest.param("param value", id="some id")])
+    ... @allure.title('Title with id - {param_id}')
+    ... def test_explicit_parameter_called_param_id(param_id):
+    ...     pass
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_explicit_parameter_called_param_id",
+            has_title("Title with id - param value")
+        )
+    )
