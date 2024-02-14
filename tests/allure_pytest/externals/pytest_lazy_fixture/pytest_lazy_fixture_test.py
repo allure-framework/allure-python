@@ -7,6 +7,16 @@ from allure_commons_test.report import has_test_case
 from allure_commons_test.container import has_container
 from allure_commons_test.container import has_before
 
+from packaging import version
+
+pytestmark = pytest.mark.xfail(
+    version.parse(pytest.__version__) >= version.parse("8"),
+    reason=(
+        "Lazy-fixture is incompatible with pytest 8 "
+        "(see TvoroG/pytest-lazy-fixture#65)"
+    ),
+)
+
 
 @pytest.fixture
 def lazy_fixture_runner(allure_pytest_runner: AllurePytestRunner):
