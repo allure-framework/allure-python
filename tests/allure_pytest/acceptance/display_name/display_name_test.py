@@ -105,3 +105,91 @@ def test_failed_fixture_value_in_display_name(allure_pytest_runner: AllurePytest
             has_title("title with {fix}")
         )
     )
+
+
+def test_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.mark.parametrize("name", [pytest.param("value", id="some id")])
+    ... @allure.title('Title with id - {param_id}')
+    ... def test_param_id(name):
+    ...     pass
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_param_id",
+            has_title("Title with id - some id")
+        )
+    )
+
+
+def test_no_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.mark.parametrize("param1, param2", [pytest.param("value1", "value2")])
+    ... @allure.title('Title with id - {param_id}')
+    ... def test_no_param_id(param1, param2):
+    ...     pass
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_no_param_id",
+            has_title("Title with id - value1-value2")
+        )
+    )
+
+
+def test_non_ascii_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.mark.parametrize("name", [pytest.param("value", id="Ид,本我,पहचान,بطاقة تعريف")])
+    ... @allure.title('Title with non-ASCII id - {param_id}')
+    ... def test_non_ascii_param_id(name):
+    ...     pass
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_non_ascii_param_id",
+            has_title("Title with non-ASCII id - Ид,本我,पहचान,بطاقة تعريف")
+        )
+    )
+
+
+def test_explicit_parameter_called_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.mark.parametrize("param_id", [pytest.param("param value", id="some id")])
+    ... @allure.title('Title with id - {param_id}')
+    ... def test_explicit_parameter_called_param_id(param_id):
+    ...     pass
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_explicit_parameter_called_param_id",
+            has_title("Title with id - param value")
+        )
+    )
