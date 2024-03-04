@@ -106,6 +106,9 @@ jobs:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
         pytest-version: ["6.*", "7.*", "8.*"]
+        exclude:
+          - python-version: "3.7"
+            pytest-version: "8.*"
     env:
       TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
