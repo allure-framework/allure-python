@@ -100,7 +100,7 @@ jobs:
   test-pytest:
     name: Test allure-pytest
     runs-on: ubuntu-latest
-    needs: [lint, commons, pytest-changes]
+    needs: [commons, pytest-changes]
     if: ${{ needs.pytest-changes.outputs.changed }}
     strategy:
       matrix:
@@ -139,7 +139,7 @@ jobs:
   test-others:
     name: Test packages other than allure-pytest
     runs-on: ubuntu-latest
-    needs: [lint, commons, other-changes]
+    needs: [commons, other-changes]
     if: ${{ needs.other-changes.outputs.packages != '[]' }}
     strategy:
       matrix:
