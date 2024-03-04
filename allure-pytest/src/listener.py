@@ -347,7 +347,7 @@ def _test_fixtures(item):
 
     if hasattr(item, "_request") and hasattr(item._request, "fixturenames"):
         for name in item._request.fixturenames:
-            fixturedefs_pytest = fixturemanager.getfixturedefs(name, item.nodeid)
+            fixturedefs_pytest = fixturemanager.getfixturedefs(name, item)
             if fixturedefs_pytest:
                 fixturedefs.extend(fixturedefs_pytest)
 
