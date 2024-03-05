@@ -97,8 +97,11 @@ class AllureListener:
         self.stop_scenario(context['scenario'])
 
     def stop_scenario(self, scenario):
-        should_run = (scenario.should_run_with_tags(self.behave_config.tag_expression) and
-                      scenario.should_run_with_name_select(self.behave_config))
+        if hasattr(self.behave_config, "tag_expression"):  # since behave 1.2.7dev1
+            should_run = scenario.should_run_with_tags(self.behave_config.tag_expression)
+        else:  # till behave 1.2.6
+            should_run = scenario.should_run_with_tags(self.behave_config.tags)
+        should_run &= scenario.should_run_with_name_select(self.behave_config)
         should_drop_skipped_by_option = scenario.status == 'skipped' and not self.behave_config.show_skipped
         should_drop_excluded = self.hide_excluded and (scenario.skip_reason == TEST_PLAN_SKIP_REASON or not should_run)
 
