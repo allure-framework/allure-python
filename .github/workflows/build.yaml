@@ -129,11 +129,11 @@ jobs:
 
       - name: Install packages
         run: |
-          pip install pytest==${{ matrix.pytest-version }}
-          pip install dist/allure-python-commons*.tar.gz &&
-          pip install ./allure-pytest &&
-          pip install -r ./requirements/testing.txt &&
-          pip install -r ./requirements/testing/allure-pytest.txt
+          pip install dist/allure-python-commons*.tar.gz \
+            ./allure-pytest \
+            pytest==${{ matrix.pytest-version }} \
+            -r ./requirements/testing.txt \
+            -r ./requirements/testing/allure-pytest.txt
 
       - name: Test allure-pytest
         working-directory: allure-pytest
