@@ -51,7 +51,7 @@ def main():
         project_urls={
             "Source": "https://github.com/allure-framework/allure-python",
         },
-        author="QAMetaSoftware, Stanislav Seliverstov",
+        author="Qameta Software Inc., Stanislav Seliverstov",
         author_email="sseliverstov@qameta.io",
         license="Apache-2.0",
         classifiers=classifiers,
