@@ -6,13 +6,29 @@ on:
       - master
 
 jobs:
-  changes:
-    name: Collect file changes
+  pytest-changes:
+    name: Collect allure-pytest file changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.filter.outputs.allure-pytest }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            allure-pytest:
+              - allure-pytest/**
+              - allure-python-commons/**
+              - allure-python-commons-test/**
+              - tests/*.py
+              - tests/allure_pytest/**
+  other-changes:
+    name: Collect file changes other than allure-pytest
     runs-on: ubuntu-latest
     outputs:
       packages: ${{ steps.filter.outputs.changes }}
     steps:
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
@@ -28,12 +44,6 @@ jobs:
               - allure-python-commons-test/**
               - tests/*.py
               - tests/allure_nose2/**
-            allure-pytest:
-              - allure-pytest/**
-              - allure-python-commons/**
-              - allure-python-commons-test/**
-              - tests/*.py
-              - tests/allure_pytest/**
             allure-pytest-bdd:
               - allure-pytest-bdd/**
               - allure-python-commons/**
@@ -53,7 +63,7 @@ jobs:
     name: Build commons
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Cache commons
         id: commons
@@ -68,13 +78,13 @@ jobs:
              python -m build allure-python-commons --outdir dist/ &&
              python -m build allure-python-commons-test --outdir dist/
 
-  linters:
+  lint:
     name: Static check
     runs-on: ubuntu-latest
-    needs: [commons, changes]
-    if: ${{ needs.changes.outputs.packages != '[]' }}
+    needs: [commons, pytest-changes, other-changes]
+    if: ${{ needs.pytest-changes.outputs.changed || needs.other-changes.outputs.packages != '[]' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -87,23 +97,67 @@ jobs:
       - name: Linting the codebase
         run: poe linter
 
-  build:
-    name: Test package
+  test-pytest:
+    name: Test allure-pytest
     runs-on: ubuntu-latest
-    needs: [linters, commons, changes]
-    if: ${{ needs.changes.outputs.packages != '[]' }}
+    needs: [commons, pytest-changes]
+    if: ${{ needs.pytest-changes.outputs.changed }}
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.changes.outputs.packages) }}
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        pytest-version: ["7.*", "8.*"]
+        exclude:
+          - python-version: "3.7"
+            pytest-version: "8.*"
     env:
       TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Get commons from cache
+        id: commons
+        uses: actions/cache@v3
+        with:
+          path: dist/
+          key: commons-${{ github.sha }}
+
+      - name: Install packages
+        run: |
+          pip install dist/allure-python-commons*.tar.gz \
+            ./allure-pytest \
+            pytest==${{ matrix.pytest-version }} \
+            -r ./requirements/testing.txt \
+            -r ./requirements/testing/allure-pytest.txt
+
+      - name: Test allure-pytest
+        working-directory: allure-pytest
+        run: poe tests
+
+  test-others:
+    name: Test packages other than allure-pytest
+    runs-on: ubuntu-latest
+    needs: [commons, other-changes]
+    if: ${{ needs.other-changes.outputs.packages != '[]' }}
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.other-changes.outputs.packages) }}
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        exclude:
+          - package: allure-pytest
+    env:
+      TEST_TMP: /tmp
+      ALLURE_INDENT_OUTPUT: yep
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
