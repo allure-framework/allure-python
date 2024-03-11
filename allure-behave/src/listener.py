@@ -22,6 +22,10 @@ from allure_behave.utils import scenario_labels
 from allure_behave.utils import get_fullname
 from allure_behave.utils import TEST_PLAN_SKIP_REASON
 from allure_behave.utils import get_hook_name
+import behave
+from packaging import version
+
+BEHAVE_1_2_7_OR_GREATER = version.parse(behave.__version__) > version.parse("1.2.6")
 
 
 class AllureListener:
@@ -97,9 +101,9 @@ class AllureListener:
         self.stop_scenario(context['scenario'])
 
     def stop_scenario(self, scenario):
-        if hasattr(self.behave_config, "tag_expression"):  # since behave 1.2.7dev1
+        if BEHAVE_1_2_7_OR_GREATER:
             should_run = scenario.should_run_with_tags(self.behave_config.tag_expression)
-        else:  # till behave 1.2.6
+        else:
             should_run = scenario.should_run_with_tags(self.behave_config.tags)
         should_run &= scenario.should_run_with_name_select(self.behave_config)
         should_drop_skipped_by_option = scenario.status == 'skipped' and not self.behave_config.show_skipped
