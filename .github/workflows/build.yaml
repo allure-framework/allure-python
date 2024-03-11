@@ -105,7 +105,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
-        pytest-version: ["6.*", "7.*", "8.*"]
+        pytest-version: ["7.*", "8.*"]
         exclude:
           - python-version: "3.7"
             pytest-version: "8.*"
