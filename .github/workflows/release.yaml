@@ -1,4 +1,5 @@
 name: release allure python
+run-name: Release ${{ github.ref_name }} by ${{ github.actor }}
 
 on:
   release:
