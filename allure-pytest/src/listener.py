@@ -1,5 +1,7 @@
 import pytest
 import doctest
+from packaging import version
+
 import allure_commons
 from allure_commons.utils import now
 from allure_commons.utils import uuid4
@@ -347,11 +349,21 @@ def _test_fixtures(item):
 
     if hasattr(item, "_request") and hasattr(item._request, "fixturenames"):
         for name in item._request.fixturenames:
-            fixturedefs_pytest = fixturemanager.getfixturedefs(name, item.nodeid)
+            fixturedefs_pytest = _getfixturedefs(fixturemanager, name, item)
             if fixturedefs_pytest:
                 fixturedefs.extend(fixturedefs_pytest)
 
     return fixturedefs
+
+
+def _getfixturedefs(fixturemanager, name, item):
+    # See pytest-dev/pytest#11785
+    itemarg = item if __is_pytest8_1_or_greater() else item.nodeid
+    return fixturemanager.getfixturedefs(name, itemarg)
+
+
+def __is_pytest8_1_or_greater():
+    return version.parse(pytest.__version__) >= version.parse("8.1")
 
 
 def _exception_brokes_test(exception):
