@@ -74,17 +74,14 @@ class _InMemoryBehaveRunner(Runner):
         behave.step_registry.registry = self.step_registry = StepRegistry()
         step_globals = {
             "use_step_matcher": matchers.use_step_matcher,
-            "step_matcher":     matchers.step_matcher,
         }
 
         # To support the decorators (e.g., @given) with no imports
         setup_step_decorators(step_globals, self.step_registry)
 
-        default_matcher = matchers.current_matcher
         for step in self.__steps:
             step_module_globals = step_globals.copy()
             exec(step, step_module_globals)
-            matchers.current_matcher = default_matcher
 
     def load_features(self):
         self.features.extend(
