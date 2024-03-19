@@ -115,9 +115,7 @@ def test_capture_log(allure_pytest_bdd_runner: AllurePytestRunner, logging):
         """
         import logging
         from pytest_bdd import scenario, given, when, then
-        
         logger = logging.getLogger(__name__)
-        
         @scenario("scenario.feature", "Simple passed example")
         def test_scenario_passes():
             pass
