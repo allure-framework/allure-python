@@ -5,7 +5,8 @@ from allure_commons.utils import uuid4
 from allure_commons.model2 import Label
 from allure_commons.model2 import Status
 
-from allure_commons.types import LabelType
+from allure_commons.types import LabelType, AttachmentType
+from allure_commons.reporter import AllureReporter
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
@@ -114,6 +115,12 @@ class PytestBDDListener:
                 if test_result.status == Status.PASSED and status != Status.PASSED:
                     test_result.status = status
                     test_result.statusDetails = status_details
+                if report.caplog:
+                    self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
+                if report.capstdout:
+                    self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
+                if report.capstderr:
+                    self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
 
         if report.when == 'teardown':
             self.lifecycle.write_test_case(uuid=uuid)
