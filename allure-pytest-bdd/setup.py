@@ -26,7 +26,8 @@ setup_requires = [
 
 install_requires = [
     "pytest>=4.5.0",
-    "pytest-bdd>=3.0.0"
+    "pytest-bdd>=3.0.0",
+    "six>=1.9.0"
 ]
 
 
