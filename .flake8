@@ -7,3 +7,5 @@ exclude =
     ./tests/allure_behave/acceptance/behave_support/background/background_steps.py
 per-file-ignores =
     ./allure-python-commons/src/model2.py:A003
+    ./allure-python-commons/src/types.py:A005
+    ./allure-robotframework/src/listener/types.py:A005
