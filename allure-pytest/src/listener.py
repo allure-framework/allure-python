@@ -1,6 +1,5 @@
 import pytest
 import doctest
-from packaging import version
 
 import allure_commons
 from allure_commons.utils import now
@@ -8,6 +7,7 @@ from allure_commons.utils import uuid4
 from allure_commons.utils import represent
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
+from allure_commons.utils import md5
 from allure_commons.reporter import AllureReporter
 from allure_commons.model2 import TestStepResult, TestResult, TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
@@ -25,7 +25,7 @@ from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 from allure_pytest.utils import get_pytest_report_status
 from allure_pytest.utils import format_allure_link
 from allure_pytest.utils import get_history_id
-from allure_commons.utils import md5
+from allure_pytest.compat import getfixturedefs
 
 
 class AllureListener:
@@ -349,21 +349,11 @@ def _test_fixtures(item):
 
     if hasattr(item, "_request") and hasattr(item._request, "fixturenames"):
         for name in item._request.fixturenames:
-            fixturedefs_pytest = _getfixturedefs(fixturemanager, name, item)
+            fixturedefs_pytest = getfixturedefs(fixturemanager, name, item)
             if fixturedefs_pytest:
                 fixturedefs.extend(fixturedefs_pytest)
 
     return fixturedefs
-
-
-def _getfixturedefs(fixturemanager, name, item):
-    # See pytest-dev/pytest#11785
-    itemarg = item if __is_pytest8_1_or_greater() else item.nodeid
-    return fixturemanager.getfixturedefs(name, itemarg)
-
-
-def __is_pytest8_1_or_greater():
-    return version.parse(pytest.__version__) >= version.parse("8.1")
 
 
 def _exception_brokes_test(exception):

@@ -134,10 +134,10 @@ def test_capture_log(allure_pytest_bdd_runner: AllurePytestRunner, logging):
         """
     )
 
-    params = [] if logging else ["-p", "no:logging"]
+    log_level = "INFO" if logging else "WARNING"
     allure_results = allure_pytest_bdd_runner.run_pytest(
         ("scenario.feature", feature_content),
-        steps_content, cli_args=("--log-level=INFO", *params)
+        steps_content, cli_args=(f"--log-level={log_level}",)
     )
 
     if_logging_ = is_ if logging else is_not
