@@ -90,10 +90,9 @@ def test_capture_log(allure_pytest_runner: AllurePytestRunner, logging):
     ...         logger.info("Start step")
     """
 
-    params = [] if logging else ["-p", "no:logging"]
+    log_level = "INFO" if logging else "WARNING"
     allure_results = allure_pytest_runner.run_docstring(
-        "--log-level=INFO",
-        *params
+        f"--log-level={log_level}",
     )
 
     if_logging_ = is_ if logging else is_not
