@@ -59,31 +59,10 @@ jobs:
             allure-python-commons: allure-python-commons/**
             allure-python-commons-test: allure-python-commons-test/**
 
-  commons:
-    name: Build commons
-    runs-on: ubuntu-latest
-    needs: [pytest-changes, other-changes]
-    if: ${{ needs.pytest-changes.outputs.changed == 'true' || needs.other-changes.outputs.packages != '[]' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache commons
-        id: commons
-        uses: actions/cache@v4
-        with:
-          path: dist/
-          key: commons-${{ github.sha }}
-
-      - name: Build python commons
-        if: steps.commons.outputs.cache-hit != 'true'
-        run: pip install build &&
-             python -m build allure-python-commons --outdir dist/ &&
-             python -m build allure-python-commons-test --outdir dist/
-
   lint:
     name: Static check
     runs-on: ubuntu-latest
-    needs: [commons, pytest-changes, other-changes]
+    needs: [pytest-changes, other-changes]
     if: ${{ needs.pytest-changes.outputs.changed == 'true' || needs.other-changes.outputs.packages != '[]' }}
     steps:
       - uses: actions/checkout@v4
@@ -102,7 +81,7 @@ jobs:
   test-pytest:
     name: Test allure-pytest
     runs-on: ubuntu-latest
-    needs: [commons, pytest-changes]
+    needs: [pytest-changes]
     if: ${{ needs.pytest-changes.outputs.changed == 'true' }}
     strategy:
       matrix:
@@ -122,16 +101,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Get commons from cache
-        id: commons
-        uses: actions/cache@v4
-        with:
-          path: dist/
-          key: commons-${{ github.sha }}
-
       - name: Install packages
         run: |
-          pip install dist/allure-python-commons*.tar.gz \
+          pip install ./allure-python-commons \
+            ./allure-python-commons-test \
             ./allure-pytest \
             pytest==${{ matrix.pytest-version }} \
             -r ./requirements/testing.txt \
@@ -142,9 +115,9 @@ jobs:
         run: poe tests
 
   test-others:
-    name: Test packages other than allure-pytest
+    name: Test other packages
     runs-on: ubuntu-latest
-    needs: [commons, other-changes]
+    needs: [other-changes]
     if: ${{ needs.other-changes.outputs.packages != '[]' }}
     strategy:
       matrix:
@@ -163,18 +136,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Get commons from cache
-        id: commons
-        uses: actions/cache@v4
-        with:
-          path: dist/
-          key: commons-${{ github.sha }}
-
       - name: Install packages
-        run: pip install dist/allure-python-commons*.tar.gz &&
-             pip install ./${{ matrix.package }} &&
-             pip install -r ./requirements/testing.txt &&
-             pip install -r ./requirements/testing/${{ matrix.package }}.txt
+        run: |
+          pip install ./allure-python-commons \
+            ./allure-python-commons-test \
+            ./${{ matrix.package }} \
+            -r ./requirements/testing.txt \
+            -r ./requirements/testing/${{ matrix.package }}.txt
 
       - name: Test ${{ matrix.package }}
         working-directory: ${{ matrix.package }}
