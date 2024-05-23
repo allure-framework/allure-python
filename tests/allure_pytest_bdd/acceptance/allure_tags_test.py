@@ -10,6 +10,7 @@ from allure_commons_test.label import (
     has_suite,
     has_sub_suite,
     has_tag,
+    has_severity,
 )
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import (
@@ -104,13 +105,13 @@ def feature_content():
         @allure.severity('critical')
         """.strip(),
         (
-            has_label("as_id", 123),
+            has_severity("critical"),
         ),
     ),
     (
         "manual_label",
         """
-        @allure.severity('critical')
+        @allure.manual
         """.strip(),
         (
             has_label("ALLURE_MANUAL", True),
@@ -162,6 +163,7 @@ def test_simple_passed_scenario_with_allure_tags(
 ):
     steps_content = f"""
         import allure
+        import pytest
         from pytest_bdd import scenario, given, when, then
 
         {decorators}
