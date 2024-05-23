@@ -46,7 +46,7 @@ def feature_content():
         @allure.suite('My Suite')
         @allure.parent_suite('My Parent Suite')
         @allure.sub_suite('My Sub Suite')
-        """,
+        """.strip(),
         (
             has_parent_suite('My Parent Suite'),
             has_suite('My Suite'),
@@ -60,7 +60,7 @@ def feature_content():
         @allure.feature('My feature')
         @allure.story('My story')
         @allure.description('My description')
-        """,
+        """.strip(),
         (
             has_feature("Basic allure-pytest-bdd usage"),  # from the scenario
             has_epic("My epic"),
@@ -78,7 +78,7 @@ def feature_content():
         @allure.feature('My feature 3')
         @allure.story('My story 1')
         @allure.story('My story 2')
-        """,
+        """.strip(),
         (
             has_epic("My epic 1"),
             has_epic("My epic 2"),
@@ -93,7 +93,7 @@ def feature_content():
         "id_label",
         """
         @allure.id(123)
-        """,
+        """.strip(),
         (
             has_label("as_id", 123),
         ),
@@ -102,7 +102,7 @@ def feature_content():
         "severity_label",
         """
         @allure.severity('critical')
-        """,
+        """.strip(),
         (
             has_label("as_id", 123),
         ),
@@ -111,7 +111,7 @@ def feature_content():
         "manual_label",
         """
         @allure.severity('critical')
-        """,
+        """.strip(),
         (
             has_label("ALLURE_MANUAL", True),
         ),
@@ -122,7 +122,7 @@ def feature_content():
         @pytest.mark.cool
         @pytest.mark.stuff
         @allure.tag('foo')
-        """,
+        """.strip(),
         (
             has_tag("cool"),
             has_tag("stuff"),
@@ -133,7 +133,7 @@ def feature_content():
         "custom_labels",  # !!!
         """
         @allure.label("Application", "desktop", "mobile")
-        """,
+        """.strip(),
         (
             has_label("Application", "desktop"),
             has_label("Application", "mobile"),
@@ -145,7 +145,7 @@ def feature_content():
         @allure.link('https://example.org/simple-link')
         @allure.issue('https://example.org/issue')
         @allure.testcase('https://example.org/testcase')
-        """,
+        """.strip(),
         (
             has_link('https://example.org/simple-link'),
             has_issue_link('https://example.org/issue'),
@@ -164,7 +164,7 @@ def test_simple_passed_scenario_with_allure_tags(
         import allure
         from pytest_bdd import scenario, given, when, then
 
-{decorators}
+        {decorators}
         @scenario("scenario.feature", "Simple passed example")
         def test_scenario_passes():
             pass
