@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import allure_commons
@@ -19,6 +20,26 @@ def pytest_addoption(parser):
                                            action="store_true",
                                            dest="clean_alluredir",
                                            help="Clean alluredir folder if it exists")
+
+    parser.getgroup("general").addoption('--allure-link-pattern',
+                                         action="append",
+                                         dest="allure_link_pattern",
+                                         metavar="LINK_TYPE:LINK_PATTERN",
+                                         default=[],
+                                         type=link_pattern,
+                                         help="""Url pattern for link type. Allows short links in test,
+                                         like 'issue-1'. Text will be formatted to full url with python
+                                         str.format().""")
+
+
+def link_pattern(string):
+    pattern = string.split(':', 1)
+    if not pattern[0]:
+        raise argparse.ArgumentTypeError('Link type is mandatory.')
+
+    if len(pattern) != 2:
+        raise argparse.ArgumentTypeError('Link pattern is mandatory')
+    return pattern
 
 
 def cleanup_factory(plugin):

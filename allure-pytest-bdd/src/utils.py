@@ -122,3 +122,8 @@ def pytest_markers(item):
             continue
 
         yield mark_to_str(marker)
+
+
+def allure_links(item):
+    for mark in item.iter_markers(name=ALLURE_LINK_MARK):
+        yield mark.kwargs["link_type"], mark.args[0], mark.kwargs["name"]

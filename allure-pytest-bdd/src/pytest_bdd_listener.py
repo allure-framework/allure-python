@@ -6,6 +6,7 @@ from allure_commons.lifecycle import AllureLifecycle
 from allure_commons.model2 import Label
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
+from allure_commons.model2 import Link
 from allure_commons.types import LabelType, AttachmentType
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
@@ -24,6 +25,7 @@ from .utils import (
     allure_labels,
     pytest_markers,
     allure_description,
+    allure_links,
 )
 
 
@@ -60,6 +62,9 @@ class PytestBDDListener:
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
             test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))
             test_result.description = allure_description(request.node)
+            test_result.links.extend(
+                [Link(link_type, url, name) for link_type, url, name in allure_links(request.node)]
+            )
             test_result.parameters = get_params(request.node)
 
         finalizer = partial(self._scenario_finalizer, scenario)
