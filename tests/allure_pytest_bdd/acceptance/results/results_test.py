@@ -14,7 +14,6 @@ FEATURE_CONTENT = (
 )
 STEPS_CONTENT = (
     """
-    import allure
     from pytest_bdd import scenario, given, when, then
 
     @scenario("scenario.feature", "Simple passed example")
