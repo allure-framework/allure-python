@@ -17,7 +17,6 @@ STEPS_CONTENT = (
     import allure
     from pytest_bdd import scenario, given, when, then
 
-    @allure.id('1')
     @scenario("scenario.feature", "Simple passed example")
     def test_scenario_passes():
         pass
