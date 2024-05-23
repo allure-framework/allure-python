@@ -133,6 +133,6 @@ def test_simple_passed_scenario_with_links(allure_pytest_bdd_runner: AllurePytes
             has_step("Then the postconditions are held"),
             has_link('https://example.org/simple-link'),
             has_issue_link('https://example.org/issue'),
-            has_test_case_link(),
+            has_test_case_link('https://example.org/testcase'),
         )
     )
