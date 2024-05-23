@@ -1,12 +1,13 @@
 import os
 from uuid import UUID
-from allure_commons.utils import md5
-from allure_commons.model2 import StatusDetails
-from allure_commons.model2 import Status
-from allure_commons.model2 import Parameter
-from allure_commons.utils import format_exception
-from allure_commons.types import LabelType
 
+from allure_commons.model2 import Parameter
+from allure_commons.model2 import Status
+from allure_commons.model2 import StatusDetails
+from allure_commons.types import LabelType
+from allure_commons.utils import format_exception
+from allure_commons.utils import md5
+from allure_commons.utils import represent
 
 ALLURE_DESCRIPTION_MARK = 'allure_description'
 ALLURE_DESCRIPTION_HTML_MARK = 'allure_description_html'
@@ -84,3 +85,40 @@ def allure_labels(item):
     for k, v in unique_labels.items():
         labels.add((k, v))
     return labels
+
+
+def get_marker_value(item, keyword):
+    marker = item.get_closest_marker(keyword)
+    return marker.args[0] if marker and marker.args else None
+
+
+def allure_description(item):
+    description = get_marker_value(item, ALLURE_DESCRIPTION_MARK)
+    if description:
+        return description
+    elif hasattr(item, 'function'):
+        return item.function.__doc__
+
+
+def mark_to_str(marker):
+    args = [represent(arg) for arg in marker.args]
+    kwargs = ['{name}={value}'.format(name=key, value=represent(marker.kwargs[key])) for key in marker.kwargs]
+    if marker.name in ('filterwarnings', 'skip', 'skipif', 'xfail', 'usefixtures', 'tryfirst', 'trylast'):
+        markstr = '@pytest.mark.{name}'.format(name=marker.name)
+    else:
+        markstr = '{name}'.format(name=marker.name)
+    if args or kwargs:
+        parameters = ', '.join(args + kwargs)
+        markstr = '{}({})'.format(markstr, parameters)
+    return markstr
+
+
+def pytest_markers(item):
+    for keyword in item.keywords.keys():
+        if any([keyword.startswith('allure_'), keyword == 'parametrize']):
+            continue
+        marker = item.get_closest_marker(keyword)
+        if marker is None:
+            continue
+
+        yield mark_to_str(marker)
