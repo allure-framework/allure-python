@@ -5,21 +5,6 @@ from .utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 from .utils import format_allure_link
 
 
-class AllureTitleHelper:
-    @allure_commons.hookimpl
-    def decorate_as_title(self, test_title):
-        def decorator(func):
-            # pytest.fixture wraps function, so we need to get it directly
-            if getattr(func, '__pytest_wrapped__', None):
-                function = func.__pytest_wrapped__.obj
-            else:
-                function = func
-            function.__allure_display_name__ = test_title
-            return func
-
-        return decorator
-
-
 class AllureTestHelper:
     def __init__(self, config):
         self.config = config

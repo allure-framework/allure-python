@@ -3,7 +3,7 @@ import os
 import allure_commons
 from allure_commons.logger import AllureFileLogger
 
-from .helper import AllureTestHelper, AllureTitleHelper
+from .helper import AllureTestHelper
 from .pytest_bdd_listener import PytestBDDListener
 
 
@@ -27,12 +27,6 @@ def cleanup_factory(plugin):
         allure_commons.plugin_manager.unregister(name=name)
 
     return clean_up
-
-
-def pytest_addhooks(pluginmanager):
-    # Need register title hooks before conftest init
-    title_helper = AllureTitleHelper()
-    allure_commons.plugin_manager.register(title_helper)
 
 
 def pytest_configure(config):

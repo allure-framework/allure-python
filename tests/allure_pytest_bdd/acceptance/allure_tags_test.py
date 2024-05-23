@@ -33,7 +33,6 @@ def test_simple_passed_scenario_with_allure_tags(allure_pytest_bdd_runner: Allur
         from pytest_bdd import scenario, given, when, then
 
         @allure.id(123)
-        @allure.title('My title')
         @allure.epic('My epic')
         @allure.feature('My feature')
         @allure.story('My story')
