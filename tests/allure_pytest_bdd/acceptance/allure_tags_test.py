@@ -1,3 +1,4 @@
+import pytest
 from allure_commons_test.label import (
     has_epic,
     has_feature,
@@ -16,11 +17,13 @@ from allure_commons_test.result import (
     has_test_case_link,
 )
 from hamcrest import assert_that
+
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
 
-def test_simple_passed_scenario_with_allure_tags(allure_pytest_bdd_runner: AllurePytestRunner):
-    feature_content = (
+@pytest.fixture
+def feature_content():
+    return (
         """
         Feature: Basic allure-pytest-bdd usage
             Scenario: Simple passed example
@@ -29,6 +32,9 @@ def test_simple_passed_scenario_with_allure_tags(allure_pytest_bdd_runner: Allur
                 Then the postconditions are held
         """
     )
+
+
+def test_simple_passed_scenario_with_allure_tags(allure_pytest_bdd_runner: AllurePytestRunner, feature_content: str):
     steps_content = (
         """
         import allure
@@ -76,22 +82,71 @@ def test_simple_passed_scenario_with_allure_tags(allure_pytest_bdd_runner: Allur
             has_severity("critical"),
             has_epic("My epic"),
             has_feature("My feature"),
+            has_feature("Basic allure-pytest-bdd usage"),
             has_story("My story"),
             has_description("My description"),
         )
     )
 
 
-def test_simple_passed_scenario_with_links(allure_pytest_bdd_runner: AllurePytestRunner):
-    feature_content = (
+def test_simple_passed_scenario_with_multiply_allure_tags(
+    allure_pytest_bdd_runner: AllurePytestRunner, feature_content: str
+):
+    steps_content = (
         """
-        Feature: Basic allure-pytest-bdd usage
-            Scenario: Simple passed example
-                Given the preconditions are satisfied
-                When the action is invoked
-                Then the postconditions are held
+        import allure
+        from pytest_bdd import scenario, given, when, then
+
+        @allure.epic('My epic 1')
+        @allure.epic('My epic 2')
+        @allure.feature('My feature 2')
+        @allure.feature('My feature 3')
+        @allure.story('My story 1')
+        @allure.story('My story 2')
+        @scenario("scenario.feature", "Simple passed example")
+        def test_scenario_passes():
+            pass
+
+        @given("the preconditions are satisfied")
+        def given_the_preconditions_are_satisfied():
+            pass
+
+        @when("the action is invoked")
+        def when_the_action_is_invoked():
+            pass
+
+        @then("the postconditions are held")
+        def then_the_postconditions_are_held():
+            pass
         """
     )
+
+    output = allure_pytest_bdd_runner.run_pytest(
+        ("scenario.feature", feature_content),
+        steps_content
+    )
+
+    assert_that(
+        output,
+        has_test_case(
+            "Simple passed example",
+            with_status("passed"),
+            has_step("Given the preconditions are satisfied"),
+            has_step("When the action is invoked"),
+            has_step("Then the postconditions are held"),
+            has_history_id(),
+            has_epic("My epic 1"),
+            has_epic("My epic 2"),
+            has_feature("Basic allure-pytest-bdd usage"),
+            has_feature("My feature 2"),
+            has_feature("My feature 3"),
+            has_story("My story 1"),
+            has_story("My story 2"),
+        )
+    )
+
+
+def test_simple_passed_scenario_with_links(allure_pytest_bdd_runner: AllurePytestRunner, feature_content: str):
     steps_content = (
         """
         import allure
