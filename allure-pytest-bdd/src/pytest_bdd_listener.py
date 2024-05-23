@@ -1,22 +1,28 @@
-import pytest
+from functools import partial
+
 import allure_commons
-from allure_commons.utils import now
-from allure_commons.utils import uuid4
+import pytest
+from allure_commons.lifecycle import AllureLifecycle
 from allure_commons.model2 import Label
 from allure_commons.model2 import Status
-
+from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType, AttachmentType
-from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
-from .utils import get_uuid
-from .utils import get_step_name
-from .utils import get_status_details
-from .utils import get_pytest_report_status
-from allure_commons.model2 import StatusDetails
-from functools import partial
-from allure_commons.lifecycle import AllureLifecycle
-from .utils import get_full_name, get_name, get_params
+from allure_commons.utils import now
+from allure_commons.utils import platform_label
+from allure_commons.utils import uuid4
+
+from .utils import (
+    get_uuid,
+    get_step_name,
+    get_status_details,
+    get_pytest_report_status,
+    get_full_name,
+    get_name,
+    get_params,
+    allure_labels,
+)
 
 
 class PytestBDDListener:
@@ -43,6 +49,7 @@ class PytestBDDListener:
             test_result.name = name
             test_result.start = now()
             test_result.historyId = md5(request.node.nodeid)
+            test_result.labels.extend([Label(name=name, value=value) for name, value in allure_labels(request.node)])
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))

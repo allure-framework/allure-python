@@ -5,6 +5,21 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Status
 from allure_commons.model2 import Parameter
 from allure_commons.utils import format_exception
+from allure_commons.types import LabelType
+
+
+ALLURE_DESCRIPTION_MARK = 'allure_description'
+ALLURE_DESCRIPTION_HTML_MARK = 'allure_description_html'
+ALLURE_LABEL_MARK = 'allure_label'
+ALLURE_LINK_MARK = 'allure_link'
+ALLURE_UNIQUE_LABELS = [
+    LabelType.SEVERITY,
+    LabelType.FRAMEWORK,
+    LabelType.HOST,
+    LabelType.SUITE,
+    LabelType.PARENT_SUITE,
+    LabelType.SUB_SUITE
+]
 
 
 def get_step_name(step):
@@ -48,3 +63,24 @@ def get_params(node):
         outline_params = params.pop('_pytest_bdd_example', {})
         params.update(outline_params)
         return [Parameter(name=name, value=value) for name, value in params.items()]
+
+
+def format_allure_link(config, url, link_type):
+    pattern = dict(config.option.allure_link_pattern).get(link_type, '{}')
+    return pattern.format(url)
+
+
+def allure_labels(item):
+    unique_labels = dict()
+    labels = set()
+    for mark in item.iter_markers(name=ALLURE_LABEL_MARK):
+        label_type = mark.kwargs["label_type"]
+        if label_type in ALLURE_UNIQUE_LABELS:
+            if label_type not in unique_labels.keys():
+                unique_labels[label_type] = mark.args[0]
+        else:
+            for arg in mark.args:
+                labels.add((label_type, arg))
+    for k, v in unique_labels.items():
+        labels.add((k, v))
+    return labels
