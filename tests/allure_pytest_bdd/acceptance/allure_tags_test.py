@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Tuple
 
 import pytest
 from allure_commons_test.label import (
@@ -156,7 +156,7 @@ def feature_content():
 def test_simple_passed_scenario_with_allure_tags(
     test_name: str,
     decorators: str,
-    checks: tuple[Any],
+    checks: Tuple[Any],
     allure_pytest_bdd_runner: AllurePytestRunner,
     feature_content: str,
 ):
