@@ -23,6 +23,7 @@ def test_simple_passed_scenario_with_allure_tags(allure_pytest_bdd_runner: Allur
     )
     steps_content = (
         """
+        import allure
         from pytest_bdd import scenario, given, when, then
 
         @allure.id(123)
