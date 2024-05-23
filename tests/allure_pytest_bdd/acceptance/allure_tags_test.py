@@ -5,8 +5,8 @@ from allure_commons_test.label import (
     has_label,
     has_severity,
 )
+from allure_commons_test.report import has_test_case
 from allure_commons_test.result import (
-    has_test_case,
     has_history_id,
     has_step,
     with_status,
