@@ -154,7 +154,7 @@ def feature_content():
         ),
     ),
 ])
-def test_simple_passed_scenario_with_allure_tags(
+def test_simple_passed_scenario_with_allure_decorators(
     test_name: str,
     decorators: str,
     checks: Tuple[Any],
