@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, TypeVar, Union
 
 from allure_commons._core import plugin_manager
 from allure_commons.types import LabelType, LinkType, ParameterMode
@@ -161,7 +161,7 @@ class Dynamic:
         return Dynamic.label(LabelType.MANUAL, True)
 
 
-def step(title):
+def step(title: Union[str, _TFunc]):
     if callable(title):
         return StepContext(title.__name__, {})(title)
     else:
