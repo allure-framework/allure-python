@@ -85,11 +85,8 @@ jobs:
     if: ${{ needs.pytest-changes.outputs.changed == 'true' }}
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
         pytest-version: ["7.*", "8.*"]
-        exclude:
-          - python-version: "3.7"
-            pytest-version: "8.*"
     env:
       TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
@@ -122,7 +119,7 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJSON(needs.other-changes.outputs.packages) }}
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
         exclude:
           - package: allure-pytest
     env:
