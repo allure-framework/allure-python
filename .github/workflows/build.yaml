@@ -22,6 +22,7 @@ jobs:
               - allure-python-commons-test/**
               - tests/*.py
               - tests/allure_pytest/**
+              - .github/workflows/build.yaml
   other-changes:
     name: Collect file changes other than allure-pytest
     runs-on: ubuntu-latest
@@ -38,26 +39,34 @@ jobs:
               - allure-python-commons-test/**
               - tests/*.py
               - tests/allure_behave/**
+              - .github/workflows/build.yaml
             allure-nose2:
               - allure-nose2/**
               - allure-python-commons/**
               - allure-python-commons-test/**
               - tests/*.py
               - tests/allure_nose2/**
+              - .github/workflows/build.yaml
             allure-pytest-bdd:
               - allure-pytest-bdd/**
               - allure-python-commons/**
               - allure-python-commons-test/**
               - tests/*.py
               - tests/allure_pytest_bdd/**
+              - .github/workflows/build.yaml
             allure-robotframework:
               - allure-robotframework/**
               - allure-python-commons/**
               - allure-python-commons-test/**
               - tests/*.py
               - tests/allure_robotframework/**
-            allure-python-commons: allure-python-commons/**
-            allure-python-commons-test: allure-python-commons-test/**
+              - .github/workflows/build.yaml
+            allure-python-commons:
+              - allure-python-commons/**
+              - .github/workflows/build.yaml
+            allure-python-commons-test:
+              - allure-python-commons-test/**
+              - .github/workflows/build.yaml
 
   lint:
     name: Static check
