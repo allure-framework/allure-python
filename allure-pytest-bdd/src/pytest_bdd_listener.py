@@ -1,27 +1,31 @@
 import pytest
+
 import allure_commons
 from allure_commons.utils import now
 from allure_commons.utils import uuid4
 from allure_commons.model2 import Label
 from allure_commons.model2 import Status
-
+from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType, AttachmentType
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
+
 from .utils import get_uuid
 from .utils import get_step_name
 from .utils import get_status_details
 from .utils import get_pytest_report_status
-from allure_commons.model2 import StatusDetails
+from .utils import get_full_name
+from .utils import get_name
+from .utils import get_params
+from .utils import get_allure_description
+
 from functools import partial
-from allure_commons.lifecycle import AllureLifecycle
-from .utils import get_full_name, get_name, get_params
 
 
 class PytestBDDListener:
-    def __init__(self):
-        self.lifecycle = AllureLifecycle()
+    def __init__(self, lifecycle):
+        self.lifecycle = lifecycle
         self.host = host_tag()
         self.thread = thread_tag()
 
@@ -41,6 +45,7 @@ class PytestBDDListener:
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
             test_result.fullName = full_name
             test_result.name = name
+            test_result.description = get_allure_description(request.node, feature, scenario)
             test_result.start = now()
             test_result.historyId = md5(request.node.nodeid)
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))

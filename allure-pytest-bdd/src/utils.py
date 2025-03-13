@@ -7,6 +7,38 @@ from allure_commons.model2 import Parameter
 from allure_commons.utils import format_exception
 
 
+ALLURE_DESCRIPTION_MARK = "allure_description"
+
+
+def get_marker_value(item, keyword):
+    marker = item.get_closest_marker(keyword)
+    return marker.args[0] if marker and marker.args else None
+
+
+def get_allure_description(item, feature, scenario):
+    value = get_marker_value(item, ALLURE_DESCRIPTION_MARK)
+    if value:
+        return value
+
+    feature_description = resolve_description(feature.description)
+    scenario_description = resolve_description(scenario.description)
+    return "\n\n".join(filter(None, [feature_description, scenario_description]))
+
+
+def resolve_description(description):
+    if isinstance(description, str):
+        return description
+
+    if not isinstance(description, list):
+        return None
+
+    while description and description[0] == "":
+        description = description[1:]
+    while description and description[-1] == "":
+        description = description[:-1]
+    return "\n".join(description) or None
+
+
 def get_step_name(step):
     return f"{step.keyword} {step.name}"
 
