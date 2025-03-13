@@ -5,6 +5,7 @@ from allure_commons.lifecycle import AllureLifecycle
 
 from .allure_api import AllurePytestBddApi
 from .pytest_bdd_listener import PytestBDDListener
+from .utils import ALLURE_TITLE_MARK
 from .utils import ALLURE_DESCRIPTION_MARK
 from .utils import ALLURE_DESCRIPTION_HTML_MARK
 
@@ -31,6 +32,7 @@ def cleanup_factory(plugin):
 
 
 def register_marks(config):
+    config.addinivalue_line("markers", f"{ALLURE_TITLE_MARK}: allure title marker")
     config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_MARK}: allure description")
     config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_HTML_MARK}: allure description in HTML")
 

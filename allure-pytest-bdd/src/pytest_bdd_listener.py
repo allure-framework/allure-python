@@ -16,8 +16,9 @@ from .utils import get_step_name
 from .utils import get_status_details
 from .utils import get_pytest_report_status
 from .utils import get_full_name
-from .utils import get_name
-from .utils import get_params
+from .utils import get_test_name
+from .utils import get_pytest_params
+from .utils import convert_params
 from .utils import get_allure_description
 from .utils import get_allure_description_html
 
@@ -42,11 +43,10 @@ class PytestBDDListener:
     def pytest_bdd_before_scenario(self, request, feature, scenario):
         item = request.node
         uuid = get_uuid(item.nodeid)
-        full_name = get_full_name(feature, scenario)
-        name = get_name(item, scenario)
+        params = get_pytest_params(item)
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
-            test_result.fullName = full_name
-            test_result.name = name
+            test_result.fullName = get_full_name(feature, scenario)
+            test_result.name = get_test_name(item, scenario, params)
             test_result.description = get_allure_description(item, feature, scenario)
             test_result.descriptionHtml = get_allure_description_html(item)
             test_result.start = now()
@@ -56,7 +56,7 @@ class PytestBDDListener:
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
             test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))
-            test_result.parameters = get_params(item)
+            test_result.parameters = convert_params(params)
 
         finalizer = partial(self._scenario_finalizer, scenario)
         item.addfinalizer(finalizer)
