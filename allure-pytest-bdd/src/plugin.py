@@ -3,11 +3,10 @@ import os
 from allure_commons.logger import AllureFileLogger
 from allure_commons.lifecycle import AllureLifecycle
 
-from .pytest_bdd_listener import PytestBDDListener
-from .utils import (
-    ALLURE_DESCRIPTION_MARK,
-)
 from .allure_api import AllurePytestBddApi
+from .pytest_bdd_listener import PytestBDDListener
+from .utils import ALLURE_DESCRIPTION_MARK
+from .utils import ALLURE_DESCRIPTION_HTML_MARK
 
 
 def pytest_addoption(parser):
@@ -33,6 +32,7 @@ def cleanup_factory(plugin):
 
 def register_marks(config):
     config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_MARK}: allure description")
+    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_HTML_MARK}: allure description in HTML")
 
 
 def pytest_configure(config):

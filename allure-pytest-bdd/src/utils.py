@@ -8,6 +8,7 @@ from allure_commons.utils import format_exception
 
 
 ALLURE_DESCRIPTION_MARK = "allure_description"
+ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
 
 
 def get_marker_value(item, keyword):
@@ -23,6 +24,10 @@ def get_allure_description(item, feature, scenario):
     feature_description = resolve_description(feature.description)
     scenario_description = resolve_description(scenario.description)
     return "\n\n".join(filter(None, [feature_description, scenario_description]))
+
+
+def get_allure_description_html(item):
+    return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
 
 
 def resolve_description(description):

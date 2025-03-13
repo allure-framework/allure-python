@@ -54,6 +54,46 @@ def test_description_decorator(allure_pytest_bdd_runner: AllurePytestRunner):
     )
 
 
+def test_description_html_decorator(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given noop
+        """
+    )
+    steps_content = (
+        """
+        from pytest_bdd import scenario, given
+        import allure
+
+        @allure.description_html("Lorem Ipsum")
+        @scenario("sample.feature", "Bar")
+        def test_scenario():
+            pass
+
+        @given("noop")
+        def given_noop():
+            pass
+        """
+    )
+
+    allure_results = allure_pytest_bdd_runner.run_pytest(
+        ("sample.feature", feature_content),
+        steps_content,
+    )
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "sample.feature:Bar",
+            has_description_html(
+                equal_to("Lorem Ipsum"),
+            )
+        )
+    )
+
+
 def test_dynamic_description(allure_pytest_bdd_runner: AllurePytestRunner):
     feature_content = (
         """
@@ -94,6 +134,46 @@ def test_dynamic_description(allure_pytest_bdd_runner: AllurePytestRunner):
         has_test_case(
             "sample.feature:Bar",
             has_description(
+                equal_to("Lorem Ipsum"),
+            )
+        )
+    )
+
+
+def test_dynamic_description_html(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given noop
+        """
+    )
+    steps_content = (
+        """
+        from pytest_bdd import scenario, given
+        import allure
+
+        @allure.description_html("This will be overwritten by the runtime API")
+        @scenario("sample.feature", "Bar")
+        def test_scenario():
+            allure.dynamic.description_html("Lorem Ipsum")
+
+        @given("noop")
+        def given_noop():
+            pass
+        """
+    )
+
+    allure_results = allure_pytest_bdd_runner.run_pytest(
+        ("sample.feature", feature_content),
+        steps_content,
+    )
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "sample.feature:Bar",
+            has_description_html(
                 equal_to("Lorem Ipsum"),
             )
         )

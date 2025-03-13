@@ -19,6 +19,7 @@ from .utils import get_full_name
 from .utils import get_name
 from .utils import get_params
 from .utils import get_allure_description
+from .utils import get_allure_description_html
 
 from functools import partial
 
@@ -39,24 +40,26 @@ class PytestBDDListener:
 
     @pytest.hookimpl
     def pytest_bdd_before_scenario(self, request, feature, scenario):
-        uuid = get_uuid(request.node.nodeid)
+        item = request.node
+        uuid = get_uuid(item.nodeid)
         full_name = get_full_name(feature, scenario)
-        name = get_name(request.node, scenario)
+        name = get_name(item, scenario)
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
             test_result.fullName = full_name
             test_result.name = name
-            test_result.description = get_allure_description(request.node, feature, scenario)
+            test_result.description = get_allure_description(item, feature, scenario)
+            test_result.descriptionHtml = get_allure_description_html(item)
             test_result.start = now()
-            test_result.historyId = md5(request.node.nodeid)
+            test_result.historyId = md5(item.nodeid)
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
             test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))
-            test_result.parameters = get_params(request.node)
+            test_result.parameters = get_params(item)
 
         finalizer = partial(self._scenario_finalizer, scenario)
-        request.node.addfinalizer(finalizer)
+        item.addfinalizer(finalizer)
 
     @pytest.hookimpl
     def pytest_bdd_after_scenario(self, request, feature, scenario):

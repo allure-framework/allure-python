@@ -3,6 +3,7 @@ import pytest
 import allure_commons
 
 from .utils import ALLURE_DESCRIPTION_MARK
+from .utils import ALLURE_DESCRIPTION_HTML_MARK
 
 
 class AllurePytestBddApi:
@@ -18,3 +19,13 @@ class AllurePytestBddApi:
     def add_description(self, test_description):
         with self.lifecycle.update_test_case() as test_result:
             test_result.description = test_description
+
+    @allure_commons.hookimpl
+    def decorate_as_description_html(self, test_description_html):
+        allure_description_html_mark = getattr(pytest.mark, ALLURE_DESCRIPTION_HTML_MARK)
+        return allure_description_html_mark(test_description_html)
+
+    @allure_commons.hookimpl
+    def add_description_html(self, test_description_html):
+        with self.lifecycle.update_test_case() as test_result:
+            test_result.descriptionHtml = test_description_html
