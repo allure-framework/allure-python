@@ -1,5 +1,7 @@
-import allure_commons
+import argparse
 import os
+
+import allure_commons
 from allure_commons.logger import AllureFileLogger
 from allure_commons.lifecycle import AllureLifecycle
 
@@ -24,6 +26,27 @@ def pytest_addoption(parser):
                                            action="store_true",
                                            dest="clean_alluredir",
                                            help="Clean alluredir folder if it exists")
+
+    def link_pattern(string):
+        pattern = string.split(':', 1)
+        if not pattern[0]:
+            raise argparse.ArgumentTypeError("A link type is mandatory")
+
+        if len(pattern) != 2:
+            raise argparse.ArgumentTypeError("A link pattern is mandatory")
+        return pattern
+
+    parser.getgroup("general").addoption(
+        "--allure-link-pattern",
+        action="append",
+        dest="allure_link_pattern",
+        metavar="LINK_TYPE:LINK_PATTERN",
+        default=[],
+        type=link_pattern,
+        help="""A URL pattern for a link type. Allows short links in tests,
+        e.g., 'issue-1'. `pattern.format(short_url)` will be called to get
+        the full URL"""
+    )
 
 
 def cleanup_factory(plugin):
@@ -57,7 +80,7 @@ def pytest_configure(config):
         allure_commons.plugin_manager.register(pytest_bdd_listener)
         config.add_cleanup(cleanup_factory(pytest_bdd_listener))
 
-        allure_api_impl = AllurePytestBddApi(lifecycle)
+        allure_api_impl = AllurePytestBddApi(config, lifecycle)
         allure_commons.plugin_manager.register(allure_api_impl)
         config.add_cleanup(cleanup_factory(allure_api_impl))
 

@@ -10,10 +10,14 @@ from .utils import ALLURE_DESCRIPTION_HTML_MARK
 from .utils import ALLURE_LABEL_MARK
 from .utils import ALLURE_LINK_MARK
 
+from .utils import get_link_patterns
+from .utils import apply_link_pattern
+
 
 class AllurePytestBddApi:
-    def __init__(self, lifecycle):
+    def __init__(self, config, lifecycle):
         self.lifecycle = lifecycle
+        self.__link_patterns = get_link_patterns(config)
 
     @allure_commons.hookimpl
     def decorate_as_title(self, test_title):
@@ -57,10 +61,12 @@ class AllurePytestBddApi:
 
     @allure_commons.hookimpl
     def decorate_as_link(self, url, link_type, name):
+        url = apply_link_pattern(self.__link_patterns, link_type, url)
         allure_link_mark = getattr(pytest.mark, ALLURE_LINK_MARK)
         return allure_link_mark(url, name=name, link_type=link_type)
 
     @allure_commons.hookimpl
     def add_link(self, url, link_type, name):
+        url = apply_link_pattern(self.__link_patterns, link_type, url)
         with self.lifecycle.update_test_case() as test_result:
             test_result.links.append(Link(url=url, name=name, type=link_type))

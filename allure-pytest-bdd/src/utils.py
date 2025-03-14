@@ -1,5 +1,6 @@
 import os
 import pytest
+from urllib.parse import urlparse
 from uuid import UUID
 from allure_commons.utils import md5
 from allure_commons.utils import SafeFormatter
@@ -9,6 +10,7 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Status
 from allure_commons.model2 import Parameter
 from allure_commons.types import LabelType
+from allure_commons.types import LinkType
 from allure_commons.utils import format_exception
 
 ALLURE_PYTEST_BDD_HASHKEY = pytest.StashKey()
@@ -92,6 +94,32 @@ def convert_labels(labels):
 
 def get_allure_labels(item):
     return convert_labels(iter_all_labels(item))
+
+
+def get_link_patterns(config):
+    patterns = {}
+    for link_type, pattern in config.option.allure_link_pattern:
+        patterns[link_type] = pattern
+    return patterns
+
+
+def is_url(maybeUrl):
+    try:
+        result = urlparse(maybeUrl)
+    except AttributeError:
+        return False
+
+    return result and (
+        getattr(result, "scheme", None) or getattr(result, "netloc", None)
+    )
+
+
+def apply_link_pattern(patterns, link_type, url):
+    if is_url(url):
+        return url
+
+    pattern = patterns.get(link_type or LinkType.LINK)
+    return url if pattern is None else pattern.format(url)
 
 
 def iter_all_links(item):
