@@ -1,4 +1,5 @@
 import os
+import pytest
 from uuid import UUID
 from allure_commons.utils import md5
 from allure_commons.utils import SafeFormatter
@@ -6,13 +7,23 @@ from allure_commons.model2 import Label
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Status
 from allure_commons.model2 import Parameter
+from allure_commons.types import LabelType
 from allure_commons.utils import format_exception
 
+ALLURE_PYTEST_BDD_HASHKEY = pytest.StashKey()
 
 ALLURE_DESCRIPTION_MARK = "allure_description"
 ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
 ALLURE_TITLE_MARK = "allure_title"
 ALLURE_LABEL_MARK = 'allure_label'
+
+
+def set_feature_and_scenario(item, feature, scenario):
+    item.stash[ALLURE_PYTEST_BDD_HASHKEY] = (feature, scenario)
+
+
+def get_feature_and_scenario(item):
+    return item.stash.get(ALLURE_PYTEST_BDD_HASHKEY, (None, None))
 
 
 def get_marker_value(item, keyword):
@@ -128,3 +139,12 @@ def convert_params(pytest_params):
             value=value,
         ) for name, value in (pytest_params or {}).items()
     ]
+
+def apply_defaults(item, test_result):
+    feature, _ = get_feature_and_scenario(item)
+    if feature is None:
+        return
+
+    existing_labels = { label.name for label in test_result.labels }
+    if LabelType.FEATURE not in existing_labels:
+        test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))

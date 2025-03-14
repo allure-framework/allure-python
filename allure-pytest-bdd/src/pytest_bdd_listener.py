@@ -11,6 +11,8 @@ from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
 
+from .utils import set_feature_and_scenario
+from .utils import apply_defaults
 from .utils import get_uuid
 from .utils import get_step_name
 from .utils import get_status_details
@@ -43,6 +45,7 @@ class PytestBDDListener:
     @pytest.hookimpl
     def pytest_bdd_before_scenario(self, request, feature, scenario):
         item = request.node
+        set_feature_and_scenario(item, feature, scenario)
         uuid = get_uuid(item.nodeid)
         params = get_pytest_params(item)
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
@@ -56,7 +59,6 @@ class PytestBDDListener:
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
-            test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))
             test_result.labels.extend(get_allure_labels(item))
             test_result.parameters = convert_params(params)
 
@@ -130,6 +132,7 @@ class PytestBDDListener:
                     self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
                 if report.capstderr:
                     self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
+                apply_defaults(item, test_result)
 
         if report.when == 'teardown':
             self.lifecycle.write_test_case(uuid=uuid)
