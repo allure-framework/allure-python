@@ -62,8 +62,8 @@ Expected: ...
 
 """
 
-from hamcrest import all_of, anything, not_
-from hamcrest import equal_to, not_none
+from hamcrest import all_of, anything, not_, any_of
+from hamcrest import equal_to, none, not_none
 from hamcrest import has_entry, has_item
 from hamcrest import contains_string
 from allure_commons_test.lookup import maps_to
@@ -122,13 +122,20 @@ def doesnt_have_parameter(name):
                      ))
 
 
+def resolve_link_attr_matcher(key, value):
+    return has_entry(key, value) if value is not None else any_of(
+        not_(has_entry(key)),
+        none(),
+    )
+
+
 def has_link(url, link_type=None, name=None):
     return has_entry(
         'links',
         has_item(
             all_of(
                 *[
-                    has_entry(key, value) for key, value in zip(
+                    resolve_link_attr_matcher(key, value) for key, value in zip(
                         ('url', 'type', 'name'),
                         (url, link_type, name)
                     ) if value is not None

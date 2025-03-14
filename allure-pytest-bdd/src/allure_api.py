@@ -2,11 +2,13 @@ import pytest
 
 import allure_commons
 from allure_commons.model2 import Label
+from allure_commons.model2 import Link
 
 from .utils import ALLURE_TITLE_MARK
 from .utils import ALLURE_DESCRIPTION_MARK
 from .utils import ALLURE_DESCRIPTION_HTML_MARK
 from .utils import ALLURE_LABEL_MARK
+from .utils import ALLURE_LINK_MARK
 
 
 class AllurePytestBddApi:
@@ -52,3 +54,13 @@ class AllurePytestBddApi:
     def add_label(self, label_type, labels):
         with self.lifecycle.update_test_case() as test_result:
             test_result.labels.extend(Label(name=label_type, value=value) for value in labels or [])
+
+    @allure_commons.hookimpl
+    def decorate_as_link(self, url, link_type, name):
+        allure_link_mark = getattr(pytest.mark, ALLURE_LINK_MARK)
+        return allure_link_mark(url, name=name, link_type=link_type)
+
+    @allure_commons.hookimpl
+    def add_link(self, url, link_type, name):
+        with self.lifecycle.update_test_case() as test_result:
+            test_result.links.append(Link(url=url, name=name, type=link_type))

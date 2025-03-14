@@ -9,6 +9,7 @@ from .utils import ALLURE_TITLE_MARK
 from .utils import ALLURE_DESCRIPTION_MARK
 from .utils import ALLURE_DESCRIPTION_HTML_MARK
 from .utils import ALLURE_LABEL_MARK
+from .utils import ALLURE_LINK_MARK
 
 
 def pytest_addoption(parser):
@@ -37,6 +38,7 @@ def register_marks(config):
     config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_MARK}: allure description")
     config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_HTML_MARK}: allure description in HTML")
     config.addinivalue_line("markers", f"{ALLURE_LABEL_MARK}: allure label marker")
+    config.addinivalue_line("markers", f"{ALLURE_LINK_MARK}: allure link marker")
 
 
 def pytest_configure(config):

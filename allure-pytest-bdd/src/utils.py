@@ -4,6 +4,7 @@ from uuid import UUID
 from allure_commons.utils import md5
 from allure_commons.utils import SafeFormatter
 from allure_commons.model2 import Label
+from allure_commons.model2 import Link
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Status
 from allure_commons.model2 import Parameter
@@ -16,6 +17,7 @@ ALLURE_DESCRIPTION_MARK = "allure_description"
 ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
 ALLURE_TITLE_MARK = "allure_title"
 ALLURE_LABEL_MARK = 'allure_label'
+ALLURE_LINK_MARK = 'allure_link'
 
 MARK_NAMES_TO_IGNORE = {
     "usefixtures",
@@ -90,6 +92,21 @@ def convert_labels(labels):
 
 def get_allure_labels(item):
     return convert_labels(iter_all_labels(item))
+
+
+def iter_all_links(item):
+    for marker in item.iter_markers(name=ALLURE_LINK_MARK):
+        url = marker.args[0] if marker and marker.args else None
+        if url:
+            yield url, marker.kwargs.get("name"), marker.kwargs.get("link_type")
+
+
+def convert_links(links):
+    return [Link(url=url, name=name, type=link_type) for url, name, link_type in links]
+
+
+def get_allure_links(item):
+    return convert_links(iter_all_links(item))
 
 
 def resolve_description(description):

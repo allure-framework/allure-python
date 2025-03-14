@@ -22,6 +22,7 @@ from .utils import get_test_name
 from .utils import get_pytest_params
 from .utils import convert_params
 from .utils import get_allure_labels
+from .utils import get_allure_links
 from .utils import get_allure_description
 from .utils import get_allure_description_html
 
@@ -60,6 +61,7 @@ class PytestBDDListener:
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
             test_result.labels.extend(get_allure_labels(item))
+            test_result.links.extend(get_allure_links(item))
             test_result.parameters = convert_params(params)
 
         finalizer = partial(self._scenario_finalizer, scenario)
