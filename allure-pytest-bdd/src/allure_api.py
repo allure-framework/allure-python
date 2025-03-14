@@ -14,6 +14,8 @@ from .utils import ALLURE_LINK_MARK
 
 from .utils import get_link_patterns
 from .utils import apply_link_pattern
+from .utils import get_status
+from .utils import get_status_details_for_step
 
 
 class AllurePytestBddApi:
@@ -84,3 +86,21 @@ class AllurePytestBddApi:
                     mode=mode.value if mode else None,
                 ),
             )
+
+    @allure_commons.hookimpl
+    def start_step(self, uuid, title, params):
+        with self.lifecycle.start_step(uuid=uuid) as step_result:
+            step_result.name = title
+            step_result.parameters.extend(
+                Parameter(
+                    name=name,
+                    value=represent(value),
+                ) for name, value in params.items()
+            )
+
+    @allure_commons.hookimpl
+    def stop_step(self, uuid, exc_type, exc_val, exc_tb):
+        with self.lifecycle.update_step(uuid=uuid) as step_result:
+            step_result.status = get_status(exc_val)
+            step_result.statusDetails = get_status_details_for_step(exc_type, exc_val, exc_tb)
+        self.lifecycle.stop_step(uuid=uuid)

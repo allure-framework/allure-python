@@ -10,6 +10,7 @@ from allure_commons.model2 import Parameter
 from allure_commons.types import LabelType
 from allure_commons.types import LinkType
 from allure_commons.utils import format_exception
+from allure_commons.utils import format_traceback
 from allure_commons.utils import md5
 from allure_commons.utils import represent
 from allure_commons.utils import SafeFormatter
@@ -183,9 +184,26 @@ def get_uuid(*args):
     return str(UUID(md5(*args)))
 
 
+def get_status(exception):
+    if exception:
+        if isinstance(exception, (AssertionError, pytest.fail.Exception)):
+            return Status.FAILED
+        elif isinstance(exception, pytest.skip.Exception):
+            return Status.SKIPPED
+        return Status.BROKEN
+    else:
+        return Status.PASSED
+
+
 def get_status_details(exception):
     message = str(exception)
     trace = format_exception(type(exception), exception)
+    return StatusDetails(message=message, trace=trace) if message or trace else None
+
+
+def get_status_details_for_step(exception_type, exception, exception_traceback):
+    message = format_exception(exception_type, exception)
+    trace = format_traceback(exception_traceback)
     return StatusDetails(message=message, trace=trace) if message or trace else None
 
 
