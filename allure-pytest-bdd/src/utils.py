@@ -17,6 +17,15 @@ ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
 ALLURE_TITLE_MARK = "allure_title"
 ALLURE_LABEL_MARK = 'allure_label'
 
+MARK_NAMES_TO_IGNORE = {
+    "usefixtures",
+    "filterwarnings",
+    "skip",
+    "skipif",
+    "xfail",
+    "parametrize",
+}
+
 
 def set_feature_and_scenario(item, feature, scenario):
     item.stash[ALLURE_PYTEST_BDD_HASHKEY] = (feature, scenario)
@@ -58,6 +67,17 @@ def iter_all_labels(item):
         name = mark.kwargs.get("label_type")
         if name:
             yield from ((name, value) for value in mark.args or [])
+
+
+def should_convert_mark_to_tag(mark):
+    return mark.name not in MARK_NAMES_TO_IGNORE and\
+        not mark.args and not mark.kwargs
+
+
+def iter_pytest_tags(item: pytest.Function):
+    for mark in item.iter_markers():
+        if should_convert_mark_to_tag(mark):
+            yield LabelType.TAG, mark.name
 
 
 def iter_label_values(item, name):
@@ -140,11 +160,22 @@ def convert_params(pytest_params):
         ) for name, value in (pytest_params or {}).items()
     ]
 
-def apply_defaults(item, test_result):
-    feature, _ = get_feature_and_scenario(item)
-    if feature is None:
-        return
 
-    existing_labels = { label.name for label in test_result.labels }
+def iter_pytest_labels(item, test_result):
+    feature, _ = get_feature_and_scenario(item)
+
+    existing_labels = {label.name for label in test_result.labels}
+
     if LabelType.FEATURE not in existing_labels:
-        test_result.labels.append(Label(name=LabelType.FEATURE, value=feature.name))
+        yield LabelType.FEATURE, feature.name
+
+    yield from iter_pytest_tags(item)
+
+
+def post_process_test_result(item, test_result):
+    test_result.labels.extend(
+        Label(
+            name=name,
+            value=value,
+        ) for name, value in iter_pytest_labels(item, test_result)
+    )

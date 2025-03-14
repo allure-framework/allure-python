@@ -12,7 +12,7 @@ from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
 
 from .utils import set_feature_and_scenario
-from .utils import apply_defaults
+from .utils import post_process_test_result
 from .utils import get_uuid
 from .utils import get_step_name
 from .utils import get_status_details
@@ -132,7 +132,7 @@ class PytestBDDListener:
                     self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
                 if report.capstderr:
                     self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
-                apply_defaults(item, test_result)
+                post_process_test_result(item, test_result)
 
         if report.when == 'teardown':
             self.lifecycle.write_test_case(uuid=uuid)
