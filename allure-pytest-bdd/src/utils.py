@@ -2,6 +2,7 @@ import os
 from uuid import UUID
 from allure_commons.utils import md5
 from allure_commons.utils import SafeFormatter
+from allure_commons.model2 import Label
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Status
 from allure_commons.model2 import Parameter
@@ -11,6 +12,7 @@ from allure_commons.utils import format_exception
 ALLURE_DESCRIPTION_MARK = "allure_description"
 ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
 ALLURE_TITLE_MARK = "allure_title"
+ALLURE_LABEL_MARK = 'allure_label'
 
 
 def get_marker_value(item, keyword):
@@ -38,6 +40,25 @@ def get_allure_description(item, feature, scenario):
 
 def get_allure_description_html(item):
     return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
+
+
+def iter_all_labels(item):
+    for mark in item.iter_markers(name=ALLURE_LABEL_MARK):
+        name = mark.kwargs.get("label_type")
+        if name:
+            yield from ((name, value) for value in mark.args or [])
+
+
+def iter_label_values(item, name):
+    return (pair for pair in iter_all_labels(item) if pair[0] == name)
+
+
+def convert_labels(labels):
+    return [Label(name, value) for name, value in labels]
+
+
+def get_allure_labels(item):
+    return convert_labels(iter_all_labels(item))
 
 
 def resolve_description(description):
