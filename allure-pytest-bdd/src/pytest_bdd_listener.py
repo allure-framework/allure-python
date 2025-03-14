@@ -11,7 +11,7 @@ from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
 
-from .utils import set_feature_and_scenario
+from .utils import save_test_data
 from .utils import post_process_test_result
 from .utils import get_uuid
 from .utils import get_step_name
@@ -19,6 +19,7 @@ from .utils import get_status_details
 from .utils import get_pytest_report_status
 from .utils import get_full_name
 from .utils import get_test_name
+from .utils import get_outline_params
 from .utils import get_pytest_params
 from .utils import convert_params
 from .utils import get_allure_labels
@@ -46,23 +47,32 @@ class PytestBDDListener:
     @pytest.hookimpl
     def pytest_bdd_before_scenario(self, request, feature, scenario):
         item = request.node
-        set_feature_and_scenario(item, feature, scenario)
         uuid = get_uuid(item.nodeid)
-        params = get_pytest_params(item)
+        outline_params = get_outline_params(item)
+        pytest_params = get_pytest_params(item)
+        params = { **pytest_params, **outline_params }
+        save_test_data(
+            item=item,
+            feature=feature,
+            scenario=scenario,
+            pytest_params=pytest_params,
+        )
+
+        full_name = get_full_name(feature, scenario)
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
-            test_result.fullName = get_full_name(feature, scenario)
+            test_result.fullName = full_name
             test_result.name = get_test_name(item, scenario, params)
             test_result.description = get_allure_description(item, feature, scenario)
             test_result.descriptionHtml = get_allure_description_html(item)
             test_result.start = now()
-            test_result.historyId = md5(item.nodeid)
+            test_result.testCaseId = md5(full_name)
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=self.thread))
             test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="pytest-bdd"))
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
             test_result.labels.extend(get_allure_labels(item))
             test_result.links.extend(get_allure_links(item))
-            test_result.parameters = convert_params(params)
+            test_result.parameters.extend(convert_params(outline_params, pytest_params))
 
         finalizer = partial(self._scenario_finalizer, scenario)
         item.addfinalizer(finalizer)

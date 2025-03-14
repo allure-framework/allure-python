@@ -2,8 +2,6 @@ import os
 import pytest
 from urllib.parse import urlparse
 from uuid import UUID
-from allure_commons.utils import md5
-from allure_commons.utils import SafeFormatter
 from allure_commons.model2 import Label
 from allure_commons.model2 import Link
 from allure_commons.model2 import StatusDetails
@@ -12,6 +10,11 @@ from allure_commons.model2 import Parameter
 from allure_commons.types import LabelType
 from allure_commons.types import LinkType
 from allure_commons.utils import format_exception
+from allure_commons.utils import md5
+from allure_commons.utils import represent
+from allure_commons.utils import SafeFormatter
+
+from .types import AllurePytestBddTestData
 
 ALLURE_PYTEST_BDD_HASHKEY = pytest.StashKey()
 
@@ -31,11 +34,15 @@ MARK_NAMES_TO_IGNORE = {
 }
 
 
-def set_feature_and_scenario(item, feature, scenario):
-    item.stash[ALLURE_PYTEST_BDD_HASHKEY] = (feature, scenario)
+def save_test_data(item, feature, scenario, pytest_params):
+    item.stash[ALLURE_PYTEST_BDD_HASHKEY] = AllurePytestBddTestData(
+        feature=feature,
+        scenario=scenario,
+        pytest_params=pytest_params,
+    )
 
 
-def get_feature_and_scenario(item):
+def get_test_data(item):
     return item.stash.get(ALLURE_PYTEST_BDD_HASHKEY, (None, None))
 
 
@@ -190,37 +197,68 @@ def get_pytest_report_status(pytest_report):
             return status
 
 
+def get_outline_params(node):
+    if hasattr(node, 'callspec'):
+        return node.callspec.params.get('_pytest_bdd_example', {})
+    return {}
+
+
 def get_pytest_params(node):
     if hasattr(node, 'callspec'):
         pytest_params = dict(node.callspec.params)
-        pytest_bdd_params = pytest_params.pop('_pytest_bdd_example', {})
-        return {**pytest_bdd_params, **pytest_params}
+        if "_pytest_bdd_example" in pytest_params:
+            del pytest_params["_pytest_bdd_example"]
+        return pytest_params
+    return {}
 
 
-def convert_params(pytest_params):
+def convert_params(outline_params, pytest_params):
     return [
-        Parameter(
+        *(Parameter(
             name=name,
             value=value,
-        ) for name, value in (pytest_params or {}).items()
+        ) for name, value in outline_params.items()),
+        *(Parameter(
+            name=name,
+            value=represent(value),
+        ) for name, value in pytest_params.items() if name not in outline_params),
     ]
 
 
 def iter_pytest_labels(item, test_result):
-    feature, _ = get_feature_and_scenario(item)
+    test_data = get_test_data(item)
 
     existing_labels = {label.name for label in test_result.labels}
 
     if LabelType.FEATURE not in existing_labels:
-        yield LabelType.FEATURE, feature.name
+        yield LabelType.FEATURE, test_data.feature.name
 
     yield from iter_pytest_tags(item)
 
 
-def post_process_test_result(item, test_result):
-    test_result.labels.extend(
+def iter_default_labels(item, test_result):
+    return (
         Label(
             name=name,
             value=value,
         ) for name, value in iter_pytest_labels(item, test_result)
+    )
+
+
+def get_history_id(test_case_id, parameters, pytest_params):
+    parameters_part = md5(*(pytest_params.get(p.name, p.value) for p in sorted(
+        filter(lambda p: not p.excluded, parameters),
+        key=lambda p: p.name,
+    )))
+    return f"{test_case_id}.{parameters_part}"
+
+
+def post_process_test_result(item, test_result):
+    test_data = get_test_data(item)
+
+    test_result.labels.extend(iter_default_labels(item, test_result))
+    test_result.historyId = get_history_id(
+        test_case_id=test_result.testCaseId,
+        parameters=test_result.parameters,
+        pytest_params=test_data.pytest_params,
     )

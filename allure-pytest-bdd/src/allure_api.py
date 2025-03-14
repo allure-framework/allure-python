@@ -3,6 +3,8 @@ import pytest
 import allure_commons
 from allure_commons.model2 import Label
 from allure_commons.model2 import Link
+from allure_commons.model2 import Parameter
+from allure_commons.utils import represent
 
 from .utils import ALLURE_TITLE_MARK
 from .utils import ALLURE_DESCRIPTION_MARK
@@ -70,3 +72,15 @@ class AllurePytestBddApi:
         url = apply_link_pattern(self.__link_patterns, link_type, url)
         with self.lifecycle.update_test_case() as test_result:
             test_result.links.append(Link(url=url, name=name, type=link_type))
+
+    @allure_commons.hookimpl
+    def add_parameter(self, name, value, excluded, mode):
+        with self.lifecycle.update_test_case() as test_result:
+            test_result.parameters.append(
+                Parameter(
+                    name=name,
+                    value=represent(value),
+                    excluded=excluded,
+                    mode=mode.value if mode else None,
+                ),
+            )

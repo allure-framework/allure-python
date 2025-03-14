@@ -212,5 +212,5 @@ def with_mode(mode):
     return has_entry('mode', mode)
 
 
-def has_history_id():
-    return has_entry('historyId', anything())
+def has_history_id(matcher=None):
+    return has_entry('historyId', matcher or anything())
