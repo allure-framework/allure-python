@@ -11,21 +11,25 @@ from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
 
-from .utils import save_test_data
-from .utils import post_process_test_result
-from .utils import get_uuid
-from .utils import get_step_name
-from .utils import get_status_details
-from .utils import get_pytest_report_status
-from .utils import get_full_name
-from .utils import get_test_name
-from .utils import get_outline_params
-from .utils import get_pytest_params
+from .api import get_allure_description
+from .api import get_allure_description_html
+from .steps import get_step_uuid
+from .steps import report_remaining_steps
+from .steps import report_undefined_step
+from .steps import start_gherkin_step
+from .steps import stop_gherkin_step
+from .storage import save_excinfo
+from .storage import save_test_data
 from .utils import convert_params
 from .utils import get_allure_labels
 from .utils import get_allure_links
-from .utils import get_allure_description
-from .utils import get_allure_description_html
+from .utils import get_full_name
+from .utils import get_outline_params
+from .utils import get_pytest_params
+from .utils import get_pytest_report_status
+from .utils import get_test_name
+from .utils import get_uuid
+from .utils import post_process_test_result
 
 from functools import partial
 
@@ -35,14 +39,6 @@ class PytestBDDListener:
         self.lifecycle = lifecycle
         self.host = host_tag()
         self.thread = thread_tag()
-
-    def _scenario_finalizer(self, scenario):
-        for step in scenario.steps:
-            step_uuid = get_uuid(str(id(step)))
-            with self.lifecycle.update_step(uuid=step_uuid) as step_result:
-                if step_result:
-                    step_result.status = Status.SKIPPED
-                    self.lifecycle.stop_step(uuid=step_uuid)
 
     @pytest.hookimpl
     def pytest_bdd_before_scenario(self, request, feature, scenario):
@@ -74,7 +70,7 @@ class PytestBDDListener:
             test_result.links.extend(get_allure_links(item))
             test_result.parameters.extend(convert_params(outline_params, pytest_params))
 
-        finalizer = partial(self._scenario_finalizer, scenario)
+        finalizer = partial(report_remaining_steps, self.lifecycle, item)
         item.addfinalizer(finalizer)
 
     @pytest.hookimpl
@@ -85,32 +81,19 @@ class PytestBDDListener:
 
     @pytest.hookimpl
     def pytest_bdd_before_step(self, request, feature, scenario, step, step_func):
-        parent_uuid = get_uuid(request.node.nodeid)
-        uuid = get_uuid(str(id(step)))
-        with self.lifecycle.start_step(parent_uuid=parent_uuid, uuid=uuid) as step_result:
-            step_result.name = get_step_name(step)
+        start_gherkin_step(self.lifecycle, request.node, step)
 
     @pytest.hookimpl
     def pytest_bdd_after_step(self, request, feature, scenario, step, step_func, step_func_args):
-        uuid = get_uuid(str(id(step)))
-        with self.lifecycle.update_step(uuid=uuid) as step_result:
-            step_result.status = Status.PASSED
-        self.lifecycle.stop_step(uuid=uuid)
+        stop_gherkin_step(self.lifecycle, request.node, get_step_uuid(step))
 
     @pytest.hookimpl
     def pytest_bdd_step_error(self, request, feature, scenario, step, step_func, step_func_args, exception):
-        uuid = get_uuid(str(id(step)))
-        with self.lifecycle.update_step(uuid=uuid) as step_result:
-            step_result.status = Status.FAILED
-            step_result.statusDetails = get_status_details(exception)
-        self.lifecycle.stop_step(uuid=uuid)
+        stop_gherkin_step(self.lifecycle, request.node, get_step_uuid(step), exception=exception)
 
     @pytest.hookimpl
     def pytest_bdd_step_func_lookup_error(self, request, feature, scenario, step, exception):
-        uuid = get_uuid(str(id(step)))
-        with self.lifecycle.update_step(uuid=uuid) as step_result:
-            step_result.status = Status.BROKEN
-        self.lifecycle.stop_step(uuid=uuid)
+        report_undefined_step(self.lifecycle, request.node, step, exception)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
@@ -118,9 +101,12 @@ class PytestBDDListener:
 
         status = get_pytest_report_status(report)
 
+        excinfo = call.excinfo
+
         status_details = StatusDetails(
-            message=call.excinfo.exconly(),
-            trace=report.longreprtext) if call.excinfo else None
+            message=excinfo.exconly(),
+            trace=report.longreprtext,
+        ) if excinfo else None
 
         uuid = get_uuid(report.nodeid)
         with self.lifecycle.update_test_case(uuid=uuid) as test_result:
@@ -130,6 +116,8 @@ class PytestBDDListener:
                 test_result.statusDetails = status_details
 
             if report.when == "call" and test_result:
+                print("in makereport", excinfo)
+                save_excinfo(item, excinfo)
                 if test_result.status not in [Status.PASSED, Status.FAILED]:
                     test_result.status = status
                     test_result.statusDetails = status_details

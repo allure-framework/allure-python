@@ -2,6 +2,7 @@ import os
 import pytest
 from urllib.parse import urlparse
 from uuid import UUID
+
 from allure_commons.model2 import Label
 from allure_commons.model2 import Link
 from allure_commons.model2 import StatusDetails
@@ -15,15 +16,8 @@ from allure_commons.utils import md5
 from allure_commons.utils import represent
 from allure_commons.utils import SafeFormatter
 
-from .types import AllurePytestBddTestData
-
-ALLURE_PYTEST_BDD_HASHKEY = pytest.StashKey()
-
-ALLURE_DESCRIPTION_MARK = "allure_description"
-ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
-ALLURE_TITLE_MARK = "allure_title"
-ALLURE_LABEL_MARK = 'allure_label'
-ALLURE_LINK_MARK = 'allure_link'
+from .storage import get_test_data
+from . import api
 
 MARK_NAMES_TO_IGNORE = {
     "usefixtures",
@@ -35,50 +29,14 @@ MARK_NAMES_TO_IGNORE = {
 }
 
 
-def save_test_data(item, feature, scenario, pytest_params):
-    item.stash[ALLURE_PYTEST_BDD_HASHKEY] = AllurePytestBddTestData(
-        feature=feature,
-        scenario=scenario,
-        pytest_params=pytest_params,
-    )
-
-
-def get_test_data(item):
-    return item.stash.get(ALLURE_PYTEST_BDD_HASHKEY, (None, None))
-
-
 def get_marker_value(item, keyword):
     marker = item.get_closest_marker(keyword)
     return marker.args[0] if marker and marker.args else None
 
 
-def get_allure_title(item):
-    return get_marker_value(item, ALLURE_TITLE_MARK)
-
 
 def interpolate_args(format_str, args):
     return SafeFormatter().format(format_str, **args) if args else format_str
-
-
-def get_allure_description(item, feature, scenario):
-    value = get_marker_value(item, ALLURE_DESCRIPTION_MARK)
-    if value:
-        return value
-
-    feature_description = resolve_description(feature.description)
-    scenario_description = resolve_description(scenario.description)
-    return "\n\n".join(filter(None, [feature_description, scenario_description]))
-
-
-def get_allure_description_html(item):
-    return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
-
-
-def iter_all_labels(item):
-    for mark in item.iter_markers(name=ALLURE_LABEL_MARK):
-        name = mark.kwargs.get("label_type")
-        if name:
-            yield from ((name, value) for value in mark.args or [])
 
 
 def should_convert_mark_to_tag(mark):
@@ -86,14 +44,10 @@ def should_convert_mark_to_tag(mark):
         not mark.args and not mark.kwargs
 
 
-def iter_pytest_tags(item: pytest.Function):
+def iter_pytest_tags(item):
     for mark in item.iter_markers():
         if should_convert_mark_to_tag(mark):
             yield LabelType.TAG, mark.name
-
-
-def iter_label_values(item, name):
-    return (pair for pair in iter_all_labels(item) if pair[0] == name)
 
 
 def convert_labels(labels):
@@ -101,7 +55,7 @@ def convert_labels(labels):
 
 
 def get_allure_labels(item):
-    return convert_labels(iter_all_labels(item))
+    return convert_labels(api.iter_all_labels(item))
 
 
 def get_link_patterns(config):
@@ -130,19 +84,12 @@ def apply_link_pattern(patterns, link_type, url):
     return url if pattern is None else pattern.format(url)
 
 
-def iter_all_links(item):
-    for marker in item.iter_markers(name=ALLURE_LINK_MARK):
-        url = marker.args[0] if marker and marker.args else None
-        if url:
-            yield url, marker.kwargs.get("name"), marker.kwargs.get("link_type")
-
-
 def convert_links(links):
     return [Link(url=url, name=name, type=link_type) for url, name, link_type in links]
 
 
 def get_allure_links(item):
-    return convert_links(iter_all_links(item))
+    return convert_links(api.iter_all_links(item))
 
 
 def resolve_description(description):
@@ -159,12 +106,8 @@ def resolve_description(description):
     return "\n".join(description) or None
 
 
-def get_step_name(step):
-    return f"{step.keyword} {step.name}"
-
-
 def get_test_name(node, scenario, params):
-    allure_name = get_allure_title(node)
+    allure_name = api.get_allure_title(node)
     if allure_name:
         return interpolate_args(allure_name, params)
 
@@ -186,24 +129,20 @@ def get_uuid(*args):
 
 def get_status(exception):
     if exception:
-        if isinstance(exception, (AssertionError, pytest.fail.Exception)):
-            return Status.FAILED
-        elif isinstance(exception, pytest.skip.Exception):
+        if isinstance(exception, (pytest.skip.Exception, pytest.xfail.Exception)):
             return Status.SKIPPED
+        elif isinstance(exception, (AssertionError, pytest.fail.Exception)):
+            return Status.FAILED
         return Status.BROKEN
     else:
         return Status.PASSED
 
 
-def get_status_details(exception):
-    message = str(exception)
-    trace = format_exception(type(exception), exception)
-    return StatusDetails(message=message, trace=trace) if message or trace else None
-
-
-def get_status_details_for_step(exception_type, exception, exception_traceback):
+def get_status_details(exception, exception_type=None, traceback=None):
+    if exception_type is None and exception is not None:
+        exception_type = type(exception)
     message = format_exception(exception_type, exception)
-    trace = format_traceback(exception_traceback)
+    trace = format_traceback(traceback or getattr(exception, "__traceback__", None))
     return StatusDetails(message=message, trace=trace) if message or trace else None
 
 

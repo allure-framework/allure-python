@@ -5,13 +5,13 @@ import allure_commons
 from allure_commons.logger import AllureFileLogger
 from allure_commons.lifecycle import AllureLifecycle
 
-from .allure_api import AllurePytestBddApi
+from .api import AllurePytestBddApi
 from .pytest_bdd_listener import PytestBDDListener
-from .utils import ALLURE_TITLE_MARK
-from .utils import ALLURE_DESCRIPTION_MARK
-from .utils import ALLURE_DESCRIPTION_HTML_MARK
-from .utils import ALLURE_LABEL_MARK
-from .utils import ALLURE_LINK_MARK
+from .api import ALLURE_TITLE_MARK
+from .api import ALLURE_DESCRIPTION_MARK
+from .api import ALLURE_DESCRIPTION_HTML_MARK
+from .api import ALLURE_LABEL_MARK
+from .api import ALLURE_LINK_MARK
 
 
 def pytest_addoption(parser):

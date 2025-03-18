@@ -66,6 +66,7 @@ from hamcrest import all_of, anything, not_, any_of
 from hamcrest import equal_to, none, not_none
 from hamcrest import has_entry, has_item
 from hamcrest import contains_string
+from hamcrest import contains_exactly
 from allure_commons_test.lookup import maps_to
 
 
@@ -90,6 +91,13 @@ def has_step(name, *matchers):
                 *matchers
             )
         )
+    )
+
+
+def with_steps(*matchers):
+    return has_entry(
+        "steps",
+        contains_exactly(*matchers),
     )
 
 

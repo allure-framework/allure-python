@@ -1,21 +1,25 @@
 import pytest
 
 import allure_commons
+
 from allure_commons.model2 import Label
 from allure_commons.model2 import Link
 from allure_commons.model2 import Parameter
 from allure_commons.utils import represent
 
-from .utils import ALLURE_TITLE_MARK
-from .utils import ALLURE_DESCRIPTION_MARK
-from .utils import ALLURE_DESCRIPTION_HTML_MARK
-from .utils import ALLURE_LABEL_MARK
-from .utils import ALLURE_LINK_MARK
-
-from .utils import get_link_patterns
 from .utils import apply_link_pattern
-from .utils import get_status
-from .utils import get_status_details_for_step
+from .utils import get_link_patterns
+from .utils import get_marker_value
+from .utils import resolve_description
+from .steps import start_step
+from .steps import stop_step
+
+
+ALLURE_DESCRIPTION_MARK = "allure_description"
+ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
+ALLURE_TITLE_MARK = "allure_title"
+ALLURE_LABEL_MARK = 'allure_label'
+ALLURE_LINK_MARK = 'allure_link'
 
 
 class AllurePytestBddApi:
@@ -89,18 +93,50 @@ class AllurePytestBddApi:
 
     @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
-        with self.lifecycle.start_step(uuid=uuid) as step_result:
-            step_result.name = title
-            step_result.parameters.extend(
-                Parameter(
-                    name=name,
-                    value=represent(value),
-                ) for name, value in params.items()
-            )
+        start_step(self.lifecycle, step_uuid=uuid, title=title, params=params)
 
     @allure_commons.hookimpl
     def stop_step(self, uuid, exc_type, exc_val, exc_tb):
-        with self.lifecycle.update_step(uuid=uuid) as step_result:
-            step_result.status = get_status(exc_val)
-            step_result.statusDetails = get_status_details_for_step(exc_type, exc_val, exc_tb)
-        self.lifecycle.stop_step(uuid=uuid)
+        stop_step(
+            self.lifecycle,
+            uuid,
+            exception=exc_val,
+            exception_type=exc_type,
+            traceback=exc_tb,
+        )
+
+
+def get_allure_title(item):
+    return get_marker_value(item, ALLURE_TITLE_MARK)
+
+
+def get_allure_description(item, feature, scenario):
+    value = get_marker_value(item, ALLURE_DESCRIPTION_MARK)
+    if value:
+        return value
+
+    feature_description = resolve_description(feature.description)
+    scenario_description = resolve_description(scenario.description)
+    return "\n\n".join(filter(None, [feature_description, scenario_description]))
+
+
+def get_allure_description_html(item):
+    return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
+
+
+def iter_all_labels(item):
+    for mark in item.iter_markers(name=ALLURE_LABEL_MARK):
+        name = mark.kwargs.get("label_type")
+        if name:
+            yield from ((name, value) for value in mark.args or [])
+
+
+def iter_label_values(item, name):
+    return (pair for pair in iter_all_labels(item) if pair[0] == name)
+
+
+def iter_all_links(item):
+    for marker in item.iter_markers(name=ALLURE_LINK_MARK):
+        url = marker.args[0] if marker and marker.args else None
+        if url:
+            yield url, marker.kwargs.get("name"), marker.kwargs.get("link_type")
