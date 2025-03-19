@@ -17,6 +17,7 @@ from allure_commons.utils import format_traceback
 from allure_commons.utils import md5
 from allure_commons.utils import represent
 from allure_commons.utils import SafeFormatter
+from allure_commons.utils import uuid4
 
 from .storage import get_test_data
 
@@ -259,4 +260,24 @@ def post_process_test_result(item, test_result):
         test_case_id=test_result.testCaseId,
         parameters=test_result.parameters,
         pytest_params=test_data.pytest_params,
+    )
+
+
+def attach_data(lifecycle, body, name, attachment_type, extension):
+    lifecycle.attach_data(
+        uuid4(),
+        body,
+        name=name,
+        attachment_type=attachment_type,
+        extension=extension,
+    )
+
+
+def attach_file(lifecycle, source, name, attachment_type, extension):
+    lifecycle.attach_file(
+        uuid4(),
+        source,
+        name=name,
+        attachment_type=attachment_type,
+        extension=extension,
     )

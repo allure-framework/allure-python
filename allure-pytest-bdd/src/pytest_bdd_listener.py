@@ -1,8 +1,6 @@
 import pytest
 
-import allure_commons
 from allure_commons.utils import now
-from allure_commons.utils import uuid4
 from allure_commons.model2 import Label
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
@@ -18,6 +16,7 @@ from .steps import start_gherkin_step
 from .steps import stop_gherkin_step
 from .storage import save_excinfo
 from .storage import save_test_data
+from .utils import attach_data
 from .utils import get_allure_description
 from .utils import get_allure_description_html
 from .utils import get_allure_labels
@@ -126,20 +125,12 @@ class PytestBDDListener:
                     test_result.status = status
                     test_result.statusDetails = status_details
                 if report.caplog:
-                    self.attach_data(report.caplog, "log", AttachmentType.TEXT, None)
+                    attach_data(self.lifecycle, report.caplog, "log", AttachmentType.TEXT, None)
                 if report.capstdout:
-                    self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
+                    attach_data(self.lifecycle, report.capstdout, "stdout", AttachmentType.TEXT, None)
                 if report.capstderr:
-                    self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
+                    attach_data(self.lifecycle, report.capstderr, "stderr", AttachmentType.TEXT, None)
                 post_process_test_result(item, test_result)
 
         if report.when == 'teardown':
             self.lifecycle.write_test_case(uuid=uuid)
-
-    @allure_commons.hookimpl
-    def attach_data(self, body, name, attachment_type, extension):
-        self.lifecycle.attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
-
-    @allure_commons.hookimpl
-    def attach_file(self, source, name, attachment_type, extension):
-        self.lifecycle.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)

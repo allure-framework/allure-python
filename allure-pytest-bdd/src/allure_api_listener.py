@@ -13,8 +13,10 @@ from .utils import ALLURE_LABEL_MARK
 from .utils import ALLURE_LINK_MARK
 from .utils import ALLURE_TITLE_MARK
 
-from .utils import get_link_patterns
 from .utils import apply_link_pattern
+from .utils import attach_data
+from .utils import attach_file
+from .utils import get_link_patterns
 from .steps import start_step
 from .steps import stop_step
 
@@ -62,7 +64,9 @@ class AllurePytestBddApiHooks:
     @allure_commons.hookimpl
     def add_label(self, label_type, labels):
         with self.lifecycle.update_test_case() as test_result:
-            test_result.labels.extend(Label(name=label_type, value=value) for value in labels or [])
+            test_result.labels.extend(
+                Label(name=label_type, value=value) for value in labels or []
+            )
 
     @allure_commons.hookimpl
     def decorate_as_link(self, url, link_type, name):
@@ -101,3 +105,11 @@ class AllurePytestBddApiHooks:
             exception_type=exc_type,
             traceback=exc_tb,
         )
+
+    @allure_commons.hookimpl
+    def attach_data(self, body, name, attachment_type, extension):
+        attach_data(self.lifecycle, body, name, attachment_type, extension)
+
+    @allure_commons.hookimpl
+    def attach_file(self, source, name, attachment_type, extension):
+        attach_file(self.lifecycle, source, name, attachment_type, extension)

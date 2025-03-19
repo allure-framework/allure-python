@@ -5,7 +5,7 @@ import allure_commons
 from allure_commons.logger import AllureFileLogger
 from allure_commons.lifecycle import AllureLifecycle
 
-from .hooks import AllurePytestBddApiHooks
+from .allure_api_listener import AllurePytestBddApiHooks
 from .pytest_bdd_listener import PytestBDDListener
 
 from .utils import ALLURE_TITLE_MARK
