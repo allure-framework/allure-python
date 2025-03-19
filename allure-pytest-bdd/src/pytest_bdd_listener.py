@@ -3,7 +3,6 @@ import pytest
 from allure_commons.utils import now
 from allure_commons.model2 import Label
 from allure_commons.model2 import Status
-from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType, AttachmentType
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
@@ -26,6 +25,7 @@ from .utils import get_full_name
 from .utils import get_outline_params
 from .utils import get_pytest_params
 from .utils import get_pytest_report_status
+from .utils import get_scenario_status_details
 from .utils import get_test_name
 from .utils import get_uuid
 from .utils import post_process_test_result
@@ -98,14 +98,10 @@ class PytestBDDListener:
     def pytest_runtest_makereport(self, item, call):
         report = (yield).get_result()
 
-        status = get_pytest_report_status(report)
-
         excinfo = call.excinfo
 
-        status_details = StatusDetails(
-            message=excinfo.exconly(),
-            trace=report.longreprtext,
-        ) if excinfo else None
+        status = get_pytest_report_status(report, excinfo)
+        status_details = get_scenario_status_details(report, excinfo)
 
         uuid = get_uuid(report.nodeid)
         with self.lifecycle.update_test_case(uuid=uuid) as test_result:
@@ -115,13 +111,17 @@ class PytestBDDListener:
                 test_result.statusDetails = status_details
 
             if report.when == "call" and test_result:
+
+                # Save the exception to access it from the finalizer to report
+                # the remaining steps
                 save_excinfo(item, excinfo)
-                if test_result.status not in [Status.PASSED, Status.FAILED]:
+
+                if test_result.status is None or test_result.status == Status.PASSED:
                     test_result.status = status
                     test_result.statusDetails = status_details
 
             if report.when == "teardown" and test_result:
-                if test_result.status == Status.PASSED and status != Status.PASSED:
+                if test_result.status == Status.PASSED and status in [Status.FAILED, Status.BROKEN]:
                     test_result.status = status
                     test_result.statusDetails = status_details
                 if report.caplog:

@@ -188,12 +188,34 @@ def get_status_details(exception, exception_type=None, traceback=None):
     return StatusDetails(message=message, trace=trace) if message or trace else None
 
 
-def get_pytest_report_status(pytest_report):
-    pytest_statuses = ('failed', 'passed', 'skipped')
-    statuses = (Status.FAILED, Status.PASSED, Status.SKIPPED)
-    for pytest_status, status in zip(pytest_statuses, statuses):
-        if getattr(pytest_report, pytest_status):
-            return status
+def get_pytest_report_status(pytest_report, excinfo):
+    if pytest_report.failed:
+        return get_status(excinfo.value) if excinfo else Status.BROKEN
+
+    if pytest_report.passed:
+        return Status.PASSED
+
+    if pytest_report.skipped:
+        return Status.SKIPPED
+
+
+def is_runtime_xfail(excinfo):
+    return isinstance(excinfo.value, pytest.xfail.Exception)
+
+
+def get_scenario_status_details(report, excinfo):
+    if excinfo:
+        message = excinfo.exconly()
+        trace = report.longreprtext
+        if not is_runtime_xfail(excinfo) and hasattr(report, "wasxfail"):
+            reason = report.wasxfail
+            message = (f"XFAIL {reason}" if reason else "XFAIL") + "\n\n" + message
+        return StatusDetails(message=message, trace=trace)
+    elif report.passed and hasattr(report, "wasxfail"):
+        reason = report.wasxfail
+        return StatusDetails(message=f"XPASS {reason}" if reason else "XPASS")
+    elif report.failed and "XPASS(strict)" in report.longrepr:
+        return StatusDetails(message=report.longrepr)
 
 
 def get_outline_params(node):
