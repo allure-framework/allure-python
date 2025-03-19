@@ -20,7 +20,7 @@ def get_step_uuid(step):
 
 
 def start_step(lifecycle, step_uuid, title, params=None, parent_uuid=None):
-     with lifecycle.start_step(uuid=step_uuid, parent_uuid=parent_uuid) as step_result:
+    with lifecycle.start_step(uuid=step_uuid, parent_uuid=parent_uuid) as step_result:
         step_result.name = title
         if params:
             step_result.parameters.extend(
@@ -94,7 +94,7 @@ def report_remaining_steps(lifecycle, item):
         step_uuid = get_step_uuid(step)
         if step_uuid not in reported_steps:
             __report_remaining_step(lifecycle, item, step, step_uuid, excinfo)
-            excinfo = None # Only show the full message and traceback once
+            excinfo = None  # Only show the full message and traceback once
 
 
 def __report_remaining_step(lifecycle, item, step, step_uuid, excinfo):
@@ -103,7 +103,7 @@ def __report_remaining_step(lifecycle, item, step, step_uuid, excinfo):
         "exception": excinfo.value,
         "exception_type": excinfo.type,
         "traceback": excinfo.tb,
-    } if __is_step_running(lifecycle, step_uuid) and excinfo else { "status": Status.SKIPPED }
+    } if __is_step_running(lifecycle, step_uuid) and excinfo else {"status": Status.SKIPPED}
 
     ensure_gherkin_step_reported(*args, **kwargs)
 

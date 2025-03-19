@@ -508,6 +508,7 @@ def test_scenario_xfail_mark_passed(allure_pytest_bdd_runner: AllurePytestRunner
         ),
     )
 
+
 def test_scenario_xfail_mark_strict(allure_pytest_bdd_runner: AllurePytestRunner):
     feature_content = (
         """

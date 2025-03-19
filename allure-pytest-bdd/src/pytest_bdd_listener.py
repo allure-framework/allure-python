@@ -45,7 +45,7 @@ class PytestBDDListener:
         uuid = get_uuid(item.nodeid)
         outline_params = get_outline_params(item)
         pytest_params = get_pytest_params(item)
-        params = { **pytest_params, **outline_params }
+        params = {**pytest_params, **outline_params}
         save_test_data(
             item=item,
             feature=feature,

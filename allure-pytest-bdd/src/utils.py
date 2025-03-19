@@ -36,6 +36,7 @@ MARK_NAMES_TO_IGNORE = {
     "parametrize",
 }
 
+
 def get_allure_title(item):
     return get_marker_value(item, ALLURE_TITLE_MARK)
 

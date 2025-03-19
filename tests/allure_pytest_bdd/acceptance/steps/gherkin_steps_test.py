@@ -7,7 +7,6 @@ from allure_commons_test.result import has_title
 from allure_commons_test.result import has_step
 from allure_commons_test.result import with_steps
 from allure_commons_test.result import with_status
-from allure_commons_test.result import has_parameter
 from allure_commons_test.result import has_status_details
 from allure_commons_test.result import with_message_contains
 from allure_commons_test.result import with_trace_contains
@@ -187,6 +186,7 @@ def test_skipped_step(allure_pytest_bdd_runner: AllurePytestRunner):
             ),
         ),
     )
+
 
 def test_xfailed_step(allure_pytest_bdd_runner: AllurePytestRunner):
     feature_content = (
