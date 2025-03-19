@@ -11,8 +11,6 @@ from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
 
-from .api import get_allure_description
-from .api import get_allure_description_html
 from .steps import get_step_uuid
 from .steps import report_remaining_steps
 from .steps import report_undefined_step
@@ -20,9 +18,11 @@ from .steps import start_gherkin_step
 from .steps import stop_gherkin_step
 from .storage import save_excinfo
 from .storage import save_test_data
-from .utils import convert_params
+from .utils import get_allure_description
+from .utils import get_allure_description_html
 from .utils import get_allure_labels
 from .utils import get_allure_links
+from .utils import convert_params
 from .utils import get_full_name
 from .utils import get_outline_params
 from .utils import get_pytest_params
@@ -116,7 +116,6 @@ class PytestBDDListener:
                 test_result.statusDetails = status_details
 
             if report.when == "call" and test_result:
-                print("in makereport", excinfo)
                 save_excinfo(item, excinfo)
                 if test_result.status not in [Status.PASSED, Status.FAILED]:
                     test_result.status = status

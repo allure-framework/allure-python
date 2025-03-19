@@ -1,7 +1,8 @@
 import os
-import pytest
 from urllib.parse import urlparse
 from uuid import UUID
+
+import pytest
 
 from allure_commons.model2 import Label
 from allure_commons.model2 import Link
@@ -10,6 +11,7 @@ from allure_commons.model2 import Status
 from allure_commons.model2 import Parameter
 from allure_commons.types import LabelType
 from allure_commons.types import LinkType
+
 from allure_commons.utils import format_exception
 from allure_commons.utils import format_traceback
 from allure_commons.utils import md5
@@ -17,7 +19,12 @@ from allure_commons.utils import represent
 from allure_commons.utils import SafeFormatter
 
 from .storage import get_test_data
-from . import api
+
+ALLURE_DESCRIPTION_MARK = "allure_description"
+ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
+ALLURE_TITLE_MARK = "allure_title"
+ALLURE_LABEL_MARK = 'allure_label'
+ALLURE_LINK_MARK = 'allure_link'
 
 MARK_NAMES_TO_IGNORE = {
     "usefixtures",
@@ -28,26 +35,33 @@ MARK_NAMES_TO_IGNORE = {
     "parametrize",
 }
 
-
-def get_marker_value(item, keyword):
-    marker = item.get_closest_marker(keyword)
-    return marker.args[0] if marker and marker.args else None
+def get_allure_title(item):
+    return get_marker_value(item, ALLURE_TITLE_MARK)
 
 
+def get_allure_description(item, feature, scenario):
+    value = get_marker_value(item, ALLURE_DESCRIPTION_MARK)
+    if value:
+        return value
 
-def interpolate_args(format_str, args):
-    return SafeFormatter().format(format_str, **args) if args else format_str
+    feature_description = resolve_description(feature.description)
+    scenario_description = resolve_description(scenario.description)
+    return "\n\n".join(filter(None, [feature_description, scenario_description]))
 
 
-def should_convert_mark_to_tag(mark):
-    return mark.name not in MARK_NAMES_TO_IGNORE and\
-        not mark.args and not mark.kwargs
+def get_allure_description_html(item):
+    return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
 
 
-def iter_pytest_tags(item):
-    for mark in item.iter_markers():
-        if should_convert_mark_to_tag(mark):
-            yield LabelType.TAG, mark.name
+def iter_all_labels(item):
+    for mark in item.iter_markers(name=ALLURE_LABEL_MARK):
+        name = mark.kwargs.get("label_type")
+        if name:
+            yield from ((name, value) for value in mark.args or [])
+
+
+def iter_label_values(item, name):
+    return (pair for pair in iter_all_labels(item) if pair[0] == name)
 
 
 def convert_labels(labels):
@@ -55,7 +69,22 @@ def convert_labels(labels):
 
 
 def get_allure_labels(item):
-    return convert_labels(api.iter_all_labels(item))
+    return convert_labels(iter_all_labels(item))
+
+
+def iter_all_links(item):
+    for marker in item.iter_markers(name=ALLURE_LINK_MARK):
+        url = marker.args[0] if marker and marker.args else None
+        if url:
+            yield url, marker.kwargs.get("name"), marker.kwargs.get("link_type")
+
+
+def convert_links(links):
+    return [Link(url=url, name=name, type=link_type) for url, name, link_type in links]
+
+
+def get_allure_links(item):
+    return convert_links(iter_all_links(item))
 
 
 def get_link_patterns(config):
@@ -84,12 +113,24 @@ def apply_link_pattern(patterns, link_type, url):
     return url if pattern is None else pattern.format(url)
 
 
-def convert_links(links):
-    return [Link(url=url, name=name, type=link_type) for url, name, link_type in links]
+def get_marker_value(item, keyword):
+    marker = item.get_closest_marker(keyword)
+    return marker.args[0] if marker and marker.args else None
 
 
-def get_allure_links(item):
-    return convert_links(api.iter_all_links(item))
+def interpolate_args(format_str, args):
+    return SafeFormatter().format(format_str, **args) if args else format_str
+
+
+def should_convert_mark_to_tag(mark):
+    return mark.name not in MARK_NAMES_TO_IGNORE and\
+        not mark.args and not mark.kwargs
+
+
+def iter_pytest_tags(item):
+    for mark in item.iter_markers():
+        if should_convert_mark_to_tag(mark):
+            yield LabelType.TAG, mark.name
 
 
 def resolve_description(description):
@@ -107,7 +148,7 @@ def resolve_description(description):
 
 
 def get_test_name(node, scenario, params):
-    allure_name = api.get_allure_title(node)
+    allure_name = get_allure_title(node)
     if allure_name:
         return interpolate_args(allure_name, params)
 

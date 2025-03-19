@@ -445,7 +445,6 @@ def test_undefined_step(allure_pytest_bdd_runner: AllurePytestRunner):
     allure_results = allure_pytest_bdd_runner.run_pytest(
         ("sample.feature", feature_content),
         steps_content,
-        cli_args=["--capture=no"]
     )
 
     assert_that(
