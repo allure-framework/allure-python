@@ -1,8 +1,17 @@
 import pytest
-from .types import AllurePytestBddTestData
 
 
 ALLURE_PYTEST_BDD_HASHKEY = pytest.StashKey()
+
+
+class AllurePytestBddTestData:
+
+    def __init__(self, feature, scenario, pytest_params):
+        self.feature = feature
+        self.scenario = scenario
+        self.pytest_params = pytest_params
+        self.excinfo = None
+        self.reported_steps = set()
 
 
 def save_test_data(item, feature, scenario, pytest_params):
