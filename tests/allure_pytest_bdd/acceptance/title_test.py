@@ -1,5 +1,4 @@
 from hamcrest import assert_that
-from hamcrest import equal_to
 
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_title
@@ -40,10 +39,8 @@ def test_title_decorator(allure_pytest_bdd_runner: AllurePytestRunner):
         allure_results,
         has_test_case(
             "sample.feature:Bar",
-            has_title(
-                equal_to("Lorem Ipsum"),
-            )
-        )
+            has_title("Lorem Ipsum"),
+        ),
     )
 
 
@@ -86,10 +83,8 @@ def test_title_interpolations(allure_pytest_bdd_runner: AllurePytestRunner):
         allure_results,
         has_test_case(
             "sample.feature:Bar",
-            has_title(
-                equal_to("Lorem Ipsum"),
-            )
-        )
+            has_title("Lorem Ipsum"),
+        ),
     )
 
 
@@ -127,8 +122,6 @@ def test_dynamic_title(allure_pytest_bdd_runner: AllurePytestRunner):
         allure_results,
         has_test_case(
             "sample.feature:Bar",
-            has_title(
-                equal_to("Lorem Ipsum"),
-            )
-        )
+            has_title("Lorem Ipsum"),
+        ),
     )
