@@ -125,3 +125,41 @@ def test_dynamic_title(allure_pytest_bdd_runner: AllurePytestRunner):
             has_title("Lorem Ipsum"),
         ),
     )
+
+
+def test_default_title_or_parametrized_test(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given noop
+        """
+    )
+    steps_content = (
+        """
+        import pytest
+        from pytest_bdd import scenario, given
+
+        @pytest.mark.parametrize("foo", ["bar"])
+        @scenario("sample.feature", "Bar")
+        def test_scenario(foo):
+            pass
+
+        @given("noop")
+        def given_noop():
+            pass
+        """
+    )
+
+    allure_results = allure_pytest_bdd_runner.run_pytest(
+        ("sample.feature", feature_content),
+        steps_content,
+    )
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "sample.feature:Bar",
+            has_title("Bar"),
+        ),
+    )

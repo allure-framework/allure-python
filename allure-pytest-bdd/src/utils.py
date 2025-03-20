@@ -154,10 +154,6 @@ def get_test_name(node, scenario, params):
     if allure_name:
         return interpolate_args(allure_name, params)
 
-    if hasattr(node, 'callspec'):
-        parts = node.nodeid.rsplit("[")
-        params = parts[-1]
-        return f"{scenario.name} [{params}"
     return scenario.name
 
 
