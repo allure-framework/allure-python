@@ -11,7 +11,7 @@ from .utils import ALLURE_DESCRIPTION_HTML_MARK
 from .utils import ALLURE_DESCRIPTION_MARK
 from .utils import ALLURE_LABEL_MARK
 from .utils import ALLURE_LINK_MARK
-from .utils import ALLURE_TITLE_MARK
+from .utils import ALLURE_TITLE_ATTR
 
 from .utils import apply_link_pattern
 from .utils import attach_data
@@ -28,8 +28,12 @@ class AllurePytestBddApiHooks:
 
     @allure_commons.hookimpl
     def decorate_as_title(self, test_title):
-        allure_title_mark = getattr(pytest.mark, ALLURE_TITLE_MARK)
-        return allure_title_mark(test_title)
+
+        def decorator(fn):
+            setattr(fn, ALLURE_TITLE_ATTR, test_title)
+            return fn
+
+        return decorator
 
     @allure_commons.hookimpl
     def add_title(self, test_title):

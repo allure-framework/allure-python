@@ -21,9 +21,9 @@ from allure_commons.utils import uuid4
 
 from .storage import get_test_data
 
+ALLURE_TITLE_ATTR = "__allure_display_name__"
 ALLURE_DESCRIPTION_MARK = "allure_description"
 ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
-ALLURE_TITLE_MARK = "allure_title"
 ALLURE_LABEL_MARK = 'allure_label'
 ALLURE_LINK_MARK = 'allure_link'
 
@@ -37,8 +37,21 @@ MARK_NAMES_TO_IGNORE = {
 }
 
 
-def get_allure_title(item):
-    return get_marker_value(item, ALLURE_TITLE_MARK)
+def get_allure_title_of_test(item, params):
+    obj = getattr(item, "obj", None)
+    if obj is not None:
+        return get_allure_title(obj, params)
+
+
+def get_allure_title(fn, kwargs):
+    if fn is not None:
+        title_format = getattr(fn, ALLURE_TITLE_ATTR, None)
+        if title_format:
+            return interpolate(title_format, kwargs)
+
+
+def interpolate(format_str, kwargs):
+    return SafeFormatter().format(format_str, **kwargs) if kwargs else format_str
 
 
 def get_allure_description(item, feature, scenario):
@@ -120,10 +133,6 @@ def get_marker_value(item, keyword):
     return marker.args[0] if marker and marker.args else None
 
 
-def interpolate_args(format_str, args):
-    return SafeFormatter().format(format_str, **args) if args else format_str
-
-
 def should_convert_mark_to_tag(mark):
     return mark.name not in MARK_NAMES_TO_IGNORE and\
         not mark.args and not mark.kwargs
@@ -150,11 +159,7 @@ def resolve_description(description):
 
 
 def get_test_name(node, scenario, params):
-    allure_name = get_allure_title(node)
-    if allure_name:
-        return interpolate_args(allure_name, params)
-
-    return scenario.name
+    return get_allure_title_of_test(node, params) or scenario.name
 
 
 def get_full_name(feature, scenario):
@@ -278,7 +283,7 @@ def post_process_test_result(item, test_result):
     test_result.historyId = get_history_id(
         test_case_id=test_result.testCaseId,
         parameters=test_result.parameters,
-        pytest_params=test_data.pytest_params,
+        pytest_params=test_data.params,
     )
 
 

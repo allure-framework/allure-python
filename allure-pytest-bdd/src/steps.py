@@ -4,15 +4,28 @@ from allure_commons.model2 import Parameter
 from allure_commons.utils import format_exception
 from allure_commons.utils import represent
 
+from .storage import get_saved_params
+from .storage import get_test_data
 from .storage import save_reported_step
+from .utils import get_allure_title
 from .utils import get_uuid
 from .utils import get_status
 from .utils import get_status_details
-from .utils import get_test_data
 
 
-def get_step_name(step):
-    return f"{step.keyword} {step.name}"
+def get_step_name(item, step, step_func, step_func_args=None):
+    return get_allure_title_of_step(item, step_func, step_func_args) or \
+        f"{step.keyword} {step.name}"
+
+
+def get_allure_title_of_step(item, step_func, step_func_args):
+    return get_allure_title(
+        step_func,
+        {
+            **(get_saved_params(item) or {}),
+            **(step_func_args or {}),
+        },
+    )
 
 
 def get_step_uuid(step):
@@ -41,16 +54,29 @@ def stop_step(lifecycle, uuid, status=None, status_details=None, exception=None,
     return True
 
 
-def start_gherkin_step(lifecycle, item, step, step_uuid=None):
+def start_gherkin_step(lifecycle, item, step, step_func=None, step_uuid=None):
     if step_uuid is None:
         step_uuid = get_step_uuid(step)
 
     start_step(
         lifecycle,
         step_uuid=step_uuid,
-        title=get_step_name(step),
+        title=get_step_name(item, step, step_func),
         parent_uuid=get_uuid(item.nodeid),
     )
+
+
+def update_step_name(lifecycle, item, step_uuid, step_func, step_func_args):
+    if not step_func_args:
+        return
+
+    new_name = get_allure_title_of_step(item, step_func, step_func_args)
+    if new_name is None:
+        return
+
+    with lifecycle.update_step(uuid=step_uuid) as step_result:
+        if step_result is not None:
+            step_result.name = new_name
 
 
 def stop_gherkin_step(lifecycle, item, step_uuid, **kwargs):
@@ -68,7 +94,7 @@ def ensure_gherkin_step_reported(lifecycle, item, step, step_uuid=None, **kwargs
     if stop_gherkin_step(lifecycle, item, step_uuid, **kwargs):
         return
 
-    start_gherkin_step(lifecycle, item, step, step_uuid)
+    start_gherkin_step(lifecycle, item, step, step_uuid=step_uuid)
     stop_gherkin_step(lifecycle, item, step_uuid, **kwargs)
 
 

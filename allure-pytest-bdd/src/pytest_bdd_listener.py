@@ -13,6 +13,7 @@ from .steps import report_remaining_steps
 from .steps import report_undefined_step
 from .steps import start_gherkin_step
 from .steps import stop_gherkin_step
+from .steps import update_step_name
 from .storage import save_excinfo
 from .storage import save_test_data
 from .utils import attach_data
@@ -43,14 +44,16 @@ class PytestBDDListener:
     def pytest_bdd_before_scenario(self, request, feature, scenario):
         item = request.node
         uuid = get_uuid(item.nodeid)
+
         outline_params = get_outline_params(item)
         pytest_params = get_pytest_params(item)
         params = {**pytest_params, **outline_params}
+
         save_test_data(
             item=item,
             feature=feature,
             scenario=scenario,
-            pytest_params=pytest_params,
+            params=params,
         )
 
         full_name = get_full_name(feature, scenario)
@@ -80,7 +83,12 @@ class PytestBDDListener:
 
     @pytest.hookimpl
     def pytest_bdd_before_step(self, request, feature, scenario, step, step_func):
-        start_gherkin_step(self.lifecycle, request.node, step)
+        start_gherkin_step(self.lifecycle, request.node, step, step_func)
+
+    @pytest.hookimpl
+    def pytest_bdd_before_step_call(self, request, feature, scenario, step, step_func, step_func_args):
+        step_uuid = get_step_uuid(step)
+        update_step_name(self.lifecycle, request.node, step_uuid, step_func, step_func_args)
 
     @pytest.hookimpl
     def pytest_bdd_after_step(self, request, feature, scenario, step, step_func, step_func_args):
