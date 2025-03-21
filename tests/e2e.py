@@ -13,6 +13,9 @@ import shutil
 import warnings
 from abc import abstractmethod
 from contextlib import contextmanager, ExitStack
+from functools import lru_cache
+from importlib.metadata import version as get_version_metadata
+from packaging.version import parse as parse_version
 from pathlib import Path
 from pytest import FixtureRequest, Pytester, MonkeyPatch
 from typing import Tuple, Mapping, TypeVar, Generator, Callable, Union
@@ -20,6 +23,26 @@ from typing import Tuple, Mapping, TypeVar, Generator, Callable, Union
 import allure_commons
 from allure_commons.logger import AllureMemoryLogger
 from allure_commons_test.report import AllureReport
+
+
+@lru_cache(maxsize=None)
+def version(package: str):
+    return parse_version(get_version_metadata(package))
+
+
+@lru_cache(maxsize=None)
+def version_unmet(package: str, major: int, minor: int = 0, micro: int = 0):
+
+    """Returns `True` is the version of the package doesn't meet the specified requirements.
+
+    You may call this function in a @pytest.mark.skipif condition.
+    """
+
+    package_version = version(package)
+    req = (major, minor, micro)
+    if package_version.release == req:
+        return package_version.is_prerelease
+    return package_version.release < req
 
 
 PathlikeT = Union[str, Path]

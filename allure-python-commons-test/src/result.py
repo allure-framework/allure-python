@@ -122,12 +122,14 @@ def has_parameter(name, value, *matchers):
 
 
 def doesnt_have_parameter(name):
-    return has_entry('parameters',
-                     not_(
-                         has_item(
-                             has_entry('name', equal_to(name)),
-                         )
-                     ))
+    return not_(
+        has_entry(
+            "parameters",
+            has_item(
+                has_entry("name", name),
+            ),
+        ),
+    )
 
 
 def resolve_link_attr_matcher(key, value):

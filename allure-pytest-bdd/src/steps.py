@@ -1,3 +1,4 @@
+from allure import attachment_type
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Status
 from allure_commons.model2 import Parameter
@@ -7,6 +8,8 @@ from allure_commons.utils import represent
 from .storage import get_saved_params
 from .storage import get_test_data
 from .storage import save_reported_step
+from .utils import attach_data
+from .utils import format_csv
 from .utils import get_allure_title
 from .utils import get_uuid
 from .utils import get_status
@@ -66,6 +69,65 @@ def start_gherkin_step(lifecycle, item, step, step_func=None, step_uuid=None):
     )
 
 
+def process_gherkin_step_args(lifecycle, item, step, step_func, step_func_args):
+    allure_step_params = dict(step_func_args)
+    step_uuid = get_step_uuid(step)
+
+    docstring = step_func_args.get("docstring")
+    if try_attach_docstring(lifecycle, step_uuid, docstring):
+        del allure_step_params["docstring"]
+
+    datatable = step_func_args.get("datatable")
+    if try_attach_datatable(lifecycle, step_uuid, datatable):
+        del allure_step_params["datatable"]
+
+    add_step_parameters(lifecycle, step_uuid, allure_step_params)
+
+    update_step_name(lifecycle, item, step_uuid, step_func, step_func_args)
+
+
+def try_attach_docstring(lifecycle, step_uuid, docstring):
+    if isinstance(docstring, str):
+        attach_data(
+            lifecycle=lifecycle,
+            body=docstring,
+            name="Doc string",
+            attachment_type=attachment_type.TEXT,
+            parent_uuid=step_uuid,
+        )
+        return True
+    return False
+
+
+def try_attach_datatable(lifecycle, step_uuid, datatable):
+    if is_datatable(datatable):
+        attach_data(
+            lifecycle=lifecycle,
+            body=format_csv(datatable),
+            name="Data table",
+            attachment_type=attachment_type.CSV,
+            parent_uuid=step_uuid,
+        )
+        return True
+    return False
+
+
+def add_step_parameters(lifecycle, step_uuid, step_params):
+    if not step_params:
+        return
+
+    with lifecycle.update_step(uuid=step_uuid) as step_result:
+        if step_result is None:
+            return
+
+        step_result.parameters.extend(
+            Parameter(
+                name=name,
+                value=represent(value),
+            ) for name, value in step_params.items()
+        )
+
+
 def update_step_name(lifecycle, item, step_uuid, step_func, step_func_args):
     if not step_func_args:
         return
@@ -77,6 +139,10 @@ def update_step_name(lifecycle, item, step_uuid, step_func, step_func_args):
     with lifecycle.update_step(uuid=step_uuid) as step_result:
         if step_result is not None:
             step_result.name = new_name
+
+
+def is_datatable(value):
+    return isinstance(value, list) and all(isinstance(row, list) for row in value)
 
 
 def stop_gherkin_step(lifecycle, item, step_uuid, **kwargs):

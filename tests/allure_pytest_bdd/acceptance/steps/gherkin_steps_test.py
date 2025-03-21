@@ -5,6 +5,7 @@ from hamcrest import all_of
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_title
 from allure_commons_test.result import has_step
+from allure_commons_test.result import has_parameter
 from allure_commons_test.result import with_steps
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_status_details
@@ -469,6 +470,60 @@ def test_undefined_step(allure_pytest_bdd_runner: AllurePytestRunner):
                     with_status("skipped"),
                     not_(has_status_details()),
                 ),
+            ),
+        ),
+    )
+
+
+def test_gherkin_step_args(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given a target fixture
+                Then parameters (including 'from step name') are added
+        """
+    )
+    steps_content = (
+        """
+        import pytest
+        from pytest_bdd import scenario, given, then, parsers
+        import allure
+
+        @pytest.fixture
+        def foo():
+            yield "from fixture"
+
+        @pytest.mark.parametrize("bar", ["from parametrize mark"])
+        @scenario("sample.feature", "Bar")
+        def test_scenario(bar):
+            pass
+
+        @given("a target fixture", target_fixture="baz")
+        def given_fixture():
+            return "from target fixture"
+
+        @then(parsers.parse("parameters (including '{qux}') are added"))
+        def then_parameters_added(foo, bar, baz, qux):
+            pass
+        """
+    )
+
+    allure_results = allure_pytest_bdd_runner.run_pytest(
+        ("sample.feature", feature_content),
+        steps_content,
+    )
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "sample.feature:Bar",
+            has_step(
+                "Then parameters (including 'from step name') are added",
+                has_parameter("foo", "'from fixture'"),
+                has_parameter("bar", "'from parametrize mark'"),
+                has_parameter("baz", "'from target fixture'"),
+                has_parameter("qux", "'from step name'"),
             ),
         ),
     )

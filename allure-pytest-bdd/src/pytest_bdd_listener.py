@@ -9,11 +9,11 @@ from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
 
 from .steps import get_step_uuid
+from .steps import process_gherkin_step_args
 from .steps import report_remaining_steps
 from .steps import report_undefined_step
 from .steps import start_gherkin_step
 from .steps import stop_gherkin_step
-from .steps import update_step_name
 from .storage import save_excinfo
 from .storage import save_test_data
 from .utils import attach_data
@@ -87,8 +87,7 @@ class PytestBDDListener:
 
     @pytest.hookimpl
     def pytest_bdd_before_step_call(self, request, feature, scenario, step, step_func, step_func_args):
-        step_uuid = get_step_uuid(step)
-        update_step_name(self.lifecycle, request.node, step_uuid, step_func, step_func_args)
+        process_gherkin_step_args(self.lifecycle, request.node, step, step_func, step_func_args)
 
     @pytest.hookimpl
     def pytest_bdd_after_step(self, request, feature, scenario, step, step_func, step_func_args):

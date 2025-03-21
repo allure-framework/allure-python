@@ -1,3 +1,5 @@
+import csv
+import io
 import os
 from urllib.parse import urlparse
 from uuid import UUID
@@ -287,17 +289,18 @@ def post_process_test_result(item, test_result):
     )
 
 
-def attach_data(lifecycle, body, name, attachment_type, extension):
+def attach_data(lifecycle, body, name, attachment_type, extension=None, parent_uuid=None):
     lifecycle.attach_data(
         uuid4(),
         body,
         name=name,
         attachment_type=attachment_type,
         extension=extension,
+        parent_uuid=parent_uuid,
     )
 
 
-def attach_file(lifecycle, source, name, attachment_type, extension):
+def attach_file(lifecycle, source, name, attachment_type, extension=None):
     lifecycle.attach_file(
         uuid4(),
         source,
@@ -305,3 +308,11 @@ def attach_file(lifecycle, source, name, attachment_type, extension):
         attachment_type=attachment_type,
         extension=extension,
     )
+
+
+def format_csv(rows):
+    with io.StringIO() as buffer:
+        writer = csv.writer(buffer)
+        writer.writerow(rows[0])
+        writer.writerows(rows[1:])
+        return buffer.getvalue()
