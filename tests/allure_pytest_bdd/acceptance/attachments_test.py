@@ -186,6 +186,54 @@ def test_attach_file_from_step(allure_pytest_bdd_runner: AllurePytestRunner):
     )
 
 
+def test_attach_file_from_hook(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given noop
+        """
+    )
+    steps_content = (
+        """
+        from pytest_bdd import scenario, given
+
+        @scenario("sample.feature", "Bar")
+        def test_scenario():
+            pass
+
+        @given("noop")
+        def given_noop():
+            pass
+        """
+    )
+    conftest_content = (
+        """
+        import allure
+        def pytest_runtest_teardown(item):
+            allure.attach.file(__file__, name="foo")
+        """
+    )
+
+    allure_results = allure_pytest_bdd_runner.run_pytest(
+        ("sample.feature", feature_content),
+        steps_content,
+        conftest_literal=conftest_content,
+    )
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "sample.feature:Bar",
+            has_attachment_with_content(
+                allure_results.attachments,
+                ends_with("conftest.py"),
+                name="foo",
+            ),
+        ),
+    )
+
+
 @pytest.mark.skipif(version_unmet("pytest-bdd", 8), reason="Data tables support added in 8.0.0")
 def test_attach_datatable(allure_pytest_bdd_runner: AllurePytestRunner):
     feature_content = (
