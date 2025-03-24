@@ -31,7 +31,7 @@ def version(package: str):
 
 
 @lru_cache(maxsize=None)
-def version_unmet(package: str, major: int, minor: int = 0, micro: int = 0):
+def version_lt(package: str, major: int, minor: int = 0, micro: int = 0):
 
     """Returns `True` is the version of the package doesn't meet the specified requirements.
 
@@ -43,6 +43,17 @@ def version_unmet(package: str, major: int, minor: int = 0, micro: int = 0):
     if package_version.release == req:
         return package_version.is_prerelease
     return package_version.release < req
+
+
+@lru_cache(maxsize=None)
+def version_gte(package: str, major: int, minor: int = 0, micro: int = 0):
+
+    """Returns `True` is the version of the package meets the specified requirements.
+
+    You may call this function in a @pytest.mark.skipif condition.
+    """
+
+    return not version_lt(package, major, minor, micro)
 
 
 PathlikeT = Union[str, Path]
