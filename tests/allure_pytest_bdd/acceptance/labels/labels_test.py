@@ -103,6 +103,47 @@ def test_label_decorator(allure_pytest_bdd_runner: AllurePytestRunner):
     )
 
 
+def test_label_decorator_at_module_level(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given noop
+        """
+    )
+    steps_content = (
+        """
+        from pytest_bdd import scenarios, given
+        import allure
+
+        pytestmark = [allure.label("foo", "bar", "baz")]
+
+        scenarios("sample.feature")
+
+        @given("noop")
+        def given_noop():
+            pass
+        """
+    )
+
+    allure_results = allure_pytest_bdd_runner.run_pytest(
+        ("sample.feature", feature_content),
+        steps_content,
+    )
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "sample.feature:Bar",
+            all_of(
+                has_label("foo", equal_to("bar")),
+                has_label("foo", equal_to("baz")),
+            ),
+
+        )
+    )
+
+
 def test_dynamic_label(allure_pytest_bdd_runner: AllurePytestRunner):
     feature_content = (
         """

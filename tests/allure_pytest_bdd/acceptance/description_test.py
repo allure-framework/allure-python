@@ -54,6 +54,45 @@ def test_description_decorator(allure_pytest_bdd_runner: AllurePytestRunner):
     )
 
 
+def test_description_at_module_level(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given noop
+        """
+    )
+    steps_content = (
+        """
+        from pytest_bdd import scenarios, given
+        import allure
+
+        pytestmark = [allure.description("Lorem Ipsum")]
+
+        scenarios("sample.feature")
+
+        @given("noop")
+        def given_noop():
+            pass
+        """
+    )
+
+    allure_results = allure_pytest_bdd_runner.run_pytest(
+        ("sample.feature", feature_content),
+        steps_content,
+    )
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "sample.feature:Bar",
+            has_description(
+                equal_to("Lorem Ipsum"),
+            )
+        )
+    )
+
+
 def test_description_html_decorator(allure_pytest_bdd_runner: AllurePytestRunner):
     feature_content = (
         """
@@ -71,6 +110,45 @@ def test_description_html_decorator(allure_pytest_bdd_runner: AllurePytestRunner
         @scenario("sample.feature", "Bar")
         def test_scenario():
             pass
+
+        @given("noop")
+        def given_noop():
+            pass
+        """
+    )
+
+    allure_results = allure_pytest_bdd_runner.run_pytest(
+        ("sample.feature", feature_content),
+        steps_content,
+    )
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "sample.feature:Bar",
+            has_description_html(
+                equal_to("Lorem Ipsum"),
+            )
+        )
+    )
+
+
+def test_description_html_decorator_at_module_level(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given noop
+        """
+    )
+    steps_content = (
+        """
+        from pytest_bdd import scenarios, given
+        import allure
+
+        pytestmark = [allure.description_html("Lorem Ipsum")]
+
+        scenarios("sample.feature")
 
         @given("noop")
         def given_noop():
