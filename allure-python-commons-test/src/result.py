@@ -62,10 +62,11 @@ Expected: ...
 
 """
 
-from hamcrest import all_of, anything, not_
-from hamcrest import equal_to, not_none
+from hamcrest import all_of, anything, not_, any_of
+from hamcrest import equal_to, none, not_none
 from hamcrest import has_entry, has_item
 from hamcrest import contains_string
+from hamcrest import contains_exactly
 from allure_commons_test.lookup import maps_to
 
 
@@ -93,6 +94,13 @@ def has_step(name, *matchers):
     )
 
 
+def with_steps(*matchers):
+    return has_entry(
+        "steps",
+        contains_exactly(*matchers),
+    )
+
+
 def get_parameter_matcher(name, *matchers):
     return has_entry(
         'parameters',
@@ -114,12 +122,21 @@ def has_parameter(name, value, *matchers):
 
 
 def doesnt_have_parameter(name):
-    return has_entry('parameters',
-                     not_(
-                         has_item(
-                             has_entry('name', equal_to(name)),
-                         )
-                     ))
+    return not_(
+        has_entry(
+            "parameters",
+            has_item(
+                has_entry("name", name),
+            ),
+        ),
+    )
+
+
+def resolve_link_attr_matcher(key, value):
+    return has_entry(key, value) if value is not None else any_of(
+        not_(has_entry(key)),
+        none(),
+    )
 
 
 def has_link(url, link_type=None, name=None):
@@ -128,7 +145,7 @@ def has_link(url, link_type=None, name=None):
         has_item(
             all_of(
                 *[
-                    has_entry(key, value) for key, value in zip(
+                    resolve_link_attr_matcher(key, value) for key, value in zip(
                         ('url', 'type', 'name'),
                         (url, link_type, name)
                     ) if value is not None
@@ -205,5 +222,5 @@ def with_mode(mode):
     return has_entry('mode', mode)
 
 
-def has_history_id():
-    return has_entry('historyId', anything())
+def has_history_id(matcher=None):
+    return has_entry('historyId', matcher or anything())

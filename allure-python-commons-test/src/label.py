@@ -51,3 +51,11 @@ def has_parent_suite(parent_suite):
 
 def has_sub_suite(sub_suite):
     return has_label('subSuite', sub_suite)
+
+
+def has_allure_id(allure_id):
+    return has_label('as_id', allure_id)
+
+
+def has_manual(allure_id):
+    return has_label('ALLURE_MANUAL', allure_id)
