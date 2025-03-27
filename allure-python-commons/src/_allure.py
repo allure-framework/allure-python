@@ -201,7 +201,7 @@ class StepContext:
             with StepContext(self.title.format(*args, **params), params):
                 return func(*a, **kw)
 
-        return impl
+        return impl  # type: ignore
 
 
 class Attach:
