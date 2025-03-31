@@ -51,6 +51,7 @@ def main():
         long_description_content_type="text/markdown",
         packages=["allure_commons"],
         package_dir={"allure_commons": 'src'},
+        package_data={"allure_commons": ["py.typed"]},
         install_requires=install_requires,
         py_modules=['allure', 'allure_commons'],
         python_requires='>=3.6'
