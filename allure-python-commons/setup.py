@@ -4,19 +4,19 @@ from setuptools import setup
 PACKAGE = "allure-python-commons"
 
 classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Developers',
-    'License :: OSI Approved :: Apache Software License',
-    'Topic :: Software Development :: Quality Assurance',
-    'Topic :: Software Development :: Testing',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Programming Language :: Python :: 3.11',
-    'Programming Language :: Python :: 3.12',
-    'Programming Language :: Python :: 3.13',
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 install_requires = [
@@ -33,7 +33,7 @@ def main():
     setup(
         name=PACKAGE,
         use_scm_version={"root": "..", "relative_to": __file__},
-        setup_requires=['setuptools_scm'],
+        setup_requires=["setuptools_scm"],
         description=(
             "Contains the API for end users as well as helper functions and "
             "classes to build Allure adapters for Python test frameworks",
@@ -50,12 +50,11 @@ def main():
         long_description=get_readme("README.md"),
         long_description_content_type="text/markdown",
         packages=["allure_commons"],
-        package_dir={"allure_commons": 'src'},
+        package_dir={"allure_commons": "src"},
         install_requires=install_requires,
-        py_modules=['allure', 'allure_commons'],
-        python_requires='>=3.6'
+        python_requires=">=3.6"
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
