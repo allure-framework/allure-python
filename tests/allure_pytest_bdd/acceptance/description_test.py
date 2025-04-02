@@ -1,3 +1,4 @@
+import pytest
 from hamcrest import assert_that
 from hamcrest import equal_to
 
@@ -6,6 +7,7 @@ from allure_commons_test.result import has_description
 from allure_commons_test.result import has_description_html
 
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
+from tests.e2e import version_lt
 
 
 def test_description_decorator(allure_pytest_bdd_runner: AllurePytestRunner):
@@ -258,6 +260,10 @@ def test_dynamic_description_html(allure_pytest_bdd_runner: AllurePytestRunner):
     )
 
 
+@pytest.mark.skipif(
+    version_lt("pytest_bdd", 7),
+    reason="Pytest-BDD doesn't support scenario-level descriptions until v7",
+)
 def test_scenario_description(allure_pytest_bdd_runner: AllurePytestRunner):
     feature_content = (
         """
@@ -341,6 +347,10 @@ def test_feature_description(allure_pytest_bdd_runner: AllurePytestRunner):
     )
 
 
+@pytest.mark.skipif(
+    version_lt("pytest_bdd", 7),
+    reason="Pytest-BDD doesn't support scenario-level descriptions until v7",
+)
 def test_feature_and_scenario_description(allure_pytest_bdd_runner: AllurePytestRunner):
     feature_content = (
         """
