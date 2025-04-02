@@ -49,8 +49,7 @@ def main():
         keywords="allure reporting report-engine",
         long_description=get_readme("README.md"),
         long_description_content_type="text/markdown",
-        packages=["allure_commons"],
-        package_dir={"allure_commons": "src"},
+        packages=["allure_commons", "allure"],
         install_requires=install_requires,
         python_requires=">=3.6"
     )
