@@ -1,5 +1,6 @@
 from hamcrest import assert_that
 from hamcrest import anything
+from hamcrest import any_of
 
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import has_title
@@ -7,6 +8,7 @@ from allure_commons_test.result import has_step
 from allure_commons_test.result import with_steps
 
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
+from tests.e2e import version_gte
 
 
 def test_title_decorator(allure_pytest_bdd_runner: AllurePytestRunner):
@@ -517,6 +519,12 @@ def test_step_title_interpolation_priority(allure_pytest_bdd_runner: AllurePytes
         steps_content,
     )
 
+    # before pytest-bdd v6 parsed step args defined fixtures, which may conflict with target fixtures
+    step3_matcher = "Target Fixture" if version_gte("pytest_bdd", 6) else any_of(
+        "Target Fixture",
+        "Lorem Ipsum",
+    )
+
     assert_that(
         allure_results,
         has_test_case(
@@ -524,7 +532,7 @@ def test_step_title_interpolation_priority(allure_pytest_bdd_runner: AllurePytes
             with_steps(
                 anything(),
                 has_title("Lorem Ipsum"),
-                has_title("Target Fixture"),
+                has_title(step3_matcher),
                 has_title("Outline"),
                 has_title("Mark"),
             ),
