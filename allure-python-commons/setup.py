@@ -36,7 +36,7 @@ def main():
         setup_requires=["setuptools_scm"],
         description=(
             "Contains the API for end users as well as helper functions and "
-            "classes to build Allure adapters for Python test frameworks",
+            "classes to build Allure adapters for Python test frameworks"
         ),
         url="https://allurereport.org/",
         project_urls={
