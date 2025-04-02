@@ -54,6 +54,7 @@ def main():
             "allure": ["py.typed"],
             "allure_commons": ["py.typed"],
         },
+        package_dir={"": "src"},
         install_requires=install_requires,
         python_requires=">=3.6"
     )
