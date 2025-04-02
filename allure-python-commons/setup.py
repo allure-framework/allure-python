@@ -50,6 +50,10 @@ def main():
         long_description=get_readme("README.md"),
         long_description_content_type="text/markdown",
         packages=["allure_commons", "allure"],
+        package_data={
+            "allure": ["py.typed"],
+            "allure_commons": ["py.typed"],
+        },
         install_requires=install_requires,
         python_requires=">=3.6"
     )
