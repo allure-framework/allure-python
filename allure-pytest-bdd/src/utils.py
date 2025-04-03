@@ -61,8 +61,8 @@ def get_allure_description(item, feature, scenario):
     if value:
         return value
 
-    feature_description = resolve_description(feature.description)
-    scenario_description = resolve_description(scenario.description)
+    feature_description = extract_description(feature)
+    scenario_description = extract_description(scenario)
     return "\n\n".join(filter(None, [feature_description, scenario_description]))
 
 
@@ -146,7 +146,9 @@ def iter_pytest_tags(item):
             yield LabelType.TAG, mark.name
 
 
-def resolve_description(description):
+def extract_description(obj):
+    description = getattr(obj, "description", None)
+
     if isinstance(description, str):
         return description
 
