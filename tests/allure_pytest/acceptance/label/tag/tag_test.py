@@ -35,6 +35,8 @@ def test_show_reserved_pytest_markers_full_decorator(
 
     >>> @pytest.mark.usermark1
     ... @pytest.mark.usermark2
+    ... @pytest.mark.usermark3("comment1")
+    ... @pytest.mark.usermark3("comment2")
     ... @pytest.mark.parametrize("param", ["foo"])
     ... @pytest.mark.skipif(False, reason="reason2")
     ... @pytest.mark.skipif(False, reason="reason1")
@@ -50,6 +52,8 @@ def test_show_reserved_pytest_markers_full_decorator(
             "test_show_reserved_pytest_markers_full_decorator_example[foo]",
             has_tag("usermark1"),
             has_tag("usermark2"),
+            has_tag("usermark3('comment1')"),
+            has_tag("usermark3('comment2')"),
             has_tag("@pytest.mark.skipif(False, reason='reason1')"),
             not_(
                 has_tag("@pytest.mark.skipif(False, reason='reason2')")
