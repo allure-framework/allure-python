@@ -106,9 +106,10 @@ class AllureListener:
             fixture.name = name
 
     def stop_before_fixture(self, attributes, messages):
-        self._report_messages(messages)
+        status = attributes.get('status')
+        self._report_messages(status, messages)
         with self.lifecycle.update_before_fixture() as fixture:
-            fixture.status = get_allure_status(attributes.get('status'))
+            fixture.status = get_allure_status(status)
             fixture.statusDetails = StatusDetails(message=self._current_msg, trace=self._current_tb)
         self.lifecycle.stop_before_fixture()
 
@@ -117,9 +118,10 @@ class AllureListener:
             fixture.name = name
 
     def stop_after_fixture(self, attributes, messages):
-        self._report_messages(messages)
+        status = attributes.get('status')
+        self._report_messages(status, messages)
         with self.lifecycle.update_after_fixture() as fixture:
-            fixture.status = get_allure_status(attributes.get('status'))
+            fixture.status = get_allure_status(status)
             fixture.statusDetails = StatusDetails(message=self._current_msg, trace=self._current_tb)
         self.lifecycle.stop_after_fixture()
 
@@ -136,7 +138,7 @@ class AllureListener:
             container.children.append(uuid)
 
     def stop_test(self, _, attributes, messages):
-        self._report_messages(messages)
+        self._report_messages(attributes.get('status'), messages)
 
         if 'skipped' in [tag.lower() for tag in attributes['tags']]:
             attributes['status'] = RobotStatus.SKIPPED
@@ -168,16 +170,20 @@ class AllureListener:
             step.name = name
 
     def stop_keyword(self, attributes, messages):
-        self._report_messages(messages)
+        status = attributes.get('status')
+        self._report_messages(status, messages)
         with self.lifecycle.update_step() as step:
-            step.status = get_allure_status(attributes.get('status'))
+            step.status = get_allure_status(status)
             step.parameters = get_allure_parameters(attributes.get('args'))
             step.statusDetails = StatusDetails(message=self._current_msg, trace=self._current_tb)
         self.lifecycle.stop_step()
 
-    def _report_messages(self, messages):
+    def _report_messages(self, status, messages):
         has_trace = BuiltIn().get_variable_value("${LOG LEVEL}") in (RobotLogLevel.DEBUG, RobotLogLevel.TRACE)
         attachment = ""
+
+        if status == RobotStatus.PASSED:
+            self._current_tb, self._current_msg = None, None
 
         for message, next_message in zip_longest(messages, messages[1:]):
             name = message.get('message')
