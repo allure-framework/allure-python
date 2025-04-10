@@ -23,6 +23,7 @@ from allure_pytest.utils import allure_suite_labels
 from allure_pytest.utils import get_status, get_status_details
 from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 from allure_pytest.utils import get_pytest_report_status
+from allure_pytest.utils import sync_steps_statuses
 from allure_pytest.utils import format_allure_link
 from allure_pytest.utils import get_history_id
 from allure_pytest.compat import getfixturedefs
@@ -226,6 +227,9 @@ class AllureListener:
             if test_result.status == Status.PASSED:
                 test_result.status = status
                 test_result.statusDetails = status_details
+            has_failed_steps = sync_steps_statuses(test_result.steps)
+            if has_failed_steps and not hasattr(report, "wasxfail"):
+                test_result.status = Status.FAILED
 
         if report.when == 'teardown':
             if status in (Status.FAILED, Status.BROKEN) and test_result.status == Status.PASSED:
