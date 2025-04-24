@@ -99,3 +99,73 @@ def test_steps_after_failed_are_skipped(docstring, robot_runner: AllureRobotRunn
             )
         )
     )
+
+
+def test_only_failed_steps_have_status_details(docstring, robot_runner: AllureRobotRunner):
+    """
+    *** Variables ***
+    @{TEST_VALUES}    0    5    15
+
+    *** Test Cases ***
+    Test Case with mixed step results and status details
+        FOR    ${value}    IN    @{TEST_VALUES}
+            Run Keyword And Ignore Error    Should Be True    ${value} > 10
+        END
+        Log To Console    Test message
+    """
+
+    robot_runner.run_robotframework(
+        suite_literals={"status.robot": docstring}
+    )
+
+    assert_that(
+        robot_runner.allure_results,
+        has_test_case(
+            "Test Case with mixed step results and status details",
+            has_step(
+                "${value}    IN    @{TEST_VALUES}",
+                has_step(
+                    "${value} = 0",
+                    has_step(
+                        "BuiltIn.Run Keyword And Ignore Error",
+                        has_step(
+                            "BuiltIn.Should Be True",
+                            with_status("failed"),
+                            has_status_details(
+                                with_message_contains("0 > 10' should be true."),
+                            )
+                        ),
+                    ),
+                ),
+                has_step(
+                    "${value} = 5",
+                    has_step(
+                        "BuiltIn.Run Keyword And Ignore Error",
+                        has_step(
+                            "BuiltIn.Should Be True",
+                            with_status("failed"),
+                            has_status_details(
+                                with_message_contains("5 > 10' should be true."),
+                            )
+                        ),
+                    ),
+                ),
+                has_step(
+                    "${value} = 15",
+                    has_step(
+                        "BuiltIn.Run Keyword And Ignore Error",
+                        has_step(
+                            "BuiltIn.Should Be True",
+                            with_status("passed"),
+                            has_status_details({})
+                        ),
+                    ),
+                )
+            ),
+            has_step(
+                "BuiltIn.Log To Console",
+                with_status("passed"),
+                has_status_details({})
+            )
+        )
+    )
