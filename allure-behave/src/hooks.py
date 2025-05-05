@@ -50,7 +50,7 @@ class AllureHooks:
         allure_commons.plugin_manager.register(self.listener)
 
     def before_feature(self, context, feature):
-        self.listener.start_feature()
+        self.listener.start_file()
 
     def after_feature(self, context, feature):
         self.listener.stop_feature()
