@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import behave.step_registry
 import sys
 
@@ -16,7 +17,8 @@ from tests.e2e import AllureFrameworkRunner, PathlikeT
 from allure_behave.formatter import AllureFormatter
 
 
-def __fix_behave_in_memory_run():
+@contextmanager
+def _fixed_in_memory_run():
     # Behave has poor support for consecutive prigrammatic runs. This is due to
     # how step decorators are cached.
     # There are three ways to introduce behave step decorators (i.e., @given)
@@ -49,6 +51,10 @@ def __fix_behave_in_memory_run():
         )
 
     StepRegistry.add_step_definition = __fixed_add_step_definition
+
+    yield
+
+    StepRegistry.add_step_definition = original_add_step_definition
 
 
 class _InMemoryBehaveRunner(Runner):
@@ -159,32 +165,32 @@ class AllureBehaveRunner(AllureFrameworkRunner):
                 :attr:`allure_results` attribute.
 
         """
-        return self._run(
-            self._get_all_content(
-                paths=feature_paths,
-                literals=feature_literals,
-                rst_ids=feature_rst_ids
-            ),
-            self._get_all_content(
-                paths=step_paths,
-                literals=step_literals,
-                rst_ids=step_rst_ids
-            ),
-            self._resolve_content(
-                path=environment_path,
-                literal=environment_literal,
-                rst_id=environment_rst_id
-            ),
-            testplan_content=testplan_content,
-            testplan_path=testplan_path,
-            testplan_rst_id=testplan_rst_id,
-            options=options
-        )
+
+        with _fixed_in_memory_run():
+            return self._run(
+                self._get_all_content(
+                    paths=feature_paths,
+                    literals=feature_literals,
+                    rst_ids=feature_rst_ids
+                ),
+                self._get_all_content(
+                    paths=step_paths,
+                    literals=step_literals,
+                    rst_ids=step_rst_ids
+                ),
+                self._resolve_content(
+                    path=environment_path,
+                    literal=environment_literal,
+                    rst_id=environment_rst_id
+                ),
+                testplan_content=testplan_content,
+                testplan_path=testplan_path,
+                testplan_rst_id=testplan_rst_id,
+                options=options
+            )
 
     def _run_framework(self, features, steps, environment, options):
         _InMemoryBehaveRunner(features, steps, environment, options).run()
 
-
-__fix_behave_in_memory_run()
 
 __all__ = ["AllureBehaveRunner"]
