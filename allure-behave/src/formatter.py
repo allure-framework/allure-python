@@ -12,10 +12,10 @@ class AllureFormatter(Formatter):
         super(AllureFormatter, self).__init__(stream_opener, config)
 
         self.listener = AllureListener(config)
-        file_logger = AllureFileLogger(self.stream_opener.name)
+        self.file_logger = AllureFileLogger(self.stream_opener.name)
 
         allure_commons.plugin_manager.register(self.listener)
-        allure_commons.plugin_manager.register(file_logger)
+        allure_commons.plugin_manager.register(self.file_logger)
 
         self.testplan = get_testplan()
 
@@ -44,6 +44,15 @@ class AllureFormatter(Formatter):
 
     def eof(self):
         self.listener.stop_feature()
+
+    def close(self):
+        try:
+            super().close()
+        finally:
+            for plugin in [self.file_logger, self.listener]:
+                name = allure_commons.plugin_manager.get_name(plugin)
+                if allure_commons.plugin_manager.has_plugin(name):
+                    allure_commons.plugin_manager.unregister(name=name)
 
     def close_stream(self):
         self.listener.stop_session()

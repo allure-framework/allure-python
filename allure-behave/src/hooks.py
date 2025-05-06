@@ -6,6 +6,7 @@ from allure_behave.listener import AllureListener
 from behave.configuration import Configuration
 
 HOOKS = [
+    "after_all",
     "before_feature",
     "after_feature",
     "before_scenario",
@@ -42,15 +43,25 @@ def allure_report(result_dir="allure_results"):
 class AllureHooks:
     def __init__(self, result_dir):
         self.listener = AllureListener(Configuration())
+        self.plugins = []
 
         if not hasattr(_storage, 'file_logger'):
-            _storage.file_logger = AllureFileLogger(result_dir)
-            allure_commons.plugin_manager.register(_storage.file_logger)
+            logger = AllureFileLogger(result_dir)
+            _storage.file_logger = logger
+            allure_commons.plugin_manager.register(logger)
+            self.plugins.append(logger)
 
         allure_commons.plugin_manager.register(self.listener)
+        self.plugins.append(self.listener)
+
+    def after_all(self, context):
+        for plugin in self.plugins:
+            name = allure_commons.plugin_manager.get_name(plugin)
+            if allure_commons.plugin_manager.has_plugin(name):
+                allure_commons.plugin_manager.unregister(name=name)
 
     def before_feature(self, context, feature):
-        self.listener.start_feature()
+        self.listener.start_file()
 
     def after_feature(self, context, feature):
         self.listener.stop_feature()
