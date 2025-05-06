@@ -81,14 +81,21 @@ def format_allure_link(config, url, link_type):
 
 
 def pytest_markers(item):
+    markers = set()
+    builtin_markers = set()
     for keyword in item.keywords.keys():
         if any([keyword.startswith('allure_'), keyword == 'parametrize']):
             continue
-        marker = item.get_closest_marker(keyword)
-        if marker is None:
-            continue
-
-        yield mark_to_str(marker)
+        for marker in item.iter_markers(name=keyword):
+            mark_str = mark_to_str(marker)
+            is_builtin_mark = mark_str.startswith("@pytest.mark.")
+            if is_builtin_mark:
+                if marker.name in builtin_markers:
+                    continue
+                builtin_markers.add(marker.name)
+            if mark_str not in markers:
+                markers.add(mark_str)
+                yield mark_str
 
 
 def mark_to_str(marker):
