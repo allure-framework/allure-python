@@ -1,6 +1,6 @@
 import pytest
 from itertools import chain, islice
-from allure_commons.utils import represent, SafeFormatter, md5
+from allure_commons.utils import SafeFormatter, md5
 from allure_commons.utils import format_exception, format_traceback
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
