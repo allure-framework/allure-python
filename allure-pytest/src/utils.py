@@ -20,6 +20,15 @@ ALLURE_UNIQUE_LABELS = [
     LabelType.SUB_SUITE
 ]
 
+MARK_NAMES_TO_IGNORE = {
+    "usefixtures",
+    "filterwarnings",
+    "skip",
+    "skipif",
+    "xfail",
+    "parametrize",
+}
+
 
 def get_marker_value(item, keyword):
     marker = item.get_closest_marker(keyword)
@@ -81,27 +90,14 @@ def format_allure_link(config, url, link_type):
 
 
 def pytest_markers(item):
-    for keyword in item.keywords.keys():
-        if any([keyword.startswith('allure_'), keyword == 'parametrize']):
-            continue
-        marker = item.get_closest_marker(keyword)
-        if marker is None:
-            continue
-
-        yield mark_to_str(marker)
+    for mark in item.iter_markers():
+        if should_convert_mark_to_tag(mark):
+            yield mark.name
 
 
-def mark_to_str(marker):
-    args = [represent(arg) for arg in marker.args]
-    kwargs = [f'{key}={represent(value)}' for key, value in marker.kwargs.items()]
-    if marker.name in ('filterwarnings', 'skip', 'skipif', 'xfail', 'usefixtures', 'tryfirst', 'trylast'):
-        markstr = f'@pytest.mark.{marker.name}'
-    else:
-        markstr = str(marker.name)
-    if args or kwargs:
-        parameters = ', '.join(args + kwargs)
-        markstr = f'{markstr}({parameters})'
-    return markstr
+def should_convert_mark_to_tag(mark):
+    return mark.name not in MARK_NAMES_TO_IGNORE and \
+        not mark.args and not mark.kwargs
 
 
 def allure_package(item):
