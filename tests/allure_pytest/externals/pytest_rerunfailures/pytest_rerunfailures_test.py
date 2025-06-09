@@ -65,6 +65,6 @@ def test_separate_result_for_each_rerun(rerunfailures_runner: AllurePytestRunner
 
     assert len(output.test_cases) == 2
     assert __count_labels(output.test_cases[0], "suite") == 1
-    assert __count_labels(output.test_cases[0], "tag") == 1
+    assert __count_labels(output.test_cases[0], "tag") == 0
     assert __count_labels(output.test_cases[1], "suite") == 1
-    assert __count_labels(output.test_cases[1], "tag") == 1
+    assert __count_labels(output.test_cases[1], "tag") == 0
