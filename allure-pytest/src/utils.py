@@ -130,6 +130,22 @@ def allure_full_name(item: pytest.Item):
     return full_name
 
 
+class ParsedPytestNodeId:
+    def __init__(self, nodeid):
+        filepath, *class_names, function_segment = ensure_len(nodeid.split("::"), 2)
+        self.filepath = filepath
+        self.path_segments = filepath.split('/')
+        self.class_names = class_names
+        self.test_function = function_segment.split("[", 1)[0]
+
+
+def allure_title_path(item):
+    nodeid = ParsedPytestNodeId(item.nodeid)
+    return list(
+        filter(None, [*nodeid.path_segments, *nodeid.class_names]),
+    )
+
+
 def ensure_len(value, min_length, fill_value=None):
     yield from value
     yield from repeat(fill_value, min_length - len(value))
