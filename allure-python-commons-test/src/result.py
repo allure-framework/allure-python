@@ -224,3 +224,7 @@ def with_mode(mode):
 
 def has_history_id(matcher=None):
     return has_entry('historyId', matcher or anything())
+
+
+def has_full_name(matcher):
+    return has_entry("fullName", matcher)
