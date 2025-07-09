@@ -1,5 +1,5 @@
 import pytest
-from itertools import chain, islice
+from itertools import chain, islice, repeat
 from allure_commons.utils import SafeFormatter, md5
 from allure_commons.utils import format_exception, format_traceback
 from allure_commons.model2 import Status
@@ -123,19 +123,29 @@ def allure_name(item, parameters, param_id=None):
 
 def allure_full_name(item: pytest.Item):
     package = allure_package(item)
-    class_name = f".{item.parent.name}" if isinstance(item.parent, pytest.Class) else ''
+    class_names = item.nodeid.split("::")[1:-1]
+    class_part = ("." + ".".join(class_names)) if class_names else ""
     test = item.originalname if isinstance(item, pytest.Function) else item.name.split("[")[0]
-    full_name = f'{package}{class_name}#{test}'
+    full_name = f'{package}{class_part}#{test}'
     return full_name
 
 
+def ensure_len(value, min_length, fill_value=None):
+    yield from value
+    yield from repeat(fill_value, min_length - len(value))
+
+
 def allure_suite_labels(item):
-    head, possibly_clazz, tail = islice(chain(item.nodeid.split('::'), [None], [None]), 3)
-    clazz = possibly_clazz if tail else None
+    head, *class_names, _ = ensure_len(item.nodeid.split("::"), 2)
     file_name, path = islice(chain(reversed(head.rsplit('/', 1)), [None]), 2)
     module = file_name.split('.')[0]
     package = path.replace('/', '.') if path else None
-    pairs = dict(zip([LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE], [package, module, clazz]))
+    pairs = dict(
+        zip(
+            [LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE],
+            [package, module, " > ".join(class_names)],
+        ),
+    )
     labels = dict(allure_labels(item))
     default_suite_labels = []
     for label, value in pairs.items():
