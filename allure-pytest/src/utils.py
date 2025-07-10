@@ -120,11 +120,10 @@ def allure_name(item, parameters, param_id=None):
 
 
 def allure_full_name(item: pytest.Item):
-    package = allure_package(item)
-    class_names = item.nodeid.split("::")[1:-1]
-    class_part = ("." + ".".join(class_names)) if class_names else ""
-    test = item.originalname if isinstance(item, pytest.Function) else item.name.split("[")[0]
-    full_name = f'{package}{class_part}#{test}'
+    nodeid = ParsedPytestNodeId(item)
+    class_part = ("." + ".".join(nodeid.class_names)) if nodeid.class_names else ""
+    test = item.originalname if isinstance(item, pytest.Function) else nodeid.test_function
+    full_name = f"{nodeid.package}{class_part}#{test}"
     return full_name
 
 
