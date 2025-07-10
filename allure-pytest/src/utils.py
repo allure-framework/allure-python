@@ -101,9 +101,7 @@ def should_convert_mark_to_tag(mark):
 
 
 def allure_package(item):
-    parts = item.nodeid.split('::')
-    path = parts[0].rsplit('.', 1)[0]
-    return path.replace('/', '.')
+    return ParsedPytestNodeId(item).package
 
 
 def allure_name(item, parameters, param_id=None):
@@ -135,6 +133,10 @@ class ParsedPytestNodeId:
         filepath, *class_names, function_segment = ensure_len(nodeid.split("::"), 2)
         self.filepath = filepath
         self.path_segments = filepath.split('/')
+        *parent_dirs, filename = ensure_len(self.path_segments, 1)
+        self.parent_package = '.'.join(parent_dirs)
+        self.module = filename.rsplit(".", 1)[0]
+        self.package = '.'.join(filter(None, [self.parent_package, self.module]))
         self.class_names = class_names
         self.test_function = function_segment.split("[", 1)[0]
 
