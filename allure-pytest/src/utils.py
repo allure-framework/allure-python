@@ -30,6 +30,19 @@ MARK_NAMES_TO_IGNORE = {
 }
 
 
+class ParsedPytestNodeId:
+    def __init__(self, nodeid):
+        filepath, *class_names, function_segment = ensure_len(nodeid.split("::"), 2)
+        self.filepath = filepath
+        self.path_segments = filepath.split('/')
+        *parent_dirs, filename = ensure_len(self.path_segments, 1)
+        self.parent_package = '.'.join(parent_dirs)
+        self.module = filename.rsplit(".", 1)[0]
+        self.package = '.'.join(filter(None, [self.parent_package, self.module]))
+        self.class_names = class_names
+        self.test_function = function_segment.split("[", 1)[0]
+
+
 def get_marker_value(item, keyword):
     marker = item.get_closest_marker(keyword)
     return marker.args[0] if marker and marker.args else None
@@ -125,19 +138,6 @@ def allure_full_name(item: pytest.Item):
     test = item.originalname if isinstance(item, pytest.Function) else nodeid.test_function
     full_name = f"{nodeid.package}{class_part}#{test}"
     return full_name
-
-
-class ParsedPytestNodeId:
-    def __init__(self, nodeid):
-        filepath, *class_names, function_segment = ensure_len(nodeid.split("::"), 2)
-        self.filepath = filepath
-        self.path_segments = filepath.split('/')
-        *parent_dirs, filename = ensure_len(self.path_segments, 1)
-        self.parent_package = '.'.join(parent_dirs)
-        self.module = filename.rsplit(".", 1)[0]
-        self.package = '.'.join(filter(None, [self.parent_package, self.module]))
-        self.class_names = class_names
-        self.test_function = function_segment.split("[", 1)[0]
 
 
 def allure_title_path(item):
