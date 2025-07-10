@@ -5,7 +5,7 @@ from allure_commons.utils import format_exception, format_traceback
 from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.types import LabelType
-
+from allure_pytest.stash import stashed
 
 ALLURE_DESCRIPTION_MARK = 'allure_description'
 ALLURE_DESCRIPTION_HTML_MARK = 'allure_description_html'
@@ -41,6 +41,11 @@ class ParsedPytestNodeId:
         self.package = '.'.join(filter(None, [self.parent_package, self.module]))
         self.class_names = class_names
         self.test_function = function_segment.split("[", 1)[0]
+
+
+@stashed
+def parse_nodeid(item):
+    return ParsedPytestNodeId(item.nodeid)
 
 
 def get_marker_value(item, keyword):
@@ -114,7 +119,7 @@ def should_convert_mark_to_tag(mark):
 
 
 def allure_package(item):
-    return ParsedPytestNodeId(item).package
+    return parse_nodeid(item).package
 
 
 def allure_name(item, parameters, param_id=None):
@@ -133,7 +138,7 @@ def allure_name(item, parameters, param_id=None):
 
 
 def allure_full_name(item: pytest.Item):
-    nodeid = ParsedPytestNodeId(item)
+    nodeid = parse_nodeid(item)
     class_part = ("." + ".".join(nodeid.class_names)) if nodeid.class_names else ""
     test = item.originalname if isinstance(item, pytest.Function) else nodeid.test_function
     full_name = f"{nodeid.package}{class_part}#{test}"
@@ -141,7 +146,7 @@ def allure_full_name(item: pytest.Item):
 
 
 def allure_title_path(item):
-    nodeid = ParsedPytestNodeId(item.nodeid)
+    nodeid = parse_nodeid(item)
     return list(
         filter(None, [*nodeid.path_segments, *nodeid.class_names]),
     )
@@ -153,7 +158,7 @@ def ensure_len(value, min_length, fill_value=None):
 
 
 def allure_suite_labels(item):
-    nodeid = ParsedPytestNodeId(item)
+    nodeid = parse_nodeid(item)
 
     default_suite_labels = {
         LabelType.PARENT_SUITE: nodeid.parent_package,
