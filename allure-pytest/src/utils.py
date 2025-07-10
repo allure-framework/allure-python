@@ -1,5 +1,5 @@
 import pytest
-from itertools import chain, islice, repeat
+from itertools import repeat
 from allure_commons.utils import SafeFormatter, md5
 from allure_commons.utils import format_exception, format_traceback
 from allure_commons.model2 import Status
@@ -153,23 +153,21 @@ def ensure_len(value, min_length, fill_value=None):
 
 
 def allure_suite_labels(item):
-    head, *class_names, _ = ensure_len(item.nodeid.split("::"), 2)
-    file_name, path = islice(chain(reversed(head.rsplit('/', 1)), [None]), 2)
-    module = file_name.split('.')[0]
-    package = path.replace('/', '.') if path else None
-    pairs = dict(
-        zip(
-            [LabelType.PARENT_SUITE, LabelType.SUITE, LabelType.SUB_SUITE],
-            [package, module, " > ".join(class_names)],
-        ),
-    )
-    labels = dict(allure_labels(item))
-    default_suite_labels = []
-    for label, value in pairs.items():
-        if label not in labels.keys() and value:
-            default_suite_labels.append((label, value))
+    nodeid = ParsedPytestNodeId(item)
 
-    return default_suite_labels
+    default_suite_labels = {
+        LabelType.PARENT_SUITE: nodeid.parent_package,
+        LabelType.SUITE: nodeid.module,
+        LabelType.SUB_SUITE: " > ".join(nodeid.class_names),
+    }
+
+    existing_labels = dict(allure_labels(item))
+    resolved_default_suite_labels = []
+    for label, value in default_suite_labels.items():
+        if label not in existing_labels and value:
+            resolved_default_suite_labels.append((label, value))
+
+    return resolved_default_suite_labels
 
 
 def get_outcome_status(outcome):
