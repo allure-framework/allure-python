@@ -1,6 +1,7 @@
 import csv
 import io
 from enum import Enum
+from pathlib import Path
 from behave.runner_util import make_undefined_step_snippet
 from allure_commons.types import Severity, LabelType
 from allure_commons.model2 import Status, Parameter
@@ -95,6 +96,29 @@ def get_fullname(scenario):
     name_with_param = scenario_name(scenario)
     name = name_with_param.rsplit(" -- ")[0]
     return f"{scenario.feature.name}: {name}"
+
+
+def get_title_path(scenario):
+    path_parts = []
+    feature_part = scenario.feature.name
+
+    # filename is set to "<string>" if the feature comes from a string literal
+    if scenario.filename and scenario.filename != "<string>":
+        path = Path(scenario.filename)
+
+        # remove the filename because it's redundant: a feature file can only have one feature defined
+        path_parts = path.parts[:-1]
+
+        if not feature_part:
+            # if no feature name is defined, fallback to the filename
+            feature_part = path.name
+
+    if not feature_part:
+        # Neither feature name nor filename is defined, use the "Feature" keyword
+        feature_part = scenario.feature.keyword
+
+    # reminder: scenario name should not be included in titlePath because it is already part of the test case title
+    return [*path_parts, feature_part]
 
 
 def get_hook_name(name, parameters):
