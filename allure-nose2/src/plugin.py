@@ -14,6 +14,7 @@ from allure_commons.utils import platform_label, md5
 
 
 from .utils import timestamp_millis, status_details, update_attrs, labels, name, fullname, params
+from .utils import get_title_path
 import allure_commons
 
 
@@ -90,6 +91,7 @@ class Allure(Plugin):
                 test_result.fullName = fullname(event)
                 test_result.testCaseId = md5(test_result.fullName)
                 test_result.historyId = md5(event.test.id())
+                test_result.titlePath = get_title_path(event)
                 test_result.labels.extend(labels(event.test))
                 test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
                 test_result.labels.append(Label(name=LabelType.THREAD, value=self._thread))

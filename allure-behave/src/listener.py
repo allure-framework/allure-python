@@ -20,6 +20,7 @@ from allure_behave.utils import get_status, get_status_details
 from allure_behave.utils import scenario_links
 from allure_behave.utils import scenario_labels
 from allure_behave.utils import get_fullname
+from allure_behave.utils import get_title_path
 from allure_behave.utils import TEST_PLAN_SKIP_REASON
 from allure_behave.utils import get_hook_name
 
@@ -77,6 +78,7 @@ class AllureListener:
         test_case = TestResult(uuid=self.current_scenario_uuid, start=now())
         test_case.name = scenario_name(scenario)
         test_case.fullName = get_fullname(scenario)
+        test_case.titlePath = get_title_path(scenario)
         test_case.historyId = scenario_history_id(scenario)
         test_case.description = '\n'.join(scenario.description)
         test_case.parameters = scenario_parameters(scenario)

@@ -16,6 +16,7 @@ class allure_robotframework:
 
     def __init__(self, logger_path=DEFAULT_OUTPUT_PATH):
         self.messages = Messages()
+        self.title_path = []
 
         self.logger = AllureFileLogger(logger_path)
         self.lifecycle = AllureLifecycle()
@@ -25,17 +26,19 @@ class allure_robotframework:
         allure_commons.plugin_manager.register(self.listener)
 
     def start_suite(self, name, attributes):
+        self.title_path.append(name)
         self.messages.start_context()
         self.listener.start_suite_container(name, attributes)
 
     def end_suite(self, name, attributes):
         self.messages.stop_context()
         self.listener.stop_suite_container(name, attributes)
+        self.title_path.pop()
 
     def start_test(self, name, attributes):
         self.messages.start_context()
         self.listener.start_test_container(name, attributes)
-        self.listener.start_test(name, attributes)
+        self.listener.start_test(name, {**attributes, "titlepath": self.title_path})
 
     def end_test(self, name, attributes):
         messages = self.messages.stop_context()

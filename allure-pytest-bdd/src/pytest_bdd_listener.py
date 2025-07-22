@@ -23,6 +23,7 @@ from .utils import get_allure_labels
 from .utils import get_allure_links
 from .utils import convert_params
 from .utils import get_full_name
+from .utils import get_title_path
 from .utils import get_outline_params
 from .utils import get_pytest_params
 from .utils import get_pytest_report_status
@@ -59,6 +60,7 @@ class PytestBDDListener:
         full_name = get_full_name(feature, scenario)
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
             test_result.fullName = full_name
+            test_result.titlePath = get_title_path(request, feature)
             test_result.name = get_test_name(item, scenario, params)
             test_result.description = get_allure_description(item, feature, scenario)
             test_result.descriptionHtml = get_allure_description_html(item)
