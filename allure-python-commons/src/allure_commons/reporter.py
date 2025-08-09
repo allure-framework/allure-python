@@ -10,7 +10,6 @@ from allure_commons._core import plugin_manager
 
 
 class ThreadContextItems:
-
     _thread_context = defaultdict(OrderedDict)
     _init_thread: threading.Thread
 
@@ -51,6 +50,9 @@ class ThreadContextItems:
                 stopped_threads.append(thread)
         for thread in stopped_threads:
             del self._thread_context[thread]
+
+    def init_thread(self, source_thread, parent_uuid):
+        self.thread_context[parent_uuid] = self._thread_context[source_thread][parent_uuid]
 
 
 class AllureReporter:
@@ -138,6 +140,9 @@ class AllureReporter:
         else:
             self._update_item(uuid, **kwargs)
             self._items.pop(uuid)
+
+    def init_thread(self, source_thread, parent_uuid):
+        self._items.init_thread(source_thread, parent_uuid)
 
     def _attach(self, uuid, name=None, attachment_type=None, extension=None, parent_uuid=None):
         mime_type = attachment_type
