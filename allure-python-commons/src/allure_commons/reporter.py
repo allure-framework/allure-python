@@ -51,6 +51,9 @@ class ThreadContextItems:
         for thread in stopped_threads:
             del self._thread_context[thread]
 
+    def init_thread(self, source_thread, parent_uuid):
+        self.thread_context[parent_uuid] = self._thread_context[source_thread][parent_uuid]
+
 
 class AllureReporter:
     def __init__(self):
@@ -139,7 +142,7 @@ class AllureReporter:
             self._items.pop(uuid)
 
     def init_thread(self, source_thread, parent_uuid):
-        self._items[parent_uuid] = self._items._thread_context[source_thread][parent_uuid]
+        self._items.init_thread(source_thread, parent_uuid)
 
     def _attach(self, uuid, name=None, attachment_type=None, extension=None, parent_uuid=None):
         mime_type = attachment_type
