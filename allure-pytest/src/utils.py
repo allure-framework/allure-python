@@ -210,6 +210,17 @@ def get_pytest_report_status(pytest_report):
             return status
 
 
+def sync_steps_statuses(steps):
+    any_failed = False
+    for step in steps:
+        if step.steps and sync_steps_statuses(step.steps):
+            if step.status != Status.SKIPPED:
+                step.status = Status.FAILED
+        if step.status == Status.FAILED:
+            any_failed = True
+    return any_failed
+
+
 def get_history_id(full_name, parameters, original_values):
     return md5(
         full_name,

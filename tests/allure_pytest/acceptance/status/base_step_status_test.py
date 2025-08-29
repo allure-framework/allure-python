@@ -74,6 +74,49 @@ def test_pytest_fail_in_step(allure_pytest_runner: AllurePytestRunner):
     )
 
 
+def test_pytest_fail_in_nested_step_with_soft_check(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+    >>> from pytest_check import check as soft_check
+
+    >>> def test_pytest_fail_in_nested_step_with_soft_check():
+    ...     with allure.step("Parent step"):
+    ...         with soft_check, allure.step("Child failed step"):
+    ...             assert False
+    ...         with soft_check, allure.step("Child passed step"):
+    ...             assert True
+    """
+    from pytest_check import check_log
+
+    allure_results = allure_pytest_runner.run_docstring()
+    # Prevent failed soft check checks from triggering an 'assert False'.
+    check_log.clear_failures()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_pytest_fail_in_nested_step_with_soft_check",
+            with_status("failed"),
+            has_step(
+                "Parent step",
+                with_status("failed"),
+                has_step(
+                    "Child failed step",
+                    with_status("failed"),
+                    has_status_details(
+                        with_message_contains("AssertionError: assert False"),
+                        with_trace_contains("test_pytest_fail_in_nested_step_with_soft_check")
+                    )
+                ),
+                has_step(
+                    "Child passed step",
+                    with_status("passed")
+                )
+            )
+        )
+    )
+
+
 def test_pytest_bytes_data_in_assert(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
