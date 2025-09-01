@@ -1,3 +1,4 @@
+import threading
 from functools import wraps
 from typing import Any, Callable, TypeVar, Union, overload
 
@@ -15,6 +16,7 @@ def safely(result):
     else:
         def dummy(function):
             return function
+
         return dummy
 
 
@@ -187,10 +189,21 @@ class StepContext:
 
     def __enter__(self):
         plugin_manager.hook.start_step(uuid=self.uuid, title=self.title, params=self.params)
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         plugin_manager.hook.stop_step(uuid=self.uuid, title=self.title, exc_type=exc_type, exc_val=exc_val,
                                       exc_tb=exc_tb)
+
+    def get_thread_initializer(self):
+        # save states of current thread, which will be used in spawned threads.
+        parent_uuid = self.uuid
+        current_thread = threading.current_thread()
+
+        def initializer():
+            plugin_manager.hook.init_thread(source_thread=current_thread, parent_uuid=parent_uuid)
+
+        return initializer
 
     def __call__(self, func: _TFunc) -> _TFunc:
         @wraps(func)
