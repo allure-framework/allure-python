@@ -214,6 +214,11 @@ class AllureListener:
             exception = call.excinfo.value
             if (status != Status.SKIPPED and _exception_brokes_test(exception)):
                 status = Status.BROKEN
+        else:
+            if report.longrepr:
+                status_details = StatusDetails(
+                    message="Test Execution Details",
+                    trace=escape_non_unicode_symbols(report.longreprtext))
 
         if status == Status.PASSED and hasattr(report, 'wasxfail'):
             reason = report.wasxfail
