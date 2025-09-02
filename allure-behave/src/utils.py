@@ -64,7 +64,7 @@ def scenario_status(scenario):
 
 def scenario_status_details(scenario):
     for step in scenario.all_steps:
-        if step_status(step) != 'passed':
+        if step.exception or step.error_message or step_status(step) == 'undefined':
             return step_status_details(step)
 
 
@@ -151,10 +151,13 @@ def step_status_details(result):
             trace=trace
         )
 
-    elif result.status == 'undefined':
+    if result.status == 'undefined':
         message = '\nYou can implement step definitions for undefined steps with these snippets:\n\n'
         message += make_undefined_step_snippet(result)
         return StatusDetails(message=message)
+
+    if result.error_message:
+        return StatusDetails(message=result.error_message)
 
 
 def step_table(step):
