@@ -40,7 +40,7 @@ def scenario_history_id(scenario) -> str:
         parts.extend([f"{name}={value}" for name, value in zip(row.headings, row.cells)])
 
     # Optional: append environment variable to differentiate runs
-    history_id = os.getenv("HISTORY_ID")
+    history_id = os.getenv("ALLURE_HISTORY_ID")
     if history_id:
         parts.append(history_id)
 
