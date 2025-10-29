@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
 jobs:
   pytest-changes:
     name: Collect allure-pytest file changes

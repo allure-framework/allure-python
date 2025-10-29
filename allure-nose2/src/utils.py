@@ -81,6 +81,11 @@ def fullname(event):
     return test_id.split(":")[0]
 
 
+def get_title_path(event):
+    test_id = event.test.id()
+    return test_id.split(":", 1)[0].rsplit(".")[:-1]
+
+
 def params(event):
     def _params(names, values):
         return [Parameter(name=name, value=represent(value)) for name, value in zip(names, values)]

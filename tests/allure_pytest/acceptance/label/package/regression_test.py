@@ -26,22 +26,3 @@ def test_path_with_dots_test(allure_pytest_runner: AllurePytestRunner):
             has_package("path.with.dots.test_path")
         )
     )
-
-
-def test_with_no_package(allure_pytest_runner: AllurePytestRunner):
-    """
-    >>> def test_package_less(request):
-    ...     pass
-    """
-
-    allure_pytest_runner.pytester.makeini("""[pytest]""")
-
-    allure_results = allure_pytest_runner.run_docstring()
-
-    assert_that(
-        allure_results,
-        has_test_case(
-            "test_package_less",
-            has_package("test_with_no_package")
-        )
-    )

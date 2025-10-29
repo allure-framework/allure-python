@@ -12,10 +12,10 @@ class AllureNose2Runner(AllureFrameworkRunner):
     def __init__(self, request: FixtureRequest, pytester: Pytester):
         super().__init__(request, pytester, AllureNose2Runner.LOGGER_PATH)
 
-    def run_docstring(self):
+    def run_docstring(self, module_name=None):
         docstring = self._find_docstring()
         example_code = script_from_examples(docstring)
-        spec = importlib.machinery.ModuleSpec(self.request.node.name, None)
+        spec = importlib.machinery.ModuleSpec(module_name or self.request.node.name, None)
         module = importlib.util.module_from_spec(spec)
         return self._run(module, example_code)
 

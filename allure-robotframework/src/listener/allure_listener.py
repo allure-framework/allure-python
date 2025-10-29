@@ -131,6 +131,7 @@ class AllureListener:
             long_name = attributes.get('longname')
             test_result.name = name
             test_result.fullName = long_name
+            test_result.titlePath = attributes.get("titlepath", [])
             test_result.historyId = md5(long_name)
             test_result.start = now()
 

@@ -3,6 +3,7 @@ import io
 import os
 from urllib.parse import urlparse
 from uuid import UUID
+from pathlib import Path
 
 import pytest
 
@@ -169,6 +170,16 @@ def get_test_name(node, scenario, params):
 def get_full_name(feature, scenario):
     feature_path = os.path.normpath(feature.rel_filename)
     return f"{feature_path}:{scenario.name}"
+
+
+def get_rootdir(request):
+    config = request.config
+    return getattr(config, "rootpath", None) or Path(config.rootdir)
+
+
+def get_title_path(request, feature):
+    parts = Path(feature.filename).relative_to(get_rootdir(request)).parts
+    return [*parts[:-1], feature.name or parts[-1]]
 
 
 def get_uuid(*args):

@@ -74,6 +74,13 @@ def has_title(title):
     return has_entry('name', title)
 
 
+def has_title_path(*matchers):
+    return has_entry(
+        "titlePath",
+        contains_exactly(*matchers),
+    )
+
+
 def has_description(*matchers):
     return has_entry('description', all_of(*matchers))
 
@@ -224,3 +231,7 @@ def with_mode(mode):
 
 def has_history_id(matcher=None):
     return has_entry('historyId', matcher or anything())
+
+
+def has_full_name(matcher):
+    return has_entry("fullName", matcher)

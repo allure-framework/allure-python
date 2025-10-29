@@ -1,7 +1,7 @@
 import robot
 from pytest import FixtureRequest, Pytester
 from tests.e2e import AllureFrameworkRunner, PathlikeT
-from typing import Sequence, Mapping
+from typing import Sequence, Mapping, Union
 from allure_robotframework import allure_robotframework
 
 
@@ -12,6 +12,7 @@ class AllureRobotRunner(AllureFrameworkRunner):
 
     def __init__(self, request: FixtureRequest, pytester: Pytester):
         super().__init__(request, pytester, AllureRobotRunner.LOGGER_PATH)
+        self.rootdir: Union[str, None] = None
 
     def run_robotframework(
         self,
@@ -79,7 +80,7 @@ class AllureRobotRunner(AllureFrameworkRunner):
         )
 
     def _run_framework(self, suites, options):
-        robot.run(*suites, listener=allure_robotframework(None), **options)
+        robot.run(*[self.rootdir] if self.rootdir else suites, listener=allure_robotframework(None), **options)
 
     def __resolve_options(self, options):
         return {

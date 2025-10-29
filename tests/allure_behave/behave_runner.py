@@ -11,7 +11,7 @@ from behave.runner import Context, Runner
 from behave.step_registry import setup_step_decorators
 from behave.step_registry import StepRegistry
 from pytest import FixtureRequest, Pytester
-from typing import Sequence
+from typing import Sequence, Mapping
 from tests.e2e import AllureFrameworkRunner, PathlikeT
 
 from allure_behave.formatter import AllureFormatter
@@ -91,7 +91,10 @@ class _InMemoryBehaveRunner(Runner):
 
     def load_features(self):
         self.features.extend(
-            parse_feature(f) for f in self.__features
+            parse_feature(feature) if isinstance(feature, str) else parse_feature(
+                feature[1],
+                filename=feature[0],
+            ) for feature in self.__features
         )
 
     def load_formatter(self):
@@ -123,6 +126,7 @@ class AllureBehaveRunner(AllureFrameworkRunner):
         feature_paths: Sequence[PathlikeT] = None,
         feature_literals: Sequence[str] = None,
         feature_rst_ids: Sequence[str] = None,
+        feature_files: Mapping[str, str] = None,
         step_paths: Sequence[PathlikeT] = None,
         step_literals: Sequence[str] = None,
         step_rst_ids: Sequence[str] = None,
@@ -172,7 +176,7 @@ class AllureBehaveRunner(AllureFrameworkRunner):
                     paths=feature_paths,
                     literals=feature_literals,
                     rst_ids=feature_rst_ids
-                ),
+                ) + list((feature_files or {}).items()),
                 self._get_all_content(
                     paths=step_paths,
                     literals=step_literals,
