@@ -1,9 +1,14 @@
 import pytest
 from hamcrest import assert_that
+from hamcrest import contains_string
+from hamcrest import all_of
 from tests.allure_behave.behave_runner import AllureBehaveRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_step
+from allure_commons_test.result import has_full_name
+from allure_commons_test.result import has_test_case_id
+from allure_commons_test.result import has_history_id
 
 
 @pytest.mark.parametrize(["step", "status"], [
@@ -139,4 +144,33 @@ def test_nameless_scenario(docstring, behave_runner: AllureBehaveRunner):
             "Scenario",
             with_status("passed")
         )
+    )
+
+
+def test_identifiers_are_set(docstring, behave_runner: AllureBehaveRunner):
+    """
+    Feature: Foo
+
+    Scenario: Bar:
+      Given noop
+    """
+
+    behave_runner.run_behave(
+        feature_literals=[docstring],
+        step_literals=["given('noop')(lambda c:None)"]
+    )
+
+    assert_that(
+        behave_runner.allure_results,
+        has_test_case(
+            "Bar",
+            has_full_name(
+                all_of(
+                    contains_string("Foo"),
+                    contains_string("Bar"),
+                ),
+            ),
+            has_test_case_id(),
+            has_history_id(),
+        ),
     )
