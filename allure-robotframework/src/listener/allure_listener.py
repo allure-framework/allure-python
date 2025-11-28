@@ -132,7 +132,8 @@ class AllureListener:
             test_result.name = name
             test_result.fullName = long_name
             test_result.titlePath = attributes.get("titlepath", [])
-            test_result.historyId = md5(long_name)
+            test_result.testCaseId = md5(long_name)
+            test_result.historyId = test_result.testCaseId
             test_result.start = now()
 
         for container in self.lifecycle.containers():
