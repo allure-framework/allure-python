@@ -233,5 +233,9 @@ def has_history_id(matcher=None):
     return has_entry('historyId', matcher or anything())
 
 
+def has_test_case_id(matcher=None):
+    return has_entry('testCaseId', matcher or anything())
+
+
 def has_full_name(matcher):
     return has_entry("fullName", matcher)

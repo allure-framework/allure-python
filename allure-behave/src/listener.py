@@ -2,6 +2,7 @@ from collections import deque
 import allure_commons
 from allure_commons.reporter import AllureReporter
 from allure_commons.utils import uuid4
+from allure_commons.utils import md5
 from allure_commons.utils import now
 from allure_commons.utils import platform_label
 from allure_commons.types import LabelType, AttachmentType, LinkType
@@ -80,6 +81,7 @@ class AllureListener:
         test_case.fullName = get_fullname(scenario)
         test_case.titlePath = get_title_path(scenario)
         test_case.historyId = scenario_history_id(scenario)
+        test_case.testCaseId = md5(test_case.fullName)
         test_case.description = '\n'.join(scenario.description)
         test_case.parameters = scenario_parameters(scenario)
 
