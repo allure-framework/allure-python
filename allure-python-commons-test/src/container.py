@@ -11,16 +11,16 @@ class HasContainer(BaseMatcher):
 
     def _matches(self, item):
         return has_property(
-            'test_containers',
+            "test_containers",
             has_item(
                 all_of(
-                    has_entry('children', has_item(item['uuid'])),
+                    has_entry("children", has_item(item["uuid"])),
                     *self.matchers
                 )
             )).matches(self.report)
 
     def describe_to(self, description):
-        description.append_text('describe me later').append_list('[', ', ', ']', self.matchers)
+        description.append_text("describe me later").append_list("[", ", ", "]", self.matchers)
 
     def describe_mismatch(self, item, mismatch_description):
         self.matches(item, mismatch_description)
@@ -84,14 +84,14 @@ class HasSameContainer(BaseMatcher):
     @staticmethod
     def _test_case_id_by_name(report, test_case_name):
         for test_case in report.test_cases:
-            if test_case['fullName'].endswith(test_case_name):
-                return test_case['uuid']
+            if test_case["fullName"].endswith(test_case_name):
+                return test_case["uuid"]
 
     def _matches(self, report):
-        return has_property('test_containers',
+        return has_property("test_containers",
                             has_item(
                                      all_of(
-                                            has_entry('children',
+                                            has_entry("children",
                                                       all_of(
                                                              *[has_item(self._test_case_id_by_name(report, name))
                                                                for name in self.test_case_names]
@@ -103,7 +103,7 @@ class HasSameContainer(BaseMatcher):
 
     # TODO better describe
     def describe_to(self, description):
-        description.append_text('test_case has group')
+        description.append_text("test_case has group")
 
 
 def has_same_container(*args):
@@ -156,7 +156,7 @@ def has_fixture(section, name, *matchers):
         section,
         has_item(
             all_of(
-                has_entry('name', equal_to(name)),
+                has_entry("name", equal_to(name)),
                 *matchers
             )
         )
@@ -164,8 +164,8 @@ def has_fixture(section, name, *matchers):
 
 
 def has_before(name, *matchers):
-    return has_fixture('befores', name, *matchers)
+    return has_fixture("befores", name, *matchers)
 
 
 def has_after(name, *matchers):
-    return has_fixture('afters', name, *matchers)
+    return has_fixture("afters", name, *matchers)

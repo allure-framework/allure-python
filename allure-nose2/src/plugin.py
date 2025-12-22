@@ -44,7 +44,7 @@ DecoratorsHelper.register()
 
 
 class Allure(Plugin):
-    configSection = 'allure'
+    configSection = "allure"
     commandLineSwitch = (None, "allure", "Generate an Allure report")
 
     def __init__(self, *args, **kwargs):
@@ -95,7 +95,7 @@ class Allure(Plugin):
                 test_result.labels.extend(labels(event.test))
                 test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
                 test_result.labels.append(Label(name=LabelType.THREAD, value=self._thread))
-                test_result.labels.append(Label(name=LabelType.FRAMEWORK, value='nose2'))
+                test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="nose2"))
                 test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
                 test_result.parameters = params(event)
 

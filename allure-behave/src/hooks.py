@@ -45,7 +45,7 @@ class AllureHooks:
         self.listener = AllureListener(Configuration())
         self.plugins = []
 
-        if not hasattr(_storage, 'file_logger'):
+        if not hasattr(_storage, "file_logger"):
             logger = AllureFileLogger(result_dir)
             _storage.file_logger = logger
             allure_commons.plugin_manager.register(logger)

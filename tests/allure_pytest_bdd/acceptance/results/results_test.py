@@ -47,8 +47,8 @@ def test_custom_alluredir(allure_pytest_bdd_runner: AllurePytestRunner):
             STEPS_CONTENT,
             cli_args=["--alluredir", "allure_results"]
         )
-    assert (alluredir / 'allure_results').exists()
-    results = AllureReport(alluredir / 'allure_results')
+    assert (alluredir / "allure_results").exists()
+    results = AllureReport(alluredir / "allure_results")
     assert len(results.test_cases) == 2
 
 
@@ -64,7 +64,7 @@ def test_clean_alluredir(allure_pytest_bdd_runner: AllurePytestRunner):
             STEPS_CONTENT,
             cli_args=["--alluredir", "allure_results", "--clean-alluredir"]
         )
-    results = AllureReport(alluredir / 'allure_results')
+    results = AllureReport(alluredir / "allure_results")
     assert len(results.test_cases) == 1
 
 
@@ -78,7 +78,7 @@ def test_clean_alluredir_with_collectonly(allure_pytest_bdd_runner: AllurePytest
         STEPS_CONTENT,
         cli_args=["--alluredir", "allure_results"]
     )
-    results_before_clean = AllureReport(alluredir / 'allure_results')
+    results_before_clean = AllureReport(alluredir / "allure_results")
     # run test with --collectonly
     allure_pytest_bdd_runner.run_pytest(
         ("scenario.feature", FEATURE_CONTENT),
@@ -86,5 +86,5 @@ def test_clean_alluredir_with_collectonly(allure_pytest_bdd_runner: AllurePytest
         cli_args=["--alluredir", "allure_results", "--clean-alluredir", "--collectonly"]
     )
     # results should be the same
-    results_after_clean = AllureReport(alluredir / 'allure_results')
+    results_after_clean = AllureReport(alluredir / "allure_results")
     assert results_before_clean.test_cases == results_after_clean.test_cases

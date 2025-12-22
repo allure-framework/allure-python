@@ -457,7 +457,7 @@ def test_undefined_step(allure_pytest_bdd_runner: AllurePytestRunner):
                     has_title("Given unknown"),
                     with_status("broken"),
                     has_status_details(
-                        with_message_contains("Step definition is not found: Given \"unknown\""),
+                        with_message_contains('Step definition is not found: Given "unknown"'),
                     ),
                 ),
                 all_of(

@@ -29,9 +29,9 @@ from allure_behave.utils import get_hook_name
 class AllureListener:
     def __init__(self, behave_config):
         self.behave_config = behave_config
-        self.issue_pattern = behave_config.userdata.get('AllureFormatter.issue_pattern', None)
-        self.link_pattern = behave_config.userdata.get('AllureFormatter.link_pattern', None)
-        self.hide_excluded = behave_config.userdata.get('AllureFormatter.hide_excluded', False)
+        self.issue_pattern = behave_config.userdata.get("AllureFormatter.issue_pattern", None)
+        self.link_pattern = behave_config.userdata.get("AllureFormatter.link_pattern", None)
+        self.hide_excluded = behave_config.userdata.get("AllureFormatter.hide_excluded", False)
         self.logger = AllureReporter()
         self.current_step_uuid = None
         self.current_scenario_uuid = None
@@ -70,7 +70,7 @@ class AllureListener:
 
     @allure_commons.hookimpl
     def start_test(self, parent_uuid, uuid, name, parameters, context):
-        self.start_scenario(context['scenario'])
+        self.start_scenario(context["scenario"])
 
     def start_scenario(self, scenario):
         self.current_scenario_uuid = uuid4()
@@ -82,7 +82,7 @@ class AllureListener:
         test_case.titlePath = get_title_path(scenario)
         test_case.historyId = scenario_history_id(scenario)
         test_case.testCaseId = md5(test_case.fullName)
-        test_case.description = '\n'.join(scenario.description)
+        test_case.description = "\n".join(scenario.description)
         test_case.parameters = scenario_parameters(scenario)
 
         test_case.links.extend(scenario_links(
@@ -91,20 +91,20 @@ class AllureListener:
             link_pattern=self.link_pattern))
         test_case.labels.extend(scenario_labels(scenario))
         test_case.labels.append(Label(name=LabelType.FEATURE, value=scenario.feature.name))
-        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value='behave'))
+        test_case.labels.append(Label(name=LabelType.FRAMEWORK, value="behave"))
         test_case.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
 
         self.logger.schedule_test(self.current_scenario_uuid, test_case)
 
     @allure_commons.hookimpl
     def stop_test(self, parent_uuid, uuid, name, context, exc_type, exc_val, exc_tb):
-        self.stop_scenario(context['scenario'])
+        self.stop_scenario(context["scenario"])
 
     def stop_scenario(self, scenario):
         tag_expression = self.__get_tag_expression(self.behave_config)
         should_run = scenario.should_run_with_tags(tag_expression)
         should_run = should_run and scenario.should_run_with_name_select(self.behave_config)
-        should_drop_skipped_by_option = scenario.status == 'skipped' and not self.behave_config.show_skipped
+        should_drop_skipped_by_option = scenario.status == "skipped" and not self.behave_config.show_skipped
         should_drop_excluded = self.hide_excluded and (scenario.skip_reason == TEST_PLAN_SKIP_REASON or not should_run)
 
         if should_drop_skipped_by_option or should_drop_excluded:
@@ -135,16 +135,16 @@ class AllureListener:
     def start_behave_step(self, step):
 
         self.current_step_uuid = uuid4()
-        name = f'{step.keyword} {step.name}'
+        name = f"{step.keyword} {step.name}"
 
         allure_step = TestStepResult(name=name, start=now())
         self.logger.start_step(None, self.current_step_uuid, allure_step)
 
         if step.text:
-            self.logger.attach_data(uuid4(), step.text, name='.text', attachment_type=AttachmentType.TEXT)
+            self.logger.attach_data(uuid4(), step.text, name=".text", attachment_type=AttachmentType.TEXT)
 
         if step.table:
-            self.logger.attach_data(uuid4(), step_table(step), name='.table', attachment_type=AttachmentType.CSV)
+            self.logger.attach_data(uuid4(), step_table(step), name=".table", attachment_type=AttachmentType.CSV)
 
     def stop_behave_step(self, result):
         status = step_status(result)
@@ -194,7 +194,7 @@ class AllureListener:
     def add_link(self, url, link_type, name):
         test_result = self.logger.get_test(None)
         if test_result:
-            pattern = '{}'
+            pattern = "{}"
             if link_type == LinkType.ISSUE and self.issue_pattern:
                 pattern = self.issue_pattern
             elif link_type == LinkType.LINK and self.link_pattern:
@@ -230,7 +230,7 @@ class GroupContext:
         self._logger.start_group(group.uuid, group)
         self._groups.append(group)
 
-    def exit(self):  # noqa: A003
+    def exit(self):
         group = self._groups.pop()
         if group.befores or group.afters:
             self._logger.stop_group(group.uuid)

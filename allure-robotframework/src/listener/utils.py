@@ -35,12 +35,12 @@ def get_allure_suites(longname):
     Label(name='subSuite', value='Suite3')]
     """
     labels = []
-    suites = longname.split('.')
+    suites = longname.split(".")
     if len(suites) > 3:
         labels.append(Label(LabelType.PARENT_SUITE, suites.pop(0)))
     labels.append(Label(LabelType.SUITE, suites.pop(0)))
     if len(suites) > 1:
-        labels.append(Label(LabelType.SUB_SUITE, '.'.join(suites[:-1])))
+        labels.append(Label(LabelType.SUB_SUITE, ".".join(suites[:-1])))
     return labels
 
 
@@ -60,7 +60,7 @@ def allure_labels(tags):
 
 
 def allure_links(attributes, prefix):
-    tags = attributes.get('tags', ())
+    tags = attributes.get("tags", ())
 
     general_syntax_links = [
         link for link in get_items_of_type_from_tags(
@@ -79,15 +79,15 @@ def allure_links(attributes, prefix):
 
 
 def _parse_link(link):
-    lnk_val = link.split(':', 1)[1] or 'unknown'
-    lnk_label = search(r'^\[(.+)\]', lnk_val)
+    lnk_val = link.split(":", 1)[1] or "unknown"
+    lnk_label = search(r"^\[(.+)\]", lnk_val)
     if lnk_label:
         lnk_val = lnk_val[lnk_label.end():]
         lnk_label = lnk_label.group(1)
     else:
         lnk_label = lnk_val
 
-    return {'name': lnk_label, 'value': lnk_val}
+    return {"name": lnk_label, "value": lnk_val}
 
 
 def _create_link_from_tag(prefix, link_tag):

@@ -4,7 +4,7 @@ from attr import Factory
 
 TEST_GROUP_PATTERN = "{prefix}-container.json"
 TEST_CASE_PATTERN = "{prefix}-result.json"
-ATTACHMENT_PATTERN = '{prefix}-attachment.{ext}'
+ATTACHMENT_PATTERN = "{prefix}-attachment.{ext}"
 INDENT = 4
 
 
@@ -54,7 +54,7 @@ class TestResult(ExecutableItem):
 
 @attrs
 class TestStepResult(ExecutableItem):
-    id = attrib(default=None)  # noqa: A003
+    id = attrib(default=None)
 
 
 @attrs
@@ -83,7 +83,7 @@ class Label:
 
 @attrs
 class Link:
-    type = attrib(default=None)  # noqa: A003
+    type = attrib(default=None)
     url = attrib(default=None)
     name = attrib(default=None)
 
@@ -95,17 +95,16 @@ class StatusDetails:
     message = attrib(default=None)
     trace = attrib(default=None)
 
-
 @attrs
 class Attachment:
     name = attrib(default=None)
     source = attrib(default=None)
-    type = attrib(default=None)  # noqa: A003
+    type = attrib(default=None)
 
 
 class Status:
-    FAILED = 'failed'
-    BROKEN = 'broken'
-    PASSED = 'passed'
-    SKIPPED = 'skipped'
-    UNKNOWN = 'unknown'
+    FAILED = "failed"
+    BROKEN = "broken"
+    PASSED = "passed"
+    SKIPPED = "skipped"
+    UNKNOWN = "unknown"

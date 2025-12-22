@@ -7,9 +7,9 @@ import inspect
 
 # ToDo move to commons
 ALLURE_LABELS = [
-    'epic',
-    'feature',
-    'story',
+    "epic",
+    "feature",
+    "story",
 ]
 
 
@@ -21,8 +21,8 @@ def status_details(event):
     message, trace = None, None
     if event.exc_info:
         exc_type, value, _ = event.exc_info
-        message = '\n'.join(format_exception_only(exc_type, value)) if exc_type or value else None
-        trace = ''.join(util.exc_info_to_string(event.exc_info, event.test))
+        message = "\n".join(format_exception_only(exc_type, value)) if exc_type or value else None
+        trace = "".join(util.exc_info_to_string(event.exc_info, event.test))
     elif event.reason:
         message = event.reason
 

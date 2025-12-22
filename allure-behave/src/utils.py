@@ -14,11 +14,11 @@ from allure_commons.mapping import parse_tag, labels_set
 TEST_PLAN_SKIP_REASON = "Not in allure test plan"
 
 STATUS = {
-    'passed': Status.PASSED,
-    'failed': Status.FAILED,
-    'skipped': Status.SKIPPED,
-    'untested': Status.SKIPPED,
-    'undefined': Status.BROKEN
+    "passed": Status.PASSED,
+    "failed": Status.FAILED,
+    "skipped": Status.SKIPPED,
+    "untested": Status.SKIPPED,
+    "undefined": Status.BROKEN
 }
 
 
@@ -30,7 +30,7 @@ def scenario_history_id(scenario):
     parts = [scenario.feature.name, scenario.name]
     if scenario._row:
         row = scenario._row
-        parts.extend([f'{name}={value}' for name, value in zip(row.headings, row.cells)])
+        parts.extend([f"{name}={value}" for name, value in zip(row.headings, row.cells)])
     return md5(*parts)
 
 
@@ -57,14 +57,14 @@ def scenario_labels(scenario):
 
 def scenario_status(scenario):
     for step in scenario.all_steps:
-        if step_status(step) != 'passed':
+        if step_status(step) != "passed":
             return step_status(step)
     return Status.PASSED
 
 
 def scenario_status_details(scenario):
     for step in scenario.all_steps:
-        if step_status(step) != 'passed':
+        if step_status(step) != "passed":
             return step_status_details(step)
 
 
@@ -151,8 +151,8 @@ def step_status_details(result):
             trace=trace
         )
 
-    elif result.status == 'undefined':
-        message = '\nYou can implement step definitions for undefined steps with these snippets:\n\n'
+    elif result.status == "undefined":
+        message = "\nYou can implement step definitions for undefined steps with these snippets:\n\n"
         message += make_undefined_step_snippet(result)
         return StatusDetails(message=message)
 

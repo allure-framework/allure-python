@@ -1,5 +1,5 @@
 [tool.poe.tasks]
-linter = "flake8 ./src"
+linter = "ruff check"
 
 [tool.poe.tasks.tests]
 cmd = "pytest ../tests/allure_pytest"
