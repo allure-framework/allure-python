@@ -9,7 +9,7 @@ from allure_behave.utils import is_planned_scenario
 
 class AllureFormatter(Formatter):
     def __init__(self, stream_opener, config):
-        super(AllureFormatter, self).__init__(stream_opener, config)
+        super().__init__(stream_opener, config)
 
         self.listener = AllureListener(config)
         self.file_logger = AllureFileLogger(self.stream_opener.name)
