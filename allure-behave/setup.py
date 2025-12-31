@@ -62,7 +62,7 @@ def main():
         package_dir={"allure_behave": "src"},
         setup_requires=setup_requires,
         install_requires=install_requires,
-        python_requires=">=3.7",
+        python_requires=">=3.8",
     )
 
 if __name__ == "__main__":

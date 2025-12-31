@@ -26,7 +26,7 @@ extend-exclude = [
     "tests/allure_behave/acceptance/behave_support/background/background_steps.py",
 ]
 line-length = 120
-target-version = "py37"
+target-version = "py38"
 
 [tool.ruff.lint]
 select = [

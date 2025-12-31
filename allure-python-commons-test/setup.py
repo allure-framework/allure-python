@@ -51,7 +51,7 @@ def main():
         packages=["allure_commons_test"],
         package_dir={"allure_commons_test": "src"},
         install_requires=install_requires,
-        python_requires=">=3.7",
+        python_requires=">=3.8",
     )
 
 if __name__ == "__main__":
