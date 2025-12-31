@@ -62,5 +62,5 @@ if __name__ == "__main__":
         long_description=get_readme("README.md"),
         long_description_content_type="text/markdown",
         classifiers=classifiers,
-        python_requires=">=3.7",
+        python_requires=">=3.8",
     )
