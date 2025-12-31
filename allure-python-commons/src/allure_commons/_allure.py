@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from functools import wraps
-from typing import Any, Callable, TypeVar, Union, overload
+from typing import Any, Callable, TypeVar, overload
 
 from allure_commons._core import plugin_manager
 from allure_commons.types import LabelType, LinkType, ParameterMode
@@ -133,7 +135,7 @@ class Dynamic:
         plugin_manager.hook.add_link(url=url, link_type=link_type, name=name)
 
     @staticmethod
-    def parameter(name, value, excluded=None, mode: Union[ParameterMode, None] = None):
+    def parameter(name, value, excluded=None, mode: ParameterMode | None = None):
         plugin_manager.hook.add_parameter(name=name, value=value, excluded=excluded, mode=mode)
 
     @staticmethod
@@ -162,7 +164,7 @@ class Dynamic:
 
 
 @overload
-def step(title: str) -> "StepContext":
+def step(title: str) -> StepContext:
     ...
 
 

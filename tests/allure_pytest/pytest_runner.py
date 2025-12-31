@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from doctest import script_from_examples
 from pathlib import Path
 from pytest import FixtureRequest, Pytester, StashKey
 from tests.e2e import AllureFrameworkRunner, altered_env, PathlikeT
-from typing import Sequence, Tuple, Union
+from typing import Sequence
 
 from allure_commons.logger import AllureMemoryLogger
 
@@ -123,7 +125,7 @@ class AllurePytestRunner(AllureFrameworkRunner):
 
     def run_pytest(
         self,
-        *testfile_literals: Union[str, Tuple[PathlikeT, str]],
+        *testfile_literals: str | tuple[PathlikeT, str],
         conftest_literal: str = None,
         cli_args: Sequence[str] = None,
         testplan: dict = None
@@ -131,7 +133,7 @@ class AllurePytestRunner(AllureFrameworkRunner):
         """Runs a nested pytest session in an isolated allure context.
 
         Arguments:
-            *testfile_literals (str | Tuple[str | Path, str]): test files to
+            *testfile_literals (str | tuple[str | Path, str]): test files to
                 run. Each test file is represented either as a content string or
                 as a tuple of a path and a string. The path should be relative
                 to the pytester's path.

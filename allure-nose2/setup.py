@@ -59,7 +59,8 @@ def main():
         packages=["allure_nose2"],
         package_dir={"allure_nose2": "src"},
         setup_requires=setup_requires,
-        install_requires=install_requires
+        install_requires=install_requires,
+        python_requires=">=3.7",
     )
 
 

@@ -56,7 +56,7 @@ def main():
         },
         package_dir={"": "src"},
         install_requires=install_requires,
-        python_requires=">=3.6"
+        python_requires=">=3.7",
     )
 
 
