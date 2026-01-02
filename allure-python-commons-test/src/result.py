@@ -221,8 +221,8 @@ def with_trace_contains(string):
     return has_entry("trace", contains_string(string))
 
 
-def with_excluded():
-    return has_entry("excluded", True)
+def with_excluded(excluded: bool = True):
+    return has_entry("excluded", excluded)
 
 
 def with_mode(mode):
