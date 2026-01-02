@@ -1,4 +1,3 @@
-import pytest
 from hamcrest import assert_that, has_entry, ends_with, all_of
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
@@ -182,7 +181,6 @@ def test_dynamic_parameter_excluded(allure_pytest_runner: AllurePytestRunner):
     )
 
 
-@pytest.mark.xfail(reason="Known issue: cannot explicitly set excluded flag to False")
 def test_dynamic_parameter_excluded_false(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
@@ -250,7 +248,6 @@ def test_dynamic_parameter_override(allure_pytest_runner: AllurePytestRunner):
     )
 
 
-@pytest.mark.xfail(reason="Known issue: cannot override excluded flag")
 def test_dynamic_parameter_override_excluded(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
@@ -276,7 +273,6 @@ def test_dynamic_parameter_override_excluded(allure_pytest_runner: AllurePytestR
     )
 
 
-@pytest.mark.xfail(reason="Known issue: cannot override mode")
 def test_dynamic_parameter_override_mode(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import pytest
