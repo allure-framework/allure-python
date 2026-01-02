@@ -1,3 +1,4 @@
+import pytest
 from hamcrest import assert_that, has_entry, ends_with, all_of
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
@@ -181,6 +182,30 @@ def test_dynamic_parameter_excluded(allure_pytest_runner: AllurePytestRunner):
     )
 
 
+@pytest.mark.xfail(reason="Known issue: cannot explicitly set excluded flag to False")
+def test_dynamic_parameter_excluded_false(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+
+    >>> def test_parameter_excluded():
+    ...     allure.dynamic.parameter("param1", "param-value", excluded=False)
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_parameter_excluded",
+            has_parameter(
+                "param1",
+                "'param-value'",
+                with_excluded(False)
+            )
+        )
+    )
+
+
 def test_dynamic_parameter_mode(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
@@ -221,6 +246,58 @@ def test_dynamic_parameter_override(allure_pytest_runner: AllurePytestRunner):
         has_test_case(
             "test_parameter_override[param-id]",
             has_parameter("param1", "'readable-value'")
+        )
+    )
+
+
+@pytest.mark.xfail(reason="Known issue: cannot override excluded flag")
+def test_dynamic_parameter_override_excluded(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import pytest
+    ... import allure
+
+    >>> @pytest.mark.parametrize("param1", [object()], ids=["param-id"])
+    ... def test_parameter_override(param1):
+    ...     allure.dynamic.parameter("param1", "readable-value", excluded=True)
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_parameter_override[param-id]",
+            has_parameter(
+                "param1",
+                "'readable-value'",
+                with_excluded(),
+            ),
+        )
+    )
+
+
+@pytest.mark.xfail(reason="Known issue: cannot override mode")
+def test_dynamic_parameter_override_mode(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import pytest
+    ... import allure
+
+    >>> @pytest.mark.parametrize("param1", [object()], ids=["param-id"])
+    ... def test_parameter_override(param1):
+    ...     allure.dynamic.parameter("param1", "readable-value", mode=allure.parameter_mode.MASKED)
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_parameter_override[param-id]",
+            has_parameter(
+                "param1",
+                "'readable-value'",
+                with_mode("masked"),
+            ),
         )
     )
 
