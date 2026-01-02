@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 import pytest
 import doctest
 
@@ -293,17 +297,26 @@ class AllureListener:
             test_result.labels.append(Label(label_type, label))
 
     @allure_commons.hookimpl
-    def add_parameter(self, name, value, excluded, mode: ParameterMode):
+    def add_parameter(
+        self,
+        name: str,
+        value: Any,
+        excluded: bool | None,
+        mode: ParameterMode | None,
+    ) -> None:
         test_result: TestResult = self.allure_logger.get_test(None)
-        existing_param = next(filter(lambda x: x.name == name, test_result.parameters), None)
+        existing_param = next((p for p in test_result.parameters if p.name == name), None)
+
         if existing_param:
             existing_param.value = represent(value)
+            existing_param.excluded = excluded
+            existing_param.mode = mode.value if mode else None
         else:
             test_result.parameters.append(
                 Parameter(
                     name=name,
                     value=represent(value),
-                    excluded=excluded or None,
+                    excluded=excluded,
                     mode=mode.value if mode else None
                 )
             )

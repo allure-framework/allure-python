@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 import pytest
 
 import allure_commons
@@ -5,6 +9,7 @@ import allure_commons
 from allure_commons.model2 import Label
 from allure_commons.model2 import Link
 from allure_commons.model2 import Parameter
+from allure_commons.types import ParameterMode
 from allure_commons.utils import represent
 
 from .utils import ALLURE_DESCRIPTION_HTML_MARK
@@ -85,7 +90,13 @@ class AllurePytestBddApiHooks:
             test_result.links.append(Link(url=url, name=name, type=link_type))
 
     @allure_commons.hookimpl
-    def add_parameter(self, name, value, excluded, mode):
+    def add_parameter(
+        self,
+        name: str,
+        value: Any,
+        excluded: bool | None,
+        mode: ParameterMode | None,
+    ) -> None:
         with self.lifecycle.update_test_case() as test_result:
             test_result.parameters.append(
                 Parameter(
