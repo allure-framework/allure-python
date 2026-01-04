@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from attr import attrs, attrib
 from attr import Factory
-
 
 TEST_GROUP_PATTERN = "{prefix}-container.json"
 TEST_CASE_PATTERN = "{prefix}-result.json"
@@ -12,49 +13,49 @@ INDENT = 4
 class TestResultContainer:
     file_pattern = TEST_GROUP_PATTERN
 
-    uuid = attrib(default=None)
-    name = attrib(default=None)
-    children = attrib(default=Factory(list))
-    description = attrib(default=None)
-    descriptionHtml = attrib(default=None)
-    befores = attrib(default=Factory(list))
-    afters = attrib(default=Factory(list))
-    links = attrib(default=Factory(list))
-    start = attrib(default=None)
-    stop = attrib(default=None)
+    uuid: str = attrib(default=None)
+    name: str | None = attrib(default=None)
+    children: list[str] = attrib(default=Factory(list))
+    description: str | None = attrib(default=None)
+    descriptionHtml: str | None = attrib(default=None)
+    befores: list[TestBeforeResult] = attrib(default=Factory(list))
+    afters: list[TestAfterResult] = attrib(default=Factory(list))
+    links: list[Link] = attrib(default=Factory(list))
+    start: int | None = attrib(default=None)
+    stop: int | None = attrib(default=None)
 
 
 @attrs
 class ExecutableItem:
-    name = attrib(default=None)
-    status = attrib(default=None)
-    statusDetails = attrib(default=None)
-    stage = attrib(default=None)
-    description = attrib(default=None)
-    descriptionHtml = attrib(default=None)
-    steps = attrib(default=Factory(list))
-    attachments = attrib(default=Factory(list))
-    parameters = attrib(default=Factory(list))
-    start = attrib(default=None)
-    stop = attrib(default=None)
+    name: str | None = attrib(default=None)
+    status: str | None = attrib(default=None)
+    statusDetails: StatusDetails | None = attrib(default=None)
+    stage: str | None = attrib(default=None)
+    description: str | None = attrib(default=None)
+    descriptionHtml: str | None = attrib(default=None)
+    steps: list[TestStepResult] = attrib(default=Factory(list))
+    attachments: list[Attachment] = attrib(default=Factory(list))
+    parameters: list[Parameter] = attrib(default=Factory(list))
+    start: int | None = attrib(default=None)
+    stop: int | None = attrib(default=None)
 
 
 @attrs
 class TestResult(ExecutableItem):
     file_pattern = TEST_CASE_PATTERN
 
-    uuid = attrib(default=None)
-    historyId = attrib(default=None)
-    testCaseId = attrib(default=None)
-    fullName = attrib(default=None)
-    labels = attrib(default=Factory(list))
-    links = attrib(default=Factory(list))
-    titlePath = attrib(default=Factory(list))
+    uuid: str = attrib(default=None)
+    historyId: str | None = attrib(default=None)
+    testCaseId: str | None = attrib(default=None)
+    fullName: str | None = attrib(default=None)
+    labels: list[Label] = attrib(default=Factory(list))
+    links: list[Link] = attrib(default=Factory(list))
+    titlePath: list[str] = attrib(default=Factory(list))
 
 
 @attrs
 class TestStepResult(ExecutableItem):
-    id = attrib(default=None)
+    id: str | None = attrib(default=None)
 
 
 @attrs
@@ -69,37 +70,37 @@ class TestAfterResult(ExecutableItem):
 
 @attrs
 class Parameter:
-    name = attrib(default=None)
-    value = attrib(default=None)
-    excluded = attrib(default=None)
-    mode = attrib(default=None)
+    name: str = attrib(default=None)
+    value: str = attrib(default=None)
+    excluded: bool | None = attrib(default=None)
+    mode: str | None = attrib(default=None)
 
 
 @attrs
 class Label:
-    name = attrib(default=None)
-    value = attrib(default=None)
+    name: str = attrib(default=None)
+    value: str = attrib(default=None)
 
 
 @attrs
 class Link:
-    type = attrib(default=None)
-    url = attrib(default=None)
-    name = attrib(default=None)
+    type: str | None = attrib(default=None)
+    url: str = attrib(default=None)
+    name: str | None = attrib(default=None)
 
 
 @attrs
 class StatusDetails:
-    known = attrib(default=None)
-    flaky = attrib(default=None)
-    message = attrib(default=None)
-    trace = attrib(default=None)
+    known: bool | None = attrib(default=None)
+    flaky: bool | None = attrib(default=None)
+    message: str | None = attrib(default=None)
+    trace: str | None = attrib(default=None)
 
 @attrs
 class Attachment:
-    name = attrib(default=None)
-    source = attrib(default=None)
-    type = attrib(default=None)
+    name: str = attrib(default=None)
+    source: str = attrib(default=None)
+    type: str | None = attrib(default=None)
 
 
 class Status:
