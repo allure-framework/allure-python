@@ -9,6 +9,7 @@ from allure_commons._allure import epic, feature, story
 from allure_commons._allure import link, issue, testcase
 from allure_commons._allure import Dynamic as dynamic
 from allure_commons._allure import step
+from allure_commons._allure import add_parameter
 from allure_commons._allure import attach
 from allure_commons._allure import manual
 from allure_commons.types import Severity as severity_level
@@ -35,6 +36,7 @@ __all__ = [
     "testcase",
     "manual",
     "step",
+    "add_parameter",
     "dynamic",
     "severity_level",
     "attach",
