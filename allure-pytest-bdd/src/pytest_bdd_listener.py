@@ -141,5 +141,5 @@ class PytestBDDListener:
                     attach_data(self.lifecycle, report.capstderr, "stderr", AttachmentType.TEXT, None)
                 post_process_test_result(item, test_result)
 
-        if report.when == 'teardown':
+        if report.when == "teardown":
             self.lifecycle.write_test_case(uuid=uuid)

@@ -63,14 +63,14 @@ def test_failed_in_library(docstring, robot_runner: AllureRobotRunner):
             with_status("failed"),
             has_status_details(
                 with_message_contains("Reason"),
-                with_trace_contains("library.py\", line 3, in fail_in_library")
+                with_trace_contains('library.py", line 3, in fail_in_library')
             ),
             has_step(
                 "library.Fail In Library",
                 with_status("failed"),
                 has_status_details(
                     with_message_contains("Reason"),
-                    with_trace_contains("library.py\", line 3, in fail_in_library")
+                    with_trace_contains('library.py", line 3, in fail_in_library')
                 )
             )
         )

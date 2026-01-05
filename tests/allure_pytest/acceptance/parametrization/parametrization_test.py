@@ -198,7 +198,7 @@ def test_dynamic_parameter_mode(allure_pytest_runner: AllurePytestRunner):
             has_parameter(
                 "param1",
                 "'param-value'",
-                with_mode('masked')
+                with_mode("masked")
             )
         )
     )
@@ -271,7 +271,7 @@ def test_fullname_with_braces(allure_pytest_runner: AllurePytestRunner):
         has_test_case(
             "test_with_braces[qwe][]",
             has_entry(
-                'fullName',
+                "fullName",
                 ends_with(".TestClass#test_with_braces")
             ),
             has_parameter("param1", "'qwe]['")

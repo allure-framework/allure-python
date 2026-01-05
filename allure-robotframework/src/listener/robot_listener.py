@@ -7,7 +7,7 @@ from allure_robotframework.allure_listener import AllureListener
 from allure_robotframework.types import RobotKeywordType
 
 
-DEFAULT_OUTPUT_PATH = os.path.join('output', 'allure')
+DEFAULT_OUTPUT_PATH = os.path.join("output", "allure")
 
 
 # noinspection PyPep8Naming
@@ -47,9 +47,9 @@ class allure_robotframework:
 
     def start_keyword(self, name, attributes):
         self.messages.start_context()
-        keyword_type = attributes.get('type')
+        keyword_type = attributes.get("type")
         # Todo fix value assign
-        keyword_name = '{} = {}'.format(attributes.get('assign')[0], name) if attributes.get('assign') else name
+        keyword_name = "{} = {}".format(attributes.get("assign")[0], name) if attributes.get("assign") else name
         if keyword_type.upper() == RobotKeywordType.SETUP:
             self.listener.start_before_fixture(keyword_name)
         elif keyword_type.upper() == RobotKeywordType.TEARDOWN:
@@ -59,7 +59,7 @@ class allure_robotframework:
 
     def end_keyword(self, _, attributes):
         messages = self.messages.stop_context()
-        keyword_type = attributes.get('type')
+        keyword_type = attributes.get("type")
         if keyword_type.upper() == RobotKeywordType.SETUP:
             self.listener.stop_before_fixture(attributes, messages)
         elif keyword_type.upper() == RobotKeywordType.TEARDOWN:

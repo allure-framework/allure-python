@@ -84,19 +84,19 @@ class AllureReport:
         self.test_cases = [
             json.load(file) for _, file in self._report_items(
                 result,
-                '*result.json'
+                "*result.json"
             )
         ]
         self.test_containers = [
             json.load(file) for _, file in self._report_items(
                 result,
-                '*container.json'
+                "*container.json"
             )
         ]
         self.attachments = {
             name: file.read() for name, file in self._report_items(
                 result,
-                '*attachment.*'
+                "*attachment.*"
             )
         }
 
@@ -111,12 +111,12 @@ class AllureReport:
 
 def has_test_case(name, *matchers):
     return has_property(
-        'test_cases',
+        "test_cases",
         has_item(
             all_of(
                 any_of(
-                    has_entry('fullName', ends_with(name)),
-                    has_entry('name', starts_with(name))
+                    has_entry("fullName", ends_with(name)),
+                    has_entry("name", starts_with(name))
                 ),
                 *matchers
             )
@@ -129,7 +129,7 @@ class HasOnlyTetcases(BaseMatcher):
         self.matchers = matchers
 
     def _matches(self, item):
-        return has_property('test_cases',
+        return has_property("test_cases",
                             only_contains(any_of(*self.matchers))
                             ).matches(item)
 
@@ -160,19 +160,19 @@ class ContainsExactly(BaseMatcher):
 
     def describe_to(self, description):
         description.append_text(
-            f'exactly {self.num} item(s) matching '
+            f"exactly {self.num} item(s) matching "
         ).append_text(self.matcher)
 
 
 def has_only_n_test_cases(name, num, *matchers):
     return has_property(
-        'test_cases',
+        "test_cases",
         ContainsExactly(
             num,
             all_of(
                 any_of(
-                    has_entry('fullName', ends_with(name)),
-                    has_entry('name', ends_with(name))
+                    has_entry("fullName", ends_with(name)),
+                    has_entry("name", ends_with(name))
                 ),
                 *matchers
             )

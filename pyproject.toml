@@ -1,5 +1,5 @@
 [tool.poe.tasks]
-linter = "flake8 ./allure-*/src ./tests"
+linter = "ruff check"
 allure-generate = "allure generate --clean --output ./.allure-report ./.allure-results"
 allure-open = "allure open ./.allure-report"
 
@@ -18,4 +18,20 @@ testpaths = [
 addopts = [
     "-p", "no:allure_pytest",
     "-p", "no:allure_pytest_bdd"
+]
+
+[tool.ruff]
+extend-exclude = [
+    "tests/allure_behave/acceptance/**/test-data/**",
+    "tests/allure_behave/acceptance/behave_support/background/background_steps.py",
+]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "A",  # flake8-builtins
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "Q",  # flake8-quotes
+    "W",  # pycodestyle warnings
 ]

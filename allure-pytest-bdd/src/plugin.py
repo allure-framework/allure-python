@@ -15,20 +15,20 @@ from .utils import ALLURE_LINK_MARK
 
 
 def pytest_addoption(parser):
-    parser.getgroup("reporting").addoption('--alluredir',
+    parser.getgroup("reporting").addoption("--alluredir",
                                            action="store",
                                            dest="allure_report_dir",
                                            metavar="DIR",
                                            default=None,
                                            help="Generate Allure report in the specified directory (may not exist)")
 
-    parser.getgroup("reporting").addoption('--clean-alluredir',
+    parser.getgroup("reporting").addoption("--clean-alluredir",
                                            action="store_true",
                                            dest="clean_alluredir",
                                            help="Clean alluredir folder if it exists")
 
     def link_pattern(string):
-        pattern = string.split(':', 1)
+        pattern = string.split(":", 1)
         if not pattern[0]:
             raise argparse.ArgumentTypeError("A link type is mandatory")
 

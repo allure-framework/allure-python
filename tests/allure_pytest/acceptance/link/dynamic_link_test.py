@@ -64,10 +64,10 @@ def test_unique_dynamic_links(allure_pytest_runner: AllurePytestRunner):
     allure_results = allure_pytest_runner.run_docstring()
 
     assert_that(
-        allure_results.test_cases[0]['links'],
+        allure_results.test_cases[0]["links"],
         equal_to([{
-            'url': 'some/unique/dynamic/link',
-            'type': 'link',
-            'name': 'some/unique/dynamic/link'
+            "url": "some/unique/dynamic/link",
+            "type": "link",
+            "name": "some/unique/dynamic/link"
         }])
     )

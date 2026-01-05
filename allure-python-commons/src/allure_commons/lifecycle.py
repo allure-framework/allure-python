@@ -125,7 +125,7 @@ class AllureLifecycle:
 
     def _attach(self, uuid, name=None, attachment_type=None, extension=None, parent_uuid=None):
         mime_type = attachment_type
-        extension = extension if extension else 'attach'
+        extension = extension if extension else "attach"
 
         if type(attachment_type) is AttachmentType:
             extension = attachment_type.extension

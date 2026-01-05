@@ -1,3 +1,2 @@
 -r ./core.txt
-flake8
-flake8-builtins
+ruff

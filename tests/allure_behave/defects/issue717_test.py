@@ -44,7 +44,7 @@ class CsvTestData:
     pytest.param(
         [
             ["a"],
-            ["\""]
+            ['"']
         ],
         id="quote"
     ),
@@ -58,7 +58,7 @@ class CsvTestData:
     pytest.param(
         [
             ["a", "b"],
-            ["\"1\",2", "3\",4"]
+            ['"1",2', '3",4']
         ],
         id="mix"
     )

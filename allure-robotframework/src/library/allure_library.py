@@ -1,7 +1,7 @@
 import allure
 
 
-__all__ = ['attach', 'attach_file']
+__all__ = ["attach", "attach_file"]
 
 
 def _attachment_type(name):

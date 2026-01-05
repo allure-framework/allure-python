@@ -27,8 +27,8 @@ from .storage import get_test_data
 ALLURE_TITLE_ATTR = "__allure_display_name__"
 ALLURE_DESCRIPTION_MARK = "allure_description"
 ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
-ALLURE_LABEL_MARK = 'allure_label'
-ALLURE_LINK_MARK = 'allure_link'
+ALLURE_LABEL_MARK = "allure_label"
+ALLURE_LINK_MARK = "allure_link"
 
 MARK_NAMES_TO_IGNORE = {
     "usefixtures",
@@ -236,13 +236,13 @@ def get_scenario_status_details(report, excinfo):
 
 
 def get_outline_params(node):
-    if hasattr(node, 'callspec'):
-        return node.callspec.params.get('_pytest_bdd_example', {})
+    if hasattr(node, "callspec"):
+        return node.callspec.params.get("_pytest_bdd_example", {})
     return {}
 
 
 def get_pytest_params(node):
-    if hasattr(node, 'callspec'):
+    if hasattr(node, "callspec"):
         pytest_params = dict(node.callspec.params)
         if "_pytest_bdd_example" in pytest_params:
             del pytest_params["_pytest_bdd_example"]

@@ -39,8 +39,8 @@ DEFAULT_POOL_ID = "default-" + uuid4()
 
 
 def pool_id():
-    pabot_pool_id = BuiltIn().get_variable_value('${PABOTEXECUTIONPOOLID}')
-    pabot_caller_id = BuiltIn().get_variable_value('${CALLER_ID}')
+    pabot_pool_id = BuiltIn().get_variable_value("${PABOTEXECUTIONPOOLID}")
+    pabot_caller_id = BuiltIn().get_variable_value("${CALLER_ID}")
     return f"{pabot_pool_id}-{pabot_caller_id}" if all([
         pabot_pool_id,
         pabot_caller_id
@@ -52,9 +52,9 @@ def get_message_time(timestamp):
     return int(s_time.timestamp() * 1000)
 
 
-LOG_MESSAGE_FORMAT = '<p><b>[{level}]</b>&nbsp;{message}</p>'
+LOG_MESSAGE_FORMAT = "<p><b>[{level}]</b>&nbsp;{message}</p>"
 FAIL_MESSAGE_FORMAT = '<p style="color: red"><b>[{level}]</b>&nbsp;{message}</p>'
-MAX_STEP_MESSAGE_COUNT = int(os.getenv('ALLURE_MAX_STEP_MESSAGE_COUNT', 0))
+MAX_STEP_MESSAGE_COUNT = int(os.getenv("ALLURE_MAX_STEP_MESSAGE_COUNT", 0))
 
 
 class AllureListener:
@@ -70,8 +70,8 @@ class AllureListener:
             pass
 
     def stop_suite_container(self, name, attributes):
-        suite_status = get_allure_status(attributes.get('status'))
-        suite_message = attributes.get('message')
+        suite_status = get_allure_status(attributes.get("status"))
+        suite_message = attributes.get("message")
 
         with self.lifecycle.update_container() as container:
             for uuid in container.children:
@@ -89,8 +89,8 @@ class AllureListener:
             pass
 
     def stop_test_container(self, name, attributes):
-        suite_status = get_allure_status(attributes.get('status'))
-        suite_message = attributes.get('message')
+        suite_status = get_allure_status(attributes.get("status"))
+        suite_message = attributes.get("message")
 
         with self.lifecycle.schedule_test_case() as test_result:
             if test_result.status == Status.PASSED and suite_message:
@@ -106,7 +106,7 @@ class AllureListener:
             fixture.name = name
 
     def stop_before_fixture(self, attributes, messages):
-        status = attributes.get('status')
+        status = attributes.get("status")
         self._report_messages(status, messages)
         with self.lifecycle.update_before_fixture() as fixture:
             fixture.status = get_allure_status(status)
@@ -118,7 +118,7 @@ class AllureListener:
             fixture.name = name
 
     def stop_after_fixture(self, attributes, messages):
-        status = attributes.get('status')
+        status = attributes.get("status")
         self._report_messages(status, messages)
         with self.lifecycle.update_after_fixture() as fixture:
             fixture.status = get_allure_status(status)
@@ -128,7 +128,7 @@ class AllureListener:
     def start_test(self, name, attributes):
         uuid = uuid4()
         with self.lifecycle.schedule_test_case(uuid=uuid) as test_result:
-            long_name = attributes.get('longname')
+            long_name = attributes.get("longname")
             test_result.name = name
             test_result.fullName = long_name
             test_result.titlePath = attributes.get("titlepath", [])
@@ -140,26 +140,26 @@ class AllureListener:
             container.children.append(uuid)
 
     def stop_test(self, _, attributes, messages):
-        self._report_messages(attributes.get('status'), messages)
+        self._report_messages(attributes.get("status"), messages)
 
-        if 'skipped' in [tag.lower() for tag in attributes['tags']]:
-            attributes['status'] = RobotStatus.SKIPPED
+        if "skipped" in [tag.lower() for tag in attributes["tags"]]:
+            attributes["status"] = RobotStatus.SKIPPED
 
         with self.lifecycle.update_test_case() as test_result:
             test_result.stop = now()
-            test_result.description = attributes.get('doc')
-            test_result.status = get_allure_status(attributes.get('status'))
-            test_result.labels.extend(get_allure_suites(attributes.get('longname')))
-            test_result.labels.append(Label(name=LabelType.FRAMEWORK, value='robotframework'))
+            test_result.description = attributes.get("doc")
+            test_result.status = get_allure_status(attributes.get("status"))
+            test_result.labels.extend(get_allure_suites(attributes.get("longname")))
+            test_result.labels.append(Label(name=LabelType.FRAMEWORK, value="robotframework"))
             test_result.labels.append(Label(name=LabelType.LANGUAGE, value=self._platform))
             test_result.labels.append(Label(name=LabelType.HOST, value=self._host))
             test_result.labels.append(Label(name=LabelType.THREAD, value=pool_id()))
-            tags = attributes.get('tags', ())
+            tags = attributes.get("tags", ())
             test_result.labels.extend(allure_labels(tags))
-            test_result.statusDetails = StatusDetails(message=attributes.get('message'),
+            test_result.statusDetails = StatusDetails(message=attributes.get("message"),
                                                       trace=self._current_tb)
 
-            if attributes.get('critical') == 'yes':
+            if attributes.get("critical") == "yes":
                 test_result.labels.append(Label(name=LabelType.SEVERITY, value=Severity.CRITICAL))
 
             for link_type in (LinkType.ISSUE, LinkType.TEST_CASE, LinkType.LINK):
@@ -172,11 +172,11 @@ class AllureListener:
             step.name = name
 
     def stop_keyword(self, attributes, messages):
-        status = attributes.get('status')
+        status = attributes.get("status")
         self._report_messages(status, messages)
         with self.lifecycle.update_step() as step:
             step.status = get_allure_status(status)
-            step.parameters = get_allure_parameters(attributes.get('args'))
+            step.parameters = get_allure_parameters(attributes.get("args"))
             step.statusDetails = StatusDetails(message=self._current_msg, trace=self._current_tb)
         self.lifecycle.stop_step()
 
@@ -188,8 +188,8 @@ class AllureListener:
             self._current_tb, self._current_msg = None, None
 
         for message, next_message in zip_longest(messages, messages[1:]):
-            name = message.get('message')
-            level = message.get('level')
+            name = message.get("message")
+            level = message.get("level")
             message_format = FAIL_MESSAGE_FORMAT if level in RobotLogLevel.CRITICAL_LEVELS else LOG_MESSAGE_FORMAT
 
             if level == RobotLogLevel.FAIL:
@@ -197,7 +197,7 @@ class AllureListener:
                 self._current_tb = next_message.get("message") if has_trace and next_message else self._current_tb
 
             if len(messages) > MAX_STEP_MESSAGE_COUNT:
-                attachment += message_format.format(level=level, message=name.replace('\n', '<br>'))
+                attachment += message_format.format(level=level, message=name.replace("\n", "<br>"))
             else:
                 with self.lifecycle.start_step() as step:
                     step.name = name
@@ -206,7 +206,7 @@ class AllureListener:
                 self.lifecycle.stop_step()
 
         if attachment:
-            self.lifecycle.attach_data(uuid=uuid4(), body=attachment, name='Keyword Log',
+            self.lifecycle.attach_data(uuid=uuid4(), body=attachment, name="Keyword Log",
                                        attachment_type=AttachmentType.HTML)
 
     @allure_commons.hookimpl

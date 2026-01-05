@@ -24,7 +24,7 @@ class AllureFormatter(Formatter):
             if isinstance(scenario, ScenarioOutline):
                 self._wrap_scenario(scenario)
             else:
-                scenario.run = allure_commons.test(scenario.run, context={'scenario': scenario})
+                scenario.run = allure_commons.test(scenario.run, context={"scenario": scenario})
             is_planned_scenario(scenario, self.testplan)
 
     def uri(self, uri):
