@@ -248,7 +248,7 @@ class AllureListener:
         if hasattr(report, "context"):
             item_uuid = self._cache.get(report.nodeid)
             step_uuid = uuid4()
-            step = TestStepResult(name=report.context.msg, start=report.start)
+            step = TestStepResult(name=report.context.msg or report.head_line, start=report.start)
             if report.longrepr:
                 status_details = StatusDetails(
                     message=report.longrepr.reprcrash.message,
