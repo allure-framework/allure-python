@@ -250,11 +250,19 @@ class AllureListener:
             step_uuid = uuid4()
             step = TestStepResult(name=report.context.msg, start=report.start)
             if report.longrepr:
-                status_details = StatusDetails(message=report.longrepr.reprcrash.message, trace=report.longreprtext)
+                status_details = StatusDetails(
+                    message=report.longrepr.reprcrash.message,
+                    trace=report.longreprtext
+                )
             else:
                 status_details = None
             self.allure_logger.start_step(item_uuid, step_uuid, step)
-            self.allure_logger.stop_step(step_uuid, stop=report.stop, status=report.outcome, statusDetails=status_details)
+            self.allure_logger.stop_step(
+                step_uuid,
+                stop=report.stop,
+                status=report.outcome,
+                statusDetails=status_details
+            )
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_logfinish(self, nodeid, location):
