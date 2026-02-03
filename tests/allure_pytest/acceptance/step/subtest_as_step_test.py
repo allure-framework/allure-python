@@ -1,3 +1,5 @@
+import pytest
+
 from hamcrest import assert_that
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
@@ -8,11 +10,11 @@ from allure_commons_test.result import with_message_contains
 from allure_commons_test.result import has_status_details
 
 
+@pytest.mark.skipif("pytest.version_tuple[0] < 9")
 def test_with_subtest(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
     >>> import pytest
-    >>> @pytest.mark.skipif("pytest.__version__[0] < '9'")
     >>> def test_with_subtest(subtests):
     ...    with subtests.test(msg='Some failed subtest'):
     ...        assert False, 'Some error'
@@ -42,11 +44,11 @@ def test_with_subtest(allure_pytest_runner: AllurePytestRunner):
     )
 
 
+@pytest.mark.skipif("pytest.version_tuple[0] < 9")
 def test_with_subtest_without_msg(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure
     >>> import pytest
-    >>> @pytest.mark.skipif("pytest.__version__[0] < '9'")
     >>> def test_with_subtest_without_msg(subtests):
     ...    with subtests.test():
     ...        pass
