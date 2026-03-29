@@ -46,6 +46,7 @@ class AttachmentType(Enum):
     URI_LIST = ("text/uri-list", "uri")
 
     HTML = ("text/html", "html")
+    MARKDOWN = ("text/markdown", "md")
     XML = ("application/xml", "xml")
     JSON = ("application/json", "json")
     YAML = ("application/yaml", "yaml")
