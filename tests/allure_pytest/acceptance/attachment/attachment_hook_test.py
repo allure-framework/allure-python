@@ -1,4 +1,6 @@
-from hamcrest import assert_that, has_item, all_of, has_entry, equal_to, ends_with, not_, anything
+from hamcrest import assert_that, has_item, all_of
+from hamcrest import has_entry, equal_to, ends_with
+from hamcrest import not_, anything, has_length
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
 from allure_commons_test.report import has_test_case
@@ -7,6 +9,7 @@ from allure_commons_test.result import has_global_attachment_with_content
 from allure_commons_test.result import has_global_error
 from allure_commons_test.result import with_message_contains
 from allure_commons_test.result import with_trace_contains
+from allure_commons_test.result import with_no_trace
 
 
 def test_attach_from_runtest_teardown(allure_pytest_runner: AllurePytestRunner):
@@ -90,6 +93,11 @@ def test_globals_from_session_hooks(allure_pytest_runner: AllurePytestRunner):
 
     assert_that(
         allure_results.globals,
+        has_length(5),
+    )
+
+    assert_that(
+        allure_results.globals,
         all_of(
             has_item(
                 has_global_attachment_with_content(
@@ -106,14 +114,9 @@ def test_globals_from_session_hooks(allure_pytest_runner: AllurePytestRunner):
                 )
             ),
             has_item(
-                has_entry(
-                    "errors",
-                    has_item(
-                        all_of(
-                            with_message_contains("message only error"),
-                                not_(has_entry("trace", anything()))
-                        )
-                    )
+                has_global_error(
+                    with_message_contains("message only error"),
+                    with_no_trace(),
                 )
             ),
             has_item(

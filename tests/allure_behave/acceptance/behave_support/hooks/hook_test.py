@@ -1,6 +1,6 @@
 import allure
 from tests.allure_behave.behave_runner import AllureBehaveRunner as Runner
-from hamcrest import assert_that, all_of, not_, equal_to, has_item
+from hamcrest import assert_that, all_of, not_, equal_to, has_item, has_length
 from allure_commons_test.container import has_container, has_before, has_after
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
@@ -135,6 +135,11 @@ def before_all(context):
 def after_all(context):
     allure.global_error("behave global error")
 """
+    )
+
+    assert_that(
+        behave_runner.allure_results.globals,
+        has_length(2),
     )
 
     assert_that(

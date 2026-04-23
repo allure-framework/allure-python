@@ -5,6 +5,7 @@ from hamcrest import equal_to
 from hamcrest import ends_with
 from hamcrest import has_item
 from hamcrest import not_
+from hamcrest import has_length
 
 from allure_commons_test.content import csv_equivalent
 from allure_commons_test.report import has_test_case
@@ -281,6 +282,8 @@ def test_global_attachment_and_error_from_hook(allure_pytest_bdd_runner: AllureP
         steps_content,
         conftest_literal=conftest_content,
     )
+
+    assert_that(allure_results.globals, has_length(2))
 
     assert_that(
         allure_results.globals,
