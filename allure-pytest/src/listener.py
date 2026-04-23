@@ -259,11 +259,23 @@ class AllureListener:
 
     @allure_commons.hookimpl
     def global_attach_data(self, body, name, attachment_type, extension):
-        self.allure_logger.global_attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
+        self.allure_logger.global_attach_data(
+            uuid4(),
+            body,
+            name=name,
+            attachment_type=attachment_type,
+            extension=extension,
+        )
 
     @allure_commons.hookimpl
     def global_attach_file(self, source, name, attachment_type, extension):
-        self.allure_logger.global_attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
+        self.allure_logger.global_attach_file(
+            uuid4(),
+            source,
+            name=name,
+            attachment_type=attachment_type,
+            extension=extension,
+        )
 
     @allure_commons.hookimpl
     def global_error(self, message, trace):

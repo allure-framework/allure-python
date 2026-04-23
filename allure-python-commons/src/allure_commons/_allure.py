@@ -220,10 +220,20 @@ attach = Attach()
 class GlobalAttach:
 
     def __call__(self, body, name=None, attachment_type=None, extension=None):
-        plugin_manager.hook.global_attach_data(body=body, name=name, attachment_type=attachment_type, extension=extension)
+        plugin_manager.hook.global_attach_data(
+            body=body,
+            name=name,
+            attachment_type=attachment_type,
+            extension=extension,
+        )
 
     def file(self, source, name=None, attachment_type=None, extension=None):
-        plugin_manager.hook.global_attach_file(source=source, name=name, attachment_type=attachment_type, extension=extension)
+        plugin_manager.hook.global_attach_file(
+            source=source,
+            name=name,
+            attachment_type=attachment_type,
+            extension=extension,
+        )
 
 
 global_attach = GlobalAttach()

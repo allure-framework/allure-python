@@ -125,7 +125,11 @@ class AllureLifecycle:
             fixture.stop = now()
 
     def _attach(self, uuid, name=None, attachment_type=None, extension=None, parent_uuid=None):
-        file_name, mime_type = self.__resolve_attachment_filename_and_type(uuid, attachment_type=attachment_type, extension=extension)
+        file_name, mime_type = self.__resolve_attachment_filename_and_type(
+            uuid,
+            attachment_type=attachment_type,
+            extension=extension,
+        )
         attachment = Attachment(source=file_name, name=name, type=mime_type)
         last_uuid = parent_uuid if parent_uuid else self._last_item_uuid(ExecutableItem)
         self._items[last_uuid].attachments.append(attachment)
@@ -143,14 +147,22 @@ class AllureLifecycle:
         plugin_manager.hook.report_attached_data(body=body, file_name=file_name)
 
     def global_attach_file(self, uuid, source, name=None, attachment_type=None, extension=None):
-        file_name, mime_type = self.__resolve_attachment_filename_and_type(uuid, attachment_type=attachment_type, extension=extension)
+        file_name, mime_type = self.__resolve_attachment_filename_and_type(
+            uuid,
+            attachment_type=attachment_type,
+            extension=extension,
+        )
         plugin_manager.hook.report_attached_file(source=source, file_name=file_name)
         plugin_manager.hook.report_globals(globals_item=Globals(attachments=[
             GlobalAttachment(source=file_name, name=name, type=mime_type, timestamp=now())
         ]))
 
     def global_attach_data(self, uuid, body, name=None, attachment_type=None, extension=None):
-        file_name, mime_type = self.__resolve_attachment_filename_and_type(uuid, attachment_type=attachment_type, extension=extension)
+        file_name, mime_type = self.__resolve_attachment_filename_and_type(
+            uuid,
+            attachment_type=attachment_type,
+            extension=extension,
+        )
         plugin_manager.hook.report_attached_data(body=body, file_name=file_name)
         plugin_manager.hook.report_globals(globals_item=Globals(attachments=[
             GlobalAttachment(source=file_name, name=name, type=mime_type, timestamp=now())

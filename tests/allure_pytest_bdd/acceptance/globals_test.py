@@ -8,8 +8,6 @@ from allure_commons_test.result import has_global_error
 from allure_commons_test.result import with_message_contains
 
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
-from tests.e2e import version_lt
-from tests.e2e import version_gte
 
 
 def test_global_attachment_and_error_from_hook(allure_pytest_bdd_runner: AllurePytestRunner):
