@@ -47,6 +47,10 @@ class AllureFileLogger:
             else:
                 attached_file.write(body)
 
+    @hookimpl
+    def report_globals(self, globals_item):
+        self._report_item(globals_item)
+
 
 class AllureMemoryLogger:
 
@@ -54,6 +58,7 @@ class AllureMemoryLogger:
         self.test_cases = []
         self.test_containers = []
         self.attachments = {}
+        self.globals = []
 
     @hookimpl
     def report_result(self, result):
@@ -72,3 +77,8 @@ class AllureMemoryLogger:
     @hookimpl
     def report_attached_data(self, body, file_name):
         self.attachments[file_name] = body
+
+    @hookimpl
+    def report_globals(self, globals_item):
+        data = asdict(globals_item, filter=lambda _, v: v or v is False)
+        self.globals.append(data)

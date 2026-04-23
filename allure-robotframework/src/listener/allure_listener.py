@@ -240,6 +240,18 @@ class AllureListener:
         self.lifecycle.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
 
     @allure_commons.hookimpl
+    def global_attach_data(self, body, name, attachment_type, extension):
+        self.lifecycle.global_attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def global_attach_file(self, source, name, attachment_type, extension):
+        self.lifecycle.global_attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def global_error(self, message, trace):
+        self.lifecycle.global_error(message=message, trace=trace)
+
+    @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
         with self.lifecycle.start_step() as step:
             step.name = title

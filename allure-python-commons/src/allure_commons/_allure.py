@@ -4,6 +4,7 @@ from typing import Any, Callable, TypeVar, Union, overload
 from allure_commons._core import plugin_manager
 from allure_commons.types import LabelType, LinkType, ParameterMode
 from allure_commons.utils import uuid4
+from allure_commons.utils import format_exception, format_traceback
 from allure_commons.utils import func_parameters, represent
 
 _TFunc = TypeVar("_TFunc", bound=Callable[..., Any])
@@ -214,6 +215,33 @@ class Attach:
 
 
 attach = Attach()
+
+
+class GlobalAttach:
+
+    def __call__(self, body, name=None, attachment_type=None, extension=None):
+        plugin_manager.hook.global_attach_data(body=body, name=name, attachment_type=attachment_type, extension=extension)
+
+    def file(self, source, name=None, attachment_type=None, extension=None):
+        plugin_manager.hook.global_attach_file(source=source, name=name, attachment_type=attachment_type, extension=extension)
+
+
+global_attach = GlobalAttach()
+
+
+def _resolve_global_error_details(error_or_message, trace=None):
+    if isinstance(error_or_message, BaseException):
+        return (
+            format_exception(type(error_or_message), error_or_message),
+            format_traceback(error_or_message.__traceback__),
+        )
+
+    return error_or_message, trace
+
+
+def global_error(error_or_message, trace=None):
+    message, error_trace = _resolve_global_error_details(error_or_message, trace=trace)
+    plugin_manager.hook.global_error(message=message, trace=error_trace)
 
 
 class fixture:

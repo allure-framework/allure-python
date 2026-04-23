@@ -10,6 +10,8 @@ from allure_commons._allure import link, issue, testcase
 from allure_commons._allure import Dynamic as dynamic
 from allure_commons._allure import step
 from allure_commons._allure import attach
+from allure_commons._allure import global_attach
+from allure_commons._allure import global_error
 from allure_commons._allure import manual
 from allure_commons.types import Severity as severity_level
 from allure_commons.types import AttachmentType as attachment_type
@@ -38,6 +40,8 @@ __all__ = [
     "dynamic",
     "severity_level",
     "attach",
+    "global_attach",
+    "global_error",
     "attachment_type",
     "parameter_mode"
 ]

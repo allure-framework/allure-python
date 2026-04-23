@@ -1,11 +1,14 @@
 import allure
 from tests.allure_behave.behave_runner import AllureBehaveRunner as Runner
-from hamcrest import assert_that, all_of, not_, equal_to
+from hamcrest import assert_that, all_of, not_, equal_to, has_item
 from allure_commons_test.container import has_container, has_before, has_after
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
 from allure_commons_test.result import has_attachment_with_content
+from allure_commons_test.result import has_global_attachment_with_content
+from allure_commons_test.result import has_global_error
 from allure_commons_test.result import has_step
+from allure_commons_test.result import with_message_contains
 
 
 def test_global_hooks(behave_runner: Runner):
@@ -106,6 +109,49 @@ def test_tag_hooks(behave_runner: Runner):
                     behave_runner.allure_results,
                     has_after("after tag @hook_target", with_status("passed"))
                 )
+            )
+        )
+    )
+
+
+def test_global_attachment_and_error_hooks(behave_runner: Runner):
+    behave_runner.run_behave(
+        feature_literals=[
+            """
+            Feature: Global attachments and errors
+                Scenario: Global hooks
+                    Given noop
+            """
+        ],
+        step_literals=["given('noop')(lambda c: None)"],
+        environment_literal="""
+import allure
+
+
+def before_all(context):
+    allure.global_attach("behave global attachment", name="behave global")
+
+
+def after_all(context):
+    allure.global_error("behave global error")
+"""
+    )
+
+    assert_that(
+        behave_runner.allure_results.globals,
+        has_item(
+            has_global_attachment_with_content(
+                behave_runner.allure_results.attachments,
+                equal_to("behave global attachment"),
+                name="behave global"
+            )
+        )
+    )
+    assert_that(
+        behave_runner.allure_results.globals,
+        has_item(
+            has_global_error(
+                with_message_contains("behave global error")
             )
         )
     )
