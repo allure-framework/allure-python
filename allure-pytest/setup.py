@@ -1,18 +1,5 @@
 import os
-import sys
 from setuptools import setup
-from pkg_resources import require, DistributionNotFound, VersionConflict
-
-try:
-    require("pytest-allure-adaptor")
-    print("""
-    You have pytest-allure-adaptor installed.
-    You need to remove pytest-allure-adaptor from your site-packages
-    before installing allure-pytest, or conflicts may result.
-    """)
-    sys.exit()
-except (DistributionNotFound, VersionConflict):
-    pass
 
 PACKAGE = "allure-pytest"
 
