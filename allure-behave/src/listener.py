@@ -179,6 +179,18 @@ class AllureListener:
         self.logger.attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
 
     @allure_commons.hookimpl
+    def global_attach_data(self, body, name, attachment_type, extension):
+        self.logger.global_attach_data(uuid4(), body, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def global_attach_file(self, source, name, attachment_type, extension):
+        self.logger.global_attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
+
+    @allure_commons.hookimpl
+    def global_error(self, message, trace):
+        self.logger.global_error(message=message, trace=trace)
+
+    @allure_commons.hookimpl
     def add_description(self, test_description):
         test_result = self.logger.get_test(None)
         if test_result:
