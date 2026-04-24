@@ -239,19 +239,24 @@ class GlobalAttach:
 global_attach = GlobalAttach()
 
 
-def _resolve_global_error_details(error_or_message, trace=None):
-    if isinstance(error_or_message, BaseException):
-        return (
-            format_exception(type(error_or_message), error_or_message),
-            format_traceback(error_or_message.__traceback__),
-        )
-
-    return error_or_message, trace
+@overload
+def global_error(value: BaseException) -> None:
+    ...
 
 
-def global_error(error_or_message, trace=None):
-    message, error_trace = _resolve_global_error_details(error_or_message, trace=trace)
-    plugin_manager.hook.global_error(message=message, trace=error_trace)
+@overload
+def global_error(value: str, trace: Union[str, None] = None) -> None:
+    ...
+
+
+def global_error(value, trace=None):
+    message = None
+    if isinstance(value, BaseException):
+        message = format_exception(type(value), value)
+        trace = format_traceback(value.__traceback__)
+    else:
+        message = value
+    plugin_manager.hook.global_error(message=message, trace=trace)
 
 
 class fixture:
