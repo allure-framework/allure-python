@@ -27,5 +27,5 @@ def global_attach_file(source, name=None, attachment_type=None, extension=None):
     allure.global_attach.file(source, name=name, attachment_type=_attachment_type(attachment_type), extension=extension)
 
 
-def global_error(error_or_message, trace=None):
-    allure.global_error(error_or_message, trace=trace)
+def global_error(message, trace=None):
+    allure.global_error(message, trace=trace)
