@@ -99,6 +99,12 @@ class AllureReport:
                 "*attachment.*"
             )
         }
+        self.globals = [
+            json.load(file) for _, file in self._report_items(
+                result,
+                "*globals.json"
+            )
+        ]
 
     @staticmethod
     def _report_items(report_dir, glob):
