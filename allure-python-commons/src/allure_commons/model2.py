@@ -6,6 +6,7 @@ from attr import Factory
 TEST_GROUP_PATTERN = "{prefix}-container.json"
 TEST_CASE_PATTERN = "{prefix}-result.json"
 ATTACHMENT_PATTERN = "{prefix}-attachment.{ext}"
+GLOBALS_PATTERN = "{prefix}-globals.json"
 INDENT = 4
 
 
@@ -96,11 +97,30 @@ class StatusDetails:
     message: str | None = attrib(default=None)
     trace: str | None = attrib(default=None)
 
+
 @attrs
 class Attachment:
     name: str = attrib(default=None)
     source: str = attrib(default=None)
     type: str | None = attrib(default=None)
+
+
+@attrs
+class GlobalAttachment(Attachment):
+    timestamp = attrib(default=None)
+
+
+@attrs
+class GlobalError(StatusDetails):
+    timestamp = attrib(default=None)
+
+
+@attrs
+class Globals:
+    file_pattern = GLOBALS_PATTERN
+
+    attachments = attrib(default=Factory(list))
+    errors = attrib(default=Factory(list))
 
 
 class Status:
