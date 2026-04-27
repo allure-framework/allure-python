@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import robot
 from pytest import FixtureRequest, Pytester
 from tests.e2e import AllureFrameworkRunner, PathlikeT
-from typing import Sequence, Mapping, Union
+from typing import Sequence, Mapping
 from allure_robotframework import allure_robotframework
 
 
@@ -12,7 +14,7 @@ class AllureRobotRunner(AllureFrameworkRunner):
 
     def __init__(self, request: FixtureRequest, pytester: Pytester):
         super().__init__(request, pytester, AllureRobotRunner.LOGGER_PATH)
-        self.rootdir: Union[str, None] = None
+        self.rootdir: str | None = None
 
     def run_robotframework(
         self,

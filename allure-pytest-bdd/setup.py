@@ -63,7 +63,8 @@ def main():
         package_dir={"allure_pytest_bdd": "src"},
         entry_points={"pytest11": ["allure_pytest_bdd = allure_pytest_bdd.plugin"]},
         setup_requires=setup_requires,
-        install_requires=install_requires
+        install_requires=install_requires,
+        python_requires=">=3.8",
     )
 
 

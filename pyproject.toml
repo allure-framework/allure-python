@@ -26,6 +26,7 @@ extend-exclude = [
     "tests/allure_behave/acceptance/behave_support/background/background_steps.py",
 ]
 line-length = 120
+target-version = "py38"
 
 [tool.ruff.lint]
 select = [
@@ -33,5 +34,6 @@ select = [
     "E",  # pycodestyle errors
     "F",  # pyflakes
     "Q",  # flake8-quotes
+    "UP", # pyupgrade
     "W",  # pycodestyle warnings
 ]

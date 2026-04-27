@@ -3,11 +3,12 @@ with python testing frameworks.
 
 """
 
+from __future__ import annotations
+
 import docutils
 import docutils.nodes
 import docutils.parsers.rst
 import json
-import mock
 import pytest
 import shutil
 import warnings
@@ -18,7 +19,8 @@ from importlib.metadata import version as get_version_metadata
 from packaging.version import parse as parse_version
 from pathlib import Path
 from pytest import FixtureRequest, Pytester, MonkeyPatch
-from typing import Tuple, Mapping, TypeVar, Generator, Callable, Union
+from typing import Mapping, TypeVar, Generator, Callable
+from unittest import mock
 
 import allure_commons
 from allure_commons.logger import AllureMemoryLogger
@@ -56,7 +58,7 @@ def version_gte(package: str, major: int, minor: int = 0, micro: int = 0):
     return not version_lt(package, major, minor, micro)
 
 
-PathlikeT = Union[str, Path]
+PathlikeT = TypeVar("PathlikeT", str, Path)
 
 
 @contextmanager
@@ -167,7 +169,7 @@ def allure_file_context(
 
 def find_node_with_docstring(
     request: FixtureRequest
-) -> Union[Tuple[pytest.Item, str], Tuple[None, None]]:
+) -> tuple[pytest.Item, str] | tuple[None, None]:
     """Find a docstring associated with a test function.
 
     It first checks the function itself and then, if no docstring was found,
@@ -191,7 +193,7 @@ def find_node_with_docstring(
 
 def find_node_with_docstring_or_throw(
     request: FixtureRequest
-) -> Tuple[pytest.Item, str]:
+) -> tuple[pytest.Item, str]:
     """Find a docstring associated with a test function.
 
     It first checks the function itself and then, if no docstring was found,
@@ -468,7 +470,7 @@ class AllureFrameworkRunner:
                 document.
 
         Returns:
-            List[str]: a list of strings, each representing a file content.
+            list[str]: a list of strings, each representing a file content.
 
         """
 
@@ -510,7 +512,7 @@ class AllureFrameworkRunner:
                 extension may be omitted) to its ID in the .rst document.
 
         Returns:
-            List[Path]: a list of the newly created file paths.
+            list[Path]: a list of the newly created file paths.
         """
         return self._copy_files(paths) + self._make_files_from_literals(
             extension,
@@ -526,7 +528,7 @@ class AllureFrameworkRunner:
                 its content (an extension can be omitted).
 
         Returns:
-            List[Path]: a list of the newly created file paths.
+            list[Path]: a list of the newly created file paths.
         """
 
         return [
@@ -544,7 +546,7 @@ class AllureFrameworkRunner:
                 relative to the current test directory.
 
         Returns:
-            List[Path]: a list of the newly created file paths.
+            list[Path]: a list of the newly created file paths.
         """
         dst_paths = []
         for p in src_paths or []:
@@ -567,7 +569,7 @@ class AllureFrameworkRunner:
                 extension may be omitted) to its ID in the .rst document.
 
         Returns:
-            List[Path]: a list of the newly created file paths.
+            list[Path]: a list of the newly created file paths.
         """
 
         return [
@@ -590,7 +592,7 @@ class AllureFrameworkRunner:
         if basepath is None:
             basepath = self.request.path.parent
         path = basepath / path
-        with open(path, mode="r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return f.read()
 
     def _cache_docstring_test_result(

@@ -63,7 +63,8 @@ def main():
         package_dir={"allure_pytest": "src"},
         entry_points={"pytest11": ["allure_pytest = allure_pytest.plugin"]},
         setup_requires=setup_requires,
-        install_requires=install_requires
+        install_requires=install_requires,
+        python_requires=">=3.8",
     )
 
 if __name__ == "__main__":
