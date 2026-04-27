@@ -51,6 +51,14 @@ class AllureUserHooks:
         """ parameter """
 
     @hookspec
+    def add_step_parameter(self, uuid, name, value, excluded, mode):
+        """ step parameter """
+
+    @hookspec
+    def get_current_step_uuid(self):
+        """ get current active step uuid """
+
+    @hookspec
     def start_step(self, uuid, title, params):
         """ step """
 
