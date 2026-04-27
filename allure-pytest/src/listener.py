@@ -243,6 +243,28 @@ class AllureListener:
                     self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
 
     @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_logreport(self, report):
+        yield
+        if hasattr(report, "context"):
+            item_uuid = self._cache.get(report.nodeid)
+            step_uuid = uuid4()
+            step = TestStepResult(name=report.context.msg or report.head_line, start=report.start)
+            if report.longrepr:
+                status_details = StatusDetails(
+                    message=report.longrepr.reprcrash.message,
+                    trace=report.longreprtext
+                )
+            else:
+                status_details = None
+            self.allure_logger.start_step(item_uuid, step_uuid, step)
+            self.allure_logger.stop_step(
+                step_uuid,
+                stop=report.stop,
+                status=report.outcome,
+                statusDetails=status_details
+            )
+
+    @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_logfinish(self, nodeid, location):
         yield
         uuid = self._cache.pop(nodeid)
