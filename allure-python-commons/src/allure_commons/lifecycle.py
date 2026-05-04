@@ -36,8 +36,7 @@ class AllureLifecycle:
 
     @contextmanager
     def schedule_test_case(self, uuid=None):
-        test_result = TestResult()
-        test_result.uuid = uuid or uuid4()
+        test_result = TestResult(uuid=uuid or uuid4())
         self._items[test_result.uuid] = test_result
         yield test_result
 
