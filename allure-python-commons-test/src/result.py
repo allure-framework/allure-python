@@ -201,6 +201,25 @@ def has_attachment_with_content(
     )
 
 
+def has_global_attachment_with_content(
+    attachments,
+    content_matcher,
+    attach_type=None,
+    name=None
+):
+    return has_entry(
+        "attachments",
+        has_item(
+            all_of(
+                has_entry("name", name) if name else anything(),
+                has_entry("type", attach_type) if attach_type else anything(),
+                has_entry("timestamp", not_none()),
+                has_entry("source", maps_to(attachments, content_matcher))
+            )
+        )
+    )
+
+
 def with_id():
     return has_entry("uuid", not_none())
 
@@ -213,6 +232,18 @@ def has_status_details(*matchers):
     return has_entry("statusDetails", all_of(*matchers))
 
 
+def has_global_error(*matchers):
+    return has_entry(
+        "errors",
+        has_item(
+            all_of(
+                has_entry("timestamp", not_none()),
+                *matchers
+            )
+        )
+    )
+
+
 def with_message_contains(string):
     return has_entry("message", contains_string(string))
 
@@ -220,6 +251,8 @@ def with_message_contains(string):
 def with_trace_contains(string):
     return has_entry("trace", contains_string(string))
 
+def with_no_trace():
+    return not_(has_entry("trace", anything()))
 
 def with_excluded():
     return has_entry("excluded", True)

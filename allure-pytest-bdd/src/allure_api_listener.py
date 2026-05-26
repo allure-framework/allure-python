@@ -16,6 +16,9 @@ from .utils import ALLURE_TITLE_ATTR
 from .utils import apply_link_pattern
 from .utils import attach_data
 from .utils import attach_file
+from .utils import global_attach_data
+from .utils import global_attach_file
+from .utils import global_error
 from .utils import get_link_patterns
 from .steps import start_step
 from .steps import stop_step
@@ -117,3 +120,15 @@ class AllurePytestBddApiHooks:
     @allure_commons.hookimpl
     def attach_file(self, source, name, attachment_type, extension):
         attach_file(self.lifecycle, source, name, attachment_type, extension)
+
+    @allure_commons.hookimpl
+    def global_attach_data(self, body, name, attachment_type, extension):
+        global_attach_data(self.lifecycle, body, name, attachment_type, extension)
+
+    @allure_commons.hookimpl
+    def global_attach_file(self, source, name, attachment_type, extension):
+        global_attach_file(self.lifecycle, source, name, attachment_type, extension)
+
+    @allure_commons.hookimpl
+    def global_error(self, message, trace):
+        global_error(self.lifecycle, message, trace)

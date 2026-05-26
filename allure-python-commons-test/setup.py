@@ -32,7 +32,7 @@ def main():
     setup(
         name=PACKAGE,
         use_scm_version={"root": "..", "relative_to": __file__},
-        setup_requires=["setuptools_scm"],
+        setup_requires=["setuptools_scm<10"],
         description=(
             "A collection of PyHamcrest matchers to test Allure adapters for "
             "Python test frameworks"

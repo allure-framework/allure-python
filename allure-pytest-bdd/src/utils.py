@@ -323,6 +323,30 @@ def attach_file(lifecycle, source, name, attachment_type, extension=None):
     )
 
 
+def global_attach_data(lifecycle, body, name, attachment_type, extension=None):
+    lifecycle.global_attach_data(
+        uuid4(),
+        body,
+        name=name,
+        attachment_type=attachment_type,
+        extension=extension,
+    )
+
+
+def global_attach_file(lifecycle, source, name, attachment_type, extension=None):
+    lifecycle.global_attach_file(
+        uuid4(),
+        source,
+        name=name,
+        attachment_type=attachment_type,
+        extension=extension,
+    )
+
+
+def global_error(lifecycle, message, trace=None):
+    lifecycle.global_error(message=message, trace=trace)
+
+
 def format_csv(rows):
     with io.StringIO() as buffer:
         writer = csv.writer(buffer)

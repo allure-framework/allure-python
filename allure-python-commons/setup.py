@@ -33,7 +33,7 @@ def main():
     setup(
         name=PACKAGE,
         use_scm_version={"root": "..", "relative_to": __file__},
-        setup_requires=["setuptools_scm"],
+        setup_requires=["setuptools_scm<10"],
         description=(
             "Contains the API for end users as well as helper functions and "
             "classes to build Allure adapters for Python test frameworks"

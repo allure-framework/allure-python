@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 setup_requires = [
-    "setuptools_scm"
+    "setuptools_scm<10"
 ]
 
 install_requires = [
