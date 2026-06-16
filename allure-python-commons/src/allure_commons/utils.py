@@ -16,7 +16,7 @@ from traceback import format_exception_only
 
 
 def md5(*args):
-    m = hashlib.md5()
+    m = hashlib.md5(usedforsecurity=False)
     for arg in args:
         if not isinstance(arg, bytes):
             if not isinstance(arg, str):
