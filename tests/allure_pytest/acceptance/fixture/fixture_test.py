@@ -10,6 +10,15 @@ from allure_commons_test.result import has_step
 
 fixture_scopes = ["session", "module", "class", "function"]
 
+# This is a workaround so test_fixture_override and test_dynamically_called_fixture work with all versions of pytest.
+# In pytest 9.1.0 (specifically PR #14275), the behavior of these tests changed: an additional finalizer was added
+# that always appears first in the list of finalizers. Because allure-pytest/src/listener.py uses the index of
+# the finalizer in the list to generate its name when not defined, this leads to a change in the expected output.
+(pytest_major_version, pytest_minor_version, _) = pytest.version_tuple
+if pytest_major_version >= 9 and pytest_minor_version >= 1:
+    finalizer_index = "1"
+else:
+    finalizer_index = "0"
 
 @allure.feature("Fixture")
 @pytest.mark.parametrize("first_scope", fixture_scopes)
@@ -287,7 +296,7 @@ def test_fixture_override(allure_pytest_runner: AllurePytestRunner):
                     has_step("Step in before in original fixture")
                 ),
                 has_after(
-                    "my_fixture::0",
+                    f"my_fixture::{finalizer_index}",
                     has_step("Step in after in original fixture")
                 )
             ),
@@ -298,7 +307,7 @@ def test_fixture_override(allure_pytest_runner: AllurePytestRunner):
                     has_step("Step in before in redefined fixture")
                 ),
                 has_after(
-                    "my_fixture::0",
+                    f"my_fixture::{finalizer_index}",
                     has_step("Step in after in redefined fixture")
                 )
             )
@@ -356,18 +365,18 @@ def test_dynamically_called_fixture(
                 has_container(
                     allure_results,
                     has_before("parent_auto_call_fixture"),
-                    has_after("parent_auto_call_fixture::0")
+                    has_after(f"parent_auto_call_fixture::{finalizer_index}")
                 ),
                 has_container(
                     allure_results,
                     has_before("child_manual_call_fixture"),
-                    has_after("child_manual_call_fixture::0")
+                    has_after(f"child_manual_call_fixture::{finalizer_index}")
                 ),
                 not_(
                     has_container(
                         allure_results,
                         has_before("parent_dyn_call_fixture"),
-                        has_after("parent_dyn_call_fixture::0")
+                        has_after(f"parent_dyn_call_fixture::{finalizer_index}")
                     ),
                 ),
                 not_(
@@ -382,19 +391,19 @@ def test_dynamically_called_fixture(
                 has_container(
                     allure_results,
                     has_before("parent_auto_call_fixture"),
-                    has_after("parent_auto_call_fixture::0")
+                    has_after(f"parent_auto_call_fixture::{finalizer_index}")
                 ),
                 not_(
                     has_container(
                         allure_results,
                         has_before("child_manual_call_fixture"),
-                        has_after("child_manual_call_fixture::0")
+                        has_after(f"child_manual_call_fixture::{finalizer_index}")
                     ),
                 ),
                 has_container(
                     allure_results,
                     has_before("parent_dyn_call_fixture"),
-                    has_after("parent_dyn_call_fixture::0")
+                    has_after(f"parent_dyn_call_fixture::{finalizer_index}")
                 ),
                 has_container(
                     allure_results,
@@ -406,19 +415,19 @@ def test_dynamically_called_fixture(
                 has_container(
                     allure_results,
                     has_before("parent_auto_call_fixture"),
-                    has_after("parent_auto_call_fixture::0")
+                    has_after(f"parent_auto_call_fixture::{finalizer_index}")
                 ),
                 not_(
                     has_container(
                         allure_results,
                         has_before("child_manual_call_fixture"),
-                        has_after("child_manual_call_fixture::0")
+                        has_after(f"child_manual_call_fixture::{finalizer_index}")
                     ),
                 ),
                 has_container(
                     allure_results,
                     has_before("parent_dyn_call_fixture"),
-                    has_after("parent_dyn_call_fixture::0")
+                    has_after(f"parent_dyn_call_fixture::{finalizer_index}")
                 ),
                 not_(
                     has_container(
