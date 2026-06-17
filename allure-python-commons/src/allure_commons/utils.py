@@ -16,7 +16,11 @@ from traceback import format_exception_only
 
 
 def md5(*args):
-    m = hashlib.md5()
+    # usedforsecurity argument is only available in 3.9+
+    if sys.version_info.major == 3 and sys.version_info.minor >= 9:
+        m = hashlib.md5(usedforsecurity=False)
+    else:
+        m = hashlib.md5()
     for arg in args:
         if not isinstance(arg, bytes):
             if not isinstance(arg, str):
