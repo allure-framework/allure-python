@@ -1,5 +1,5 @@
 import pytest
-from hamcrest import assert_that, not_, all_of
+from hamcrest import assert_that, not_, all_of, matches_regexp
 from itertools import combinations_with_replacement
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
@@ -287,7 +287,7 @@ def test_fixture_override(allure_pytest_runner: AllurePytestRunner):
                     has_step("Step in before in original fixture")
                 ),
                 has_after(
-                    "my_fixture::0",
+                    matches_regexp(r"^my_fixture::\d+$"),
                     has_step("Step in after in original fixture")
                 )
             ),
@@ -298,7 +298,7 @@ def test_fixture_override(allure_pytest_runner: AllurePytestRunner):
                     has_step("Step in before in redefined fixture")
                 ),
                 has_after(
-                    "my_fixture::0",
+                    matches_regexp(r"^my_fixture::\d+$"),
                     has_step("Step in after in redefined fixture")
                 )
             )
@@ -356,18 +356,24 @@ def test_dynamically_called_fixture(
                 has_container(
                     allure_results,
                     has_before("parent_auto_call_fixture"),
-                    has_after("parent_auto_call_fixture::0")
+                    has_after(
+                        matches_regexp(r"^parent_auto_call_fixture::\d$")
+                    )
                 ),
                 has_container(
                     allure_results,
                     has_before("child_manual_call_fixture"),
-                    has_after("child_manual_call_fixture::0")
+                    has_after(
+                        matches_regexp(r"^child_manual_call_fixture::\d$")
+                    )
                 ),
                 not_(
                     has_container(
                         allure_results,
                         has_before("parent_dyn_call_fixture"),
-                        has_after("parent_dyn_call_fixture::0")
+                        has_after(
+                            matches_regexp(r"^parent_dyn_call_fixture::\d$")
+                        )
                     ),
                 ),
                 not_(
@@ -382,19 +388,25 @@ def test_dynamically_called_fixture(
                 has_container(
                     allure_results,
                     has_before("parent_auto_call_fixture"),
-                    has_after("parent_auto_call_fixture::0")
+                    has_after(
+                        matches_regexp(r"^parent_auto_call_fixture::\d$")
+                    )
                 ),
                 not_(
                     has_container(
                         allure_results,
                         has_before("child_manual_call_fixture"),
-                        has_after("child_manual_call_fixture::0")
+                        has_after(
+                            matches_regexp(r"^child_manual_call_fixture::\d$")
+                        )
                     ),
                 ),
                 has_container(
                     allure_results,
                     has_before("parent_dyn_call_fixture"),
-                    has_after("parent_dyn_call_fixture::0")
+                    has_after(
+                        matches_regexp(r"^parent_dyn_call_fixture::\d$")
+                    ),
                 ),
                 has_container(
                     allure_results,
@@ -406,19 +418,25 @@ def test_dynamically_called_fixture(
                 has_container(
                     allure_results,
                     has_before("parent_auto_call_fixture"),
-                    has_after("parent_auto_call_fixture::0")
+                    has_after(
+                        matches_regexp(r"^parent_auto_call_fixture::\d$")
+                    )
                 ),
                 not_(
                     has_container(
                         allure_results,
                         has_before("child_manual_call_fixture"),
-                        has_after("child_manual_call_fixture::0")
+                        has_after(
+                            matches_regexp(r"^child_manual_call_fixture::\d$")
+                        )
                     ),
                 ),
                 has_container(
                     allure_results,
                     has_before("parent_dyn_call_fixture"),
-                    has_after("parent_dyn_call_fixture::0")
+                    has_after(
+                        matches_regexp(r"^parent_dyn_call_fixture::\d$")
+                    )
                 ),
                 not_(
                     has_container(
