@@ -156,7 +156,7 @@ def has_fixture(section, name, *matchers):
         section,
         has_item(
             all_of(
-                has_entry("name", equal_to(name)),
+                has_entry("name", equal_to(name) if isinstance(name, str) else name),
                 *matchers
             )
         )
