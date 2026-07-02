@@ -124,10 +124,12 @@ jobs:
 
       - name: Normalize ALLURE_MATRIX_ENV
         run: |
-          value="ubuntu-python-${{ matrix.python-version }}-pytest-${{ matrix.pytest-version }}"
+          raw_value="ubuntu-python-${{ matrix.python-version }}-pytest-${{ matrix.pytest-version }}"
+          value="$raw_value"
           value="${value//./_}"
-          echo "ALLURE_MATRIX_ENV=${value//\*/x}" >> "$GITHUB_ENV"
-          echo "ALLURE_TEST_DUMP_NAME=allure-results-${ALLURE_MATRIX_ENV}" >> "$GITHUB_ENV"
+          value="${value//\*/x}"
+          echo "ALLURE_MATRIX_ENV=${value}" >> "$GITHUB_ENV"
+          echo "ALLURE_TEST_DUMP_NAME=allure-results-${value}" >> "$GITHUB_ENV"
 
       - name: Install packages
         run: |
@@ -179,10 +181,12 @@ jobs:
 
       - name: Normalize ALLURE_MATRIX_ENV
         run: |
-          value="ubuntu-package-${{ matrix.package }}-python-${{ matrix.python-version }}"
+          raw_value="ubuntu-package-${{ matrix.package }}-python-${{ matrix.python-version }}"
+          value="$raw_value"
           value="${value//./_}"
-          echo "ALLURE_MATRIX_ENV=${value//\*/x}" >> "$GITHUB_ENV"
-          echo "ALLURE_TEST_DUMP_NAME=allure-results-${ALLURE_MATRIX_ENV}" >> "$GITHUB_ENV"
+          value="${value//\*/x}"
+          echo "ALLURE_MATRIX_ENV=${value}" >> "$GITHUB_ENV"
+          echo "ALLURE_TEST_DUMP_NAME=allure-results-${value}" >> "$GITHUB_ENV"
 
       - name: Install packages
         run: |
