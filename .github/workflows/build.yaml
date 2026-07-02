@@ -143,7 +143,7 @@ jobs:
       - name: Test allure-pytest
         working-directory: allure-pytest
         run: |
-          npx -y allure@3 run --config ../.allurerc.mjs --rerun 2 --environment="${{ env.ALLURE_MATRIX_ENV }}" --dump="${{ env.ALLURE_TEST_DUMP_NAME }}" -- \
+          npx -y allure@3 run --config "../.allurerc.mjs" --rerun 2 --environment "${{ env.ALLURE_MATRIX_ENV }}" --dump "${{ env.ALLURE_TEST_DUMP_NAME }}" -- \
           poe tests -p allure_pytest --alluredir allure-results --allure-link-pattern "issue:https://github.com/allure-framework/allure-python/issues/{0}"
 
       - name: Upload report
@@ -199,7 +199,7 @@ jobs:
       - name: Test ${{ matrix.package }}
         working-directory: ${{ matrix.package }}
         run: |
-          npx -y allure@3 run --config ../.allurerc.mjs --rerun 2 --environment="${{ env.ALLURE_MATRIX_ENV }}" --dump="${{ env.ALLURE_TEST_DUMP_NAME }}" -- \
+          npx -y allure@3 run --config "../.allurerc.mjs" --rerun 2 --environment="${{ env.ALLURE_MATRIX_ENV }}" --dump="${{ env.ALLURE_TEST_DUMP_NAME }}" -- \
           poe allure-collect
 
       - name: Upload report
