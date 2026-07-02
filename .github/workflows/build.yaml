@@ -110,7 +110,6 @@ jobs:
     env:
       TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
-      ALLURE_TEST_DUMP_NAME: allure-results-test-${{ matrix.python-version }}-pytest-${{ matrix.pytest-version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -128,6 +127,7 @@ jobs:
           value="ubuntu-python-${{ matrix.python-version }}-pytest-${{ matrix.pytest-version }}"
           value="${value//./_}"
           echo "ALLURE_MATRIX_ENV=${value//\*/x}" >> "$GITHUB_ENV"
+          echo "ALLURE_TEST_DUMP_NAME=allure-results-${ALLURE_MATRIX_ENV}" >> "$GITHUB_ENV"
 
       - name: Install packages
         run: |
@@ -163,7 +163,6 @@ jobs:
     env:
       TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
-      ALLURE_TEST_DUMP_NAME: allure-results-test-${{ matrix.package }}-python-${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -181,6 +180,7 @@ jobs:
           value="ubuntu-package-${{ matrix.package }}-python-${{ matrix.python-version }}"
           value="${value//./_}"
           echo "ALLURE_MATRIX_ENV=${value//\*/x}" >> "$GITHUB_ENV"
+          echo "ALLURE_TEST_DUMP_NAME=allure-results-${ALLURE_MATRIX_ENV}" >> "$GITHUB_ENV"
 
       - name: Install packages
         run: |
@@ -192,7 +192,8 @@ jobs:
 
       - name: Test ${{ matrix.package }}
         working-directory: ${{ matrix.package }}
-        run: poe tests
+        run: |
+          npx -y allure@3 run --config ../.allurerc.mjs --rerun 2 --environment="${{ env.ALLURE_MATRIX_ENV }}" --dump="${{ env.ALLURE_TEST_DUMP_NAME }}" -- poe tests
 
       - name: Upload report
         uses: actions/upload-artifact@v7
