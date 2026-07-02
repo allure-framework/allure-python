@@ -140,7 +140,7 @@ jobs:
 
       - name: Test allure-pytest
         working-directory: allure-pytest
-        run: npx -y allure@3 run --config ../.allurerc.mjs --rerun 2 --environment="${{ env.ALLURE_MATRIX_ENV }}" --dump="${{ env.ALLURE_TEST_DUMP_NAME }}" -- poe tests
+        run: npx -y allure@3 run --config ../.allurerc.mjs --rerun 2 --environment="${{ env.ALLURE_MATRIX_ENV }}" --dump="${{ env.ALLURE_TEST_DUMP_NAME }}" -- poe allure-collect
 
       - name: Upload report
         uses: actions/upload-artifact@v7
