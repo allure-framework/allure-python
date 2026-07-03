@@ -10,8 +10,10 @@ from allure_commons.utils import md5
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag
 from allure_commons.utils import format_exception, format_traceback
+from allure_commons.utils import represent
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status, StatusDetails
+from allure_commons.model2 import TestStepResult
 from allure_commons.model2 import Parameter
 from allure_commons.types import LabelType, AttachmentType, Severity, LinkType
 from allure_robotframework.utils import get_allure_status
@@ -269,6 +271,27 @@ class AllureListener:
             step.name = title
             step.start = now()
             step.parameters = [Parameter(name=name, value=value) for name, value in params.items()]
+
+    @allure_commons.hookimpl
+    def add_step_parameter(self, uuid, name, value, excluded, mode):
+        with self.lifecycle.update_step(uuid=uuid) as step:
+            if step:
+                parameter = Parameter(
+                    name=name,
+                    value=represent(value),
+                    excluded=excluded,
+                    mode=mode.value if mode else None
+                )
+                step.parameters.append(parameter)
+
+    @allure_commons.hookimpl
+    def get_current_step_uuid(self):
+        items_list = list(self.lifecycle._items)
+        for uuid in reversed(items_list):
+            item = self.lifecycle._items.get(uuid)
+            if isinstance(item, TestStepResult):
+                return uuid
+        return None
 
     @allure_commons.hookimpl
     def stop_step(self, uuid, exc_type, exc_val, exc_tb):
