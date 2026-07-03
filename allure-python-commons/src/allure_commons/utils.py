@@ -1,6 +1,5 @@
 import os
 import string
-import sys
 import time
 import uuid
 import json
@@ -41,7 +40,7 @@ def platform_label():
 
 
 def thread_tag():
-    return "{0}-{1}".format(os.getpid(), threading.current_thread().name)
+    return f"{os.getpid()}-{threading.current_thread().name}"
 
 
 def host_tag():
@@ -245,13 +244,7 @@ def func_parameters(func, *args, **kwargs):
         args_dict.pop(arg_spec.args[0], None)
 
     if kwargs:
-        if sys.version_info < (3, 7):
-            # Sort alphabetically as old python versions does
-            # not preserve call order for kwargs.
-            arg_order.extend(sorted(list(kwargs.keys())))
-        else:
-            # Keep py3.7 behaviour to preserve kwargs order
-            arg_order.extend(list(kwargs.keys()))
+        arg_order.extend(list(kwargs.keys()))
         parameters.update(kwargs)
 
     parameters.update(args_dict)
@@ -328,7 +321,7 @@ def get_testplan():
     file_path = os.environ.get("ALLURE_TESTPLAN_PATH")
 
     if file_path and os.path.exists(file_path):
-        with open(file_path, "r") as plan_file:
+        with open(file_path) as plan_file:
             plan = json.load(plan_file)
             planned_tests = plan.get("tests", [])
 

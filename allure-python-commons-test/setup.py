@@ -50,7 +50,8 @@ def main():
         long_description_content_type="text/markdown",
         packages=["allure_commons_test"],
         package_dir={"allure_commons_test": "src"},
-        install_requires=install_requires
+        install_requires=install_requires,
+        python_requires=">=3.8",
     )
 
 if __name__ == "__main__":
