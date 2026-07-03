@@ -1,5 +1,6 @@
 import csv
 import io
+import os
 from enum import Enum
 from pathlib import Path
 from behave.runner_util import make_undefined_step_snippet
@@ -26,11 +27,23 @@ def scenario_name(scenario):
     return scenario.name if scenario.name else scenario.keyword
 
 
-def scenario_history_id(scenario):
+def scenario_history_id(scenario) -> str:
+    """
+    Create a historyId for a scenario.
+    - Always based on feature name and scenario name
+    - Optional: can append a value from an environment variable
+    """
     parts = [scenario.feature.name, scenario.name]
-    if scenario._row:
+
+    if hasattr(scenario, "_row") and scenario._row:
         row = scenario._row
         parts.extend([f"{name}={value}" for name, value in zip(row.headings, row.cells)])
+
+    # Optional: append environment variable to differentiate runs
+    history_id = os.getenv("ALLURE_HISTORY_ID")
+    if history_id:
+        parts.append(history_id)
+
     return md5(*parts)
 
 
