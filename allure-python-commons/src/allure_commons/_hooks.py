@@ -1,4 +1,10 @@
+from __future__ import annotations
+
+from typing import Any
+
 from pluggy import HookspecMarker, HookimplMarker
+
+from allure_commons.types import ParameterMode
 
 hookspec = HookspecMarker("allure")
 hookimpl = HookimplMarker("allure")
@@ -47,7 +53,13 @@ class AllureUserHooks:
         """ url """
 
     @hookspec
-    def add_parameter(self, name, value, excluded, mode):
+    def add_parameter(
+        self,
+        name: str,
+        value: Any,
+        excluded: bool | None,
+        mode: ParameterMode | None,
+    ) -> None:
         """ parameter """
 
     @hookspec
