@@ -1,0 +1,50 @@
+name: Bug report
+description: Report broken or incorrect behavior.
+type: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Allure Python. Please include enough detail for us to reproduce the problem.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug and the behavior you observed.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How can we reproduce it?
+      description: Include commands, configuration, test code, or a minimal repository when possible.
+      placeholder: |
+        1. Configure ...
+        2. Run ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Describe the behavior you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Share versions and platform details relevant to the issue.
+      value: |
+        - Allure Python version:
+        - Python version:
+        - Test framework and version:
+        - OS:
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add logs, generated reports, or links that help explain the issue.

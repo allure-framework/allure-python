@@ -2,11 +2,23 @@ name-template: '$NEXT_MINOR_VERSION'
 tag-template: '$NEXT_MINOR_VERSION'
 categories:
   - title: '🚀 New Features'
-    label: 'type:new feature'
+    label: 'pr:new feature'
   - title: '🔬 Improvements'
-    label: 'type:improvement'
+    label: 'pr:improvement'
   - title: '🐞 Bug Fixes'
-    label: 'type:bug'
+    label: 'pr:bug'
+  - title: '⬆️ Dependency Updates'
+    label: 'pr:dependencies'
+  - title: '📖 Documentation improvements'
+    label: 'pr:documentation'
+  - title: '⛔️ Security'
+    label: 'pr:security'
+  - title: '👻 Internal changes'
+    label: 'pr:internal'
+
+exclude-labels:
+  - 'pr:invalid'
+  - 'pr:tests'
 
 change-template: '* $TITLE (via #$NUMBER) - @$AUTHOR'
 template: |
