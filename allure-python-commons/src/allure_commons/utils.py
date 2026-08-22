@@ -292,6 +292,8 @@ def escape_property(value, is_key=False):
     if is_key:
         for character in PROPERTY_KEY_SPECIAL_CHARACTERS:
             value = value.replace(character, f"\\{character}")
+    elif value.startswith((" ", "\t")):
+        value = f"\\{value}"
     return value
 
 

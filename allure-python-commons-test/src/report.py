@@ -85,6 +85,7 @@ def parse_properties(content):
     """Parses a java-style .properties content into (key, value) pairs."""
 
     for line in content.splitlines():
+        line = line.lstrip()
         if not line or line.startswith(("#", "!")):
             continue
         name, value = "", ""
@@ -98,12 +99,14 @@ def parse_properties(content):
             elif target == "name" and character in ("=", ":"):
                 target = "value"
                 continue
+            elif target == "value" and not value and character in (" ", "\t"):
+                continue
             escaped = False
             if target == "name":
                 name += character
             else:
                 value += character
-        yield name.strip(), value.strip()
+        yield name, value
 
 
 class AllureReport:

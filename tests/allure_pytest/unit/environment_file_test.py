@@ -44,6 +44,15 @@ def test_special_characters_are_escaped(tmp_path):
     assert read_environment(tmp_path) == environment
 
 
+def test_surrounding_whitespace_is_preserved(tmp_path):
+    environment = {"leading": "  value", "trailing": "value  ", "tab": "\tvalue"}
+    logger = AllureFileLogger(tmp_path)
+
+    logger.report_environment(environment)
+
+    assert read_environment(tmp_path) == environment
+
+
 def test_non_ascii_values_are_written(tmp_path):
     logger = AllureFileLogger(tmp_path)
 
