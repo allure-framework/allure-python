@@ -19,6 +19,7 @@ from .utils import attach_file
 from .utils import global_attach_data
 from .utils import global_attach_file
 from .utils import global_error
+from .utils import environment
 from .utils import get_link_patterns
 from .steps import start_step
 from .steps import stop_step
@@ -132,3 +133,7 @@ class AllurePytestBddApiHooks:
     @allure_commons.hookimpl
     def global_error(self, message, trace):
         global_error(self.lifecycle, message, trace)
+
+    @allure_commons.hookimpl
+    def add_environment(self, env):
+        environment(self.lifecycle, env)

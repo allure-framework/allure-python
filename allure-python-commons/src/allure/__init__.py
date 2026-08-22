@@ -12,6 +12,7 @@ from allure_commons._allure import step
 from allure_commons._allure import attach
 from allure_commons._allure import global_attach
 from allure_commons._allure import global_error
+from allure_commons._allure import environment
 from allure_commons._allure import manual
 from allure_commons.types import Severity as severity_level
 from allure_commons.types import AttachmentType as attachment_type
@@ -42,6 +43,7 @@ __all__ = [
     "attach",
     "global_attach",
     "global_error",
+    "environment",
     "attachment_type",
     "parameter_mode"
 ]

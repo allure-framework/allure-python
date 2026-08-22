@@ -6,6 +6,8 @@ import uuid
 import shutil
 from attr import asdict
 from allure_commons import hookimpl
+from allure_commons.model2 import ENVIRONMENT_FILE
+from allure_commons.utils import format_properties
 
 INDENT = 4
 
@@ -13,6 +15,7 @@ INDENT = 4
 class AllureFileLogger:
 
     def __init__(self, report_dir, clean=False):
+        self._environment = {}
         self._report_dir = Path(report_dir).absolute()
         if self._report_dir.is_dir() and clean:
             shutil.rmtree(self._report_dir, ignore_errors=True)
@@ -51,6 +54,14 @@ class AllureFileLogger:
     def report_globals(self, globals_item):
         self._report_item(globals_item)
 
+    @hookimpl
+    def report_environment(self, env):
+        if not env:
+            return
+        self._environment.update(env)
+        with io.open(self._report_dir / ENVIRONMENT_FILE, "w", encoding="utf8") as environment_file:
+            environment_file.write(format_properties(self._environment))
+
 
 class AllureMemoryLogger:
 
@@ -59,6 +70,7 @@ class AllureMemoryLogger:
         self.test_containers = []
         self.attachments = {}
         self.globals = []
+        self.environment = {}
 
     @hookimpl
     def report_result(self, result):
@@ -82,3 +94,7 @@ class AllureMemoryLogger:
     def report_globals(self, globals_item):
         data = asdict(globals_item, filter=lambda _, v: v or v is False)
         self.globals.append(data)
+
+    @hookimpl
+    def report_environment(self, env):
+        self.environment.update(env)

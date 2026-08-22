@@ -77,6 +77,37 @@ from hamcrest import ends_with, starts_with
 from hamcrest import only_contains
 from hamcrest.core.base_matcher import BaseMatcher
 
+ENVIRONMENT_FILE = "environment.properties"
+UNESCAPES = {"n": "\n", "r": "\r", "t": "\t"}
+
+
+def parse_properties(content):
+    """Parses a java-style .properties content into (key, value) pairs."""
+
+    for line in content.splitlines():
+        line = line.lstrip()
+        if not line or line.startswith(("#", "!")):
+            continue
+        name, value = "", ""
+        target, escaped = "name", False
+        for character in line:
+            if escaped:
+                character = UNESCAPES.get(character, character)
+            elif character == "\\":
+                escaped = True
+                continue
+            elif target == "name" and character in ("=", ":"):
+                target = "value"
+                continue
+            elif target == "value" and not value and character in (" ", "\t"):
+                continue
+            escaped = False
+            if target == "name":
+                name += character
+            else:
+                value += character
+        yield name, value
+
 
 class AllureReport:
     def __init__(self, result):
@@ -105,6 +136,12 @@ class AllureReport:
                 "*globals.json"
             )
         ]
+        self.environment = dict(
+            item for _, file in self._report_items(
+                result,
+                ENVIRONMENT_FILE
+            ) for item in parse_properties(file.read())
+        )
 
     @staticmethod
     def _report_items(report_dir, glob):

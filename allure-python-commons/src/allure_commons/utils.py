@@ -14,6 +14,8 @@ import collections
 
 from traceback import format_exception_only
 
+PROPERTY_KEY_SPECIAL_CHARACTERS = ("=", ":", " ", "\t", "#", "!")
+
 
 def md5(*args):
     m = hashlib.md5()
@@ -270,6 +272,29 @@ def func_parameters(func, *args, **kwargs):
 
 def format_traceback(exc_traceback):
     return "".join(traceback.format_tb(exc_traceback)) if exc_traceback else None
+
+
+def format_properties(properties):
+    """
+    >>> format_properties({"browser": "chrome", "os name": "Windows 11"})
+    'browser=chrome\\nos\\\\ name=Windows 11\\n'
+
+    """
+
+    return "".join(
+        f"{escape_property(name, is_key=True)}={escape_property(value)}\n"
+        for name, value in properties.items()
+    )
+
+
+def escape_property(value, is_key=False):
+    value = str(value).replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r")
+    if is_key:
+        for character in PROPERTY_KEY_SPECIAL_CHARACTERS:
+            value = value.replace(character, f"\\{character}")
+    elif value.startswith((" ", "\t")):
+        value = f"\\{value}"
+    return value
 
 
 def format_exception(etype, value):

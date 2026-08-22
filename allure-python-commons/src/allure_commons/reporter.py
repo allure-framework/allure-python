@@ -177,6 +177,9 @@ class AllureReporter:
             GlobalError(message=message, trace=trace, timestamp=now())
         ]))
 
+    def environment(self, env):
+        plugin_manager.hook.report_environment(env=env)
+
     def __resolve_attachment_filename_and_type(self, uuid, attachment_type=None, extension=None):
         mime_type = attachment_type
         extension = extension if extension else "attach"
