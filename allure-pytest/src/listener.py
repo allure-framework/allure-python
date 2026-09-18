@@ -26,6 +26,7 @@ from allure_pytest.utils import get_outcome_status, get_outcome_status_details
 from allure_pytest.utils import get_pytest_report_status
 from allure_pytest.utils import format_allure_link
 from allure_pytest.utils import get_history_id
+from allure_pytest.utils import is_internal_finalizer
 from allure_pytest.compat import getfixturedefs
 
 
@@ -180,6 +181,8 @@ class AllureListener:
 
         finalizers = getattr(fixturedef, "_finalizers", [])
         for index, finalizer in enumerate(finalizers):
+            if is_internal_finalizer(finalizer):
+                continue
             finalizer_name = getattr(finalizer, "__name__", index)
             name = f"{fixture_name}::{finalizer_name}"
             finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)

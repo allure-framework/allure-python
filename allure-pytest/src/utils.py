@@ -221,3 +221,20 @@ def get_history_id(full_name, parameters, original_values):
             key=lambda p: p.name
         ))
     )
+
+
+def is_internal_finalizer(finalizer):
+    """True for finalizers that belong to pytest itself rather than to user code.
+
+    pytest 9.1 attaches its own finalizer inside ``FixtureDef.execute``
+    (``FixtureDef.execute.<locals>.<lambda>``). Wrapping it produces an
+    ``<fixture>::<lambda>`` afterStage that pytest never invokes through the
+    wrapper, so it is reported with no status at all - which Allure renders as
+    "unknown", once per fixture, in every report.
+
+    The check is on which module owns the callable, not on its name: a lambda
+    passed to ``request.addfinalizer`` by a test author is a real teardown and
+    must still be reported.
+    """
+    module = getattr(finalizer, "__module__", None) or ""
+    return module == "_pytest" or module.startswith("_pytest.")
