@@ -108,6 +108,7 @@ class AllureListener:
         should_drop_excluded = self.hide_excluded and (scenario.skip_reason == TEST_PLAN_SKIP_REASON or not should_run)
 
         if should_drop_skipped_by_option or should_drop_excluded:
+            self.steps.clear()
             self.logger.drop_test(self.current_scenario_uuid)
         else:
             status = scenario_status(scenario)
