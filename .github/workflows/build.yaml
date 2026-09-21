@@ -82,7 +82,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install linting packages
         run: pip install -r ./requirements/linting.txt
@@ -97,7 +97,7 @@ jobs:
     if: ${{ needs.pytest-changes.outputs.changed == 'true' }}
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
         pytest-version: ["7.*", "8.*", "9.*"]
         exclude:
           # pytest 9 supports Python >= 3.10
@@ -137,7 +137,7 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJSON(needs.other-changes.outputs.packages) }}
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
         exclude:
           - package: allure-pytest
     env:
