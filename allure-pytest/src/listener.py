@@ -30,7 +30,6 @@ from allure_pytest.compat import getfixturedefs
 
 
 class AllureListener:
-
     SUITE_LABELS = {
         LabelType.PARENT_SUITE,
         LabelType.SUITE,
@@ -56,6 +55,10 @@ class AllureListener:
                                      stop=now(),
                                      status=get_status(exc_val),
                                      statusDetails=get_status_details(exc_type, exc_val, exc_tb))
+
+    @allure_commons.hookimpl
+    def init_thread(self, source_thread, parent_uuid):
+        self.allure_logger.init_thread(source_thread, parent_uuid)
 
     @allure_commons.hookimpl
     def start_fixture(self, parent_uuid, uuid, name):
