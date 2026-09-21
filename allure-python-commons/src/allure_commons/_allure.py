@@ -172,6 +172,25 @@ def step(title: _TFunc) -> _TFunc:
     ...
 
 
+def add_parameter(name, value, excluded=None, mode=None):
+    results = plugin_manager.hook.get_current_step_uuid()
+    current_step_uuid = results[0] if results else None
+
+    if current_step_uuid is None:
+        raise RuntimeError(
+            "No active step found. Use 'allure.add_parameter()' only inside "
+            "a step context (with allure.step(...):) or a decorated step function."
+        )
+
+    plugin_manager.hook.add_step_parameter(
+        uuid=current_step_uuid,
+        name=name,
+        value=value,
+        excluded=excluded,
+        mode=mode
+    )
+
+
 def step(title):
     if callable(title):
         return StepContext(title.__name__, {})(title)
