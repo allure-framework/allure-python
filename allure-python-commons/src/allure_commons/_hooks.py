@@ -78,6 +78,10 @@ class AllureUserHooks:
     def global_error(self, message, trace):
         """ global error """
 
+    @hookspec
+    def add_environment(self, env):
+        """ environment """
+
 
 class AllureDeveloperHooks:
 
@@ -115,4 +119,8 @@ class AllureDeveloperHooks:
 
     @hookspec
     def report_globals(self, globals_item):
+        """ reporting """
+
+    @hookspec
+    def report_environment(self, env):
         """ reporting """

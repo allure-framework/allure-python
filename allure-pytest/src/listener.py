@@ -282,6 +282,10 @@ class AllureListener:
         self.allure_logger.global_error(message=message, trace=trace)
 
     @allure_commons.hookimpl
+    def add_environment(self, env):
+        self.allure_logger.environment(env)
+
+    @allure_commons.hookimpl
     def add_title(self, test_title):
         test_result = self.allure_logger.get_test(None)
         if test_result:

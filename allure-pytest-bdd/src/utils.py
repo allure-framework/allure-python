@@ -347,6 +347,10 @@ def global_error(lifecycle, message, trace=None):
     lifecycle.global_error(message=message, trace=trace)
 
 
+def environment(lifecycle, env):
+    lifecycle.environment(env)
+
+
 def format_csv(rows):
     with io.StringIO() as buffer:
         writer = csv.writer(buffer)
