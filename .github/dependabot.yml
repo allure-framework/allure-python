@@ -5,28 +5,38 @@ updates:
   schedule:
     interval: daily
     time: "02:00"
+  labels:
+    - "pr:dependencies"
   open-pull-requests-limit: 10
 - package-ecosystem: pip
   directory: "/allure-pytest"
   schedule:
     interval: daily
     time: "02:00"
+  labels:
+    - "pr:dependencies"
   open-pull-requests-limit: 10
 - package-ecosystem: pip
   directory: "/allure-python-commons"
   schedule:
     interval: daily
     time: "02:00"
+  labels:
+    - "pr:dependencies"
   open-pull-requests-limit: 10
 - package-ecosystem: pip
   directory: "/allure-robotframework"
   schedule:
     interval: daily
     time: "02:00"
+  labels:
+    - "pr:dependencies"
   open-pull-requests-limit: 10
 - package-ecosystem: pip
   directory: "/allure-python-commons-test"
   schedule:
     interval: daily
     time: "02:00"
+  labels:
+    - "pr:dependencies"
   open-pull-requests-limit: 10
