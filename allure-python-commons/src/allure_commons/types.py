@@ -1,7 +1,5 @@
 from enum import Enum
 
-ALLURE_UNIQUE_LABELS = ["severity", "thread", "host"]
-
 
 class Severity(str, Enum):
     BLOCKER = "blocker"
@@ -34,9 +32,11 @@ class LabelType(str):
     MANUAL = "ALLURE_MANUAL"
 
 
-class AttachmentType(Enum):
+ALLURE_UNIQUE_LABELS = [LabelType.SEVERITY, LabelType.THREAD, LabelType.HOST]
 
-    def __init__(self, mime_type, extension):
+
+class AttachmentType(Enum):
+    def __init__(self, mime_type: str, extension: str) -> None:
         self.mime_type = mime_type
         self.extension = extension
 
@@ -66,7 +66,7 @@ class AttachmentType(Enum):
     PDF = ("application/pdf", "pdf")
 
 
-class ParameterMode(Enum):
+class ParameterMode(str, Enum):
     HIDDEN = "hidden"
     MASKED = "masked"
-    DEFAULT = None
+    DEFAULT = "default"
