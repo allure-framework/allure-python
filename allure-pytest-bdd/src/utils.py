@@ -2,7 +2,6 @@ import csv
 import io
 import os
 from urllib.parse import urlparse
-from uuid import UUID
 from pathlib import Path
 
 import pytest
