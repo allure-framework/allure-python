@@ -32,14 +32,22 @@ MARK_NAMES_TO_IGNORE = {
 
 class ParsedPytestNodeId:
     def __init__(self, item: pytest.Item):
-        filepath = item.nodeid.split("::", 1)[0]
+        chain = item.listchain()
+        filepath = next(
+            (
+                node.nodeid
+                for node in reversed(chain)
+                if isinstance(node, pytest.File)
+            ),
+            item.nodeid.split("::", 1)[0],
+        )
         self.filepath = filepath
         self.path_segments = filepath.split("/")
         *parent_dirs, filename = ensure_len(self.path_segments, 1)
         self.parent_package = ".".join(parent_dirs)
         self.module = filename.rsplit(".", 1)[0]
         self.package = ".".join(filter(None, [self.parent_package, self.module]))
-        self.class_names = [node.name for node in item.listchain() if isinstance(node, pytest.Class)]
+        self.class_names = [node.name for node in chain if isinstance(node, pytest.Class)]
         self.test_function = (
             item.originalname if isinstance(item, pytest.Function) else item.name
         )
