@@ -144,7 +144,6 @@ jobs:
         exclude:
           - package: allure-pytest
     env:
-      TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
     steps:
       - uses: actions/checkout@v7
