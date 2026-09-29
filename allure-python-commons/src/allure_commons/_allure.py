@@ -1,3 +1,5 @@
+import inspect
+import string
 from functools import wraps
 from typing import Any, Callable, TypeVar, Union, overload
 
@@ -8,6 +10,25 @@ from allure_commons.utils import format_exception, format_traceback
 from allure_commons.utils import func_parameters, represent
 
 _TFunc = TypeVar("_TFunc", bound=Callable[..., Any])
+
+
+class _StepTitleFormatter(string.Formatter):
+    """
+    Custom string formatter for step titles.
+
+    Defers represent() conversion until format_field, so attribute access
+    placeholders such as {data.name} can traverse to the attribute on the
+    original object before its repr-style representation is produced.
+
+    Existing behavior is preserved for plain positional and keyword
+    placeholders: leaf values are still wrapped via represent().
+    """
+
+    def format_field(self, value, format_spec):
+        return format(represent(value), format_spec)
+
+
+_step_title_formatter = _StepTitleFormatter()
 
 
 def safely(result):
@@ -198,8 +219,27 @@ class StepContext:
         def impl(*a, **kw):
             __tracebackhide__ = True
             params = func_parameters(func, *a, **kw)
-            args = list(map(lambda x: represent(x), a))
-            with StepContext(self.title.format(*args, **params), params):
+            # Build a kwargs mapping with the original (non-stringified)
+            # values so the formatter can traverse attributes on objects
+            # passed as arguments, e.g. {data.name} on a dataclass.
+            # Includes defaults to match func_parameters() behaviour.
+            try:
+                arg_spec = inspect.getfullargspec(func)
+                raw_kwargs = {}
+                if arg_spec.defaults:
+                    defaults_map = dict(zip(
+                        arg_spec.args[-len(arg_spec.defaults):],
+                        arg_spec.defaults,
+                    ))
+                    raw_kwargs.update(defaults_map)
+                raw_kwargs.update(dict(zip(arg_spec.args, a)))
+                raw_kwargs.update(kw)
+                if arg_spec.args and arg_spec.args[0] in ("self", "cls"):
+                    raw_kwargs.pop(arg_spec.args[0], None)
+            except TypeError:
+                raw_kwargs = dict(kw)
+            title = _step_title_formatter.format(self.title, *a, **raw_kwargs)
+            with StepContext(title, params):
                 return func(*a, **kw)
 
         return impl  # type: ignore
