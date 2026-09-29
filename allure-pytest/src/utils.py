@@ -31,21 +31,23 @@ MARK_NAMES_TO_IGNORE = {
 
 
 class ParsedPytestNodeId:
-    def __init__(self, nodeid):
-        filepath, *class_names, function_segment = ensure_len(nodeid.split("::"), 2)
+    def __init__(self, item: pytest.Item):
+        filepath = item.nodeid.split("::", 1)[0]
         self.filepath = filepath
         self.path_segments = filepath.split("/")
         *parent_dirs, filename = ensure_len(self.path_segments, 1)
         self.parent_package = ".".join(parent_dirs)
         self.module = filename.rsplit(".", 1)[0]
         self.package = ".".join(filter(None, [self.parent_package, self.module]))
-        self.class_names = class_names
-        self.test_function = function_segment.split("[", 1)[0]
+        self.class_names = [node.name for node in item.listchain() if isinstance(node, pytest.Class)]
+        self.test_function = (
+            item.originalname if isinstance(item, pytest.Function) else item.name.split("[", 1)[0]
+        )
 
 
 @stashed
 def parse_nodeid(item):
-    return ParsedPytestNodeId(item.nodeid)
+    return ParsedPytestNodeId(item)
 
 
 def get_marker_value(item, keyword):
@@ -140,7 +142,7 @@ def allure_name(item, parameters, param_id=None):
 def allure_full_name(item: pytest.Item):
     nodeid = parse_nodeid(item)
     class_part = ("." + ".".join(nodeid.class_names)) if nodeid.class_names else ""
-    test = item.originalname if isinstance(item, pytest.Function) else nodeid.test_function
+    test = nodeid.test_function
     full_name = f"{nodeid.package}{class_part}#{test}"
     return full_name
 
