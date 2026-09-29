@@ -3,7 +3,7 @@ name: build allure python
 on:
   pull_request:
     branches:
-      - master
+      - '*'
 
 permissions:
   contents: read
