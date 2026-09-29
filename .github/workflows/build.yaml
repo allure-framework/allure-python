@@ -1,4 +1,4 @@
-name: build allure python
+name: Test Allure Python integrations
 
 on:
   workflow_dispatch:
