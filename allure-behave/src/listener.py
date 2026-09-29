@@ -5,6 +5,7 @@ from allure_commons.utils import uuid4
 from allure_commons.utils import md5
 from allure_commons.utils import now
 from allure_commons.utils import platform_label
+from allure_commons.utils import represent
 from allure_commons.types import LabelType, AttachmentType, LinkType
 from allure_commons.model2 import TestResult
 from allure_commons.model2 import TestStepResult
@@ -162,6 +163,27 @@ class AllureListener:
         parameters = [Parameter(name=name, value=value) for name, value in params.items()]
         step = TestStepResult(name=title, start=now(), parameters=parameters)
         self.logger.start_step(None, uuid, step)
+
+    @allure_commons.hookimpl
+    def add_step_parameter(self, uuid, name, value, excluded, mode):
+        step = self.logger.get_item(uuid)
+        if step:
+            parameter = Parameter(
+                name=name,
+                value=represent(value),
+                excluded=excluded,
+                mode=mode.value if mode else None
+            )
+            step.parameters.append(parameter)
+
+    @allure_commons.hookimpl
+    def get_current_step_uuid(self):
+        items_list = list(self.logger._items)
+        for uuid in reversed(items_list):
+            item = self.logger.get_item(uuid)
+            if isinstance(item, TestStepResult):
+                return uuid
+        return None
 
     @allure_commons.hookimpl
     def stop_step(self, uuid, exc_type, exc_val, exc_tb):
