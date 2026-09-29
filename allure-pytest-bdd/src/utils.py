@@ -182,10 +182,6 @@ def get_title_path(request, feature):
     return [*parts[:-1], feature.name or parts[-1]]
 
 
-def get_uuid(*args):
-    return str(UUID(md5(*args)))
-
-
 def get_status(exception):
     if exception:
         if isinstance(exception, (pytest.skip.Exception, pytest.xfail.Exception)):

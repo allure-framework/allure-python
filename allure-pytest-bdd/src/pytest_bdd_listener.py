@@ -1,5 +1,7 @@
 import pytest
 
+from collections import defaultdict
+
 from allure_commons.utils import now
 from allure_commons.model2 import Label
 from allure_commons.model2 import Status
@@ -7,6 +9,7 @@ from allure_commons.types import LabelType, AttachmentType
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
 from allure_commons.utils import md5
+from allure_commons.utils import uuid4
 
 from .steps import get_step_uuid
 from .steps import process_gherkin_step_args
@@ -29,7 +32,6 @@ from .utils import get_pytest_params
 from .utils import get_pytest_report_status
 from .utils import get_scenario_status_details
 from .utils import get_test_name
-from .utils import get_uuid
 from .utils import post_process_test_result
 
 from functools import partial
@@ -40,11 +42,12 @@ class PytestBDDListener:
         self.lifecycle = lifecycle
         self.host = host_tag()
         self.thread = thread_tag()
+        self.nodeid_to_uuid = defaultdict(uuid4)
 
     @pytest.hookimpl
     def pytest_bdd_before_scenario(self, request, feature, scenario):
         item = request.node
-        uuid = get_uuid(item.nodeid)
+        uuid = self.nodeid_to_uuid[item.nodeid]
 
         outline_params = get_outline_params(item)
         pytest_params = get_pytest_params(item)
@@ -74,18 +77,19 @@ class PytestBDDListener:
             test_result.links.extend(get_allure_links(item))
             test_result.parameters.extend(convert_params(outline_params, pytest_params))
 
-        finalizer = partial(report_remaining_steps, self.lifecycle, item)
+        finalizer = partial(report_remaining_steps, self.lifecycle, item, uuid)
         item.addfinalizer(finalizer)
 
     @pytest.hookimpl
     def pytest_bdd_after_scenario(self, request, feature, scenario):
-        uuid = get_uuid(request.node.nodeid)
+        uuid = self.nodeid_to_uuid[request.node.nodeid]
         with self.lifecycle.update_test_case(uuid=uuid) as test_result:
             test_result.stop = now()
 
     @pytest.hookimpl
     def pytest_bdd_before_step(self, request, feature, scenario, step, step_func):
-        start_gherkin_step(self.lifecycle, request.node, step, step_func)
+        uuid = self.nodeid_to_uuid[request.node.nodeid]
+        start_gherkin_step(self.lifecycle, request.node, uuid, step, step_func)
 
     @pytest.hookimpl
     def pytest_bdd_before_step_call(self, request, feature, scenario, step, step_func, step_func_args):
@@ -101,7 +105,8 @@ class PytestBDDListener:
 
     @pytest.hookimpl
     def pytest_bdd_step_func_lookup_error(self, request, feature, scenario, step, exception):
-        report_undefined_step(self.lifecycle, request.node, step, exception)
+        uuid = self.nodeid_to_uuid[request.node.nodeid]
+        report_undefined_step(self.lifecycle, request.node, uuid, step, exception)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_makereport(self, item, call):
@@ -112,7 +117,8 @@ class PytestBDDListener:
         status = get_pytest_report_status(report, excinfo)
         status_details = get_scenario_status_details(report, excinfo)
 
-        uuid = get_uuid(report.nodeid)
+        uuid = self.nodeid_to_uuid[report.nodeid]
+
         with self.lifecycle.update_test_case(uuid=uuid) as test_result:
 
             if test_result and report.when == "setup":
@@ -143,3 +149,4 @@ class PytestBDDListener:
 
         if report.when == "teardown":
             self.lifecycle.write_test_case(uuid=uuid)
+            del self.nodeid_to_uuid[report.nodeid]

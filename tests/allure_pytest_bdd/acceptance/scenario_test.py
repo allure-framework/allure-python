@@ -1,6 +1,7 @@
 """ ./allure-pytest-bdd/examples/simple-scenario """
 
-from hamcrest import assert_that
+from allure import issue
+from hamcrest import assert_that, not_, equal_to
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
 from allure_commons_test.report import has_test_case
 from allure_commons_test.result import with_status
@@ -42,7 +43,7 @@ def test_simple_passed_scenario(allure_pytest_bdd_runner: AllurePytestRunner):
 
     output = allure_pytest_bdd_runner.run_pytest(
         ("scenario.feature", feature_content),
-        steps_content
+        steps_content,
     )
 
     assert_that(
@@ -56,3 +57,40 @@ def test_simple_passed_scenario(allure_pytest_bdd_runner: AllurePytestRunner):
             has_history_id()
         )
     )
+
+@issue("925")
+def test_uuid_not_reused_across_runs(allure_pytest_bdd_runner: AllurePytestRunner):
+    feature_content = (
+        """
+        Feature: Foo
+            Scenario: Bar
+                Given noop
+        """
+    )
+    steps_content = (
+        """
+        from pytest_bdd import scenario, given, when, then
+
+        @scenario("foo.feature", "Bar")
+        def test_bar():
+            pass
+
+        @given("noop")
+        def given_noop():
+            pass
+        """
+    )
+
+    output1 = allure_pytest_bdd_runner.run_pytest(
+        ("foo.feature", feature_content),
+        steps_content
+    )
+    output2 = allure_pytest_bdd_runner.run_pytest(
+        ("foo.feature", feature_content),
+        steps_content
+    )
+
+    uuid1 = output1.test_cases[0]["uuid"]
+    uuid2 = output2.test_cases[0]["uuid"]
+
+    assert_that(uuid1, not_(equal_to(uuid2)))
