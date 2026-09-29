@@ -259,6 +259,10 @@ def global_error(value, trace=None):
     plugin_manager.hook.global_error(message=message, trace=trace)
 
 
+def environment(*args, **kwargs):
+    plugin_manager.hook.add_environment(env=dict(*args, **kwargs))
+
+
 class fixture:
     def __init__(self, fixture_function, parent_uuid=None, name=None):
         self._fixture_function = fixture_function

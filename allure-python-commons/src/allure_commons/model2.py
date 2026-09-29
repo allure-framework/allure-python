@@ -6,6 +6,7 @@ TEST_GROUP_PATTERN = "{prefix}-container.json"
 TEST_CASE_PATTERN = "{prefix}-result.json"
 ATTACHMENT_PATTERN = "{prefix}-attachment.{ext}"
 GLOBALS_PATTERN = "{prefix}-globals.json"
+ENVIRONMENT_FILE = "environment.properties"
 INDENT = 4
 
 

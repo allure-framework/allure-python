@@ -264,6 +264,10 @@ class AllureListener:
         self.lifecycle.global_error(message=message, trace=trace)
 
     @allure_commons.hookimpl
+    def add_environment(self, env):
+        self.lifecycle.environment(env)
+
+    @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
         with self.lifecycle.start_step() as step:
             step.name = title
