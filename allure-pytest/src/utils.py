@@ -41,7 +41,7 @@ class ParsedPytestNodeId:
         self.package = ".".join(filter(None, [self.parent_package, self.module]))
         self.class_names = [node.name for node in item.listchain() if isinstance(node, pytest.Class)]
         self.test_function = (
-            item.originalname if isinstance(item, pytest.Function) else item.name.split("[", 1)[0]
+            item.originalname if isinstance(item, pytest.Function) else item.name
         )
 
 
