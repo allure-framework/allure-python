@@ -59,6 +59,10 @@ class AllureUserHooks:
         """ step """
 
     @hookspec
+    def init_thread(self, source_thread, parent_uuid):
+        """ init for step which executed in new spawned thread """
+
+    @hookspec
     def attach_data(self, body, name, attachment_type, extension):
         """ attach data """
 
