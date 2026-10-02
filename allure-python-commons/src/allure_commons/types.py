@@ -51,6 +51,7 @@ class AttachmentType(Enum):
     YAML = ("application/yaml", "yaml")
     PCAP = ("application/vnd.tcpdump.pcap", "pcap")
     ZIP = ("application/zip", "zip")
+    PLAYWRIGHT_TRACE = ("application/vnd.allure.playwright-trace", "zip")
 
     PNG = ("image/png", "png")
     JPG = ("image/jpg", "jpg")
