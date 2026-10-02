@@ -15,6 +15,6 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: toolmantim/release-drafter@v5.2.0
+      - uses: toolmantim/release-drafter@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

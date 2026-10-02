@@ -2,7 +2,6 @@ import csv
 import io
 import os
 from urllib.parse import urlparse
-from uuid import UUID
 from pathlib import Path
 
 import pytest
@@ -180,10 +179,6 @@ def get_rootdir(request):
 def get_title_path(request, feature):
     parts = Path(feature.filename).relative_to(get_rootdir(request)).parts
     return [*parts[:-1], feature.name or parts[-1]]
-
-
-def get_uuid(*args):
-    return str(UUID(md5(*args)))
 
 
 def get_status(exception):
