@@ -1,9 +1,12 @@
+from uuid import UUID
+
 from allure import attachment_type
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Status
 from allure_commons.model2 import Parameter
 from allure_commons.utils import format_exception
 from allure_commons.utils import represent
+from allure_commons.utils import md5
 
 from .storage import get_saved_params
 from .storage import get_test_data
@@ -11,7 +14,6 @@ from .storage import save_reported_step
 from .utils import attach_data
 from .utils import format_csv
 from .utils import get_allure_title
-from .utils import get_uuid
 from .utils import get_status
 from .utils import get_status_details
 
@@ -32,7 +34,7 @@ def get_allure_title_of_step(item, step_func, step_func_args):
 
 
 def get_step_uuid(step):
-    return get_uuid(str(id(step)))
+    return str(UUID(md5(id(step))))
 
 
 def start_step(lifecycle, step_uuid, title, params=None, parent_uuid=None):
@@ -57,7 +59,7 @@ def stop_step(lifecycle, uuid, status=None, status_details=None, exception=None,
     return True
 
 
-def start_gherkin_step(lifecycle, item, step, step_func=None, step_uuid=None):
+def start_gherkin_step(lifecycle, item, test_uuid, step, step_func=None, step_uuid=None):
     if step_uuid is None:
         step_uuid = get_step_uuid(step)
 
@@ -65,7 +67,7 @@ def start_gherkin_step(lifecycle, item, step, step_func=None, step_uuid=None):
         lifecycle,
         step_uuid=step_uuid,
         title=get_step_name(item, step, step_func),
-        parent_uuid=get_uuid(item.nodeid),
+        parent_uuid=test_uuid,
     )
 
 
@@ -152,7 +154,7 @@ def stop_gherkin_step(lifecycle, item, step_uuid, **kwargs):
     return res
 
 
-def ensure_gherkin_step_reported(lifecycle, item, step, step_uuid=None, **kwargs):
+def ensure_gherkin_step_reported(lifecycle, item, test_uuid, step, step_uuid=None, **kwargs):
 
     if not step_uuid:
         step_uuid = get_step_uuid(step)
@@ -160,14 +162,15 @@ def ensure_gherkin_step_reported(lifecycle, item, step, step_uuid=None, **kwargs
     if stop_gherkin_step(lifecycle, item, step_uuid, **kwargs):
         return
 
-    start_gherkin_step(lifecycle, item, step, step_uuid=step_uuid)
+    start_gherkin_step(lifecycle, item, test_uuid, step, step_uuid=step_uuid)
     stop_gherkin_step(lifecycle, item, step_uuid, **kwargs)
 
 
-def report_undefined_step(lifecycle, item, step, exception):
+def report_undefined_step(lifecycle, item, test_uuid, step, exception):
     ensure_gherkin_step_reported(
         lifecycle,
         item,
+        test_uuid,
         step,
         status=Status.BROKEN,
         status_details=StatusDetails(
@@ -176,7 +179,7 @@ def report_undefined_step(lifecycle, item, step, exception):
     )
 
 
-def report_remaining_steps(lifecycle, item):
+def report_remaining_steps(lifecycle, item, test_uuid):
     test_data = get_test_data(item)
     scenario = test_data.scenario
     excinfo = test_data.excinfo
@@ -185,12 +188,12 @@ def report_remaining_steps(lifecycle, item):
     for step in scenario.steps:
         step_uuid = get_step_uuid(step)
         if step_uuid not in reported_steps:
-            __report_remaining_step(lifecycle, item, step, step_uuid, excinfo)
+            __report_remaining_step(lifecycle, item, test_uuid, step, step_uuid, excinfo)
             excinfo = None  # Only show the full message and traceback once
 
 
-def __report_remaining_step(lifecycle, item, step, step_uuid, excinfo):
-    args = [lifecycle, item, step, step_uuid]
+def __report_remaining_step(lifecycle, item, test_uuid, step, step_uuid, excinfo):
+    args = [lifecycle, item, test_uuid, step, step_uuid]
     kwargs = {
         "exception": excinfo.value,
         "exception_type": excinfo.type,

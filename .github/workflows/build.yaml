@@ -1,12 +1,22 @@
-name: build allure python
+name: Test Allure Python integrations
 
 on:
+  workflow_dispatch:
+
   pull_request:
     branches:
-      - master
+      - '*'
+
+  schedule:
+    # Runs at 05:30 on Mondays
+    - cron: "30 5 * * 1"
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   pytest-changes:
@@ -15,7 +25,7 @@ jobs:
     outputs:
       changed: ${{ steps.filter.outputs.allure-pytest }}
     steps:
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -32,7 +42,7 @@ jobs:
     outputs:
       packages: ${{ steps.filter.outputs.changes }}
     steps:
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -77,12 +87,12 @@ jobs:
     needs: [pytest-changes, other-changes]
     if: ${{ needs.pytest-changes.outputs.changed == 'true' || needs.other-changes.outputs.packages != '[]' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install linting packages
         run: pip install -r ./requirements/linting.txt
@@ -97,22 +107,15 @@ jobs:
     if: ${{ needs.pytest-changes.outputs.changed == 'true' }}
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         pytest-version: ["7.*", "8.*", "9.*"]
-        exclude:
-          # pytest 9 supports Python >= 3.10
-          - python-version: "3.8"
-            pytest-version: "9.*"
-          - python-version: "3.9"
-            pytest-version: "9.*"
     env:
-      TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -137,17 +140,16 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJSON(needs.other-changes.outputs.packages) }}
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         exclude:
           - package: allure-pytest
     env:
-      TEST_TMP: /tmp
       ALLURE_INDENT_OUTPUT: yep
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 

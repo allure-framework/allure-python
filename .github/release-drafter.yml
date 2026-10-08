@@ -1,12 +1,18 @@
-name-template: '$NEXT_MINOR_VERSION'
-tag-template: '$NEXT_MINOR_VERSION'
+name-template: '$RESOLVED_VERSION'
+tag-template: '$RESOLVED_VERSION'
 categories:
   - title: '🚀 New Features'
-    label: 'type:new feature'
+    semver-increment: minor
+    when:
+      label: 'type:new feature'
+
   - title: '🔬 Improvements'
-    label: 'type:improvement'
+    when:
+      label: 'type:improvement'
+
   - title: '🐞 Bug Fixes'
-    label: 'type:bug'
+    when:
+      label: 'type:bug'
 
 change-template: '* $TITLE (via #$NUMBER) - @$AUTHOR'
 template: |

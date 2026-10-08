@@ -111,7 +111,7 @@ def test_only_failed_steps_have_status_details(docstring, robot_runner: AllureRo
         FOR    ${value}    IN    @{TEST_VALUES}
             Run Keyword And Ignore Error    Should Be True    ${value} > 10
         END
-        Log To Console    Test message
+        No Operation
     """
 
     robot_runner.run_robotframework(
@@ -163,7 +163,7 @@ def test_only_failed_steps_have_status_details(docstring, robot_runner: AllureRo
                 )
             ),
             has_step(
-                "BuiltIn.Log To Console",
+                "BuiltIn.No Operation",
                 with_status("passed"),
                 has_status_details({})
             )
