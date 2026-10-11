@@ -1,8 +1,11 @@
-from hamcrest import assert_that, has_entry, ends_with, all_of
+from hamcrest import assert_that, has_entry, ends_with, all_of, anything, not_
 from tests.allure_pytest.pytest_runner import AllurePytestRunner
 
+from allure_commons_test.label import has_sub_suite
 from allure_commons_test.report import has_test_case
+from allure_commons_test.result import has_full_name
 from allure_commons_test.result import has_parameter
+from allure_commons_test.result import has_title_path
 from allure_commons_test.result import with_excluded
 from allure_commons_test.result import with_mode
 
@@ -275,5 +278,47 @@ def test_fullname_with_braces(allure_pytest_runner: AllurePytestRunner):
                 ends_with(".TestClass#test_with_braces")
             ),
             has_parameter("param1", "'qwe]['")
+        )
+    )
+
+
+def test_parameter_id_with_double_colon(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import pytest
+
+    >>> @pytest.mark.parametrize("value", ["foo::bar"])
+    ... def test_function(value):
+    ...     pass
+
+    >>> class TestOuter:
+    ...     class TestInner:
+    ...         @pytest.mark.parametrize("value", ["foo::bar"])
+    ...         def test_method(self, value):
+    ...             pass
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        all_of(
+            has_test_case(
+                "test_function[foo::bar]",
+                has_full_name(ends_with("#test_function")),
+                has_title_path("test_parameter_id_with_double_colon.py"),
+                not_(has_sub_suite(anything())),
+                has_parameter("value", "'foo::bar'")
+            ),
+            has_test_case(
+                "test_method[foo::bar]",
+                has_full_name(ends_with(".TestOuter.TestInner#test_method")),
+                has_title_path(
+                    "test_parameter_id_with_double_colon.py",
+                    "TestOuter",
+                    "TestInner",
+                ),
+                has_sub_suite("TestOuter > TestInner"),
+                has_parameter("value", "'foo::bar'")
+            ),
         )
     )
