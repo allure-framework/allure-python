@@ -51,6 +51,27 @@ class AllureListener:
         self.allure_logger.start_step(None, uuid, step)
 
     @allure_commons.hookimpl
+    def add_step_parameter(self, uuid, name, value, excluded, mode):
+        step = self.allure_logger.get_item(uuid)
+        if step:
+            parameter = Parameter(
+                name=name,
+                value=represent(value),
+                excluded=excluded,
+                mode=mode.value if mode else None
+            )
+            step.parameters.append(parameter)
+
+    @allure_commons.hookimpl
+    def get_current_step_uuid(self):
+        items_list = list(self.allure_logger._items)
+        for uuid in reversed(items_list):
+            item = self.allure_logger.get_item(uuid)
+            if isinstance(item, TestStepResult):
+                return uuid
+        return None
+
+    @allure_commons.hookimpl
     def stop_step(self, uuid, exc_type, exc_val, exc_tb):
         self.allure_logger.stop_step(uuid,
                                      stop=now(),
