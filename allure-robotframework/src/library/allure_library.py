@@ -1,7 +1,7 @@
 import allure
 
 
-__all__ = ["attach", "attach_file", "global_attach", "global_attach_file", "global_error"]
+__all__ = ["attach", "attach_file", "global_attach", "global_attach_file", "global_error", "environment"]
 
 
 def _attachment_type(name):
@@ -29,3 +29,7 @@ def global_attach_file(source, name=None, attachment_type=None, extension=None):
 
 def global_error(message, trace=None):
     allure.global_error(message, trace=trace)
+
+
+def environment(**kwargs):
+    allure.environment(**kwargs)
