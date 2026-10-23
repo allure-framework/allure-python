@@ -1,5 +1,6 @@
 import pytest
 import doctest
+from pathlib import Path
 
 import allure_commons
 from allure_commons.utils import now
@@ -241,6 +242,40 @@ class AllureListener:
                     self.attach_data(report.capstdout, "stdout", AttachmentType.TEXT, None)
                 if report.capstderr:
                     self.attach_data(report.capstderr, "stderr", AttachmentType.TEXT, None)
+
+            self._attach_playwright_traces(item)
+
+    def _attach_playwright_traces(self, item):
+        if item.config.pluginmanager.get_plugin("playwright") is None:
+            return
+        if getattr(item.config.option, "tracing", "off") == "off":
+            return
+
+        output = Path(item.config.getoption("--output", default="test-results")).absolute()
+
+        try:
+            from slugify import slugify as _slugify
+        except ImportError:
+            return
+
+        slug = _slugify(item.nodeid)
+        # pytest-playwright truncates slugs longer than 255 chars
+        if len(slug) >= 256:
+            import hashlib
+            slug = f"{slug[:100]}-{hashlib.sha256(slug.encode()).hexdigest()[:7]}-{slug[-100:]}"
+
+        test_folder = output / slug
+
+        if not test_folder.is_dir():
+            return
+
+        for trace_file in sorted(test_folder.glob("trace*.zip")):
+            self.allure_logger.attach_file(
+                uuid4(),
+                str(trace_file),
+                name=trace_file.name,
+                attachment_type=AttachmentType.PLAYWRIGHT_TRACE,
+            )
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_logfinish(self, nodeid, location):
