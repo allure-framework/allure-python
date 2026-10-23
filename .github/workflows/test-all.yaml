@@ -1,0 +1,81 @@
+name: Scheduled testing
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs at 05:30 on Mondays
+    - cron: "30 5 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-pytest:
+    name: Test allure-pytest
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        pytest-version: ["7.*", "8.*", "9.*"]
+    env:
+      ALLURE_INDENT_OUTPUT: yep
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install packages
+        run: |
+          pip install ./allure-python-commons \
+            ./allure-python-commons-test \
+            ./allure-pytest \
+            pytest==${{ matrix.pytest-version }} \
+            -r ./requirements/testing.txt \
+            -r ./requirements/testing/allure-pytest.txt
+
+      - name: Test allure-pytest
+        working-directory: allure-pytest
+        run: poe tests
+
+  test-others:
+    name: Test other packages
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        package: [
+            "allure-behave",
+            "allure-nose2",
+            "allure-pytest-bdd",
+            "allure-python-commons",
+            "allure-python-commons-test",
+            "allure-robotframework",
+        ]
+    env:
+      ALLURE_INDENT_OUTPUT: yep
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install packages
+        run: |
+          pip install ./allure-python-commons \
+            ./allure-python-commons-test \
+            ./${{ matrix.package }} \
+            -r ./requirements/testing.txt \
+            -r ./requirements/testing/${{ matrix.package }}.txt
+
+      - name: Test ${{ matrix.package }}
+        working-directory: ${{ matrix.package }}
+        run: poe tests
