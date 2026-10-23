@@ -1,15 +1,9 @@
 name: Test Allure Python integrations
 
 on:
-  workflow_dispatch:
-
   pull_request:
     branches:
       - '*'
-
-  schedule:
-    # Runs at 05:30 on Mondays
-    - cron: "30 5 * * 1"
 
 permissions:
   contents: read
