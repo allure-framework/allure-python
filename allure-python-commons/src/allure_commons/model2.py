@@ -1,6 +1,6 @@
 from attr import attrs, attrib
 from attr import Factory
-from .types import ErrorStatus
+from allure_commons.types import ErrorStatus
 
 
 TEST_GROUP_PATTERN = "{prefix}-container.json"
