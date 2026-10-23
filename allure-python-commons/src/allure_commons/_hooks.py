@@ -75,7 +75,7 @@ class AllureUserHooks:
         """ attach global file """
 
     @hookspec
-    def global_error(self, message, trace):
+    def global_error(self, message, trace, status):
         """ global error """
 
 

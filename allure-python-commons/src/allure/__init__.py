@@ -16,6 +16,7 @@ from allure_commons._allure import manual
 from allure_commons.types import Severity as severity_level
 from allure_commons.types import AttachmentType as attachment_type
 from allure_commons.types import ParameterMode as parameter_mode
+from allure_commons.types import ErrorStatus as error_status
 
 
 __all__ = [
@@ -43,5 +44,6 @@ __all__ = [
     "global_attach",
     "global_error",
     "attachment_type",
-    "parameter_mode"
+    "parameter_mode",
+    "error_status"
 ]

@@ -6,6 +6,7 @@ from allure_commons.model2 import ExecutableItem
 from allure_commons.model2 import TestResult
 from allure_commons.model2 import Attachment, ATTACHMENT_PATTERN
 from allure_commons.model2 import GlobalAttachment, GlobalError, Globals
+from allure_commons.types import ErrorStatus
 from allure_commons.utils import now
 from allure_commons._core import plugin_manager
 
@@ -172,9 +173,9 @@ class AllureReporter:
             GlobalAttachment(source=file_name, name=name, type=mime_type, timestamp=now())
         ]))
 
-    def global_error(self, message=None, trace=None):
+    def global_error(self, message=None, trace=None, status=ErrorStatus.BROKEN):
         plugin_manager.hook.report_globals(globals_item=Globals(errors=[
-            GlobalError(message=message, trace=trace, timestamp=now())
+            GlobalError(status=status, message=message, trace=trace, timestamp=now())
         ]))
 
     def __resolve_attachment_filename_and_type(self, uuid, attachment_type=None, extension=None):

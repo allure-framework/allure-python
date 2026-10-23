@@ -130,5 +130,5 @@ class AllurePytestBddApiHooks:
         global_attach_file(self.lifecycle, source, name, attachment_type, extension)
 
     @allure_commons.hookimpl
-    def global_error(self, message, trace):
-        global_error(self.lifecycle, message, trace)
+    def global_error(self, message, trace, status):
+        global_error(self.lifecycle, message, trace, status)

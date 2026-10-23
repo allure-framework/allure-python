@@ -260,8 +260,8 @@ class AllureListener:
         )
 
     @allure_commons.hookimpl
-    def global_error(self, message, trace):
-        self.lifecycle.global_error(message=message, trace=trace)
+    def global_error(self, message, trace, status):
+        self.lifecycle.global_error(message=message, trace=trace, status=status)
 
     @allure_commons.hookimpl
     def start_step(self, uuid, title, params):
