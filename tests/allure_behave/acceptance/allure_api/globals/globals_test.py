@@ -3,7 +3,7 @@ from tests.allure_behave.behave_runner import AllureBehaveRunner as Runner
 from hamcrest import assert_that, equal_to, has_item, has_length
 from allure_commons_test.result import has_global_attachment_with_content
 from allure_commons_test.result import has_global_error
-from allure_commons_test.result import with_message_contains
+from allure_commons_test.result import with_message_contains, with_status
 
 
 def test_global_attachment_and_error_hooks(behave_runner: Runner):
@@ -50,7 +50,40 @@ def test_global_attachment_and_error_hooks(behave_runner: Runner):
         behave_runner.allure_results.globals,
         has_item(
             has_global_error(
-                with_message_contains("behave global error")
+                with_message_contains("behave global error"),
+                with_status("broken"),
+            )
+        )
+    )
+
+
+def test_global_error_support_explicit_status(behave_runner: Runner):
+    behave_runner.run_behave(
+        feature_literals=[
+            """
+            Feature: Failed global error
+                Scenario: Global error
+                    Given noop
+            """
+        ],
+        step_literals=["given('noop')(lambda c: None)"],
+        environment_literal=textwrap.dedent(
+            """
+            import allure
+
+
+            def after_all(context):
+                allure.global_error("behave global error", status=allure.error_status.FAILED)
+            """
+        ),
+    )
+
+    assert_that(
+        behave_runner.allure_results.globals,
+        has_item(
+            has_global_error(
+                with_message_contains("behave global error"),
+                with_status("failed"),
             )
         )
     )

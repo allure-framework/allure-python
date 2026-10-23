@@ -1,5 +1,6 @@
 from attr import attrs, attrib
 from attr import Factory
+from allure_commons.types import ErrorStatus
 
 
 TEST_GROUP_PATTERN = "{prefix}-container.json"
@@ -111,6 +112,7 @@ class GlobalAttachment(Attachment):
 
 @attrs
 class GlobalError(StatusDetails):
+    status = attrib(default=ErrorStatus.BROKEN)
     timestamp = attrib(default=None)
 
 

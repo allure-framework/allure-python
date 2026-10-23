@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from allure_commons.types import ErrorStatus
 from allure_commons.model2 import Label
 from allure_commons.model2 import Link
 from allure_commons.model2 import StatusDetails
@@ -338,8 +339,8 @@ def global_attach_file(lifecycle, source, name, attachment_type, extension=None)
     )
 
 
-def global_error(lifecycle, message, trace=None):
-    lifecycle.global_error(message=message, trace=trace)
+def global_error(lifecycle, message, trace=None, status=ErrorStatus.BROKEN):
+    lifecycle.global_error(message=message, trace=trace, status=status)
 
 
 def format_csv(rows):

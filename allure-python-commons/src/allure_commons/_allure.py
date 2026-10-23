@@ -2,7 +2,7 @@ from functools import wraps
 from typing import Any, Callable, TypeVar, Union, overload
 
 from allure_commons._core import plugin_manager
-from allure_commons.types import LabelType, LinkType, ParameterMode
+from allure_commons.types import LabelType, LinkType, ParameterMode, ErrorStatus
 from allure_commons.utils import uuid4
 from allure_commons.utils import format_exception, format_traceback
 from allure_commons.utils import func_parameters, represent
@@ -238,25 +238,33 @@ class GlobalAttach:
 
 global_attach = GlobalAttach()
 
-
 @overload
-def global_error(value: BaseException) -> None:
+def global_error(
+    value: BaseException,
+    *,
+    status: ErrorStatus = ErrorStatus.BROKEN
+) -> None:
     ...
 
 
 @overload
-def global_error(value: str, trace: Union[str, None] = None) -> None:
+def global_error(
+    value: str,
+    trace: Union[str, None] = None,
+    *,
+    status: ErrorStatus = ErrorStatus.BROKEN
+) -> None:
     ...
 
 
-def global_error(value, trace=None):
+def global_error(value, trace=None, *, status: ErrorStatus = ErrorStatus.BROKEN):
     message = None
     if isinstance(value, BaseException):
         message = format_exception(type(value), value)
         trace = format_traceback(value.__traceback__)
     else:
         message = value
-    plugin_manager.hook.global_error(message=message, trace=trace)
+    plugin_manager.hook.global_error(message=message, trace=trace, status=status)
 
 
 class fixture:

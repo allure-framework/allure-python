@@ -71,3 +71,8 @@ class ParameterMode(Enum):
     HIDDEN = "hidden"
     MASKED = "masked"
     DEFAULT = None
+
+
+class ErrorStatus(str, Enum):
+    BROKEN = "broken"
+    FAILED = "failed"

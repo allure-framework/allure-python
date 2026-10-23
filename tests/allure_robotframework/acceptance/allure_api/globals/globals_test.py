@@ -5,6 +5,7 @@ from tests.allure_robotframework.robot_runner import AllureRobotRunner
 from allure_commons_test.result import has_global_attachment_with_content
 from allure_commons_test.result import has_global_error
 from allure_commons_test.result import with_message_contains
+from allure_commons_test.result import with_status
 
 
 def test_global_attachment_and_error(robot_runner: AllureRobotRunner):
@@ -63,7 +64,8 @@ def test_global_attachment_and_error(robot_runner: AllureRobotRunner):
         robot_runner.allure_results.globals,
         has_item(
             has_global_error(
-                with_message_contains("robot global error")
+                with_message_contains("robot global error"),
+                with_status("broken"),
             )
         )
     )
@@ -71,7 +73,58 @@ def test_global_attachment_and_error(robot_runner: AllureRobotRunner):
         robot_runner.allure_results.globals,
         has_item(
             has_global_error(
-                with_message_contains("message only error")
+                with_message_contains("message only error"),
+                with_status("broken"),
+            )
+        )
+    )
+
+
+def test_global_error_status_can_be_overwritten(robot_runner: AllureRobotRunner):
+    robot_runner.run_robotframework(
+        suite_literals={
+            "global-attachment.robot": (
+                """
+                *** Settings ***
+                Library     AllureLibrary
+                Library     ./lib.py
+                Suite Teardown  Global Error     robot global error     status=failed
+
+                *** Test Cases ***
+                Global Attachment
+                    Add Globals From Code
+                """
+            ),
+        },
+        library_literals={
+            "lib.py": (
+                """
+                import allure
+
+                def add_globals_from_code():
+                    allure.global_error("message only error", status=allure.error_status.FAILED)
+                """
+            ),
+        },
+    )
+
+    assert_that(robot_runner.allure_results.globals, has_length(2))
+
+    assert_that(
+        robot_runner.allure_results.globals,
+        has_item(
+            has_global_error(
+                with_message_contains("robot global error"),
+                with_status("failed"),
+            )
+        )
+    )
+    assert_that(
+        robot_runner.allure_results.globals,
+        has_item(
+            has_global_error(
+                with_message_contains("message only error"),
+                with_status("failed"),
             )
         )
     )

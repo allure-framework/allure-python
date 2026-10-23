@@ -278,8 +278,8 @@ class AllureListener:
         )
 
     @allure_commons.hookimpl
-    def global_error(self, message, trace):
-        self.allure_logger.global_error(message=message, trace=trace)
+    def global_error(self, message, trace, status):
+        self.allure_logger.global_error(message=message, trace=trace, status=status)
 
     @allure_commons.hookimpl
     def add_title(self, test_title):

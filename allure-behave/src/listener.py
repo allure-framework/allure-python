@@ -187,8 +187,8 @@ class AllureListener:
         self.logger.global_attach_file(uuid4(), source, name=name, attachment_type=attachment_type, extension=extension)
 
     @allure_commons.hookimpl
-    def global_error(self, message, trace):
-        self.logger.global_error(message=message, trace=trace)
+    def global_error(self, message, trace, status):
+        self.logger.global_error(message=message, trace=trace, status=status)
 
     @allure_commons.hookimpl
     def add_description(self, test_description):
