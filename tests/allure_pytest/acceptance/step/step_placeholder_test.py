@@ -70,3 +70,27 @@ def test_args_less_than_placeholders(allure_pytest_runner: AllurePytestRunner):
             )
         )
     )
+
+
+def test_keyword_only_default_in_placeholder(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+
+    >>> @allure.step("Wait up to {timeout} seconds")
+    ... def step(*, timeout=5):
+    ...     pass
+
+    >>> def test_keyword_only_default_in_placeholder_example():
+    ...     step()
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_keyword_only_default_in_placeholder_example",
+            with_status("passed"),
+            has_step("Wait up to 5 seconds")
+        )
+    )
