@@ -1,0 +1,26 @@
+name: "Assign pr reviewer"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  suggest:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Suggest reviewer for pull request
+        uses: allure-framework/review-roulette@v0.0.1
+        with:
+          organizations: ${{ github.repository_owner }}
+          reviewers: |
+            delatrie
+            andrcuns
+            epszaw
