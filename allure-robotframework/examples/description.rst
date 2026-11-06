@@ -41,3 +41,25 @@ The documentation can also be set dynamically with the
 
 
 .. _Set Test Documentation keyword: https://robotframework.org/robotframework/latest/libraries/BuiltIn.html#Set%20Test%20Documentation
+
+----------------------------------
+Preconditions and expected results
+----------------------------------
+
+Import :code:`AllureLibrary` to set preconditions and expected results directly
+from Robot Framework tests. Use :code:`Preconditions` and :code:`Expected Results`
+for plain text, or :code:`Preconditions Html` and :code:`Expected Results Html`
+for HTML. Each keyword replaces the previous value for its corresponding field.
+
+..  code:: robotframework
+    :name: preconditions-expected-results-robot
+
+    *** Settings ***
+    Library    AllureLibrary
+
+    *** Test Cases ***
+    Preconditions and expected results
+        Preconditions    Preconditions
+        Preconditions Html    <p>Preconditions</p>
+        Expected Results    Expected results
+        Expected Results Html    <p>Expected results</p>
