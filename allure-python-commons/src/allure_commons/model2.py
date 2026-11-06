@@ -52,6 +52,10 @@ class TestResult(ExecutableItem):
     labels = attrib(default=Factory(list))
     links = attrib(default=Factory(list))
     titlePath = attrib(default=Factory(list))
+    precondition = attrib(default=None)
+    preconditionHtml = attrib(default=None)
+    expectedResult = attrib(default=None)
+    expectedResultHtml = attrib(default=None)
 
 
 @attrs

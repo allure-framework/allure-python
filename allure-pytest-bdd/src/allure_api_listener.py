@@ -9,6 +9,10 @@ from allure_commons.utils import represent
 
 from .utils import ALLURE_DESCRIPTION_HTML_MARK
 from .utils import ALLURE_DESCRIPTION_MARK
+from .utils import ALLURE_PRECONDITIONS_MARK
+from .utils import ALLURE_PRECONDITIONS_HTML_MARK
+from .utils import ALLURE_EXPECTED_RESULTS_MARK
+from .utils import ALLURE_EXPECTED_RESULTS_HTML_MARK
 from .utils import ALLURE_LABEL_MARK
 from .utils import ALLURE_LINK_MARK
 from .utils import ALLURE_TITLE_ATTR
@@ -64,6 +68,26 @@ class AllurePytestBddApiHooks:
             test_result.descriptionHtml = test_description_html
 
     @allure_commons.hookimpl
+    def decorate_as_preconditions(self, test_preconditions):
+        allure_preconditions = getattr(pytest.mark, ALLURE_PRECONDITIONS_MARK)
+        return allure_preconditions(test_preconditions)
+
+    @allure_commons.hookimpl
+    def decorate_as_preconditions_html(self, test_preconditions_html):
+        allure_preconditions_html = getattr(pytest.mark, ALLURE_PRECONDITIONS_HTML_MARK)
+        return allure_preconditions_html(test_preconditions_html)
+
+    @allure_commons.hookimpl
+    def decorate_as_expected_results(self, test_expected_results):
+        allure_expected_results = getattr(pytest.mark, ALLURE_EXPECTED_RESULTS_MARK)
+        return allure_expected_results(test_expected_results)
+
+    @allure_commons.hookimpl
+    def decorate_as_expected_results_html(self, test_expected_results_html):
+        allure_expected_results_html = getattr(pytest.mark, ALLURE_EXPECTED_RESULTS_HTML_MARK)
+        return allure_expected_results_html(test_expected_results_html)
+
+    @allure_commons.hookimpl
     def decorate_as_label(self, label_type, labels):
         allure_label_mark = getattr(pytest.mark, ALLURE_LABEL_MARK)
         return allure_label_mark(*labels, label_type=label_type)
@@ -80,6 +104,26 @@ class AllurePytestBddApiHooks:
         url = apply_link_pattern(self.__link_patterns, link_type, url)
         allure_link_mark = getattr(pytest.mark, ALLURE_LINK_MARK)
         return allure_link_mark(url, name=name, link_type=link_type)
+
+    @allure_commons.hookimpl
+    def add_preconditions(self, test_preconditions):
+        with self.lifecycle.update_test_case() as test_result:
+            test_result.precondition = test_preconditions
+
+    @allure_commons.hookimpl
+    def add_preconditions_html(self, test_preconditions_html):
+        with self.lifecycle.update_test_case() as test_result:
+            test_result.preconditionHtml = test_preconditions_html
+
+    @allure_commons.hookimpl
+    def add_expected_results(self, test_expected_results):
+        with self.lifecycle.update_test_case() as test_result:
+            test_result.expectedResult = test_expected_results
+
+    @allure_commons.hookimpl
+    def add_expected_results_html(self, test_expected_results_html):
+        with self.lifecycle.update_test_case() as test_result:
+            test_result.expectedResultHtml = test_expected_results_html
 
     @allure_commons.hookimpl
     def add_link(self, url, link_type, name):

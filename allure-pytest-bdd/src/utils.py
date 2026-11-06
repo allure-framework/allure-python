@@ -27,6 +27,10 @@ from .storage import get_test_data
 ALLURE_TITLE_ATTR = "__allure_display_name__"
 ALLURE_DESCRIPTION_MARK = "allure_description"
 ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
+ALLURE_PRECONDITIONS_MARK = "allure_preconditions"
+ALLURE_PRECONDITIONS_HTML_MARK = "allure_preconditions_html"
+ALLURE_EXPECTED_RESULTS_MARK = "allure_expected_results"
+ALLURE_EXPECTED_RESULTS_HTML_MARK = "allure_expected_results_html"
 ALLURE_LABEL_MARK = "allure_label"
 ALLURE_LINK_MARK = "allure_link"
 
@@ -69,6 +73,22 @@ def get_allure_description(item, feature, scenario):
 
 def get_allure_description_html(item):
     return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
+
+
+def get_allure_preconditions(item):
+    return get_marker_value(item, ALLURE_PRECONDITIONS_MARK)
+
+
+def get_allure_preconditions_html(item):
+    return get_marker_value(item, ALLURE_PRECONDITIONS_HTML_MARK)
+
+
+def get_allure_expected_results(item):
+    return get_marker_value(item, ALLURE_EXPECTED_RESULTS_MARK)
+
+
+def get_allure_expected_results_html(item):
+    return get_marker_value(item, ALLURE_EXPECTED_RESULTS_HTML_MARK)
 
 
 def iter_all_labels(item):

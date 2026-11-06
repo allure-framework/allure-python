@@ -203,6 +203,30 @@ class AllureListener:
             test_result.descriptionHtml = test_description_html
 
     @allure_commons.hookimpl
+    def add_preconditions(self, test_preconditions):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            test_result.precondition = test_preconditions
+
+    @allure_commons.hookimpl
+    def add_preconditions_html(self, test_preconditions_html):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            test_result.preconditionHtml = test_preconditions_html
+
+    @allure_commons.hookimpl
+    def add_expected_results(self, test_expected_results):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            test_result.expectedResult = test_expected_results
+
+    @allure_commons.hookimpl
+    def add_expected_results_html(self, test_expected_results_html):
+        test_result = self.logger.get_test(None)
+        if test_result:
+            test_result.expectedResultHtml = test_expected_results_html
+
+    @allure_commons.hookimpl
     def add_link(self, url, link_type, name):
         test_result = self.logger.get_test(None)
         if test_result:
