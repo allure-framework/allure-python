@@ -12,8 +12,14 @@ from allure_pytest.utils import allure_label, allure_labels, allure_full_name
 from allure_pytest.helper import AllureTestHelper, AllureTitleHelper
 from allure_pytest.listener import AllureListener
 
-from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
-from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
+from allure_pytest.utils import ALLURE_DESCRIPTION_MARK
+from allure_pytest.utils import ALLURE_DESCRIPTION_HTML_MARK
+from allure_pytest.utils import ALLURE_PRECONDITIONS_MARK
+from allure_pytest.utils import ALLURE_PRECONDITIONS_HTML_MARK
+from allure_pytest.utils import ALLURE_EXPECTED_RESULTS_MARK
+from allure_pytest.utils import ALLURE_EXPECTED_RESULTS_HTML_MARK
+from allure_pytest.utils import ALLURE_LABEL_MARK
+from allure_pytest.utils import ALLURE_LINK_MARK
 
 
 def pytest_addoption(parser):
@@ -172,6 +178,10 @@ def pytest_configure(config):
     config.addinivalue_line("markers", f"{ALLURE_LINK_MARK}: allure link marker")
     config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_MARK}: allure description")
     config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_HTML_MARK}: allure description html")
+    config.addinivalue_line("markers", f"{ALLURE_PRECONDITIONS_MARK}: allure preconditions")
+    config.addinivalue_line("markers", f"{ALLURE_PRECONDITIONS_HTML_MARK}: allure preconditions html")
+    config.addinivalue_line("markers", f"{ALLURE_EXPECTED_RESULTS_MARK}: allure expected results")
+    config.addinivalue_line("markers", f"{ALLURE_EXPECTED_RESULTS_HTML_MARK}: allure expected results html")
 
 
 def select_by_labels(items, config):

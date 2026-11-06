@@ -1,5 +1,9 @@
 from allure_commons._allure import title
 from allure_commons._allure import description, description_html
+from allure_commons._allure import preconditions
+from allure_commons._allure import preconditions_html
+from allure_commons._allure import expected_results
+from allure_commons._allure import expected_results_html
 from allure_commons._allure import label
 from allure_commons._allure import severity
 from allure_commons._allure import tag
@@ -23,6 +27,10 @@ __all__ = [
     "title",
     "description",
     "description_html",
+    "preconditions",
+    "preconditions_html",
+    "expected_results",
+    "expected_results_html",
     "label",
     "severity",
     "suite",

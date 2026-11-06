@@ -10,6 +10,10 @@ from .pytest_bdd_listener import PytestBDDListener
 
 from .utils import ALLURE_DESCRIPTION_MARK
 from .utils import ALLURE_DESCRIPTION_HTML_MARK
+from .utils import ALLURE_PRECONDITIONS_MARK
+from .utils import ALLURE_PRECONDITIONS_HTML_MARK
+from .utils import ALLURE_EXPECTED_RESULTS_MARK
+from .utils import ALLURE_EXPECTED_RESULTS_HTML_MARK
 from .utils import ALLURE_LABEL_MARK
 from .utils import ALLURE_LINK_MARK
 
@@ -57,10 +61,14 @@ def cleanup_factory(plugin):
 
 
 def register_marks(config):
-    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_MARK}: allure description")
-    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_HTML_MARK}: allure description in HTML")
     config.addinivalue_line("markers", f"{ALLURE_LABEL_MARK}: allure label marker")
     config.addinivalue_line("markers", f"{ALLURE_LINK_MARK}: allure link marker")
+    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_MARK}: allure description")
+    config.addinivalue_line("markers", f"{ALLURE_DESCRIPTION_HTML_MARK}: allure description in HTML")
+    config.addinivalue_line("markers", f"{ALLURE_PRECONDITIONS_MARK}: allure preconditions")
+    config.addinivalue_line("markers", f"{ALLURE_PRECONDITIONS_HTML_MARK}: allure preconditions html")
+    config.addinivalue_line("markers", f"{ALLURE_EXPECTED_RESULTS_MARK}: allure expected results")
+    config.addinivalue_line("markers", f"{ALLURE_EXPECTED_RESULTS_HTML_MARK}: allure expected results html")
 
 
 def pytest_configure(config):
