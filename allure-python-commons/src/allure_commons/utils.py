@@ -200,6 +200,23 @@ def func_parameters(func, *args, **kwargs):
     >>> args_kwargs_varargs_keywords(1, 2, 4, d=5, e=6)
     [('a', '1'), ('b', '2'), ('c', '(4,)'), ('d', '5'), ('e', '6')]
 
+    >>> @helper
+    ... def keyword_only(a, *, b=2, c):
+    ...     pass
+
+    >>> keyword_only(1, c=3)
+    [('a', '1'), ('b', '2'), ('c', '3')]
+
+    >>> keyword_only(1, c=3, b=4)
+    [('a', '1'), ('b', '4'), ('c', '3')]
+
+    >>> @helper
+    ... def varargs_keyword_only(*a, b=2, **c):
+    ...     pass
+
+    >>> varargs_keyword_only(1, d=3)
+    [('a', '(1,)'), ('b', '2'), ('d', '3')]
+
     >>> class Class:
     ...     @staticmethod
     ...     @helper
@@ -240,6 +257,10 @@ def func_parameters(func, *args, **kwargs):
         arg_order.append(arg_spec.varargs)
         varargs = args[len(arg_spec.args):]
         parameters.update({arg_spec.varargs: varargs} if varargs else {})
+
+    arg_order.extend(arg_spec.kwonlyargs)
+    if arg_spec.kwonlydefaults:
+        parameters.update(arg_spec.kwonlydefaults)
 
     if arg_spec.args and arg_spec.args[0] in ["cls", "self"]:
         args_dict.pop(arg_spec.args[0], None)
