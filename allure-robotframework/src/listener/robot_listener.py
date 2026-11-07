@@ -1,8 +1,11 @@
 import os
+from pathlib import Path
 import allure_commons
 
 from allure_commons.lifecycle import AllureLifecycle
 from allure_commons.logger import AllureFileLogger
+from allure_commons.types import AttachmentType
+from allure_commons.utils import uuid4
 from allure_robotframework.allure_listener import AllureListener
 from allure_robotframework.types import RobotKeywordType
 
@@ -39,11 +42,44 @@ class allure_robotframework:
         self.messages.start_context()
         self.listener.start_test_container(name, attributes)
         self.listener.start_test(name, {**attributes, "titlepath": self.title_path})
+        self._browser_traces_before = self._snapshot_browser_traces()
 
     def end_test(self, name, attributes):
         messages = self.messages.stop_context()
         self.listener.stop_test(name, attributes, messages)
+        self._attach_new_browser_traces()
         self.listener.stop_test_container(name, attributes)
+
+    def _browser_folder(self):
+        try:
+            from robot.libraries.BuiltIn import BuiltIn
+            outputdir = BuiltIn().get_variable_value("${OUTPUTDIR}")
+        except Exception:
+            return None
+        if not outputdir:
+            return None
+        folder = Path(outputdir) / "browser"
+        return folder if folder.is_dir() else None
+
+    def _snapshot_browser_traces(self):
+        folder = self._browser_folder()
+        if folder is None:
+            return set()
+        return set(folder.glob("**/*.zip"))
+
+    def _attach_new_browser_traces(self):
+        folder = self._browser_folder()
+        if folder is None:
+            return
+        before = getattr(self, "_browser_traces_before", set())
+        for trace_file in sorted(folder.glob("**/*.zip")):
+            if trace_file not in before:
+                self.lifecycle.attach_file(
+                    uuid4(),
+                    str(trace_file),
+                    name=trace_file.name,
+                    attachment_type=AttachmentType.PLAYWRIGHT_TRACE,
+                )
 
     def start_keyword(self, name, attributes):
         self.messages.start_context()
