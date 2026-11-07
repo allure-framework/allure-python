@@ -227,6 +227,8 @@ class AllureListener:
             reason = report.wasxfail
             message = f"XPASS {reason}" if reason else "XPASS"
             status_details = StatusDetails(message=message)
+        elif status == Status.FAILED and report.longreprtext.startswith("[XPASS(strict)]"):
+            status_details = StatusDetails(message=report.longreprtext)
 
         if report.when == "setup":
             test_result.status = status
