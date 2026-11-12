@@ -179,6 +179,8 @@ class AllureListener:
         before_fixture = TestBeforeResult(name=fixture_name, start=now())
         self.allure_logger.start_before_fixture(container_uuid, before_fixture_uuid, before_fixture)
 
+        internal_finalizers_count = len(getattr(fixturedef, "_finalizers", ()))
+
         outcome = yield
 
         self.allure_logger.stop_before_fixture(before_fixture_uuid,
@@ -187,8 +189,9 @@ class AllureListener:
                                                statusDetails=get_outcome_status_details(outcome))
 
         finalizers = getattr(fixturedef, "_finalizers", [])
-        for index, finalizer in enumerate(finalizers):
-            finalizer_name = getattr(finalizer, "__name__", index)
+        for index in range(internal_finalizers_count, len(finalizers)):
+            finalizer = finalizers[index]
+            finalizer_name = getattr(finalizer, "__name__", index - internal_finalizers_count)
             name = f"{fixture_name}::{finalizer_name}"
             finalizers[index] = allure_commons.fixture(finalizer, parent_uuid=container_uuid, name=name)
 
