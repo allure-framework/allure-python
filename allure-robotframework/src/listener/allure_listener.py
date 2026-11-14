@@ -225,6 +225,30 @@ class AllureListener:
                 case.labels.append(Label(label_type, label))
 
     @allure_commons.hookimpl
+    def add_preconditions(self, test_preconditions):
+        with self.lifecycle.update_test_case() as test_result:
+            if test_result:
+                test_result.precondition = test_preconditions
+
+    @allure_commons.hookimpl
+    def add_preconditions_html(self, test_preconditions_html):
+        with self.lifecycle.update_test_case() as test_result:
+            if test_result:
+                test_result.preconditionHtml = test_preconditions_html
+
+    @allure_commons.hookimpl
+    def add_expected_results(self, test_expected_results):
+        with self.lifecycle.update_test_case() as test_result:
+            if test_result:
+                test_result.expectedResult = test_expected_results
+
+    @allure_commons.hookimpl
+    def add_expected_results_html(self, test_expected_results_html):
+        with self.lifecycle.update_test_case() as test_result:
+            if test_result:
+                test_result.expectedResultHtml = test_expected_results_html
+
+    @allure_commons.hookimpl
     def add_link(self, url, link_type, name):
         with self.lifecycle.update_test_case() as case:
             link = Link(url=url, type=link_type, name=name)

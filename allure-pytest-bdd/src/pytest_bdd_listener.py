@@ -20,6 +20,10 @@ from .steps import stop_gherkin_step
 from .storage import save_excinfo
 from .storage import save_test_data
 from .utils import attach_data
+from .utils import get_allure_preconditions
+from .utils import get_allure_preconditions_html
+from .utils import get_allure_expected_results
+from .utils import get_allure_expected_results_html
 from .utils import get_allure_description
 from .utils import get_allure_description_html
 from .utils import get_allure_labels
@@ -67,6 +71,10 @@ class PytestBDDListener:
             test_result.name = get_test_name(item, scenario, params)
             test_result.description = get_allure_description(item, feature, scenario)
             test_result.descriptionHtml = get_allure_description_html(item)
+            test_result.precondition = get_allure_preconditions(item)
+            test_result.preconditionHtml = get_allure_preconditions_html(item)
+            test_result.expectedResult = get_allure_expected_results(item)
+            test_result.expectedResultHtml = get_allure_expected_results_html(item)
             test_result.start = now()
             test_result.testCaseId = md5(full_name)
             test_result.labels.append(Label(name=LabelType.HOST, value=self.host))

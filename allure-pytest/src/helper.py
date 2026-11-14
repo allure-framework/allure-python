@@ -1,6 +1,11 @@
 import pytest
 import allure_commons
-from allure_pytest.utils import ALLURE_DESCRIPTION_MARK, ALLURE_DESCRIPTION_HTML_MARK
+from allure_pytest.utils import ALLURE_DESCRIPTION_MARK
+from allure_pytest.utils import ALLURE_DESCRIPTION_HTML_MARK
+from allure_pytest.utils import ALLURE_PRECONDITIONS_MARK
+from allure_pytest.utils import ALLURE_PRECONDITIONS_HTML_MARK
+from allure_pytest.utils import ALLURE_EXPECTED_RESULTS_MARK
+from allure_pytest.utils import ALLURE_EXPECTED_RESULTS_HTML_MARK
 from allure_pytest.utils import ALLURE_LABEL_MARK, ALLURE_LINK_MARK
 from allure_pytest.utils import format_allure_link
 
@@ -35,6 +40,26 @@ class AllureTestHelper:
     def decorate_as_description_html(self, test_description_html):
         allure_description_html = getattr(pytest.mark, ALLURE_DESCRIPTION_HTML_MARK)
         return allure_description_html(test_description_html)
+
+    @allure_commons.hookimpl
+    def decorate_as_preconditions(self, test_preconditions):
+        allure_preconditions = getattr(pytest.mark, ALLURE_PRECONDITIONS_MARK)
+        return allure_preconditions(test_preconditions)
+
+    @allure_commons.hookimpl
+    def decorate_as_preconditions_html(self, test_preconditions_html):
+        allure_preconditions_html = getattr(pytest.mark, ALLURE_PRECONDITIONS_HTML_MARK)
+        return allure_preconditions_html(test_preconditions_html)
+
+    @allure_commons.hookimpl
+    def decorate_as_expected_results(self, test_expected_results):
+        allure_expected_results = getattr(pytest.mark, ALLURE_EXPECTED_RESULTS_MARK)
+        return allure_expected_results(test_expected_results)
+
+    @allure_commons.hookimpl
+    def decorate_as_expected_results_html(self, test_expected_results_html):
+        allure_expected_results_html = getattr(pytest.mark, ALLURE_EXPECTED_RESULTS_HTML_MARK)
+        return allure_expected_results_html(test_expected_results_html)
 
     @allure_commons.hookimpl
     def decorate_as_label(self, label_type, labels):

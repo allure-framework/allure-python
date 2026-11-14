@@ -31,6 +31,24 @@ def description_html(test_description_html):
     return safely(plugin_manager.hook.decorate_as_description_html(test_description_html=test_description_html))
 
 
+def preconditions(test_preconditions):
+    return safely(plugin_manager.hook.decorate_as_preconditions(test_preconditions=test_preconditions))
+
+
+def preconditions_html(test_preconditions_html):
+    return safely(plugin_manager.hook.decorate_as_preconditions_html(test_preconditions_html=test_preconditions_html))
+
+
+def expected_results(test_expected_results):
+    return safely(plugin_manager.hook.decorate_as_expected_results(test_expected_results=test_expected_results))
+
+
+def expected_results_html(test_expected_results_html):
+    return safely(plugin_manager.hook.decorate_as_expected_results_html(
+        test_expected_results_html=test_expected_results_html,
+    ))
+
+
 def label(label_type, *labels):
     return safely(plugin_manager.hook.decorate_as_label(label_type=label_type, labels=labels))
 
@@ -100,6 +118,22 @@ class Dynamic:
     @staticmethod
     def description_html(test_description_html):
         plugin_manager.hook.add_description_html(test_description_html=test_description_html)
+
+    @staticmethod
+    def preconditions(test_preconditions):
+        plugin_manager.hook.add_preconditions(test_preconditions=test_preconditions)
+
+    @staticmethod
+    def preconditions_html(test_preconditions_html):
+        plugin_manager.hook.add_preconditions_html(test_preconditions_html=test_preconditions_html)
+
+    @staticmethod
+    def expected_results(test_expected_results):
+        plugin_manager.hook.add_expected_results(test_expected_results=test_expected_results)
+
+    @staticmethod
+    def expected_results_html(test_expected_results_html):
+        plugin_manager.hook.add_expected_results_html(test_expected_results_html=test_expected_results_html)
 
     @staticmethod
     def label(label_type, *labels):

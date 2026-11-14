@@ -9,6 +9,10 @@ from allure_pytest.stash import stashed
 
 ALLURE_DESCRIPTION_MARK = "allure_description"
 ALLURE_DESCRIPTION_HTML_MARK = "allure_description_html"
+ALLURE_PRECONDITIONS_MARK = "allure_preconditions"
+ALLURE_PRECONDITIONS_HTML_MARK = "allure_preconditions_html"
+ALLURE_EXPECTED_RESULTS_MARK = "allure_expected_results"
+ALLURE_EXPECTED_RESULTS_HTML_MARK = "allure_expected_results_html"
 ALLURE_LABEL_MARK = "allure_label"
 ALLURE_LINK_MARK = "allure_link"
 ALLURE_UNIQUE_LABELS = [
@@ -71,6 +75,22 @@ def allure_description(item):
 
 def allure_description_html(item):
     return get_marker_value(item, ALLURE_DESCRIPTION_HTML_MARK)
+
+
+def allure_preconditions(item):
+    return get_marker_value(item, ALLURE_PRECONDITIONS_MARK)
+
+
+def allure_preconditions_html(item):
+    return get_marker_value(item, ALLURE_PRECONDITIONS_HTML_MARK)
+
+
+def allure_expected_results(item):
+    return get_marker_value(item, ALLURE_EXPECTED_RESULTS_MARK)
+
+
+def allure_expected_results_html(item):
+    return get_marker_value(item, ALLURE_EXPECTED_RESULTS_HTML_MARK)
 
 
 def allure_label(item, label):

@@ -89,6 +89,22 @@ def has_description_html(*matchers):
     return has_entry("descriptionHtml", all_of(*matchers))
 
 
+def has_preconditions(*matchers):
+    return has_entry("precondition", all_of(*matchers))
+
+
+def has_preconditions_html(*matchers):
+    return has_entry("preconditionHtml", all_of(*matchers))
+
+
+def has_expected_results(*matchers):
+    return has_entry("expectedResult", all_of(*matchers))
+
+
+def has_expected_results_html(*matchers):
+    return has_entry("expectedResultHtml", all_of(*matchers))
+
+
 def has_step(name, *matchers):
     return has_entry(
         "steps",

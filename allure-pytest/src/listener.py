@@ -16,6 +16,10 @@ from allure_commons.model2 import Parameter
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status
 from allure_commons.types import LabelType, AttachmentType, ParameterMode
+from allure_pytest.utils import allure_preconditions
+from allure_pytest.utils import allure_preconditions_html
+from allure_pytest.utils import allure_expected_results
+from allure_pytest.utils import allure_expected_results_html
 from allure_pytest.utils import allure_description, allure_description_html
 from allure_pytest.utils import allure_labels, allure_links, pytest_markers
 from allure_pytest.utils import allure_full_name, allure_package, allure_name
@@ -114,6 +118,10 @@ class AllureListener:
         test_result.testCaseId = md5(full_name)
         test_result.description = allure_description(item)
         test_result.descriptionHtml = allure_description_html(item)
+        test_result.precondition = allure_preconditions(item)
+        test_result.preconditionHtml = allure_preconditions_html(item)
+        test_result.expectedResult = allure_expected_results(item)
+        test_result.expectedResultHtml = allure_expected_results_html(item)
         current_param_names = [param.name for param in test_result.parameters]
         test_result.parameters.extend([
             Parameter(name=name, value=represent(value))
@@ -298,6 +306,30 @@ class AllureListener:
         test_result = self.allure_logger.get_test(None)
         if test_result:
             test_result.descriptionHtml = test_description_html
+
+    @allure_commons.hookimpl
+    def add_preconditions(self, test_preconditions):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.precondition = test_preconditions
+
+    @allure_commons.hookimpl
+    def add_preconditions_html(self, test_preconditions_html):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.preconditionHtml = test_preconditions_html
+
+    @allure_commons.hookimpl
+    def add_expected_results(self, test_expected_results):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.expectedResult = test_expected_results
+
+    @allure_commons.hookimpl
+    def add_expected_results_html(self, test_expected_results_html):
+        test_result = self.allure_logger.get_test(None)
+        if test_result:
+            test_result.expectedResultHtml = test_expected_results_html
 
     @allure_commons.hookimpl
     def add_link(self, url, link_type, name):

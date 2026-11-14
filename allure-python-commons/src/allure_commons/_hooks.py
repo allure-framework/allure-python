@@ -31,6 +31,38 @@ class AllureUserHooks:
         """ description html"""
 
     @hookspec
+    def decorate_as_preconditions(self, test_preconditions):
+        """ preconditions """
+
+    @hookspec
+    def add_preconditions(self, test_preconditions):
+        """ preconditions """
+
+    @hookspec
+    def decorate_as_preconditions_html(self, test_preconditions_html):
+        """ preconditions html """
+
+    @hookspec
+    def add_preconditions_html(self, test_preconditions_html):
+        """ preconditions html """
+
+    @hookspec
+    def decorate_as_expected_results(self, test_expected_results):
+        """ expected results """
+
+    @hookspec
+    def add_expected_results(self, test_expected_results):
+        """ expected results """
+
+    @hookspec
+    def decorate_as_expected_results_html(self, test_expected_results_html):
+        """ expected results html """
+
+    @hookspec
+    def add_expected_results_html(self, test_expected_results_html):
+        """ expected results html """
+
+    @hookspec
     def decorate_as_label(self, label_type, labels):
         """ label """
 
