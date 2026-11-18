@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from allure_commons.utils import now
 from allure_commons.model2 import Label
-from allure_commons.model2 import Status
+from allure_commons.model2 import Status, StatusDetails
 from allure_commons.types import LabelType, AttachmentType
 from allure_commons.utils import platform_label
 from allure_commons.utils import host_tag, thread_tag
@@ -153,6 +153,10 @@ class PytestBDDListener:
                     attach_data(self.lifecycle, report.capstdout, "stdout", AttachmentType.TEXT, None)
                 if report.capstderr:
                     attach_data(self.lifecycle, report.capstderr, "stderr", AttachmentType.TEXT, None)
+                if getattr(item, "_allure_muted", False):
+                    test_result.stop = test_result.stop or now()
+                    test_result.statusDetails = test_result.statusDetails or StatusDetails()
+                    test_result.statusDetails.muted = True
                 post_process_test_result(item, test_result)
 
         if report.when == "teardown":

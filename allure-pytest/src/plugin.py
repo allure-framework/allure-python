@@ -1,4 +1,5 @@
 import argparse
+import pytest
 
 import allure
 import allure_commons
@@ -7,6 +8,7 @@ import os
 from allure_commons.types import LabelType, Severity
 from allure_commons.logger import AllureFileLogger
 from allure_commons.utils import get_testplan
+from allure_commons.utils import matches_testplan, MUTED_TEST_REASON
 
 from allure_pytest.utils import allure_label, allure_labels, allure_full_name
 from allure_pytest.helper import AllureTestHelper, AllureTitleHelper
@@ -239,6 +241,14 @@ def select_by_testcase(items, config):
 def pytest_collection_modifyitems(items, config):
     selected, deselected_by_testcase = select_by_testcase(items, config)
     selected, deselected_by_labels = select_by_labels(selected, config)
+
+    muted_tests = get_testplan("mutedTests")
+    for item in selected:
+        item._allure_muted = matches_testplan(
+            muted_tests, allure_ids=allure_label(item, LabelType.ID), selector=allure_full_name(item)
+        )
+        if item._allure_muted:
+            item.add_marker(pytest.mark.skip(reason=MUTED_TEST_REASON))
 
     items[:] = selected
 
