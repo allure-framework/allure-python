@@ -100,6 +100,7 @@ class StatusDetails:
     flaky = attrib(default=None)
     message = attrib(default=None)
     trace = attrib(default=None)
+    muted = attrib(default=None)
 
 
 @attrs
