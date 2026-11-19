@@ -69,13 +69,13 @@ Status](https://img.shields.io/pypi/v/allure-nose2)](https://pypi.python.org/pyp
 
 ## Skipping muted tests
 
-All adapters support `mutedTests` in the JSON test plan supplied through
+All adapters support `excludedTests` in the JSON test plan supplied through
 `ALLURE_TESTPLAN_PATH`:
 
 ```json
 {
   "version": "1.0",
-  "mutedTests": [
+  "excludedTests": [
     { "id": 101 },
     { "selector": "test_checkout#test_expired_card" }
   ]

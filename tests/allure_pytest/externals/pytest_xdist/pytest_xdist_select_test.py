@@ -24,7 +24,7 @@ def test_xdist_muted_tests(xdist_runner: AllurePytestRunner):
     >>> def test_active():
     ...     pass
     """
-    results = xdist_runner.run_docstring("-n2", testplan={"mutedTests": [{"id": 12}]})
+    results = xdist_runner.run_docstring("-n2", testplan={"excludedTests": [{"id": 12}]})
 
     muted = [result for result in results.test_cases if result["name"].startswith("test_muted")]
     assert len(results.test_cases) == 3

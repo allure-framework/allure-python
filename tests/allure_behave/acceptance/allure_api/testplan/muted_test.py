@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.parametrize("entry", [{"id": 12}, {"id": "unknown", "selector": "Muting: Muted scenario"}])
 @pytest.mark.parametrize("selected", [False, True])
 def test_muted_scenarios(behave_runner, entry, selected):
-    plan = {"mutedTests": [entry, {"selector": "Muting: Outside"}]}
+    plan = {"excludedTests": [entry, {"selector": "Muting: Outside"}]}
     if selected:
         plan["tests"] = [{"selector": "Muting: Muted scenario"}, {"selector": "Muting: Active"}]
 

@@ -17,7 +17,7 @@ def test_active():
     pass
 """)
     plan = tmp_path / "plan.json"
-    plan.write_text(json.dumps({"mutedTests": [{"id": 12}]}))
+    plan.write_text(json.dumps({"excludedTests": [{"id": 12}]}))
 
     run = subprocess.run(
         [sys.executable, "-m", "nose2", "--plugin", "allure_nose2.plugin", "--allure",

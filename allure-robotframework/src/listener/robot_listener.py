@@ -22,7 +22,7 @@ class allure_robotframework:
     def __init__(self, logger_path=DEFAULT_OUTPUT_PATH):
         self.messages = Messages()
         self.title_path = []
-        self.muted_tests = get_testplan("mutedTests")
+        self.muted_tests = get_testplan("excludedTests")
         self._muted = False
 
         self.logger = AllureFileLogger(logger_path)

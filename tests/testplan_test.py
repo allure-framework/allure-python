@@ -8,14 +8,14 @@ from allure_commons.utils import get_testplan
 
 @pytest.mark.parametrize("selection", [None, []])
 def test_muted_plan_loading(tmp_path, monkeypatch, selection):
-    plan = {"mutedTests": [{"id": 101}]}
+    plan = {"excludedTests": [{"id": 101}]}
     if selection is not None:
         plan["tests"] = selection
     path = tmp_path / "testplan.json"
     path.write_text(json.dumps(plan))
     monkeypatch.setenv("ALLURE_TESTPLAN_PATH", str(path))
 
-    muted = get_testplan("mutedTests")
+    muted = get_testplan("excludedTests")
 
     assert muted == [{"id": 101}]
     assert get_testplan() == []
@@ -23,13 +23,13 @@ def test_muted_plan_loading(tmp_path, monkeypatch, selection):
 
 def test_testplan_parsed_once_for_both_fields(tmp_path, monkeypatch):
     path = tmp_path / "testplan.json"
-    path.write_text('{"tests": [{"id": 1}], "mutedTests": [{"id": 2}]}')
+    path.write_text('{"tests": [{"id": 1}], "excludedTests": [{"id": 2}]}')
     monkeypatch.setenv("ALLURE_TESTPLAN_PATH", str(path))
 
     with patch("allure_commons.utils.json.load", wraps=json.load) as load:
         selected = get_testplan()
-        muted = get_testplan("mutedTests")
-        repeated = get_testplan("mutedTests")
+        muted = get_testplan("excludedTests")
+        repeated = get_testplan("excludedTests")
 
     assert selected == [{"id": 1}]
     assert muted == repeated == [{"id": 2}]

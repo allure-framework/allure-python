@@ -20,7 +20,7 @@ class AllureFormatter(Formatter):
         allure_commons.plugin_manager.register(self.file_logger)
 
         self.testplan = get_testplan()
-        self.muted_tests = get_testplan("mutedTests")
+        self.muted_tests = get_testplan("excludedTests")
 
     def _wrap_scenario(self, scenarios):
         for scenario in scenarios:
