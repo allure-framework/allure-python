@@ -14,7 +14,7 @@ def test_muted_scenario_bodies(allure_pytest_bdd_runner, entry, selection, worke
     entry = dict(entry)
     if "selector" in entry and version_gte("pytest-bdd", 8):
         entry["selector"] = os.path.join(allure_pytest_bdd_runner.pytester.path.name, entry["selector"])
-    plan = {"mutedTests": [entry]}
+    plan = {"excludedTests": [entry]}
     if selection is not None:
         plan["tests"] = selection
     results = allure_pytest_bdd_runner.run_pytest(

@@ -105,7 +105,7 @@ class Allure(Plugin):
                 test_result.parameters = params(event)
 
             if matches_testplan(
-                get_testplan("mutedTests"),
+                get_testplan("excludedTests"),
                 allure_ids=(label.value for label in labels(event.test) if label.name == LabelType.ID),
                 selector=fullname(event),
             ):

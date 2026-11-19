@@ -81,7 +81,7 @@ def register_marks(config):
 def pytest_bdd_before_scenario(request, feature, scenario):
     item = request.node
     item._allure_muted = matches_testplan(
-        get_testplan("mutedTests"),
+        get_testplan("excludedTests"),
         allure_ids=(value for _, value in iter_label_values(item, LabelType.ID)),
         selector=get_full_name(feature, scenario),
     )

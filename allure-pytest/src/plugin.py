@@ -242,7 +242,7 @@ def pytest_collection_modifyitems(items, config):
     selected, deselected_by_testcase = select_by_testcase(items, config)
     selected, deselected_by_labels = select_by_labels(selected, config)
 
-    muted_tests = get_testplan("mutedTests")
+    muted_tests = get_testplan("excludedTests")
     for item in selected:
         item._allure_muted = matches_testplan(
             muted_tests, allure_ids=allure_label(item, LabelType.ID), selector=allure_full_name(item)

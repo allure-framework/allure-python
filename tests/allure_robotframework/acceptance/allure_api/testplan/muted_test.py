@@ -6,7 +6,7 @@ import pytest
 @pytest.mark.parametrize("selected", [False, True])
 def test_muted_robot_tests(robot_runner, modifier, entry, selected):
     options = {"prerunmodifier": "allure_robotframework.testplan"} if modifier else {}
-    plan = {"mutedTests": [entry, {"selector": "Muting.Outside"}]}
+    plan = {"excludedTests": [entry, {"selector": "Muting.Outside"}]}
     if selected and modifier:
         plan["tests"] = [{"selector": "Muting.Muted"}, {"selector": "Muting.Active"}]
     results = robot_runner.run_robotframework(

@@ -13,7 +13,7 @@ def test_muted_functions(nose2_runner, entry):
     >>> def test_active():
     ...     pass
     """
-    results = nose2_runner.run_docstring(module_name="muting", testplan={"mutedTests": [entry]})
+    results = nose2_runner.run_docstring(module_name="muting", testplan={"excludedTests": [entry]})
 
     muted = [result for result in results.test_cases if result["fullName"] == "muting.test_muted"]
     assert len(results.test_cases) == 3
@@ -34,7 +34,7 @@ def test_muted_methods(nose2_runner, entry):
     ...     def test_muted(self):
     ...         raise AssertionError("muted body ran")
     """
-    results = nose2_runner.run_docstring(module_name="muting", testplan={"tests": [], "mutedTests": [entry]})
+    results = nose2_runner.run_docstring(module_name="muting", testplan={"tests": [], "excludedTests": [entry]})
 
     assert len(results.test_cases) == 1
     assert results.test_cases[0]["status"] == "skipped"
@@ -54,7 +54,7 @@ def test_muted_parameterized_methods(nose2_runner):
     ...     def test_active(self):
     ...         pass
     """
-    results = nose2_runner.run_docstring(module_name="muting", testplan={"mutedTests": [{"id": 56}]})
+    results = nose2_runner.run_docstring(module_name="muting", testplan={"excludedTests": [{"id": 56}]})
 
     muted = [result for result in results.test_cases if result["name"].startswith("test_muted")]
     assert len(muted) == 2

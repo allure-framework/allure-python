@@ -17,7 +17,7 @@ def test_muted_body_is_not_run(allure_pytest_runner, entry, selection):
     ... def test_user_skip():
     ...     pass
     """
-    plan = {"mutedTests": [entry]}
+    plan = {"excludedTests": [entry]}
     if selection is not None:
         plan["tests"] = selection
 
@@ -45,7 +45,7 @@ def test_muting_does_not_change_selection(allure_pytest_runner, inverted, expect
         *(["--inversion", "true"] if inverted else []),
         filename="test_muted_sample",
         testplan={"tests": [{"selector": "test_muted_sample#test_selected"}],
-                  "mutedTests": [{"selector": "test_muted_sample#test_outside"}]}
+                  "excludedTests": [{"selector": "test_muted_sample#test_outside"}]}
     )
 
     assert len(results.test_cases) == 1
