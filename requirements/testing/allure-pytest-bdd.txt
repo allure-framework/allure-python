@@ -1,1 +1,2 @@
 # allure_pytest_bdd testing deps
+pytest-xdist

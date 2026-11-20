@@ -1,3 +1,5 @@
+from unittest import skip
+
 from nose2.events import Plugin
 from allure_commons import plugin_manager
 from allure_commons.logger import AllureFileLogger
@@ -8,7 +10,8 @@ from allure_commons.model2 import Status
 from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Label
 from allure_commons.types import LabelType
-from allure_commons.utils import host_tag, thread_tag
+from allure_commons.utils import host_tag, thread_tag, get_testplan
+from allure_commons.utils import matches_testplan, MUTED_TEST_REASON
 
 from allure_commons.utils import platform_label, md5
 
@@ -54,6 +57,7 @@ class Allure(Plugin):
         self.lifecycle = AllureLifecycle()
         self.logger = AllureFileLogger("allure-result")
         self.listener = AllureListener(self.lifecycle)
+        self._muted_tests = {}
 
     def registerInSubprocess(self, event):
         self.unregister_allure_plugins()
@@ -70,8 +74,9 @@ class Allure(Plugin):
         plugin_manager.register(self.logger)
 
     def unregister_allure_plugins(self):
-        plugin_manager.unregister(plugin=self.listener)
-        plugin_manager.unregister(plugin=self.logger)
+        for plugin in (self.listener, self.logger):
+            if plugin_manager.is_registered(plugin):
+                plugin_manager.unregister(plugin=plugin)
 
     def is_registered(self):
         return all([plugin_manager.is_registered(self.listener),
@@ -99,11 +104,26 @@ class Allure(Plugin):
                 test_result.labels.append(Label(name=LabelType.LANGUAGE, value=platform_label()))
                 test_result.parameters = params(event)
 
+            if matches_testplan(
+                get_testplan("excludedTests"),
+                allure_ids=(label.value for label in labels(event.test) if label.name == LabelType.ID),
+                selector=fullname(event),
+            ):
+                method_name = event.test._testMethodName
+                self._muted_tests[event.test] = (method_name, event.test.__dict__.get(method_name))
+                setattr(event.test, method_name, skip(MUTED_TEST_REASON)(lambda: None))
+
     def stopTest(self, event):
         if self.is_registered():
             with self.lifecycle.update_test_case() as test_result:
                 test_result.stop = timestamp_millis(event.stopTime)
             self.lifecycle.write_test_case()
+            if event.test in self._muted_tests:
+                method_name, original = self._muted_tests.pop(event.test)
+                if original is None:
+                    delattr(event.test, method_name)
+                else:
+                    setattr(event.test, method_name, original)
 
     def testOutcome(self, event):
         if self.is_registered():
@@ -122,6 +142,9 @@ class Allure(Plugin):
                 elif event.outcome == result.SKIP:
                     test_result.status = Status.SKIPPED
                     test_result.statusDetails = status_details(event)
+                if event.test in self._muted_tests:
+                    test_result.statusDetails = test_result.statusDetails or StatusDetails()
+                    test_result.statusDetails.muted = True
                 # Todo default status and other cases
                 # elif event.outcome == result.FAIL and event.expected:
                 #     pass

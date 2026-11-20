@@ -231,6 +231,10 @@ class AllureListener:
             message = f"XPASS {reason}" if reason else "XPASS"
             status_details = StatusDetails(message=message)
 
+        if getattr(item, "_allure_muted", False):
+            status_details = status_details or StatusDetails()
+            status_details.muted = True
+
         if report.when == "setup":
             test_result.status = status
             test_result.statusDetails = status_details
