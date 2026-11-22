@@ -107,6 +107,32 @@ def test_failed_fixture_value_in_display_name(allure_pytest_runner: AllurePytest
     )
 
 
+def test_failed_parametrized_fixture_attribute_in_display_name(allure_pytest_runner: AllurePytestRunner):
+    """
+    >>> import allure
+    >>> import pytest
+
+    >>> @pytest.fixture(params=[1, 2])
+    ... def fix(request):
+    ...     pytest.skip('skip reason')
+
+    >>> @allure.title('title with {fix.attribute}')
+    ... def test_func(fix):
+    ...     pass
+    """
+
+    allure_results = allure_pytest_runner.run_docstring()
+
+    assert_that(
+        allure_results,
+        has_test_case(
+            "test_func",
+            has_title("title with {fix.attribute}")
+        )
+    )
+
+
+
 def test_param_id_in_display_name(allure_pytest_runner: AllurePytestRunner):
     """
     >>> import allure

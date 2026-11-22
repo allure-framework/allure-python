@@ -145,16 +145,21 @@ def allure_package(item):
 def allure_name(item, parameters, param_id=None):
     name = item.name
     title = allure_title(item)
+    if not title:
+        return name
     param_id_kwargs = {}
     if param_id:
         # if param_id is an ASCII string, it could have been encoded by pytest (_pytest.compat.ascii_escaped)
         if param_id.isascii():
             param_id = param_id.encode().decode("unicode-escape")
         param_id_kwargs["param_id"] = param_id
-    return SafeFormatter().format(
-        title,
-        **{**param_id_kwargs, **parameters, **item.funcargs}
-    ) if title else name
+    try:
+        return SafeFormatter().format(
+            title,
+            **{**param_id_kwargs, **parameters, **item.funcargs}
+        )
+    except (AttributeError, IndexError, TypeError):
+        return title
 
 
 def allure_full_name(item: pytest.Item):
