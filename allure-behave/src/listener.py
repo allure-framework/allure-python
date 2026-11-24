@@ -6,7 +6,8 @@ from allure_commons.utils import md5
 from allure_commons.utils import now
 from allure_commons.utils import platform_label
 from allure_commons.types import LabelType, AttachmentType, LinkType
-from allure_commons.model2 import TestResult
+from allure_commons.model2 import TestResult, Status, StatusDetails
+from allure_commons.utils import EXCLUDED_TEST_REASON
 from allure_commons.model2 import TestStepResult
 from allure_commons.model2 import TestBeforeResult, TestAfterResult
 from allure_commons.model2 import TestResultContainer
@@ -112,6 +113,9 @@ class AllureListener:
         else:
             status = scenario_status(scenario)
             status_details = scenario_status_details(scenario)
+            if scenario.skip_reason == EXCLUDED_TEST_REASON:
+                status = Status.SKIPPED
+                status_details = StatusDetails(message=EXCLUDED_TEST_REASON, muted=True)
 
             self.flush_steps()
             test_result = self.logger.get_test(self.current_scenario_uuid)

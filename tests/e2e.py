@@ -21,6 +21,7 @@ from pytest import FixtureRequest, Pytester, MonkeyPatch
 from typing import Tuple, Mapping, TypeVar, Generator, Callable, Union
 
 import allure_commons
+from allure_commons.utils import _load_testplan
 from allure_commons.logger import AllureMemoryLogger
 from allure_commons_test.report import AllureReport
 
@@ -433,6 +434,7 @@ class AllureFrameworkRunner:
             rst_id=testplan_rst_id
         )
         with altered_env(ALLURE_TESTPLAN_PATH=testplan_path):
+            _load_testplan.cache_clear()
             output = self.__run_and_collect_results_in_memory(
                 args,
                 kwargs

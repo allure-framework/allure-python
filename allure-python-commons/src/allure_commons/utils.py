@@ -12,7 +12,11 @@ import threading
 import traceback
 import collections
 
+from functools import lru_cache
 from traceback import format_exception_only
+
+
+EXCLUDED_TEST_REASON = "Skipped by Allure test plan"
 
 
 def md5(*args):
@@ -323,16 +327,26 @@ def format_exception(etype, value):
     return "\n".join(format_exception_only(etype, value)) if etype or value else None
 
 
-def get_testplan():
-    planned_tests = []
+@lru_cache(maxsize=1)
+def _load_testplan():
     file_path = os.environ.get("ALLURE_TESTPLAN_PATH")
-
     if file_path and os.path.exists(file_path):
         with open(file_path, "r") as plan_file:
-            plan = json.load(plan_file)
-            planned_tests = plan.get("tests", [])
+            return json.load(plan_file)
+    return {}
 
-    return planned_tests
+
+def get_testplan(field="tests"):
+    return _load_testplan().get(field, [])
+
+
+def matches_testplan(entries, allure_ids=(), selector=None):
+    ids = {str(value) for value in allure_ids if value is not None}
+    return any(
+        (entry.get("id") is not None and str(entry["id"]) in ids)
+        or (selector is not None and entry.get("selector") == selector)
+        for entry in entries or []
+    )
 
 
 class SafeFormatter(string.Formatter):

@@ -1,5 +1,11 @@
 import argparse
 import os
+import pytest
+
+from allure_commons.utils import get_testplan
+from allure_commons.utils import matches_testplan, EXCLUDED_TEST_REASON
+from allure_commons.types import LabelType
+from .utils import iter_label_values, get_full_name
 
 import allure_commons
 from allure_commons.logger import AllureFileLogger
@@ -69,6 +75,18 @@ def register_marks(config):
     config.addinivalue_line("markers", f"{ALLURE_PRECONDITIONS_HTML_MARK}: allure preconditions html")
     config.addinivalue_line("markers", f"{ALLURE_EXPECTED_RESULTS_MARK}: allure expected results")
     config.addinivalue_line("markers", f"{ALLURE_EXPECTED_RESULTS_HTML_MARK}: allure expected results html")
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_bdd_before_scenario(request, feature, scenario):
+    item = request.node
+    item._allure_excluded = matches_testplan(
+        get_testplan("excludedTests"),
+        allure_ids=(value for _, value in iter_label_values(item, LabelType.ID)),
+        selector=get_full_name(feature, scenario),
+    )
+    if item._allure_excluded:
+        pytest.skip(EXCLUDED_TEST_REASON)
 
 
 def pytest_configure(config):

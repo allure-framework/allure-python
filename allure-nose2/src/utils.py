@@ -10,6 +10,7 @@ ALLURE_LABELS = [
     "epic",
     "feature",
     "story",
+    "as_id",
 ]
 
 
