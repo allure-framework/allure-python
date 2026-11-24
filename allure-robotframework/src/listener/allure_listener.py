@@ -12,7 +12,7 @@ from allure_commons.utils import host_tag
 from allure_commons.utils import format_exception, format_traceback
 from allure_commons.model2 import Label, Link
 from allure_commons.model2 import Status, StatusDetails
-from allure_commons.utils import MUTED_TEST_REASON
+from allure_commons.utils import EXCLUDED_TEST_REASON
 from allure_commons.model2 import Parameter
 from allure_commons.types import LabelType, AttachmentType, Severity, LinkType
 from allure_robotframework.utils import get_allure_status
@@ -159,9 +159,9 @@ class AllureListener:
             test_result.labels.extend(allure_labels(tags))
             test_result.statusDetails = StatusDetails(message=attributes.get("message"),
                                                       trace=self._current_tb)
-            if attributes.get("allure_muted"):
+            if attributes.get("allure_excluded"):
                 test_result.status = Status.SKIPPED
-                test_result.statusDetails = StatusDetails(message=MUTED_TEST_REASON, muted=True)
+                test_result.statusDetails = StatusDetails(message=EXCLUDED_TEST_REASON, muted=True)
 
             if attributes.get("critical") == "yes":
                 test_result.labels.append(Label(name=LabelType.SEVERITY, value=Severity.CRITICAL))

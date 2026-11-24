@@ -13,23 +13,23 @@ def xdist_runner(allure_pytest_runner: AllurePytestRunner):
     yield allure_pytest_runner
 
 
-def test_xdist_muted_tests(xdist_runner: AllurePytestRunner):
+def test_xdist_excluded_tests(xdist_runner: AllurePytestRunner):
     """
     >>> import allure
     >>> import pytest
     >>> @allure.id("12")
     ... @pytest.mark.parametrize("value", ["one", "two"])
-    ... def test_muted(value):
-    ...     raise AssertionError("muted body ran")
+    ... def test_excluded(value):
+    ...     raise AssertionError("excluded body ran")
     >>> def test_active():
     ...     pass
     """
     results = xdist_runner.run_docstring("-n2", testplan={"excludedTests": [{"id": 12}]})
 
-    muted = [result for result in results.test_cases if result["name"].startswith("test_muted")]
+    excluded = [result for result in results.test_cases if result["name"].startswith("test_excluded")]
     assert len(results.test_cases) == 3
-    assert len(muted) == 2
-    assert all(result["status"] == "skipped" and result["statusDetails"]["muted"] for result in muted)
+    assert len(excluded) == 2
+    assert all(result["status"] == "skipped" and result["statusDetails"]["muted"] for result in excluded)
     assert next(result for result in results.test_cases if result["name"] == "test_active")["status"] == "passed"
 
 

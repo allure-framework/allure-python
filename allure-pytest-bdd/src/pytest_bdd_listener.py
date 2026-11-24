@@ -153,7 +153,7 @@ class PytestBDDListener:
                     attach_data(self.lifecycle, report.capstdout, "stdout", AttachmentType.TEXT, None)
                 if report.capstderr:
                     attach_data(self.lifecycle, report.capstderr, "stderr", AttachmentType.TEXT, None)
-                if getattr(item, "_allure_muted", False):
+                if getattr(item, "_allure_excluded", False):
                     test_result.stop = test_result.stop or now()
                     test_result.statusDetails = test_result.statusDetails or StatusDetails()
                     test_result.statusDetails.muted = True

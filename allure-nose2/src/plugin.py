@@ -11,7 +11,7 @@ from allure_commons.model2 import StatusDetails
 from allure_commons.model2 import Label
 from allure_commons.types import LabelType
 from allure_commons.utils import host_tag, thread_tag, get_testplan
-from allure_commons.utils import matches_testplan, MUTED_TEST_REASON
+from allure_commons.utils import matches_testplan, EXCLUDED_TEST_REASON
 
 from allure_commons.utils import platform_label, md5
 
@@ -57,7 +57,7 @@ class Allure(Plugin):
         self.lifecycle = AllureLifecycle()
         self.logger = AllureFileLogger("allure-result")
         self.listener = AllureListener(self.lifecycle)
-        self._muted_tests = {}
+        self._excluded_tests = {}
 
     def registerInSubprocess(self, event):
         self.unregister_allure_plugins()
@@ -110,16 +110,16 @@ class Allure(Plugin):
                 selector=fullname(event),
             ):
                 method_name = event.test._testMethodName
-                self._muted_tests[event.test] = (method_name, event.test.__dict__.get(method_name))
-                setattr(event.test, method_name, skip(MUTED_TEST_REASON)(lambda: None))
+                self._excluded_tests[event.test] = (method_name, event.test.__dict__.get(method_name))
+                setattr(event.test, method_name, skip(EXCLUDED_TEST_REASON)(lambda: None))
 
     def stopTest(self, event):
         if self.is_registered():
             with self.lifecycle.update_test_case() as test_result:
                 test_result.stop = timestamp_millis(event.stopTime)
             self.lifecycle.write_test_case()
-            if event.test in self._muted_tests:
-                method_name, original = self._muted_tests.pop(event.test)
+            if event.test in self._excluded_tests:
+                method_name, original = self._excluded_tests.pop(event.test)
                 if original is None:
                     delattr(event.test, method_name)
                 else:
@@ -142,7 +142,7 @@ class Allure(Plugin):
                 elif event.outcome == result.SKIP:
                     test_result.status = Status.SKIPPED
                     test_result.statusDetails = status_details(event)
-                if event.test in self._muted_tests:
+                if event.test in self._excluded_tests:
                     test_result.statusDetails = test_result.statusDetails or StatusDetails()
                     test_result.statusDetails.muted = True
                 # Todo default status and other cases

@@ -67,7 +67,7 @@ pytest plugin and distributed via
 Status](https://img.shields.io/pypi/v/allure-nose2)](https://pypi.python.org/pypi/allure-nose2)
 [![Downloads](https://img.shields.io/pypi/dm/allure-nose2)](https://pypi.python.org/pypi/allure-nose2)
 
-## Skipping muted tests
+## Excluding tests through a test plan
 
 All adapters support `excludedTests` in the JSON test plan supplied through
 `ALLURE_TESTPLAN_PATH`:
@@ -84,10 +84,10 @@ All adapters support `excludedTests` in the JSON test plan supplied through
 
 A matching test is skipped before its body runs and, when reporting is enabled,
 retained with `status: "skipped"` and `statusDetails.muted: true`. Existing
-runner filters and test-plan selection still apply: muting never adds tests to
+runner filters and test-plan selection still apply: exclusions never add tests to
 the run. Omitting `tests`, or using `"tests": []`, leaves selection unrestricted
 under the adapter’s existing rules. pytest-bdd and nose2 do not add test-plan
-selection; they apply muting to the tests selected by their runners.
+selection; they apply exclusions to the tests selected by their runners.
 
 IDs match static Allure ID annotations/tags, with numeric and string IDs treated
 alike. IDs assigned dynamically inside a test body cannot be used for skipping.

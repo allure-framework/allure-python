@@ -5,7 +5,7 @@ from allure_commons.logger import AllureFileLogger
 from allure_behave.listener import AllureListener
 from allure_commons.utils import get_testplan
 from allure_behave.utils import is_planned_scenario, get_fullname, scenario_labels, TEST_PLAN_SKIP_REASON
-from allure_commons.utils import matches_testplan, MUTED_TEST_REASON
+from allure_commons.utils import matches_testplan, EXCLUDED_TEST_REASON
 from allure_commons.types import LabelType
 
 
@@ -20,7 +20,7 @@ class AllureFormatter(Formatter):
         allure_commons.plugin_manager.register(self.file_logger)
 
         self.testplan = get_testplan()
-        self.muted_tests = get_testplan("excludedTests")
+        self.excluded_tests = get_testplan("excludedTests")
 
     def _wrap_scenario(self, scenarios):
         for scenario in scenarios:
@@ -31,8 +31,8 @@ class AllureFormatter(Formatter):
             is_planned_scenario(scenario, self.testplan)
             if not isinstance(scenario, ScenarioOutline) and scenario.skip_reason != TEST_PLAN_SKIP_REASON:
                 ids = [label.value for label in scenario_labels(scenario) if label.name == LabelType.ID]
-                if matches_testplan(self.muted_tests, allure_ids=ids, selector=get_fullname(scenario)):
-                    scenario.skip(reason=MUTED_TEST_REASON)
+                if matches_testplan(self.excluded_tests, allure_ids=ids, selector=get_fullname(scenario)):
+                    scenario.skip(reason=EXCLUDED_TEST_REASON)
 
     def uri(self, uri):
         self.listener.start_file()

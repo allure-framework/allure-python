@@ -1,18 +1,18 @@
 import pytest
 
 
-@pytest.mark.parametrize("entry", [{"id": 12}, {"id": "unknown", "selector": "Muting: Muted scenario"}])
+@pytest.mark.parametrize("entry", [{"id": 12}, {"id": "unknown", "selector": "Exclusion: Excluded scenario"}])
 @pytest.mark.parametrize("selected", [False, True])
-def test_muted_scenarios(behave_runner, entry, selected):
-    plan = {"excludedTests": [entry, {"selector": "Muting: Outside"}]}
+def test_excluded_scenarios(behave_runner, entry, selected):
+    plan = {"excludedTests": [entry, {"selector": "Exclusion: Outside"}]}
     if selected:
-        plan["tests"] = [{"selector": "Muting: Muted scenario"}, {"selector": "Muting: Active"}]
+        plan["tests"] = [{"selector": "Exclusion: Excluded scenario"}, {"selector": "Exclusion: Active"}]
 
     results = behave_runner.run_behave(
         feature_literals=["""
-Feature: Muting
+Feature: Exclusion
   @allure.id:12
-  Scenario Outline: Muted scenario
+  Scenario Outline: Excluded scenario
     Given forbidden <value>
     Examples:
       | value |
@@ -27,7 +27,7 @@ Feature: Muting
 from behave import given
 @given('forbidden {value}')
 def forbidden(context, value):
-    raise AssertionError('muted step ran')
+    raise AssertionError('excluded step ran')
 @given('allowed')
 def allowed(context):
     pass
@@ -36,8 +36,8 @@ def allowed(context):
         options=["-D", "AllureFormatter.hide_excluded=True"]
     )
 
-    muted = [result for result in results.test_cases if result["name"].startswith("Muted")]
+    excluded = [result for result in results.test_cases if result["name"].startswith("Excluded")]
     assert len(results.test_cases) == (3 if selected else 4)
-    assert len(muted) == 2
-    assert all(result["status"] == "skipped" and result["statusDetails"]["muted"] is True for result in muted)
+    assert len(excluded) == 2
+    assert all(result["status"] == "skipped" and result["statusDetails"]["muted"] is True for result in excluded)
     assert next(result for result in results.test_cases if result["name"] == "Active")["status"] == "passed"

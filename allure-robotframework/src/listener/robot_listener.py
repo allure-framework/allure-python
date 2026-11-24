@@ -22,8 +22,8 @@ class allure_robotframework:
     def __init__(self, logger_path=DEFAULT_OUTPUT_PATH):
         self.messages = Messages()
         self.title_path = []
-        self.muted_tests = get_testplan("excludedTests")
-        self._muted = False
+        self.excluded_tests = get_testplan("excludedTests")
+        self._excluded = False
 
         self.logger = AllureFileLogger(logger_path)
         self.lifecycle = AllureLifecycle()
@@ -45,15 +45,15 @@ class allure_robotframework:
     def start_test(self, name, attributes):
         self.messages.start_context()
         ids = [label.value for label in allure_labels(attributes.get("tags", ())) if label.name == LabelType.ID]
-        self._muted = matches_testplan(self.muted_tests, allure_ids=ids, selector=attributes.get("longname"))
-        if self._muted:
+        self._excluded = matches_testplan(self.excluded_tests, allure_ids=ids, selector=attributes.get("longname"))
+        if self._excluded:
             BuiltIn().set_tags("robot:skip")
         self.listener.start_test_container(name, attributes)
         self.listener.start_test(name, {**attributes, "titlepath": self.title_path})
 
     def end_test(self, name, attributes):
         messages = self.messages.stop_context()
-        self.listener.stop_test(name, {**attributes, "allure_muted": self._muted}, messages)
+        self.listener.stop_test(name, {**attributes, "allure_excluded": self._excluded}, messages)
         self.listener.stop_test_container(name, attributes)
 
     def start_keyword(self, name, attributes):

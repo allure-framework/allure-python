@@ -16,7 +16,7 @@ from functools import lru_cache
 from traceback import format_exception_only
 
 
-MUTED_TEST_REASON = "Skipped by Allure test plan"
+EXCLUDED_TEST_REASON = "Skipped by Allure test plan"
 
 
 def md5(*args):

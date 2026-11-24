@@ -5,14 +5,14 @@ import subprocess
 import sys
 
 
-def test_muted_tests_in_subprocesses(tmp_path):
-    (tmp_path / "test_muting.py").write_text("""
+def test_excluded_tests_in_subprocesses(tmp_path):
+    (tmp_path / "test_exclusion.py").write_text("""
 import allure
 from unittest import TestCase
 @allure.id("12")
-class TestMuted(TestCase):
-    def test_muted(self):
-        raise AssertionError("muted body ran")
+class TestExcluded(TestCase):
+    def test_excluded(self):
+        raise AssertionError("excluded body ran")
 def test_active():
     pass
 """)
@@ -29,7 +29,7 @@ def test_active():
 
     assert run.returncode == 0, run.stdout + run.stderr
     assert len(results) == 2
-    muted = next(result for result in results if result["name"] == "test_muted")
-    assert muted["status"] == "skipped"
-    assert muted["statusDetails"]["muted"] is True
+    excluded = next(result for result in results if result["name"] == "test_excluded")
+    assert excluded["status"] == "skipped"
+    assert excluded["statusDetails"]["muted"] is True
     assert next(result for result in results if result["name"] == "test_active")["status"] == "passed"

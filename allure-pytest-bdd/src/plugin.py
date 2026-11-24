@@ -3,7 +3,7 @@ import os
 import pytest
 
 from allure_commons.utils import get_testplan
-from allure_commons.utils import matches_testplan, MUTED_TEST_REASON
+from allure_commons.utils import matches_testplan, EXCLUDED_TEST_REASON
 from allure_commons.types import LabelType
 from .utils import iter_label_values, get_full_name
 
@@ -80,13 +80,13 @@ def register_marks(config):
 @pytest.hookimpl(trylast=True)
 def pytest_bdd_before_scenario(request, feature, scenario):
     item = request.node
-    item._allure_muted = matches_testplan(
+    item._allure_excluded = matches_testplan(
         get_testplan("excludedTests"),
         allure_ids=(value for _, value in iter_label_values(item, LabelType.ID)),
         selector=get_full_name(feature, scenario),
     )
-    if item._allure_muted:
-        pytest.skip(MUTED_TEST_REASON)
+    if item._allure_excluded:
+        pytest.skip(EXCLUDED_TEST_REASON)
 
 
 def pytest_configure(config):
